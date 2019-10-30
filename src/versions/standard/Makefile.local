@@ -20,6 +20,8 @@ clean::
 	cd ../unit-tests; make clean
 
 
+CAMLPKGS = -package num
+
 CAMLLEX = $(CAMLBIN)ocamllex
 CAMLYACC = $(CAMLBIN)ocamlyacc
 
