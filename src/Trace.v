@@ -356,6 +356,7 @@ Inductive step :=
   | BBSextend (pos:int) (orig:clause_id) (res:_lit)
   | BBShl (pos:int) (orig1 orig2:clause_id) (res:_lit)
   | BBShr (pos:int) (orig1 orig2:clause_id) (res:_lit)
+(*  | BBAShr (pos:int) (orig1 orig2:clause_id) (res:_lit) *)
   | RowEq (pos:int) (res: _lit)
   | RowNeq (pos:int) (cl: C.t)
   | Ext (pos:int) (res: _lit)
@@ -408,6 +409,7 @@ Inductive step :=
       | BBSextend pos orig res => S.set_clause s pos (check_bbSextend t_atom t_form s orig res)
       | BBShl pos orig1 orig2 res => S.set_clause s pos (check_bbShl t_atom t_form s orig1 orig2 res)
       | BBShr pos orig1 orig2 res => S.set_clause s pos (check_bbShr t_atom t_form s orig1 orig2 res)
+      (*| BBAShr pos orig1 orig2 res => S.set_clause s pos (check_bbAShr t_atom t_form s orig1 orig2 res)*)
       | RowEq pos res => S.set_clause s pos (check_roweq t_form t_atom res)
       | RowNeq pos cl => S.set_clause s pos (check_rowneq t_form t_atom cl)
       | Ext pos res => S.set_clause s pos (check_ext t_form t_atom res)
@@ -471,6 +473,7 @@ Inductive step :=
     - apply valid_check_bbSextend; auto with smtcoq_core.
     - apply valid_check_bbShl; auto with smtcoq_core.
     - apply valid_check_bbShr; auto with smtcoq_core.
+    (*- apply valid_check_bbAShr; auto with smtcoq_core.*)
     - apply valid_check_roweq; auto with smtcoq_core.
     - apply valid_check_rowneq; auto with smtcoq_core.
     - apply valid_check_ext; auto with smtcoq_core.
@@ -574,6 +577,7 @@ Inductive step :=
       | BBSextend pos _ _
       | BBShl pos _ _ _
       | BBShr pos _ _ _
+      (*| BBAShr pos _ _ _*)
       | RowEq pos _
       | RowNeq pos _
       | Ext pos _
@@ -631,6 +635,7 @@ Inductive step :=
   | Name_BBSextend
   | Name_BBShl
   | Name_BBShr
+  (*| Name_BBAShr*)
   | Name_RowEq
   | Name_RowNeq
   | Name_Ext
@@ -674,6 +679,7 @@ Inductive step :=
     | BBSextend _ _ _ => Name_BBSextend
     | BBShl _ _ _ _ => Name_BBShl
     | BBShr _ _ _ _ => Name_BBShr
+    (*| BBAShr _ _ _ _ => Name_BBAShr*)
     | RowEq _ _ => Name_RowEq
     | RowNeq _ _ => Name_RowNeq
     | Ext _ _ => Name_Ext

@@ -100,6 +100,7 @@ Module Form.
 
       Variable t_form : PArray.array form.
 
+      (* Interpretation of the array t_form *)
       Definition t_interp : PArray.array bool :=
         PArray.foldi_left (fun i t_b hf =>
             t_b.[i <- interp_aux (PArray.get t_b) hf])

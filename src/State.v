@@ -53,27 +53,32 @@ Notation _lit := int (only parsing).
 
 Module Lit.
 
-  Definition is_pos (l:_lit) := is_even l.
-  (* Register is_pos as PrimInline. *)
-
-  Definition blit (l:_lit) : var := l >> 1.
-  (* Register blit as PrimInline. *)
-
+  (* Positive literal for variable n is 2n *)
   Definition lit (x:var) : _lit := x << 1.
   (* Register lit as PrimInline. *)
 
+  (* Negative literal for variable n is 2n+1 *)
   Definition neg (l:_lit) : _lit := l lxor 1.
   (* Register neg as PrimInline. *)
 
   Definition nlit (x:var) : _lit := neg (lit x).
   (* Register nlit as PrimInline. *)
 
+  Definition is_pos (l:_lit) := is_even l.
+  (* Register is_pos as PrimInline. *)
+
+  (* Literal to variable *)
+  Definition blit (l:_lit) : var := l >> 1.
+  (* Register blit as PrimInline. *)
+
+  (* Literal true is 0 *)
   Definition _true : _lit := Eval compute in lit Var._true.
   (* Register _true as PrimInline. *)
 
   Lemma lit_true : _true = lit Var._true.
   Proof. reflexivity. Qed.
 
+  (* Literal false is 2 *)
   Definition _false : _lit := Eval compute in lit Var._false.
   (* Register _false as PrimInline. *)
 
@@ -244,7 +249,8 @@ Qed.
 
 
 Module C.
-
+  (* A clause is an ordered list of literals.
+     Order is enforced below. *)
   Definition t := list _lit.
 
   Definition interp (rho:Valuation.t) (l:t) :=
@@ -274,6 +280,7 @@ Module C.
     Variable l1 : _lit.
     Variable c1 : t.
 
+    (* Literals in clauses must be ordered. *)
     Fixpoint or_aux (c2:t) :=
       match c2 with
       | nil => l1 :: c1
@@ -500,6 +507,7 @@ Module S.
 
   (* TODO: It can be a good idea to change the insertion sort algorithm *)
 
+  (* insert literal l1 in clause c, simplifying ~l1 \/ l1 to true *)
   Fixpoint insert l1 c :=
    match c with
    | nil => l1:: nil
@@ -511,6 +519,7 @@ Module S.
      end
    end.
 
+  (* insert literal l1 in clause c, without simplification *)
   Fixpoint insert_no_simpl l1 c :=
    match c with
    | nil => l1:: nil
@@ -522,6 +531,7 @@ Module S.
      end
    end.
 
+  (* insert literal l1 in clause c, even if it already exists in c *)
   Fixpoint insert_keep l1 c :=
    match c with
    | nil => l1:: nil
@@ -532,19 +542,22 @@ Module S.
      end
    end.
 
+
+  (* insertion sort that removes duplicates *)
   Fixpoint sort c :=
     match c with
     | nil => nil
     | l1 :: c => insert_no_simpl l1 (sort c)
     end.
 
-  
+  (* insertion sort with simplifications and duplicate removal *)
   Fixpoint sort_uniq c :=
     match c with
     | nil => nil
     | l1 :: c => insert l1 (sort_uniq c)
     end.
 
+  (* insertion sort *)
   Fixpoint sort_keep c :=
     match c with
     | nil => nil
@@ -566,7 +579,6 @@ Module S.
     rewrite H0, Lit.interp_neg;trivial;destruct (Lit.interp rho a);trivial.
     simpl;rewrite orb_assoc,(orb_comm (Lit.interp rho l1)),<-orb_assoc,IHc;trivial.
   Qed.
-
   
   Lemma insert_no_simpl_correct : forall rho (Hwf:Valuation.wf rho) l1 c,
     C.interp rho (insert_no_simpl l1 c) = C.interp rho (l1 :: c).
@@ -592,7 +604,6 @@ Module S.
     intros rho Hwf;induction c;simpl;trivial.
     rewrite insert_correct;trivial;simpl;rewrite IHc;trivial.
   Qed.
-
       
   Lemma sort_correct : forall rho (Hwf:Valuation.wf rho) c,
     C.interp rho (sort c) = C.interp rho c.
@@ -600,7 +611,6 @@ Module S.
     intros rho Hwf;induction c;simpl;trivial.
     rewrite insert_no_simpl_correct;trivial;simpl;rewrite IHc;trivial.
   Qed.
-
         
   Lemma sort_keep_correct : forall rho (Hwf:Valuation.wf rho) c,
     C.interp rho (sort_keep c) = C.interp rho c.
@@ -634,7 +644,6 @@ Module S.
   Definition set_clause_keep (s:t) pos (c:C.t) : t :=
     set s pos (sort_keep c).
 
-
   Lemma valid_set_clause_keep :
     forall rho s, Valuation.wf rho -> valid rho s -> forall pos c,
                  C.valid rho c -> valid rho (set_clause_keep s pos c).
@@ -649,14 +658,17 @@ Module S.
     rewrite get_set_other;trivial.
   Qed.
 
+
   (* Resolution *)
 
   Open Scope int63_scope.
 
+  (* resolve all clauses in s and set s.[pos] with the result *)
   Definition set_resolve (s:t) pos (r:resolution) : t :=
     let len := PArray.length r in
     if len == 0 then s
     else
+      (* c is the result of resolving all clauses in s from s.[0] to s.[len-1] *)
       let c := foldi (fun i c' => (C.resolve (get s (r.[i])) c')) 1 (len - 1) (get s (r.[0])) in
       (* S.set_clause *) internal_set s pos c.
 
@@ -675,15 +687,16 @@ Module S.
 
   (* Weakening *)
 
-
+  (* subclause cl1 cl2 is true iff cl1 is a subclause of cl2 *)
   Definition subclause (cl1 cl2 : list _lit) :=
     List.forallb (fun l1 =>
                     (l1 == Lit._false) || (l1 == Lit.neg Lit._true) ||
                     List.existsb (fun l2 => l1 == l2) cl2) cl1.
   
+  (* if cl is a weakening of s.[cid], then return cl, otherwise return [true]
+     which is a weakening of any clause *)
   Definition check_weaken (s:t) (cid:clause_id) (cl:list _lit) : C.t :=
     if subclause (get s cid) cl then cl else C._true.
-
 
   Lemma check_weaken_valid : forall rho s (cid:clause_id) (cl:list _lit),
       Valuation.wf rho ->
@@ -716,10 +729,9 @@ Module S.
       exists x. auto.
   Qed.
   
+  (* Replace s.[pos] with cl which is a weakening of s.[cid] *)
   Definition set_weaken (s:t) pos (cid:clause_id) (cl:list _lit) : t :=
       S.set_clause_keep s pos (check_weaken s cid cl).
-
-  
       
   Lemma valid_set_weaken :
     forall rho s, Valuation.wf rho -> valid rho s ->
