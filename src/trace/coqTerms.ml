@@ -23,6 +23,9 @@ let ceq63 = gen_constant Structures.int63_modules "eqb"
 (* PArray *)
 let carray = gen_constant Structures.parray_modules "array"
 
+(* is_true *)
+let cis_true = gen_constant Structures.init_modules "is_true"
+
 (* nat *)
 let cnat = gen_constant Structures.init_modules "nat"
 let cO = gen_constant Structures.init_modules "O"
@@ -266,8 +269,6 @@ let cFiff = gen_constant smt_modules "Fiff"
 let cFite = gen_constant smt_modules "Fite"
 let cFbbT = gen_constant smt_modules "FbbT"
 
-let cis_true = gen_constant smt_modules "is_true"
-
 let cvalid_sat_checker = gen_constant [["SMTCoq";"Trace";"Sat_Checker"]] "valid"
 let cinterp_var_sat_checker = gen_constant [["SMTCoq";"Trace";"Sat_Checker"]] "interp_var"
 
@@ -353,7 +354,6 @@ let rec mk_bv_list = function
 
 
 (* Reification *)
-
 let mk_bool b =
   let c, args = Structures.decompose_app b in
   if Structures.eq_constr c (Lazy.force ctrue) then true
@@ -433,3 +433,29 @@ let mk_bvsize n =
       else assert false
     | _ -> assert false
   else mk_N n
+
+(** Switches between constr and OCaml *)
+(* Transform a option constr into a constr option *)
+let option_of_constr_option co =
+  let c, args = Structures.decompose_app co in
+  if c = Lazy.force cSome then
+    match args with
+      | [_;c] -> Some c
+      | _ -> assert false
+  else
+    None
+
+(* Transform a tuple of constr into a (reversed) list of constr *)
+let list_of_constr_tuple =
+  let rec list_of_constr_tuple acc t =
+    let c, args = Structures.decompose_app t in
+    if c = Lazy.force cpair then
+      match args with
+        | [_;_;t1;t2] ->
+           let acc' = list_of_constr_tuple acc t1 in
+           list_of_constr_tuple acc' t2
+        | _ -> assert false
+    else
+      t::acc
+  in
+  list_of_constr_tuple []

@@ -23,8 +23,8 @@ let mkInt i =
 (** Generic representation of shared object *)
 type 'a gen_hashed = { index : int; hval : 'a }
 
-(** Functions over constr *)
 
+(** Functions over constr *)
 let mklApp f args = Structures.mkApp (Lazy.force f, args)
 
 let string_of_name_def d n = try Structures.string_of_name n with | _ -> d
@@ -50,3 +50,9 @@ module SL = Set.Make (struct
   end)
 
 type logic = SL.t
+
+
+(** Utils *)
+let rec filter_map f = function
+  | [] -> []
+  | x::xs -> match f x with Some x -> x::(filter_map f xs) | None -> filter_map f xs

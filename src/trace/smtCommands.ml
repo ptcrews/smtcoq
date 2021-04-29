@@ -672,52 +672,81 @@ let get_arguments concl =
   | _ -> failwith ("Verit.tactic: can only deal with equality over bool")
 
 
-let make_proof call_solver env rt ro ra' rf' l ls_smtc =
+let make_proof call_solver env rt ro ra_quant rf_quant l ls_smtc =
   let root = SmtTrace.mkRootV [l] in
-  call_solver env rt ro ra' rf' (root,l) ls_smtc
+  call_solver env rt ro ra_quant rf_quant (root,l) ls_smtc
 (* TODO: not generic anymore, the "lemma" part is currently specific to veriT *)
 
-(* <of_coq_lemma> reifies the coq lemma given, we can then easily print it in a
- .smt2 file. We need the reify tables to correctly recognize unbound variables
+(* <of_coq_lemma> reifies the given coq lemma, so we can then easily print it in a
+ .smt2 file. We need the reify tables to correctly recognize free variables
  of the lemma. We also need to make sure to leave unchanged the tables because
  the new objects may contain bound (by forall of the lemma) variables. *)
-exception Axiom_form_unsupported
 
-let of_coq_lemma rt ro ra' rf' env sigma solver_logic clemma =
+(* Bound variables are given fresh names to avoid variable capture *)
+let gen_rel_name =
+  let num = ref (-1) in
+  fun () -> incr num; "SMTCoqRelName"^(string_of_int !num)
+
+let of_coq_lemma rt ro ra_quant rf_quant env sigma solver_logic clemma =
+  let warn () =
+    Structures.warning "Lemma" ("Discarding the following lemma (unsupported): "^(Pp.string_of_ppcmds (Ppconstr.pr_constr_expr Environ.empty_env Evd.empty (Structures.extern_constr clemma))));
+    None
+  in
+
   let rel_context, qf_lemma = Term.decompose_prod_assum clemma in
-  let env_lemma = List.fold_right Environ.push_rel rel_context env in
-  let forall_args =
-    let fmap r = let n, t = Structures.destruct_rel_decl r in
-                 Structures.string_of_name n, SmtBtype.of_coq rt solver_logic t in
-    List.map fmap rel_context in
+  (* Bound variables are given fresh names to avoid variable capture *)
+  let rel_context = List.map (fun rel -> Context.Rel.Declaration.set_name (Names.Name.mk_name (Names.Id.of_string (gen_rel_name ()))) rel) rel_context in
+
+  let env_lemma = Environ.push_rel_context rel_context env in
   let f, args = Structures.decompose_app qf_lemma in
   let core_f =
     if Structures.eq_constr f (Lazy.force cis_true) then
       match args with
-      | [a] -> a
-      | _ -> raise Axiom_form_unsupported
+      | [a] -> Some a
+      | _ -> warn ()
     else if Structures.eq_constr f (Lazy.force ceq) then
       match args with
       | [ty; arg1; arg2] when Structures.eq_constr ty (Lazy.force cbool) &&
                                 Structures.eq_constr arg2 (Lazy.force ctrue) ->
-         arg1
-      | _ -> raise Axiom_form_unsupported
-    else raise Axiom_form_unsupported in
-  let core_smt = Form.of_coq (Atom.of_coq ~hash:true rt ro ra' solver_logic env_lemma sigma)
-                   rf' core_f in
+         Some arg1
+      | _ -> warn ()
+    else warn () in
+  let core_smt =
+    match core_f with
+      | Some core_f ->
+         (try
+            Some (Form.of_coq (Atom.of_coq ~eqsym:true rt ro ra_quant solver_logic env_lemma sigma) rf_quant core_f)
+          with
+            | Atom.UnknownUnderForall -> warn ()
+         )
+      | None -> None
+  in
+  let forall_args =
+    let fmap r = let n, t = Structures.destruct_rel_decl r in
+                 Structures.string_of_name n, SmtBtype.of_coq rt solver_logic t in
+    List.map fmap rel_context
+  in
   match forall_args with
-    [] -> core_smt
-  | _ -> Form.get rf' (Fapp (Fforall forall_args, [|core_smt|]))
+    | [] -> core_smt
+    | _ ->
+       (match core_smt with
+          | Some core_smt -> Some (Form.get rf_quant (Fapp (Fforall forall_args, [|core_smt|])))
+          | None -> None)
 
-let core_tactic call_solver solver_logic rt ro ra rf ra' rf' vm_cast lcpl lcepl env sigma concl =
+let core_tactic call_solver solver_logic rt ro ra rf ra_quant rf_quant vm_cast lcpl lcepl env sigma concl =
   let a, b = get_arguments concl in
 
   let tlcepl = List.map (Structures.interp_constr env sigma) lcepl in
   let lcpl = lcpl @ tlcepl in
-  let lcl = List.map (Structures.retyping_get_type_of env sigma) lcpl in
 
-  let lsmt  = List.map (of_coq_lemma rt ro ra' rf' env sigma solver_logic) lcl in
-  let l_pl_ls = List.combine (List.combine lcl lcpl) lsmt in
+  let create_lemma l =
+    let cl = Structures.retyping_get_type_of env sigma l in
+    match of_coq_lemma rt ro ra_quant rf_quant env sigma solver_logic cl with
+      | Some smt -> Some ((cl, l), smt)
+      | None -> None
+  in
+  let l_pl_ls = SmtMisc.filter_map create_lemma lcpl in
+  let lsmt = List.map snd l_pl_ls in
 
   let lem_tbl : (int, Structures.constr * Structures.constr) Hashtbl.t =
     Hashtbl.create 100 in
@@ -727,7 +756,7 @@ let core_tactic call_solver solver_logic rt ro ra rf ra' rf' vm_cast lcpl lcepl 
   List.iter new_ref l_pl_ls;
 
   let find_lemma cl =
-    let re_hash hf = Form.hash_hform (Atom.hash_hatom ra') rf' hf in
+    let re_hash hf = Form.hash_hform (Atom.hash_hatom ra_quant) rf_quant hf in
     match cl.value with
     | Some [l] ->
        let hl = re_hash l in
@@ -742,24 +771,24 @@ let core_tactic call_solver solver_logic rt ro ra rf ra' rf' vm_cast lcpl lcepl 
 
   let (body_cast, body_nocast, cuts) =
     if ((Structures.eq_constr b (Lazy.force ctrue)) ||
-        (Structures.eq_constr b (Lazy.force cfalse))) then
+        (Structures.eq_constr b (Lazy.force cfalse))) then (
       let l = Form.of_coq (Atom.of_coq rt ro ra solver_logic env sigma) rf a in
+      let _ = Form.of_coq (Atom.of_coq ~eqsym:true rt ro ra_quant solver_logic env sigma) rf_quant a in
       let nl = if (Structures.eq_constr b (Lazy.force ctrue)) then Form.neg l else l in
-      let _ = Form.of_coq (Atom.of_coq ~hash:true rt ro ra' solver_logic env sigma) rf' a in
       let lsmt = Form.flatten rf nl :: lsmt in
-      let max_id_confl = make_proof call_solver env rt ro ra' rf' nl lsmt in
+      let max_id_confl = make_proof call_solver env rt ro ra_quant rf_quant nl lsmt in
       build_body rt ro ra rf (Form.to_coq l) b max_id_confl (vm_cast env) (Some find_lemma)
-    else
+    ) else (
       let l1 = Form.of_coq (Atom.of_coq rt ro ra solver_logic env sigma) rf a in
-      let _ = Form.of_coq (Atom.of_coq ~hash:true rt ro ra' solver_logic env sigma) rf' a in
+      let _ = Form.of_coq (Atom.of_coq ~eqsym:true rt ro ra_quant solver_logic env sigma) rf_quant a in
       let l2 = Form.of_coq (Atom.of_coq rt ro ra solver_logic env sigma) rf b in
-      let _ = Form.of_coq (Atom.of_coq ~hash:true rt ro ra' solver_logic env sigma) rf' b in
+      let _ = Form.of_coq (Atom.of_coq ~eqsym:true rt ro ra_quant solver_logic env sigma) rf_quant b in
       let l = Form.get rf (Fapp(Fiff,[|l1;l2|])) in
       let nl = Form.neg l in
       let lsmt = Form.flatten rf nl :: lsmt in
-      let max_id_confl = make_proof call_solver env rt ro ra' rf' nl lsmt in
+      let max_id_confl = make_proof call_solver env rt ro ra_quant rf_quant nl lsmt in
       build_body_eq rt ro ra rf (Form.to_coq l1) (Form.to_coq l2)
-        (Form.to_coq nl) max_id_confl (vm_cast env) (Some find_lemma) in
+        (Form.to_coq nl) max_id_confl (vm_cast env) (Some find_lemma) ) in
 
       let cuts = (SmtBtype.get_cuts rt) @ cuts in
 
@@ -773,10 +802,10 @@ let core_tactic call_solver solver_logic rt ro ra rf ra' rf' vm_cast lcpl lcepl 
        (Structures.vm_cast_no_check body_cast))
 
 
-let tactic call_solver solver_logic rt ro ra rf ra' rf' vm_cast lcpl lcepl =
+let tactic call_solver solver_logic rt ro ra rf ra_quant rf_quant vm_cast lcpl lcepl =
   Structures.tclTHEN
     Tactics.intros
-    (Structures.mk_tactic (core_tactic call_solver solver_logic rt ro ra rf ra' rf' vm_cast lcpl lcepl))
+    (Structures.mk_tactic (core_tactic call_solver solver_logic rt ro ra rf ra_quant rf_quant vm_cast lcpl lcepl))
 
 
 (**********************************************)

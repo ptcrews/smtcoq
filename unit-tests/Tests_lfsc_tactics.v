@@ -714,45 +714,152 @@ Section A_BV_EUF_LIA_PR.
   Goal forall (x: bitvector 1), bv_subt x #b|0| = x.
   Proof using.
     smt.
-  Admitted.
+  Abort.
 
-  (* The original issue (unvalid) *)
+  (* The original issue (invalid) *)
   Goal forall (x: bitvector 1), bv_subt (bv_shl #b|0| x) #b|0| = #b|0|.
   Proof using.
     smt.
-  Admitted.
+  Abort.
 
 End A_BV_EUF_LIA_PR.
 
 
 (* Example of the webpage *)
 
-Section group.
-  Variable e : Z.
-  Variable inv : Z -> Z.
-  Variable op : Z -> Z -> Z.
+Section Group.
+  Variable G : Type.
+  (* We suppose that G has a decidable equality *)
+  Variable HG : CompDec G.
+  Variable op : G -> G -> G.
+  Variable inv : G -> G.
+  Variable e : G.
 
+  Local Notation "a ==? b" := (@eqb_of_compdec G HG a b) (at level 60).
+
+  (* We can prove automatically that we have a group if we only have the
+     "left" versions of the axioms of a group *)
   Hypothesis associative :
-    forall a b c, op a (op b c) =? op (op a b) c.
-  Hypothesis identity : forall a, (op e a =? a).
-  Hypothesis inverse : forall a, (op (inv a) a =? e).
+    forall a b c : G, op a (op b c) ==? op (op a b) c.
+  Hypothesis inverse :
+    forall a : G, op (inv a) a ==? e.
+  Hypothesis identity :
+    forall a : G, op e a ==? a.
+  Add_lemmas associative inverse identity.
 
-  Add_lemmas associative identity inverse.
-
+  (* The "right" version of inverse *)
   Lemma inverse' :
-    forall a : Z, (op a (inv a) =? e).
-  Proof using associative identity inverse. smt. Qed.
+    forall a : G, op a (inv a) ==? e.
+  Proof. smt. Qed.
 
+  (* The "right" version of identity *)
   Lemma identity' :
-    forall a : Z, (op a e =? a).
-  Proof using associative identity inverse. smt inverse'. Qed.
+    forall a : G, op a e ==? a.
+  Proof. smt inverse'. Qed.
 
+  (* Some other interesting facts about groups *)
   Lemma unique_identity e':
-    (forall z, op e' z =? z) -> e' =? e.
-  Proof using associative identity inverse. intros pe'; smt pe'. Qed.
+    (forall z, op e' z ==? z) -> e' ==? e.
+  Proof. smt. Qed.
+
+  Lemma simplification_right x1 x2 y:
+      op x1 y ==? op x2 y -> x1 ==? x2.
+  Proof. smt_no_check inverse'. Qed.
+
+  Lemma simplification_left x1 x2 y:
+      op y x1 ==? op y x2 -> x1 ==? x2.
+  Proof. smt_no_check inverse'. Qed.
 
   Clear_lemmas.
-End group.
+End Group.
+
+
+Section EqualityOnUninterpretedType1.
+  Variable A : Type.
+  Hypothesis HA : CompDec A.
+
+  Goal forall (f : A -> Z) (a b : A), a = b -> f a = f b.
+  Proof. cvc4. Qed.
+
+  Goal forall (f : A -> Z) (a b : A), a = b -> f a = f b.
+  Proof. smt. Qed.
+End EqualityOnUninterpretedType1.
+
+Section EqualityOnUninterpretedType2.
+  Variable A B : Type.
+  Hypothesis HA : CompDec A.
+  Hypothesis HB : CompDec B.
+
+  Goal forall (f : A -> Z) (a b : A), a = b -> f a = f b.
+  Proof. cvc4. Qed.
+
+  Goal forall (f : A -> Z) (a b : A), a = b -> f a = f b.
+  Proof. smt. Qed.
+
+  Goal forall (f : Z -> B) (a b : Z), a = b -> f a = f b.
+  Proof. cvc4. Qed.
+
+  Goal forall (f : Z -> B) (a b : Z), a = b -> f a = f b.
+  Proof. smt. Qed.
+
+  Goal forall (f : A -> B) (a b : A), a = b -> f a = f b.
+  Proof. cvc4. Qed.
+
+  Goal forall (f : A -> B) (a b : A), a = b -> f a = f b.
+  Proof. smt. Qed.
+End EqualityOnUninterpretedType2.
+
+Section EqualityOnUninterpretedType3.
+  Variable A B : Type.
+
+  Goal forall (f : A -> Z) (a b : A), a = b -> f a = f b.
+  Proof. cvc4. Abort.
+
+  Goal forall (f : A -> Z) (a b : A), a = b -> f a = f b.
+  Proof. smt. Abort.
+
+  Goal forall (f : Z -> B) (a b : Z), a = b -> f a = f b.
+  Proof. cvc4. Abort.
+
+  Goal forall (f : Z -> B) (a b : Z), a = b -> f a = f b.
+  Proof. smt. Abort.
+
+  Goal forall (f : A -> B) (a b : A), a = b -> f a = f b.
+  Proof. cvc4. Abort.
+
+  Goal forall (f : A -> B) (a b : A), a = b -> f a = f b.
+  Proof. smt. Abort.
+
+  Goal forall (f : A -> A -> B) (a b c d : A), a = b -> c = d -> f a c = f b d.
+  Proof. cvc4. Abort.
+
+  Goal forall (f : A -> A -> B) (a b c d : A), a = b -> c = d -> f a c = f b d.
+  Proof. smt. Abort.
+End EqualityOnUninterpretedType3.
+
+
+Section Issue17.
+
+  Variable A : Type.
+  Variable cd : CompDec A.
+
+  Goal forall (a:A), a = a.
+  Proof. smt. Qed.
+
+End Issue17.
+
+
+(* TODO *)
+(* From cvc4_bool : Uncaught exception Not_found *)
+(* Goal forall (a b c d: farray Z Z), *)
+(*     b[0 <- 4] = c  -> *)
+(*     d = b[0 <- 4][1 <- 4]  -> *)
+(*     a = d[1 <- b[1]]  -> *)
+(*     a = c. *)
+(* Proof. *)
+(*   smt. *)
+(* Qed. *)
+
 
 
 (*

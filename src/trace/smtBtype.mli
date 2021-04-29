@@ -13,11 +13,11 @@
 open SmtMisc
 
 
-type indexed_type = Structures.constr gen_hashed
+type indexed_type
 
 val dummy_indexed_type: int -> indexed_type
 val indexed_type_index : indexed_type -> int
-val indexed_type_hval : indexed_type -> Structures.constr
+val indexed_type_compdec : indexed_type -> Structures.constr
 
 type btype =
   | TZ
@@ -27,9 +27,9 @@ type btype =
   | TFArray of btype * btype
   | Tindex of indexed_type
 
-val indexed_type_of_int : int -> Structures.constr SmtMisc.gen_hashed
+val indexed_type_of_int : int -> indexed_type
 
-val equal : btype -> btype -> bool
+module HashedBtype : Hashtbl.HashedType with type t = btype
 
 val to_coq : btype -> Structures.constr
 
@@ -38,10 +38,10 @@ val to_smt : Format.formatter -> btype -> unit
 type reify_tbl
 
 val create : unit -> reify_tbl
-
-val declare : reify_tbl -> Structures.constr -> Structures.constr -> btype
+val copy : reify_tbl -> reify_tbl
 
 val of_coq : reify_tbl -> logic -> Structures.constr -> btype
+val of_coq_compdec : reify_tbl -> Structures.constr -> Structures.constr -> btype
 
 val get_coq_type_op : int -> Structures.constr
 
