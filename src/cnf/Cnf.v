@@ -306,37 +306,6 @@ Section CHECKER.
     end.
 
 
-  (* * ifftrans         : {(= x_1 x_2) --> (= x_2 x_1) --> ... --> (= x_{n-1} x_n) 
-                           -->(= x_1 x_n)} *)
-    Definition check_ifftrans_aux (l1:option (int * int)) (l2:_lit) :=
-      if Lit.is_pos l2 then 
-        match get_hash (Lit.blit l2), l1 with
-        | Fiff a b, Some (c1, c2) => if a == c1 then Some (b, c2) else
-                        if a == c2 then Some (b, c1) else
-                          if b == c1 then Some (a, c2) else
-                            if b == c2 then Some (a, c1) else
-                              None
-        | _, _ => None
-        end
-      else
-        None.
-
-    Definition check_ifftrans ls l :=
-    let prems := List.map (fun x => match S.get s x with
-                            | l :: nil => l
-                            | _ => Lit._true
-                           end) ls in
-    if Lit.is_pos l then
-      match get_hash (Lit.blit l) with
-        | Fiff l1 l2 => match List.fold_left check_ifftrans_aux prems (Some (l1,l2)) with
-                        | Some (a, b) => if a == b then l::nil else C._true
-                        | None => C._true 
-                        end
-        | _ => C._true
-        end
-      else
-        C._true.
-
 
   (** The correctness proofs *)
 
@@ -392,11 +361,6 @@ Section CHECKER.
      unfold Lit.interp at 1;rewrite Heq;unfold Var.interp; rewrite rho_interp, H;simpl.
      rewrite (afold_right_impb (Lit.interp_neg _) Hl), orb_comm;try apply orb_negb_r.
   Qed.
-
-  Lemma valid_check_ifftrans : forall l c, C.valid rho (check_ifftrans l c).
-  Proof.
-    admit.
-  Admitted.
 
   Lemma valid_check_BuildDef2 : forall l, C.valid rho (check_BuildDef2 l).
   Proof.

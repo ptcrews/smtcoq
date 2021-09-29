@@ -12,6 +12,9 @@
 
 Require Import Bool List Int63 PArray.
 Require Import State SMT_terms.
+
+Import Form.
+
 Local Open Scope array_scope.
 Local Open Scope int63_scope.
 
@@ -19,6 +22,8 @@ Section certif.
 
   Variable t_form : PArray.array Form.form.
   Variable t_atom : PArray.array Atom.atom.
+  
+  Variable s : S.t.
 
   Local Notation get_atom := (PArray.get t_atom) (only parsing).
   Local Notation get_form := (PArray.get t_form) (only parsing).
@@ -133,6 +138,38 @@ Section certif.
       end
     | _, _ => C._true
     end.
+
+
+  (* * ifftrans         : {(= x_1 x_2) --> (= x_2 x_1) --> ... --> (= x_{n-1} x_n) 
+                           -->(= x_1 x_n)} *)
+    Definition check_ifftrans_aux (l1:option (int * int)) (l2:_lit) :=
+      if Lit.is_pos l2 then 
+        match get_form (Lit.blit l2), l1 with
+        | Fiff a b, Some (c1, c2) => if a == c1 then Some (b, c2) else
+                        if a == c2 then Some (b, c1) else
+                          if b == c1 then Some (a, c2) else
+                            if b == c2 then Some (a, c1) else
+                              None
+        | _, _ => None
+        end
+      else
+        None.
+
+    Definition check_ifftrans ls l :=
+    let prems := List.map (fun x => match S.get s x with
+                            | l :: nil => l
+                            | _ => Lit._true
+                           end) ls in
+    if Lit.is_pos l then
+      match get_form (Lit.blit l) with
+        | Fiff l1 l2 => match List.fold_left check_ifftrans_aux prems (Some (l1,l2)) with
+                        | Some (a, b) => if a == b then l::nil else C._true
+                        | None => C._true 
+                        end
+        | _ => C._true
+        end
+      else
+        C._true.
 
   Section Proof.
 
@@ -534,6 +571,11 @@ Section certif.
       induction H3;simpl;trivial.
       unfold Atom.interp_hatom in H;rewrite H, IHForall2;trivial.
     Qed.
+
+    Lemma valid_check_ifftrans : forall l c, C.valid rho (check_ifftrans l c).
+    Proof.
+      admit.
+    Admitted.
 
   End Proof.
 
