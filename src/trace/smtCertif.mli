@@ -95,7 +95,7 @@ type 'hform rule =
                                    (not (p x_1 ... x_n)) (p y_1 ... y_n)}
     *)
 
-  | IffTrans of 'hform list * 'hform (*'hform clause list * 'hform clause *)
+  | IffTrans of ('hform clause) list * 'hform
     (* * trans              : {(= x_1 x_2) --> (= x_2 x_1) --> ... --> (= x_{n-1} x_n) 
                                 -->(= x_1 x_n)}
     *)

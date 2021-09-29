@@ -246,7 +246,7 @@ rulename:
   | TAUT { Hole } /* Needs to be updated */
   | CONT { Hole } /* Needs to be updated */
   | REFL { Hole } /* Needs to be updated */
-  | TRANS { Trans } /* Needs to be updated */
+  | TRANS { Trans }
   | CONG { Hole } /* Needs to be updated */
   | EQRE { Eqre }
   | EQTR { Eqtr }

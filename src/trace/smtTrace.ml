@@ -362,139 +362,142 @@ let to_coq to_lit interp (cstep,
     cBBShl, cBBShr,
     cRowEq, cRowNeq, cExt,
     cHole, cForallInst) confl sf =
-
   let cuts = ref [] in
-
+  (* Construct Coq literal *)
   let out_f f = to_lit f in
+  (* Get position of clause in linked list and convert to Coq int *)
   let out_c c = mkInt (get_pos c) in
+  (* Create a left-to-right applicaiton of a list of literals in Coq *)
   let out_cl cl = List.fold_right (fun f l -> mklApp ccons [|Lazy.force cint; out_f f; l|]) cl (mklApp cnil [|Lazy.force cint|]) in
   let step_to_coq c =
     match c.kind with
     | Res res ->
-	let size = List.length res.rtail + 3 in
-	let args = Array.make size (mkInt 0) in
-	args.(0) <- mkInt (get_pos res.rc1);
-	args.(1) <- mkInt (get_pos res.rc2);
-	let l = ref res.rtail in
-	for i = 2 to size - 2 do
-	  match !l with
-	  | c::tl ->
-	      args.(i) <- mkInt (get_pos c);
-	      l := tl
-	  | _ -> assert false
-	done;
-	mklApp cRes [|mkInt (get_pos c); Structures.mkArray (Lazy.force cint, args)|]
+	      let size = List.length res.rtail + 3 in
+	      let args = Array.make size (mkInt 0) in
+	      args.(0) <- mkInt (get_pos res.rc1);
+	      args.(1) <- mkInt (get_pos res.rc2);
+	      let l = ref res.rtail in
+	      for i = 2 to size - 2 do
+	        match !l with
+	        | c::tl ->
+	          args.(i) <- mkInt (get_pos c);
+	          l := tl
+	        | _ -> assert false
+	      done;
+	      mklApp cRes [|mkInt (get_pos c); Structures.mkArray (Lazy.force cint, args)|]
     | Other other ->
-	begin match other with
-        | Weaken (c',l') ->
-          let out_cl cl =
-            List.fold_right (fun f l ->
-                mklApp ccons [|Lazy.force cint; out_f f; l|])
-              cl (mklApp cnil [|Lazy.force cint|]) in
-          mklApp cWeaken [|out_c c;out_c c'; out_cl l'|]
-	| ImmFlatten (c',f) -> mklApp cImmFlatten [|out_c c;out_c c'; out_f f|]
-        | True -> mklApp cTrue [|out_c c|]
-	| False -> mklApp cFalse [|out_c c|]
-	| BuildDef f -> mklApp cBuildDef [|out_c c; out_f f|]
-	| BuildDef2 f -> mklApp cBuildDef2 [|out_c c;out_f f|]
-	| BuildProj (f, i) -> mklApp cBuildProj [|out_c c; out_f f;mkInt i|]
-	| ImmBuildDef c' -> mklApp cImmBuildDef [|out_c c; out_c c'|]
-	| ImmBuildDef2 c' -> mklApp cImmBuildDef2 [|out_c c;out_c c'|]
-	| ImmBuildProj(c', i) -> mklApp cImmBuildProj [|out_c c; out_c c';mkInt i|]
-        | EqTr (f, fl) ->
-          let res = List.fold_right (fun f l -> mklApp ccons [|Lazy.force cint; out_f f; l|]) fl (mklApp cnil [|Lazy.force cint|]) in
-          mklApp cEqTr [|out_c c; out_f f; res|]
-        | EqCgr (f, fl) ->
-          let res = List.fold_right (fun f l -> mklApp ccons [|mklApp coption [|Lazy.force cint|]; (match f with | Some f -> mklApp cSome [|Lazy.force cint; out_f f|] | None -> mklApp cNone [|Lazy.force cint|]); l|]) fl (mklApp cnil [|mklApp coption [|Lazy.force cint|]|]) in
-          mklApp cEqCgr [|out_c c; out_f f; res|]
-        | EqCgrP (f1, f2, fl) ->
-          let res = List.fold_right (fun f l -> mklApp ccons [|mklApp coption [|Lazy.force cint|]; (match f with | Some f -> mklApp cSome [|Lazy.force cint; out_f f|] | None -> mklApp cNone [|Lazy.force cint|]); l|]) fl (mklApp cnil [|mklApp coption [|Lazy.force cint|]|]) in
-          mklApp cEqCgrP [|out_c c; out_f f1; out_f f2; res|]
-        | IffTrans (l, c) -> 
-          let res = List.fold_right (fun f l -> mklApp ccons [|Lazy.force cint; out_f f; l|]) l (mklApp cnil [|Lazy.force cint|]) in
-          mklApp cIffTrans [|res; out_f c|]
-	| LiaMicromega (cl,d) ->
-          let cl' = List.fold_right (fun f l -> mklApp ccons [|Lazy.force cint; out_f f; l|]) cl (mklApp cnil [|Lazy.force cint|]) in
-          let c' = List.fold_right (fun f l -> mklApp ccons [|Lazy.force Structures.micromega_coq_proofTerm; Structures.micromega_dump_proof_term f; l|]) d (mklApp cnil [|Lazy.force Structures.micromega_coq_proofTerm|]) in
-          mklApp cLiaMicromega [|out_c c; cl'; c'|]
-        | LiaDiseq l -> mklApp cLiaDiseq [|out_c c; out_f l|]
-        | SplArith (orig,res,l) ->
-          let res' = out_f res in
-          let l' = List.fold_right (fun f l -> mklApp ccons [|Lazy.force Structures.micromega_coq_proofTerm; Structures.micromega_dump_proof_term f; l|]) l (mklApp cnil [|Lazy.force Structures.micromega_coq_proofTerm|]) in
-          mklApp cSplArith [|out_c c; out_c orig; res'; l'|]
-	| SplDistinctElim (c',f) -> mklApp cSplDistinctElim [|out_c c;out_c c'; out_f f|]
-        | BBVar res -> mklApp cBBVar [|out_c c; out_f res|]
-        | BBConst res -> mklApp cBBConst [|out_c c; out_f res|]
-        | BBOp (c1,c2,res) ->
-          mklApp cBBOp [|out_c c; out_c c1; out_c c2; out_f res|]
-        | BBNot (c1,res) ->
-          mklApp cBBNot [|out_c c; out_c c1; out_f res|]
-        | BBNeg (c1,res) ->
-          mklApp cBBNeg [|out_c c; out_c c1; out_f res|]
-        | BBAdd (c1,c2,res) ->
-          mklApp cBBAdd [|out_c c; out_c c1; out_c c2; out_f res|]
-        | BBMul (c1,c2,res) ->
-          mklApp cBBMul [|out_c c; out_c c1; out_c c2; out_f res|]
-        | BBUlt (c1,c2,res) ->
-          mklApp cBBUlt [|out_c c; out_c c1; out_c c2; out_f res|]
-        | BBSlt (c1,c2,res) ->
-          mklApp cBBSlt [|out_c c; out_c c1; out_c c2; out_f res|]
-        | BBConc (c1,c2,res) ->
-          mklApp cBBConc [|out_c c; out_c c1; out_c c2; out_f res|]
-        | BBExtr (c1,res) ->
-          mklApp cBBExtr [|out_c c; out_c c1; out_f res|]
-        | BBZextn (c1,res) ->
-          mklApp cBBZextn [|out_c c; out_c c1; out_f res|]
-        | BBSextn (c1,res) ->
-          mklApp cBBSextn [|out_c c; out_c c1; out_f res|]
-        | BBShl (c1,c2,res) ->
-          mklApp cBBShl [|out_c c; out_c c1; out_c c2; out_f res|]
-        | BBShr (c1,c2,res) ->
-          mklApp cBBShr [|out_c c; out_c c1; out_c c2; out_f res|]
-        | BBEq (c1,c2,res) ->
-          mklApp cBBEq [|out_c c; out_c c1; out_c c2; out_f res|]
-        | BBDiseq (res) -> mklApp cBBDiseq [|out_c c; out_f res|]
-        | RowEq (res) -> mklApp cRowEq [|out_c c; out_f res|]
-        | RowNeq (cl) ->
-          let out_cl cl =
-            List.fold_right (fun f l ->
-                mklApp ccons [|Lazy.force cint; out_f f; l|])
-              cl (mklApp cnil [|Lazy.force cint|]) in
-          mklApp cRowNeq [|out_c c; out_cl cl|]
-        | Ext (res) -> mklApp cExt [|out_c c; out_f res|]
-        | Hole (prem_id, concl) ->
-           let prem = List.map (fun cl -> match cl.value with Some l -> l | None -> assert false) prem_id in
-           let ass_name = Structures.mkId ("ass"^(string_of_int (Hashtbl.hash concl))) in
-           let ass_ty = interp (prem, concl) in
-           cuts := (ass_name, ass_ty)::!cuts;
-           let ass_var = Structures.mkVar ass_name in
-           let prem_id' = List.fold_right (fun c l -> mklApp ccons [|Lazy.force cint; out_c c; l|]) prem_id (mklApp cnil [|Lazy.force cint|]) in
-           let prem' = List.fold_right (fun cl l -> mklApp ccons [|Lazy.force cState_C_t; out_cl cl; l|]) prem (mklApp cnil [|Lazy.force cState_C_t|]) in
-           let concl' = out_cl concl in
-           mklApp cHole [|out_c c; prem_id'; prem'; concl'; ass_var|]
-        | Forall_inst (cl, concl) | Qf_lemma (cl, concl) ->
-           let clemma, cplemma = match sf with
-             | Some find -> find cl
-             | None -> assert false in
-           let concl' = out_cl [concl] in
-           let app_name = Structures.mkId ("app" ^ (string_of_int (Hashtbl.hash concl))) in
-           let app_var = Structures.mkVar app_name in
-           let app_ty = Term.mkArrow clemma (interp ([], [concl])) in
-           cuts := (app_name, app_ty)::!cuts;
-           mklApp cForallInst [|out_c c; clemma; cplemma; concl'; app_var|]
-	end
+	      begin match other with
+              | Weaken (c',l') ->
+                let out_cl cl = List.fold_right (fun f l -> mklApp ccons [|Lazy.force cint; out_f f; l|]) cl (mklApp cnil [|Lazy.force cint|]) in
+                mklApp cWeaken [|out_c c;out_c c'; out_cl l'|]
+	            | ImmFlatten (c',f) -> mklApp cImmFlatten [|out_c c;out_c c'; out_f f|]
+              | True -> mklApp cTrue [|out_c c|]
+	            | False -> mklApp cFalse [|out_c c|]
+	            | BuildDef f -> mklApp cBuildDef [|out_c c; out_f f|]
+	            | BuildDef2 f -> mklApp cBuildDef2 [|out_c c;out_f f|]
+	            | BuildProj (f, i) -> mklApp cBuildProj [|out_c c; out_f f;mkInt i|]
+	            | ImmBuildDef c' -> mklApp cImmBuildDef [|out_c c; out_c c'|]
+	            | ImmBuildDef2 c' -> mklApp cImmBuildDef2 [|out_c c;out_c c'|]
+	            | ImmBuildProj(c', i) -> mklApp cImmBuildProj [|out_c c; out_c c';mkInt i|]
+              | EqTr (f, fl) ->
+                let res = List.fold_right (fun f l -> mklApp ccons [|Lazy.force cint; out_f f; l|]) fl (mklApp cnil [|Lazy.force cint|]) in
+                mklApp cEqTr [|out_c c; out_f f; res|]
+              | EqCgr (f, fl) ->
+                let res = List.fold_right (fun f l -> mklApp ccons [|mklApp coption [|Lazy.force cint|]; 
+                                                      (match f with 
+                                                        | Some f -> mklApp cSome [|Lazy.force cint; out_f f|] 
+                                                        | None -> mklApp cNone [|Lazy.force cint|]); l|]) 
+                                          fl (mklApp cnil [|mklApp coption [|Lazy.force cint|]|]) in
+                mklApp cEqCgr [|out_c c; out_f f; res|]
+              | EqCgrP (f1, f2, fl) ->
+                let res = List.fold_right (fun f l -> mklApp ccons [|mklApp coption [|Lazy.force cint|]; 
+                                                      (match f with 
+                                                        | Some f -> mklApp cSome [|Lazy.force cint; out_f f|] 
+                                                        | None -> mklApp cNone [|Lazy.force cint|]); l|]) 
+                                          fl (mklApp cnil [|mklApp coption [|Lazy.force cint|]|]) in
+                mklApp cEqCgrP [|out_c c; out_f f1; out_f f2; res|]
+              | IffTrans (prem, f) -> 
+                let prems = List.fold_right (fun c l -> mklApp ccons [|Lazy.force cint; out_c c; l|]) prem (mklApp cnil [|Lazy.force cint|]) in
+                mklApp cIffTrans [|out_c c; prems; out_f f|]
+	            | LiaMicromega (cl,d) ->
+                let cl' = List.fold_right (fun f l -> mklApp ccons [|Lazy.force cint; out_f f; l|]) cl (mklApp cnil [|Lazy.force cint|]) in
+                let c' = List.fold_right (fun f l -> mklApp ccons [|Lazy.force Structures.micromega_coq_proofTerm; Structures.micromega_dump_proof_term f; l|]) d 
+                                         (mklApp cnil [|Lazy.force Structures.micromega_coq_proofTerm|]) in
+                mklApp cLiaMicromega [|out_c c; cl'; c'|]
+              | LiaDiseq l -> mklApp cLiaDiseq [|out_c c; out_f l|]
+              | SplArith (orig,res,l) ->
+                let res' = out_f res in
+                let l' = List.fold_right (fun f l -> mklApp ccons [|Lazy.force Structures.micromega_coq_proofTerm; Structures.micromega_dump_proof_term f; l|]) l 
+                                         (mklApp cnil [|Lazy.force Structures.micromega_coq_proofTerm|]) in
+                mklApp cSplArith [|out_c c; out_c orig; res'; l'|]
+	            | SplDistinctElim (c',f) -> mklApp cSplDistinctElim [|out_c c;out_c c'; out_f f|]
+              | BBVar res -> mklApp cBBVar [|out_c c; out_f res|]
+              | BBConst res -> mklApp cBBConst [|out_c c; out_f res|]
+              | BBOp (c1,c2,res) ->
+                mklApp cBBOp [|out_c c; out_c c1; out_c c2; out_f res|]
+              | BBNot (c1,res) ->
+                mklApp cBBNot [|out_c c; out_c c1; out_f res|]
+              | BBNeg (c1,res) ->
+                mklApp cBBNeg [|out_c c; out_c c1; out_f res|]
+              | BBAdd (c1,c2,res) ->
+                mklApp cBBAdd [|out_c c; out_c c1; out_c c2; out_f res|]
+              | BBMul (c1,c2,res) ->
+                mklApp cBBMul [|out_c c; out_c c1; out_c c2; out_f res|]
+              | BBUlt (c1,c2,res) ->
+                mklApp cBBUlt [|out_c c; out_c c1; out_c c2; out_f res|]
+              | BBSlt (c1,c2,res) ->
+                mklApp cBBSlt [|out_c c; out_c c1; out_c c2; out_f res|]
+              | BBConc (c1,c2,res) ->
+                mklApp cBBConc [|out_c c; out_c c1; out_c c2; out_f res|]
+              | BBExtr (c1,res) ->
+                mklApp cBBExtr [|out_c c; out_c c1; out_f res|]
+              | BBZextn (c1,res) ->
+                mklApp cBBZextn [|out_c c; out_c c1; out_f res|]
+              | BBSextn (c1,res) ->
+                mklApp cBBSextn [|out_c c; out_c c1; out_f res|]
+              | BBShl (c1,c2,res) ->
+                mklApp cBBShl [|out_c c; out_c c1; out_c c2; out_f res|]
+              | BBShr (c1,c2,res) ->
+                mklApp cBBShr [|out_c c; out_c c1; out_c c2; out_f res|]
+              | BBEq (c1,c2,res) ->
+                mklApp cBBEq [|out_c c; out_c c1; out_c c2; out_f res|]
+              | BBDiseq (res) -> mklApp cBBDiseq [|out_c c; out_f res|]
+              | RowEq (res) -> mklApp cRowEq [|out_c c; out_f res|]
+              | RowNeq (cl) ->
+                let out_cl cl = List.fold_right (fun f l -> mklApp ccons [|Lazy.force cint; out_f f; l|])
+                                                cl (mklApp cnil [|Lazy.force cint|]) in
+                mklApp cRowNeq [|out_c c; out_cl cl|]
+              | Ext (res) -> mklApp cExt [|out_c c; out_f res|]
+              | Hole (prem_id, concl) ->
+                let prem = List.map (fun cl -> match cl.value with Some l -> l | None -> assert false) prem_id in
+                let ass_name = Structures.mkId ("ass"^(string_of_int (Hashtbl.hash concl))) in
+                let ass_ty = interp (prem, concl) in
+                cuts := (ass_name, ass_ty)::!cuts;
+                let ass_var = Structures.mkVar ass_name in
+                let prem_id' = List.fold_right (fun c l -> mklApp ccons [|Lazy.force cint; out_c c; l|]) prem_id (mklApp cnil [|Lazy.force cint|]) in
+                let prem' = List.fold_right (fun cl l -> mklApp ccons [|Lazy.force cState_C_t; out_cl cl; l|]) prem (mklApp cnil [|Lazy.force cState_C_t|]) in
+                let concl' = out_cl concl in
+                mklApp cHole [|out_c c; prem_id'; prem'; concl'; ass_var|]
+              | Forall_inst (cl, concl) | Qf_lemma (cl, concl) ->
+                let clemma, cplemma = match sf with
+                                      | Some find -> find cl
+                                      | None -> assert false in
+                let concl' = out_cl [concl] in
+                let app_name = Structures.mkId ("app" ^ (string_of_int (Hashtbl.hash concl))) in
+                let app_var = Structures.mkVar app_name in
+                let app_ty = Term.mkArrow clemma (interp ([], [concl])) in
+                cuts := (app_name, app_ty)::!cuts;
+                mklApp cForallInst [|out_c c; clemma; cplemma; concl'; app_var|]
+	      end
     | _ -> assert false in
   let step = Lazy.force cstep in
-  let def_step =
-    mklApp cRes [|mkInt 0; Structures.mkArray (Lazy.force cint, [|mkInt 0|]) |] in
+  let def_step = mklApp cRes [|mkInt 0; Structures.mkArray (Lazy.force cint, [|mkInt 0|]) |] in
   let r = ref confl in
   let nc = ref 0 in
   while not (isRoot !r.kind) do r := prev !r; incr nc done;
   let last_root = !r in
   (* Be careful, step_to_coq makes a side effect on cuts so it needs to be called first *)
-  let res =
-    Structures.mkTrace step_to_coq next carray clist cnil ccons cpair !nc step def_step r
-  in
+  let res = Structures.mkTrace step_to_coq next carray clist cnil ccons cpair !nc step def_step r in
   (res, last_root, !cuts)
 
 

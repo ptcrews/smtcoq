@@ -321,10 +321,14 @@ Section CHECKER.
       else
         None.
 
-    Definition check_ifftrans (ls:list _lit) (l:_lit) :=
-      if Lit.is_pos l then
-        match get_hash (Lit.blit l) with
-        | Fiff l1 l2 => match List.fold_left check_ifftrans_aux ls (Some (l1,l2)) with
+    Definition check_ifftrans ls l :=
+    let prems := List.map (fun x => match S.get s x with
+                            | l :: nil => l
+                            | _ => Lit._true
+                           end) ls in
+    if Lit.is_pos l then
+      match get_hash (Lit.blit l) with
+        | Fiff l1 l2 => match List.fold_left check_ifftrans_aux prems (Some (l1,l2)) with
                         | Some (a, b) => if a == b then l::nil else C._true
                         | None => C._true 
                         end
