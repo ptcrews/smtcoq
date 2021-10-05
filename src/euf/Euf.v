@@ -155,21 +155,115 @@ Section certif.
       else
         None.
 
-    Definition check_ifftrans ls l :=
-    let prems := List.map (fun x => match S.get s x with
-                            | l :: nil => l
-                            | _ => Lit._true
-                           end) ls in
-    if Lit.is_pos l then
-      match get_form (Lit.blit l) with
-        | Fiff l1 l2 => match List.fold_left check_ifftrans_aux prems (Some (l1,l2)) with
-                        | Some (a, b) => if a == b then l::nil else C._true
-                        | None => C._true 
+    Definition check_ifftrans (ls:list _lit) (l:_lit) :=
+      let prems := List.map (fun x => match S.get s x with
+                                      | l :: nil => l
+                                      | _ => Lit._true
+                                      end) 
+                             ls in
+      if Lit.is_pos l then
+        match get_form (Lit.blit l) with
+          | Fiff l1 l2 => match List.fold_left check_ifftrans_aux 
+                                prems (Some (l1,l2)) with
+                          | Some (a, b) => if a == b then l::nil 
+                                           else C._true
+                          | None => C._true 
+                          end
+          | _ => C._true
+        end
+      else C._true.
+
+
+  (* * iffcong               : {(= x_1 y_1) --> (= x_2 y_2) --> ... --> (= x_n y_n)
+                                --> (= f(x_1, ..., x_n) f(y_1, ..., y_n)
+    *)
+    Fixpoint check_iffcong_aux (ls:list _lit) (a:list int) (b:list int) :=
+      match ls, a, b with
+      | nil, nil, nil => true
+      | lsh::lstl, ah::atl, bh::btl => 
+          if Lit.is_pos lsh then
+            match get_form (Lit.blit lsh) with
+            | Fiff l1 l2 => 
+                match get_form (Lit.blit l1), get_form (Lit.blit l2) with
+                | Fatom a, Fatom b => if ((a == ah) && (b == bh))
+                                      || ((a == bh) && (b == ah)) then
+                                        check_iffcong_aux lstl atl btl
+                                      else if (ah == bh) then
+                                        check_iffcong_aux lstl atl btl
+                                      else false
+                | _, _ => false
+                end
+            | _ => false
+            end
+          else false
+      | nil, ah::atl, bh::btl => if (ah == bh) then 
+                                  (check_iffcong_aux nil atl btl)
+                                 else false
+      | _, _, _ => false
+      end.
+
+    Definition check_iffcong (ls:list _lit) (l:_lit) :=
+      let prems := List.map (fun x => match S.get s x with
+                                       | l :: nil => l
+                                       | _ => Lit._true
+                                      end) ls in
+      let extract_args := fun x => match get_form (Lit.blit x) with
+                                    | Fatom a => a
+                                    | _ => Lit._true
+                                   end in
+      if Lit.is_pos l then
+        match get_form (Lit.blit l) with
+        | Fiff l1 l2 => match get_form (Lit.blit l1), get_form (Lit.blit l2) with
+                        | Fatom a, Fatom b => match get_atom a, get_atom b with
+                          | Atom.Abop o1 a1 a2, Atom.Abop o2 b1 b2 =>
+                              if Atom.bop_eqb o1 o2 then
+                                if (check_iffcong_aux ls (a1::a2::nil) (b1::b2::nil)) then 
+                                  l::nil 
+                                else C._true
+                              else C._true
+                          | Atom.Auop o1 a, Atom.Auop o2 b =>
+                              if Atom.uop_eqb o1 o2 then
+                                if (check_iffcong_aux ls (a::nil) (b::nil)) then
+                                  l::nil 
+                                else C._true
+                              else C._true
+                          | Atom.Aapp p a, Atom.Aapp p' b =>
+                              if p == p' then
+                                if (check_iffcong_aux ls a b) then l::nil else C._true
+                              else C._true
+                          | _, _ => C._true
+                          end
+                        | Fand a, Fand b => let a_args := List.map extract_args (PArray.to_list a) in
+                                            let b_args := List.map extract_args (PArray.to_list b) in
+                                            if (check_iffcong_aux ls a_args b_args) then 
+                                              l::nil 
+                                            else C._true
+                        | For a, For b => let a_args := List.map extract_args (PArray.to_list a) in
+                                          let b_args := List.map extract_args (PArray.to_list b) in
+                                          if (check_iffcong_aux ls a_args b_args) then 
+                                            l::nil 
+                                          else C._true
+                        | Fimp a, Fimp b => let a_args := List.map extract_args (PArray.to_list a) in
+                                          let b_args := List.map extract_args (PArray.to_list b) in
+                                          if (check_iffcong_aux ls a_args b_args) then 
+                                            l::nil 
+                                          else C._true
+                        | Fxor a1 b1, Fxor a2 b2 => let a_args := List.map extract_args (a1::b1::nil) in
+                                          let b_args := List.map extract_args (a2::b2::nil) in
+                                          if (check_iffcong_aux ls a_args b_args) then 
+                                            l::nil 
+                                          else C._true
+                        | Fiff a1 b1, Fiff a2 b2 => let a_args := List.map extract_args (a1::b1::nil) in
+                                          let b_args := List.map extract_args (a2::b2::nil) in
+                                          if (check_iffcong_aux ls a_args b_args) then 
+                                            l::nil 
+                                          else C._true
+                        | _, _ => C._true
                         end
         | _ => C._true
         end
-      else
-        C._true.
+      else C._true.
+
 
   Section Proof.
 
@@ -572,7 +666,12 @@ Section certif.
       unfold Atom.interp_hatom in H;rewrite H, IHForall2;trivial.
     Qed.
 
-    Lemma valid_check_ifftrans : forall l c, C.valid rho (check_ifftrans l c).
+    Lemma valid_check_ifftrans : forall ls l, C.valid rho (check_ifftrans ls l).
+    Proof.
+      admit.
+    Admitted.
+
+    Lemma valid_check_iffcong : forall ls l, C.valid rho (check_iffcong ls l).
     Proof.
       admit.
     Admitted.

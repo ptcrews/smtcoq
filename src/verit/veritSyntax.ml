@@ -156,7 +156,9 @@ let rec process_congr a_args b_args prem res =
      (* if a = b *)
      (* then process_congr a_args b_args prem (None::res) *)
      (* else *)
-     let (l,(a',b')) = List.find (fun (l,(a',b')) -> ((Atom.equal a a') && (Atom.equal b b'))||((Atom.equal a b') && (Atom.equal b a'))) prem in
+     let (l,(a',b')) = List.find (fun (l,(a',b')) -> ((Atom.equal a a') && (Atom.equal b b'))||
+                                                      ((Atom.equal a b') && (Atom.equal b a'))) 
+                                 prem in
      process_congr a_args b_args prem ((Some l)::res)
   | [],[] -> List.rev res
   | _ -> raise (Debug "VeritSyntax.process_congr: incorrect number of arguments in function application")
@@ -381,6 +383,10 @@ let mk_clause (id,typ,value,ids_params) =
         (match value with
           | l::_ -> Other (IffTrans (prems, l))
           | _ -> assert false)
+      | Cong -> let prems = List.map get_clause ids_params in
+        (match value with
+          | l::_ -> Other (IffCong (prems, l))
+          | _ -> assert false)
       (* Linear integer arithmetic *)
       (* Resolution *)
       | Reso | Threso ->
@@ -400,7 +406,6 @@ let mk_clause (id,typ,value,ids_params) =
       | Taut -> raise (Debug "VeritSyntax.ml: rule taut not implemented yet")
       | Cont -> raise (Debug "VeritSyntax.ml: rule cont not implemented yet")
       | Refl -> raise (Debug "VeritSyntax.ml: rule refl not implemented yet")
-      | Cong -> raise (Debug "VeritSyntax.ml: rule cong not implemented yet")
       | Conndef -> raise (Debug "VeritSyntax.ml: rule conndef not implemented yet")
       | Andsimp -> raise (Debug "VeritSyntax.ml: rule andsimp not implemented yet")
       | Orsimp -> raise (Debug "VeritSyntax.ml: rule orsimp not implemented yet")

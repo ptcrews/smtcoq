@@ -99,7 +99,10 @@ type 'hform rule =
     (* * trans              : {(= x_1 x_2) --> (= x_2 x_1) --> ... --> (= x_{n-1} x_n) 
                                 -->(= x_1 x_n)}
     *)
-
+  | IffCong of ('hform clause) list * 'hform
+    (* * cong               : {(= x_1 y_1) --> (= x_2 y_2) --> ... --> (= x_n y_n)
+                                --> (= f(x_1, ..., x_n) f(y_1, ..., y_n)
+    *)
   (* Linear arithmetic *)
   | LiaMicromega of 'hform list * Structures.Micromega_plugin_Certificate.Mc.zArithProof list
   | LiaDiseq of 'hform

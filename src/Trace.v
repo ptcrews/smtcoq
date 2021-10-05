@@ -335,6 +335,7 @@ Inductive step :=
   | EqCgr (pos:int) (l:_lit) (fl: list (option _lit))
   | EqCgrP (pos:int) (l1:_lit) (l2:_lit) (fl: list (option _lit))
   | IffTrans (pos:int) (ls: list _lit) (l: _lit)
+  | IffCong (pos:int) (ls: list _lit) (l: _lit)
   | LiaMicromega (pos:int) (cl:list _lit) (c:list ZMicromega.ZArithProof)
   | LiaDiseq (pos:int) (l:_lit)
   | SplArith (pos:int) (orig:clause_id) (res:_lit) (l:list ZMicromega.ZArithProof)
@@ -389,6 +390,7 @@ Inductive step :=
       | EqCgr pos l fl => S.set_clause s pos (check_congr t_form t_atom l fl)
       | EqCgrP pos l1 l2 fl => S.set_clause s pos (check_congr_pred t_form t_atom l1 l2 fl)
       | IffTrans pos ls l => S.set_clause s pos (check_ifftrans t_form s ls l)
+      | IffCong pos ls l => S.set_clause s pos (check_iffcong t_form t_atom s ls l)
       | LiaMicromega pos cl c => S.set_clause s pos (check_micromega t_form t_atom cl c)
       | LiaDiseq pos l => S.set_clause s pos (check_diseq t_form t_atom l)
       | SplArith pos orig res l => S.set_clause s pos (check_spl_arith t_form t_atom (S.get s orig) res l)
@@ -430,7 +432,7 @@ Inductive step :=
     intros rho H1 H2 H10 s Hs. destruct (Form.check_form_correct (Atom.interp_form_hatom t_i t_func t_atom) (Atom.interp_form_hatom_bv t_i t_func t_atom) _ H1)
     as [[Ht1 Ht2] Ht3]. destruct (Atom.check_atom_correct _ H2) as
     [Ha1 Ha2]. intros [pos res|pos cid c|pos cid lf|pos|pos|pos l|pos l|pos l i|pos cid
-    |pos cid|pos cid i|pos l fl|pos l fl|pos l1 l2 fl|pos l c|pos cl c|pos l|pos orig res l
+    |pos cid|pos cid i|pos l fl|pos l fl|pos l1 l2 fl|pos l c|pos l c| pos cl c|pos l|pos orig res l
     |pos orig res|pos res|pos res|pos orig1 orig2 res|pos orig res|pos orig res
     |pos orig1 orig2 res|pos orig1 orig2 res
     |pos orig1 orig2 res|pos orig1 orig2 res|pos orig1 orig2 res|pos orig1 orig2 res
@@ -453,6 +455,7 @@ Inductive step :=
     - apply valid_check_congr; auto.
     - apply valid_check_congr_pred; auto.
     - apply valid_check_ifftrans; auto.
+    - apply valid_check_iffcong; auto.
     - apply valid_check_micromega; auto.
     - apply valid_check_diseq; auto.
     - apply valid_check_spl_arith; auto.
@@ -557,6 +560,7 @@ Inductive step :=
       | EqCgr pos _ _
       | EqCgrP pos _ _ _
       | IffTrans pos _ _
+      | IffCong pos _ _
       | LiaMicromega pos _ _
       | LiaDiseq pos _
       | SplArith pos _ _ _
@@ -615,6 +619,7 @@ Inductive step :=
   | Name_EqCgr
   | Name_EqCgrP
   | Name_IffTrans
+  | Name_IffCong
   | Name_LiaMicromega
   | Name_LiaDiseq
   | Name_SplArith
@@ -659,6 +664,7 @@ Inductive step :=
     | EqCgr _ _ _ => Name_EqCgr
     | EqCgrP _ _ _ _ => Name_EqCgrP
     | IffTrans _ _ _ => Name_IffTrans
+    | IffCong _ _ _ => Name_IffCong
     | LiaMicromega _ _ _ => Name_LiaMicromega
     | LiaDiseq _ _ => Name_LiaDiseq
     | SplArith _ _ _ _ => Name_SplArith

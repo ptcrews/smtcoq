@@ -98,7 +98,11 @@ type 'hform rule =
     *)
   | IffTrans of ('hform clause) list * 'hform
     (* * trans              : {(= x_1 x_2) --> (= x_2 x_1) --> ... --> (= x_{n-1} x_n) 
-                                -->(= x_1 x_n)}
+                                --> (= x_1 x_n)}
+    *)
+  | IffCong of ('hform clause) list * 'hform
+    (* * cong               : {(= x_1 y_1) --> (= x_2 y_2) --> ... --> (= x_n y_n)
+                                --> (= f(x_1, ..., x_n) f(y_1, ..., y_n)
     *)
 
   (* Linear arithmetic *)
@@ -262,7 +266,7 @@ let used_clauses r =
   | BBShl (c1,c2,_) | BBShr (c1,c2,_)
   | BBEq (c1,c2,_) -> [c1;c2]
 
-  | Hole (cs, _) | IffTrans (cs, _) -> cs
+  | Hole (cs, _) | IffTrans (cs, _) | IffCong (cs, _) -> cs
   | Forall_inst (c, _) | Qf_lemma (c, _) -> [c]
 
   | True | False | BuildDef _ | BuildDef2 _ | BuildProj _
@@ -297,6 +301,7 @@ let to_string r =
                            | EqCgr _ -> "EqCgr"
                            | EqCgrP _ -> "EqCgrP"
                            | IffTrans _ -> "IffTrans"
+                           | IffCong _ -> "IffCong"
                            | LiaMicromega _ -> "LiaMicromega"
                            | LiaDiseq _ -> "LiaDiseq"
                            | SplArith _ -> "SplArith"

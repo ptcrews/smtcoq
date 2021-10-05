@@ -247,7 +247,7 @@ rulename:
   | CONT { Hole } /* Needs to be updated */
   | REFL { Hole } /* Needs to be updated */
   | TRANS { Trans }
-  | CONG { Hole } /* Needs to be updated */
+  | CONG { Cong } /* Needs to be updated */
   | EQRE { Eqre }
   | EQTR { Eqtr }
   | EQCO { Eqco }
