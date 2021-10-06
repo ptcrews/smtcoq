@@ -30,6 +30,8 @@ Local Open Scope farray_scope.
 
 Local Open Scope int63_scope.
 
+Verit_Checker "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/verit_coq8f5ac2.smt2" "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/verit_coq8f5ac2.vtlog".
+
 Goal negb (true && (negb true)).
 Proof.
   verit_bool.

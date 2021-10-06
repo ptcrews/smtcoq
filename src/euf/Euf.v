@@ -28,6 +28,7 @@ Section certif.
   Local Notation get_atom := (PArray.get t_atom) (only parsing).
   Local Notation get_form := (PArray.get t_form) (only parsing).
 
+  (* If x is a = b, return f a b, otherwise C._true *)
   Definition get_eq (x:var) (f : int -> int -> C.t) :=
     match get_form x with
     | Form.Fatom xa =>
@@ -78,6 +79,8 @@ Section certif.
         (fun t1 t2 => check_trans_aux t1 t2 eqs res (Lit.nlit xeq :: nil))
     end.
 
+  (* eqs: disequalities in the premises, l r: arguments of the conclusion,
+     c: clause to be constructed, initially consisting only of the conclusion *)
   Fixpoint build_congr (eqs:list (option _lit))
        (l r:list int) (c:C.t) {struct eqs} :=
     match eqs, l, r with
@@ -96,6 +99,7 @@ Section certif.
     | _, _, _ => C._true
     end.
 
+  (*leq: equality in conclusion, eqs are the disequalities in the premises*)
   Definition check_congr (leq:_lit) (eqs:list (option _lit)) :=
     let xeq := Lit.blit leq in
     get_eq xeq (fun t1 t2 =>
@@ -207,7 +211,11 @@ Section certif.
                                        | l :: nil => l
                                        | _ => Lit._true
                                       end) ls in
-      let extract_args := fun x => match get_form (Lit.blit x) with
+      let extract_args := fun x => if Lit.is_pos x then match get_form (Lit.blit x) with
+                                    | Fatom a => a
+                                    | _ => Lit._true
+                                   end 
+                                   else match get_form (Lit.nlit x) with 
                                     | Fatom a => a
                                     | _ => Lit._true
                                    end in
@@ -217,46 +225,46 @@ Section certif.
                         | Fatom a, Fatom b => match get_atom a, get_atom b with
                           | Atom.Abop o1 a1 a2, Atom.Abop o2 b1 b2 =>
                               if Atom.bop_eqb o1 o2 then
-                                if (check_iffcong_aux ls (a1::a2::nil) (b1::b2::nil)) then 
+                                if (check_iffcong_aux prems (a1::a2::nil) (b1::b2::nil)) then 
                                   l::nil 
                                 else C._true
                               else C._true
                           | Atom.Auop o1 a, Atom.Auop o2 b =>
                               if Atom.uop_eqb o1 o2 then
-                                if (check_iffcong_aux ls (a::nil) (b::nil)) then
+                                if (check_iffcong_aux prems (a::nil) (b::nil)) then
                                   l::nil 
                                 else C._true
                               else C._true
                           | Atom.Aapp p a, Atom.Aapp p' b =>
                               if p == p' then
-                                if (check_iffcong_aux ls a b) then l::nil else C._true
+                                if (check_iffcong_aux prems a b) then l::nil else C._true
                               else C._true
                           | _, _ => C._true
                           end
                         | Fand a, Fand b => let a_args := List.map extract_args (PArray.to_list a) in
                                             let b_args := List.map extract_args (PArray.to_list b) in
-                                            if (check_iffcong_aux ls a_args b_args) then 
-                                              l::nil 
+                                            if (check_iffcong_aux prems a_args b_args) then 
+                                              l::nil
                                             else C._true
                         | For a, For b => let a_args := List.map extract_args (PArray.to_list a) in
                                           let b_args := List.map extract_args (PArray.to_list b) in
-                                          if (check_iffcong_aux ls a_args b_args) then 
-                                            l::nil 
+                                          if (check_iffcong_aux prems a_args b_args) then 
+                                            l::nil
                                           else C._true
                         | Fimp a, Fimp b => let a_args := List.map extract_args (PArray.to_list a) in
                                           let b_args := List.map extract_args (PArray.to_list b) in
-                                          if (check_iffcong_aux ls a_args b_args) then 
-                                            l::nil 
+                                          if (check_iffcong_aux prems a_args b_args) then 
+                                            l::nil
                                           else C._true
                         | Fxor a1 b1, Fxor a2 b2 => let a_args := List.map extract_args (a1::b1::nil) in
                                           let b_args := List.map extract_args (a2::b2::nil) in
-                                          if (check_iffcong_aux ls a_args b_args) then 
-                                            l::nil 
+                                          if (check_iffcong_aux prems a_args b_args) then 
+                                            l::nil
                                           else C._true
                         | Fiff a1 b1, Fiff a2 b2 => let a_args := List.map extract_args (a1::b1::nil) in
                                           let b_args := List.map extract_args (a2::b2::nil) in
-                                          if (check_iffcong_aux ls a_args b_args) then 
-                                            l::nil 
+                                          if (check_iffcong_aux prems a_args b_args) then 
+                                            l::nil
                                           else C._true
                         | _, _ => C._true
                         end

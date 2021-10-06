@@ -114,6 +114,10 @@ let is_eq l =
       | _ -> false)
   | _ -> raise (Debug "VeritSyntax.get_eq: atom was expected")
 
+let is_iff l =
+  match Form.pform l with
+  | Fapp (Fiff, _) -> true
+  | _ -> false
 
 (* Transitivity *)
 (* list_find_remove p l finds the first element x in l, such that p(x) holds and returns (x, l') where l' is l without x *)
@@ -163,12 +167,8 @@ let rec process_congr a_args b_args prem res =
   | [],[] -> List.rev res
   | _ -> raise (Debug "VeritSyntax.process_congr: incorrect number of arguments in function application")
 
-
-let mkCongr p =
-  let (concl,prem) = List.partition Form.is_pos p in
-  match concl with
-  |[c] ->
-    let a,b = get_eq c in
+let mkCongr_aux c prem = 
+  let a,b = get_eq c in
     let prem_val = List.map (fun l -> (l,get_eq l)) prem in
     (match Atom.atom a, Atom.atom b with
      | Abop(aop,a1,a2), Abop(bop,b1,b2) when (aop = bop) ->
@@ -187,6 +187,11 @@ let mkCongr p =
           Other (EqCgr (c,cert))
         else raise (Debug "VeritSyntax.mkCongr: left function is different from right function")
      | _, _ -> raise (Debug "VeritSyntax.mkCongr: atoms are not applications"))
+
+let mkCongr p =
+  let (concl,prem) = List.partition Form.is_pos p in
+  match concl with
+  |[c] -> mkCongr_aux c prem
   |_ -> raise (Debug "VeritSyntax.mkCongr: no conclusion or more than one conclusion in congruence")
 
 
@@ -213,6 +218,17 @@ let mkCongrPred p =
      |_ ->  raise (Debug "VeritSyntax.mkCongr: no or more than one predicate app premise in congruence"))
   |[] ->  raise (Debug "VeritSyntax.mkCongrPred: no conclusion in congruence")
   |_ -> raise (Debug "VeritSyntax.mkCongrPred: more than one conclusion in congruence")
+
+
+let mkIffCong prems value =
+    (match value with
+      | l::_ -> if is_eq l then
+                  (*let res = {rc1 = mkCongr_aux l prems; rc2 = List.hd prems; rtail = List.tl prems} in
+                  Res res*)Other (IffCong (prems, l))
+                else if is_iff l then
+                  Other (IffCong (prems, l))
+                else assert false
+      | _ -> assert false)
 
 
 (* Linear arithmetic *)
@@ -384,9 +400,7 @@ let mk_clause (id,typ,value,ids_params) =
           | l::_ -> Other (IffTrans (prems, l))
           | _ -> assert false)
       | Cong -> let prems = List.map get_clause ids_params in
-        (match value with
-          | l::_ -> Other (IffCong (prems, l))
-          | _ -> assert false)
+          mkIffCong prems value
       (* Linear integer arithmetic *)
       (* Resolution *)
       | Reso | Threso ->
