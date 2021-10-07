@@ -99,7 +99,7 @@ Section certif.
     | _, _, _ => C._true
     end.
 
-  (*leq: equality in conclusion, eqs are the disequalities in the premises*)
+  (*leq: equality in conclusion, eqs: disequalities in the premises*)
   Definition check_congr (leq:_lit) (eqs:list (option _lit)) :=
     let xeq := Lit.blit leq in
     get_eq xeq (fun t1 t2 =>
@@ -181,47 +181,64 @@ Section certif.
   (* * iffcong               : {(= x_1 y_1) --> (= x_2 y_2) --> ... --> (= x_n y_n)
                                 --> (= f(x_1, ..., x_n) f(y_1, ..., y_n)
     *)
-    Fixpoint check_iffcong_aux (ls:list _lit) (a:list int) (b:list int) :=
-      match ls, a, b with
+
+    Definition form_eqb (x y : form) : bool := 
+      match x, y with
+      | Fatom x, Fatom y => x == y
+      | Ftrue, Ftrue | Ffalse, Ffalse => true
+      | Fnot2 m x, Fnot2 n y => (x == y) && 
+                               (((is_even m) && (is_even n)) || 
+                               (negb (is_even m) && negb (is_even n)))
+      | Fand xs, Fand ys => PArray.eqb (Int63Native.eqb) xs ys
+      | For xs, For ys => PArray.eqb (Int63Native.eqb) xs ys
+      | Fimp xs, Fimp ys => PArray.eqb (Int63Native.eqb) xs ys
+      | Fxor x1 x2, Fxor y1 y2 => (x1 == y1) && (x2 == y2)
+      | Fiff x1 x2, Fiff y1 y2 => (x1 == y1) && (x2 == y2)
+      | Fite x1 x2 x3, Fite y1 y2 y3 => (x1 == y1) && (x2 == y2) && (x3 == y3)
+      | _, _ => false
+      end.
+
+    Fixpoint check_iffcong_aux (ps:list _lit) (c1:list int) (c2:list int) :=
+      match ps, c1, c2 with
       | nil, nil, nil => true
-      | lsh::lstl, ah::atl, bh::btl => 
-          if Lit.is_pos lsh then
-            match get_form (Lit.blit lsh) with
-            | Fiff l1 l2 => 
-                match get_form (Lit.blit l1), get_form (Lit.blit l2) with
-                | Fatom a, Fatom b => if ((a == ah) && (b == bh))
-                                      || ((a == bh) && (b == ah)) then
-                                        check_iffcong_aux lstl atl btl
-                                      else if (ah == bh) then
-                                        check_iffcong_aux lstl atl btl
-                                      else false
-                | _, _ => false
-                end
+      | psh::pstl, c1h::c1tl, c2h::c2tl =>
+          (* All premises are positive equalities *)
+          if Lit.is_pos psh then
+            match get_form (Lit.blit psh) with
+            | Fiff psh1 psh2 => match get_form (Lit.blit psh1), get_form (Lit.blit psh2), 
+                                      get_form (Lit.blit c1h), get_form (Lit.blit c2h) with
+                                | psh1', psh2', c1h', c2h' => 
+                                  if (((form_eqb psh1' c1h') && (form_eqb psh2' c2h')) ||
+                                     ((form_eqb psh1' c2h') && (form_eqb psh2' c1h'))) then
+                                    check_iffcong_aux pstl c1tl c2tl
+                                  else if (form_eqb c1h' c2h') then
+                                    check_iffcong_aux ps c1tl c2tl
+                                  else false
+                                end
             | _ => false
             end
           else false
-      | nil, ah::atl, bh::btl => if (ah == bh) then 
-                                  (check_iffcong_aux nil atl btl)
-                                 else false
+      | nil, c1h::c1tl, c2h::c2tl => if (form_eqb (get_form (Lit.blit c1h)) (get_form (Lit.blit c2h))) then
+                                      check_iffcong_aux nil c1tl c2tl
+                                     else false
       | _, _, _ => false
       end.
 
     Definition check_iffcong (ls:list _lit) (l:_lit) :=
+      (* Fetch equalities from premise clauses *)
       let prems := List.map (fun x => match S.get s x with
                                        | l :: nil => l
                                        | _ => Lit._true
                                       end) ls in
-      let extract_args := fun x => if Lit.is_pos x then match get_form (Lit.blit x) with
-                                    | Fatom a => a
-                                    | _ => Lit._true
-                                   end 
-                                   else match get_form (Lit.nlit x) with 
+      let extract_args := fun x => match get_form (Lit.blit x) with
                                     | Fatom a => a
                                     | _ => Lit._true
                                    end in
+      (* Conclusion is a positive equality *)
       if Lit.is_pos l then
         match get_form (Lit.blit l) with
         | Fiff l1 l2 => match get_form (Lit.blit l1), get_form (Lit.blit l2) with
+                        (* Theory predicates *)
                         | Fatom a, Fatom b => match get_atom a, get_atom b with
                           | Atom.Abop o1 a1 a2, Atom.Abop o2 b1 b2 =>
                               if Atom.bop_eqb o1 o2 then
@@ -241,6 +258,7 @@ Section certif.
                               else C._true
                           | _, _ => C._true
                           end
+                        (* Formulas as predicates *)
                         | Fand a, Fand b => let a_args := List.map extract_args (PArray.to_list a) in
                                             let b_args := List.map extract_args (PArray.to_list b) in
                                             if (check_iffcong_aux prems a_args b_args) then 

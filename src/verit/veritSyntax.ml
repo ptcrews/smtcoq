@@ -112,7 +112,7 @@ let is_eq l =
      (match Atom.atom ha with
       | Abop (BO_eq _,_,_) -> true
       | _ -> false)
-  | _ -> raise (Debug "VeritSyntax.get_eq: atom was expected")
+  | _ -> false
 
 let is_iff l =
   match Form.pform l with
@@ -224,11 +224,12 @@ let mkIffCong prems value =
     (match value with
       | l::_ -> if is_eq l then
                   (*let res = {rc1 = mkCongr_aux l prems; rc2 = List.hd prems; rtail = List.tl prems} in
-                  Res res*)Other (IffCong (prems, l))
+                  Res res*)
+                  Other (IffCong (prems, l))
                 else if is_iff l then
                   Other (IffCong (prems, l))
-                else assert false
-      | _ -> assert false)
+                else raise (Debug "VeritSyntax.mkIffCong: conclusion must be an equality or iff")
+      | _ -> raise (Debug "VeritSyntax.mkIffCong: conclusion has no or more than one literal"))
 
 
 (* Linear arithmetic *)
