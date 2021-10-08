@@ -308,10 +308,10 @@ Section CHECKER.
   Definition check_NotSimplify l := 
     match get_hash (Lit.blit l) with
     | Fiff a b => 
-        match get_hash (Lit.blit a), get_hash (Lit.blit a) with
+        match get_hash (Lit.blit a), get_hash (Lit.blit b) with
         | Fnot2 1 x, _ => if x == b then (l::nil) else C._true
-        | Ffalse, Ftrue => if negb (Lit.is_pos a) then (l::nil) else C._true
-        | Ftrue, Ffalse => if negb (Lit.is_pos a) then (l::nil) else C._true
+        | Ffalse, Ftrue => if (negb (Lit.is_pos a) && (Lit.is_pos b)) then (l::nil) else C._true
+        | Ftrue, Ffalse => if (negb (Lit.is_pos a) && (Lit.is_pos b)) then (l::nil) else C._true
         | _, _ => C._true
         end
     | _ => C._true

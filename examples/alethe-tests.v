@@ -30,13 +30,14 @@ Local Open Scope farray_scope.
 
 Local Open Scope int63_scope.
 
+Section Checker_SmtEx.
+  Parse_certif_verit t_i0 t_func0 t_atom0 t_form0 root0 used_roots0 trace0 "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/verit_coq8f5ac2.smt2" "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/verit_coq8f5ac2.vtlog".
+End Checker_SmtEx.
+
 Goal negb (true && (negb true)).
 Proof.
   verit_bool.
 Qed.
-
-Verit_Checker "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/verit_coq8f5ac2.smt2" "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/verit_coq8f5ac2.vtlog".
-
 
 Goal true || false.
 Proof.
