@@ -80,7 +80,11 @@ type 'hform rule =
          * not_implies1      : {(not (implies a b))} --> {a}
          * not_implies2      : {(not (implies a b))} --> {(not b)}
      *)
-
+  | NotSimplify of 'hform
+      (* *  not_simplify     : {iff (not (not x)) x}
+                               {iff (not false) true}
+                               {iff (not true) false}
+      *)
   (* Equality *)
   | EqTr of 'hform * 'hform list
     (*  * eq_reflexive     : {(= x x)}

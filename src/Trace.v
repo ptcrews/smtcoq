@@ -331,6 +331,7 @@ Inductive step :=
   | ImmBuildDef (pos:int) (cid:clause_id)
   | ImmBuildDef2 (pos:int) (cid:clause_id)
   | ImmBuildProj (pos:int) (cid:clause_id) (i:int)
+  | NotSimplify (pos:int) (l:_lit)
   | EqTr (pos:int) (l:_lit) (fl: list _lit)
   | EqCgr (pos:int) (l:_lit) (fl: list (option _lit))
   | EqCgrP (pos:int) (l1:_lit) (l2:_lit) (fl: list (option _lit))
@@ -386,6 +387,7 @@ Inductive step :=
       | ImmBuildDef pos cid => S.set_clause s pos (check_ImmBuildDef t_form s cid)
       | ImmBuildDef2 pos cid => S.set_clause s pos (check_ImmBuildDef2 t_form s cid)
       | ImmBuildProj pos cid i => S.set_clause s pos (check_ImmBuildProj t_form s cid i)
+      | NotSimplify pos l => S.set_clause s pos (check_NotSimplify t_form l)
       | EqTr pos l fl => S.set_clause s pos (check_trans t_form t_atom l fl)
       | EqCgr pos l fl => S.set_clause s pos (check_congr t_form t_atom l fl)
       | EqCgrP pos l1 l2 fl => S.set_clause s pos (check_congr_pred t_form t_atom l1 l2 fl)
@@ -432,7 +434,7 @@ Inductive step :=
     intros rho H1 H2 H10 s Hs. destruct (Form.check_form_correct (Atom.interp_form_hatom t_i t_func t_atom) (Atom.interp_form_hatom_bv t_i t_func t_atom) _ H1)
     as [[Ht1 Ht2] Ht3]. destruct (Atom.check_atom_correct _ H2) as
     [Ha1 Ha2]. intros [pos res|pos cid c|pos cid lf|pos|pos|pos l|pos l|pos l i|pos cid
-    |pos cid|pos cid i|pos l fl|pos l fl|pos l1 l2 fl|pos l c|pos l c| pos cl c|pos l|pos orig res l
+    |pos cid|pos cid i|pos l|pos l fl|pos l fl|pos l1 l2 fl|pos l c|pos l c| pos cl c|pos l|pos orig res l
     |pos orig res|pos res|pos res|pos orig1 orig2 res|pos orig res|pos orig res
     |pos orig1 orig2 res|pos orig1 orig2 res
     |pos orig1 orig2 res|pos orig1 orig2 res|pos orig1 orig2 res|pos orig1 orig2 res
@@ -451,6 +453,7 @@ Inductive step :=
     - apply valid_check_ImmBuildDef; auto.
     - apply valid_check_ImmBuildDef2; auto.
     - apply valid_check_ImmBuildProj; auto.
+    - apply valid_check_NotSimplify; auto.
     - apply valid_check_trans; auto.
     - apply valid_check_congr; auto.
     - apply valid_check_congr_pred; auto.
@@ -556,6 +559,7 @@ Inductive step :=
       | ImmBuildDef pos _
       | ImmBuildDef2 pos _
       | ImmBuildProj pos _ _
+      | NotSimplify pos _
       | EqTr pos _ _
       | EqCgr pos _ _
       | EqCgrP pos _ _ _
@@ -615,6 +619,7 @@ Inductive step :=
   | Name_ImmBuildDef
   | Name_ImmBuildDef2
   | Name_ImmBuildProj
+  | Name_NotSimplify
   | Name_EqTr
   | Name_EqCgr
   | Name_EqCgrP
@@ -660,6 +665,7 @@ Inductive step :=
     | ImmBuildDef _ _ => Name_ImmBuildDef
     | ImmBuildDef2 _ _ => Name_ImmBuildDef2
     | ImmBuildProj _ _ _ => Name_ImmBuildProj
+    | NotSimplify _ _ => Name_NotSimplify
     | EqTr _ _ _ => Name_EqTr
     | EqCgr _ _ _ => Name_EqCgr
     | EqCgrP _ _ _ _ => Name_EqCgrP

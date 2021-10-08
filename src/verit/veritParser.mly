@@ -293,7 +293,7 @@ rulename:
   | CONNDEF { Hole } /* Needs to be updated */
   | ANDSIMP { Hole } /* Needs to be updated */
   | ORSIMP { Hole } /* Needs to be updated */
-  | NOTSIMP { Hole } /* Needs to be updated */
+  | NOTSIMP { Notsimp } /* Needs to be updated */
   | IMPSIMP { Hole } /* Needs to be updated */
   | EQSIMP { Hole } /* Needs to be updated */
   | BOOLSIMP { Hole } /* Needs to be updated */

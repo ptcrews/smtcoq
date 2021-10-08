@@ -82,7 +82,11 @@ type 'hform rule =
          * not_implies1      : {(not (implies a b))} --> {a}
          * not_implies2      : {(not (implies a b))} --> {(not b)}
      *)
-
+  | NotSimplify of 'hform
+      (* *  not_simplify     : {iff (not (not x)) x}
+                               {iff (not false) true}
+                               {iff (not true) false}
+      *)
   (* Equality *)
   | EqTr of 'hform * 'hform list
     (*  * eq_reflexive     : {(= x x)}
@@ -270,6 +274,7 @@ let used_clauses r =
   | Forall_inst (c, _) | Qf_lemma (c, _) -> [c]
 
   | True | False | BuildDef _ | BuildDef2 _ | BuildProj _
+  | NotSimplify _
   | EqTr _ | EqCgr _ | EqCgrP _
   | LiaMicromega _ | LiaDiseq _
   | BBVar _ | BBConst _ | BBDiseq _

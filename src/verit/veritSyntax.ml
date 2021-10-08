@@ -391,6 +391,10 @@ let mk_clause (id,typ,value,ids_params) =
         (match ids_params with
           | [id] -> Other (ImmBuildProj (get_clause id,1))
           | _ -> assert false)
+      | Notsimp ->
+        (match value with
+          | l::_ -> Other (NotSimplify l)
+          | _ -> assert false)
       (* Equality *)
       | Eqre -> mkTrans value
       | Eqtr -> mkTrans value
@@ -424,7 +428,6 @@ let mk_clause (id,typ,value,ids_params) =
       | Conndef -> raise (Debug "VeritSyntax.ml: rule conndef not implemented yet")
       | Andsimp -> raise (Debug "VeritSyntax.ml: rule andsimp not implemented yet")
       | Orsimp -> raise (Debug "VeritSyntax.ml: rule orsimp not implemented yet")
-      | Notsimp -> raise (Debug "VeritSyntax.ml: rule notsimp not implemented yet")
       | Impsimp -> raise (Debug "VeritSyntax.ml: rule impsimp not implemented yet")
       | Eqsimp -> raise (Debug "VeritSyntax.ml: rule eqsimp not implemented yet")
       | Boolsimp -> raise (Debug "VeritSyntax.ml: rule boolsimp not implemented yet")
