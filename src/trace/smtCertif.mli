@@ -85,6 +85,13 @@ type 'hform rule =
                                {iff (not false) true}
                                {iff (not true) false}
       *)
+  | AndSimplify of 'hform
+      (* * and_simplify     : {iff (and true ... true) true}
+                              {iff (and x_1 ... x_n) (and x_1 ... x_n'), removing all true from x_1,...,x_n}
+                              {iff (and x_1 ... x_n) (and x_1 ... x_n'), removing all repeated literals from x_1,...,x_n}
+                              {iff (and x_1 ... false ... x_n) false}
+                              {iff (and x_1 ... x_i ... x_j ... x_n) false, if x_i = not x_j}
+      *)
   (* Equality *)
   | EqTr of 'hform * 'hform list
     (*  * eq_reflexive     : {(= x x)}

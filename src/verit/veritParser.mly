@@ -291,7 +291,7 @@ rulename:
   | NITE1 { Nite1 }
   | NITE2 { Nite2 }
   | CONNDEF { Hole } /* Needs to be updated */
-  | ANDSIMP { Hole } /* Needs to be updated */
+  | ANDSIMP { Andsimp } /* Needs to be updated */
   | ORSIMP { Hole } /* Needs to be updated */
   | NOTSIMP { Notsimp } /* Needs to be updated */
   | IMPSIMP { Hole } /* Needs to be updated */

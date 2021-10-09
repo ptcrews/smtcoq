@@ -395,6 +395,10 @@ let mk_clause (id,typ,value,ids_params) =
         (match value with
           | l::_ -> Other (NotSimplify l)
           | _ -> assert false)
+      | Andsimp ->
+        (match value with
+          | l::_ -> Other (AndSimplify l)
+          | _ -> assert false)
       (* Equality *)
       | Eqre -> mkTrans value
       | Eqtr -> mkTrans value
