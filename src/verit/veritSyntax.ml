@@ -343,6 +343,10 @@ let mk_clause (id,typ,value,ids_params) =
       (* Cnf conversion *)
       | True -> Other SmtCertif.True
       | Fals -> Other False
+      | Notnot -> 
+        (match value with
+          | l::_ -> Other (NotNot l)
+          | _ -> assert false)
       | Andn | Orp | Impp | Xorp1 | Xorn1 | Equp1 | Equn1 | Itep1 | Iten1 ->
         (match value with
           | l::_ -> Other (BuildDef l)
@@ -399,6 +403,10 @@ let mk_clause (id,typ,value,ids_params) =
         (match value with
           | l::_ -> Other (AndSimplify l)
           | _ -> assert false)
+      | Orsimp ->
+        (match value with
+          | l::_ -> Other (OrSimplify l)
+          | _ -> assert false)
       (* Equality *)
       | Eqre -> mkTrans value
       | Eqtr -> mkTrans value
@@ -425,13 +433,10 @@ let mk_clause (id,typ,value,ids_params) =
       | Hole -> Other (SmtCertif.Hole (List.map get_clause ids_params, value))
 
       (* Not implemented *)
-      | Notnot -> raise (Debug "VeritSyntax.ml: rule notnot not implemented yet")
       | Taut -> raise (Debug "VeritSyntax.ml: rule taut not implemented yet")
       | Cont -> raise (Debug "VeritSyntax.ml: rule cont not implemented yet")
       | Refl -> raise (Debug "VeritSyntax.ml: rule refl not implemented yet")
       | Conndef -> raise (Debug "VeritSyntax.ml: rule conndef not implemented yet")
-      | Andsimp -> raise (Debug "VeritSyntax.ml: rule andsimp not implemented yet")
-      | Orsimp -> raise (Debug "VeritSyntax.ml: rule orsimp not implemented yet")
       | Impsimp -> raise (Debug "VeritSyntax.ml: rule impsimp not implemented yet")
       | Eqsimp -> raise (Debug "VeritSyntax.ml: rule eqsimp not implemented yet")
       | Boolsimp -> raise (Debug "VeritSyntax.ml: rule boolsimp not implemented yet")

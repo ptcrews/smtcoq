@@ -27,7 +27,10 @@ type 'hform rule =
      (*  * true             : {true}
      *)
   | False
-     (* * false             : {(not false)}
+     (*  * false            : {(not false)}
+     *)
+  | NotNot of 'hform (*the first literal of the clause *)
+     (*  * notnot           : {(not not x) --> x}
      *)
   | BuildDef of 'hform (* the first literal of the clause *)
      (*  * and_neg          : {(and a_1 ... a_n) (not a_1) ... (not a_n)}
@@ -93,6 +96,13 @@ type 'hform rule =
                               {iff (and x_1 ... x_n) (and x_1 ... x_n'), removing all repeated literals from x_1,...,x_n}
                               {iff (and x_1 ... false ... x_n) false}
                               {iff (and x_1 ... x_i ... x_j ... x_n) false, if x_i = not x_j}
+      *)
+  | OrSimplify of 'hform
+      (* * or_simplify     :  {iff (or false ... false) false}
+                              {iff (or x_1 ... x_n) (or x_1 ... x_n'), removing all false from x_1,...,x_n}
+                              {iff (or x_1 ... x_n) (or x_1 ... x_n'), removing all repeated literals from x_1,...,x_n}
+                              {iff (or x_1 ... true ... x_n) true}
+                              {iff (or x_1 ... x_i ... x_j ... x_n) true, if x_i = not x_j}
       *)
   (* Equality *)
   | EqTr of 'hform * 'hform list
@@ -280,10 +290,10 @@ let used_clauses r =
   | Hole (cs, _) | IffTrans (cs, _) | IffCong (cs, _) -> cs
   | Forall_inst (c, _) | Qf_lemma (c, _) -> [c]
 
-  | True | False | BuildDef _ | BuildDef2 _ | BuildProj _
-  | NotSimplify _ | AndSimplify _
-  | EqTr _ | EqCgr _ | EqCgrP _
-  | LiaMicromega _ | LiaDiseq _
+  | True | False | NotNot _ | BuildDef _ 
+  | BuildDef2 _ | BuildProj _ | NotSimplify _ 
+  | AndSimplify _ | OrSimplify _ | EqTr _ | EqCgr _ 
+  | EqCgrP _ | LiaMicromega _ | LiaDiseq _
   | BBVar _ | BBConst _ | BBDiseq _
   | RowEq _ | RowNeq _ | Ext _ -> []
 
@@ -303,12 +313,16 @@ let to_string r =
                            | ImmFlatten _ -> "ImmFlatten"
                            | True -> "True"
                            | False -> "False"
+                           | NotNot _ -> "NotNot"
                            | BuildDef _ -> "BuildDef"
                            | BuildDef2 _ -> "BuildDef2"
                            | BuildProj _ -> "BuildProj"
                            | ImmBuildDef _ -> "ImmBuildDef"
                            | ImmBuildDef2 _ -> "ImmBuildDef2"
                            | ImmBuildProj _ -> "ImmBuildProj"
+                           | NotSimplify _ -> "NotSimplify"
+                           | AndSimplify _ -> "AndSimplify"
+                           | OrSimplify _ -> "OrSimplify"
                            | EqTr _ -> "EqTr"
                            | EqCgr _ -> "EqCgr"
                            | EqCgrP _ -> "EqCgrP"

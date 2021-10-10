@@ -352,9 +352,9 @@ let build_certif first_root confl =
 
 let to_coq to_lit interp (cstep,
     cRes, cWeaken, cImmFlatten,
-    cTrue, cFalse, cBuildDef, cBuildDef2, cBuildProj,
-    cImmBuildProj,cImmBuildDef,cImmBuildDef2,
-    cNotSimp, cAndSimp,
+    cTrue, cFalse, cNotNot, cBuildDef, cBuildDef2, 
+    cBuildProj, cImmBuildProj,cImmBuildDef,cImmBuildDef2,
+    cNotSimp, cAndSimp, cOrSimp,
     cEqTr, cEqCgr, cEqCgrP, cIffTrans, cIffCong,
     cLiaMicromega, cLiaDiseq, cSplArith, cSplDistinctElim,
     cBBVar, cBBConst, cBBOp, cBBNot, cBBEq, cBBDiseq,
@@ -394,6 +394,7 @@ let to_coq to_lit interp (cstep,
 	            | ImmFlatten (c',f) -> mklApp cImmFlatten [|out_c c;out_c c'; out_f f|]
               | True -> mklApp cTrue [|out_c c|]
 	            | False -> mklApp cFalse [|out_c c|]
+              | NotNot f -> mklApp cNotNot [|out_c c; out_f f|]
 	            | BuildDef f -> mklApp cBuildDef [|out_c c; out_f f|]
 	            | BuildDef2 f -> mklApp cBuildDef2 [|out_c c;out_f f|]
 	            | BuildProj (f, i) -> mklApp cBuildProj [|out_c c; out_f f;mkInt i|]
@@ -402,6 +403,7 @@ let to_coq to_lit interp (cstep,
 	            | ImmBuildProj(c', i) -> mklApp cImmBuildProj [|out_c c; out_c c';mkInt i|]
               | NotSimplify f -> mklApp cNotSimp [|out_c c;out_f f|]
               | AndSimplify f -> mklApp cAndSimp [|out_c c;out_f f|]
+              | OrSimplify f -> mklApp cOrSimp [|out_c c;out_f f|]
               | EqTr (f, fl) ->
                 let res = List.fold_right (fun f l -> mklApp ccons [|Lazy.force cint; out_f f; l|]) fl (mklApp cnil [|Lazy.force cint|]) in
                 mklApp cEqTr [|out_c c; out_f f; res|]

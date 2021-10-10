@@ -30,15 +30,24 @@ Local Open Scope farray_scope.
 
 Local Open Scope int63_scope.
 
-Section Checker_SmtEx.
-  Parse_certif_verit t_i0 t_func0 t_atom0 t_form0 root0 used_roots0 trace0 "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/verit_coq8f5ac2.smt2" "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/verit_coq8f5ac2.vtlog".
+Section Checker_SmtEx1.
+  Parse_certif_verit t_i1 t_func1 t_atom1 t_form1 root1 used_roots1 trace1 
+  "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test1.smt2" 
+  "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test1.vtlog".
   (*Eval compute in (Form.check_form t_form0 && Atom.check_atom t_atom0 && Atom.wt t_i0 t_func0 t_atom0).*)
-End Checker_SmtEx.
+End Checker_SmtEx1.
 
 Goal negb (true && (negb true)).
 Proof.
   verit_bool.
 Qed.
+
+Section Checker_SmtEx2.
+  Parse_certif_verit t_i2 t_func2 t_atom2 t_form2 root2 used_roots2 trace2 
+  "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test2.smt2" 
+  "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test2.vtlog".
+  (*Eval compute in (Form.check_form t_form0 && Atom.check_atom t_atom0 && Atom.wt t_i0 t_func0 t_atom0).*)
+End Checker_SmtEx2.
 
 Goal true || false.
 Proof.

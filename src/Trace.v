@@ -325,6 +325,7 @@ Inductive step :=
   | ImmFlatten (pos:int) (cid:clause_id) (lf:_lit)
   | CTrue (pos:int)
   | CFalse (pos:int)
+  | NotNot (pos:int) (l:_lit)
   | BuildDef (pos:int) (l:_lit)
   | BuildDef2 (pos:int) (l:_lit)
   | BuildProj (pos:int) (l:_lit) (i:int)
@@ -333,6 +334,7 @@ Inductive step :=
   | ImmBuildProj (pos:int) (cid:clause_id) (i:int)
   | NotSimplify (pos:int) (l:_lit)
   | AndSimplify (pos:int) (l:_lit)
+  | OrSimplify (pos:int) (l:_lit)
   | EqTr (pos:int) (l:_lit) (fl: list _lit)
   | EqCgr (pos:int) (l:_lit) (fl: list (option _lit))
   | EqCgrP (pos:int) (l1:_lit) (l2:_lit) (fl: list (option _lit))
@@ -382,6 +384,7 @@ Inductive step :=
       | ImmFlatten pos cid lf => S.set_clause s pos (check_flatten t_atom t_form s cid lf)
       | CTrue pos => S.set_clause s pos Cnf.check_True
       | CFalse pos => S.set_clause s pos Cnf.check_False
+      | NotNot pos l => S.set_clause s pos (check_NotNot t_form l)
       | BuildDef pos l => S.set_clause s pos (check_BuildDef t_form l)
       | BuildDef2 pos l => S.set_clause s pos (check_BuildDef2 t_form l)
       | BuildProj pos l i => S.set_clause s pos (check_BuildProj t_form l i)
@@ -390,6 +393,7 @@ Inductive step :=
       | ImmBuildProj pos cid i => S.set_clause s pos (check_ImmBuildProj t_form s cid i)
       | NotSimplify pos l => S.set_clause s pos (check_NotSimplify t_form l)
       | AndSimplify pos l => S.set_clause s pos (check_AndSimplify t_form l)
+      | OrSimplify pos l => S.set_clause s pos (check_OrSimplify t_form l)
       | EqTr pos l fl => S.set_clause s pos (check_trans t_form t_atom l fl)
       | EqCgr pos l fl => S.set_clause s pos (check_congr t_form t_atom l fl)
       | EqCgrP pos l1 l2 fl => S.set_clause s pos (check_congr_pred t_form t_atom l1 l2 fl)
@@ -435,8 +439,8 @@ Inductive step :=
     set (empty_bv := (fun (a:Atom.atom) s => BITVECTOR_LIST.zeros s)).
     intros rho H1 H2 H10 s Hs. destruct (Form.check_form_correct (Atom.interp_form_hatom t_i t_func t_atom) (Atom.interp_form_hatom_bv t_i t_func t_atom) _ H1)
     as [[Ht1 Ht2] Ht3]. destruct (Atom.check_atom_correct _ H2) as
-    [Ha1 Ha2]. intros [pos res|pos cid c|pos cid lf|pos|pos|pos l|pos l|pos l i|pos cid
-    |pos cid|pos cid i|pos l|pos l|pos l fl|pos l fl|pos l1 l2 fl|pos l c|pos l c| pos cl c|pos l|pos orig res l
+    [Ha1 Ha2]. intros [pos res|pos cid c|pos cid lf|pos|pos|pos l|pos l|pos l|pos l i|pos cid
+    |pos cid|pos cid i|pos l|pos l|pos l|pos l fl|pos l fl|pos l1 l2 fl|pos l c|pos l c| pos cl c|pos l|pos orig res l
     |pos orig res|pos res|pos res|pos orig1 orig2 res|pos orig res|pos orig res
     |pos orig1 orig2 res|pos orig1 orig2 res
     |pos orig1 orig2 res|pos orig1 orig2 res|pos orig1 orig2 res|pos orig1 orig2 res
@@ -449,6 +453,7 @@ Inductive step :=
       + rewrite (Syntactic.check_neg_hatom_correct_bool _ _ _ H10 Ha1 Ha2 _ _ H); auto.
     - apply valid_check_True; auto.
     - apply valid_check_False; auto.
+    - apply valid_check_NotNot; auto.
     - apply valid_check_BuildDef; auto.
     - apply valid_check_BuildDef2; auto.
     - apply valid_check_BuildProj; auto.
@@ -457,6 +462,7 @@ Inductive step :=
     - apply valid_check_ImmBuildProj; auto.
     - apply valid_check_NotSimplify; auto.
     - apply valid_check_AndSimplify; auto.
+    - apply valid_check_OrSimplify; auto.
     - apply valid_check_trans; auto.
     - apply valid_check_congr; auto.
     - apply valid_check_congr_pred; auto.
@@ -556,6 +562,7 @@ Inductive step :=
       | ImmFlatten pos _ _
       | CTrue pos
       | CFalse pos
+      | NotNot pos _
       | BuildDef pos _
       | BuildDef2 pos _
       | BuildProj pos _ _
@@ -564,6 +571,7 @@ Inductive step :=
       | ImmBuildProj pos _ _
       | NotSimplify pos _
       | AndSimplify pos _
+      | OrSimplify pos _
       | EqTr pos _ _
       | EqCgr pos _ _
       | EqCgrP pos _ _ _
@@ -617,6 +625,7 @@ Inductive step :=
   | Name_ImmFlatten
   | Name_CTrue
   | Name_CFalse
+  | Name_NotNot
   | Name_BuildDef
   | Name_BuildDef2
   | Name_BuildProj
@@ -625,6 +634,7 @@ Inductive step :=
   | Name_ImmBuildProj
   | Name_NotSimplify
   | Name_AndSimplify
+  | Name_OrSimplify
   | Name_EqTr
   | Name_EqCgr
   | Name_EqCgrP
@@ -664,6 +674,7 @@ Inductive step :=
     | ImmFlatten _ _ _ => Name_ImmFlatten
     | CTrue _ => Name_CTrue
     | CFalse _ => Name_CFalse
+    | NotNot _ _ => Name_NotNot
     | BuildDef _ _ => Name_BuildDef
     | BuildDef2 _ _ => Name_BuildDef2
     | BuildProj _ _ _ => Name_BuildProj
@@ -672,6 +683,7 @@ Inductive step :=
     | ImmBuildProj _ _ _ => Name_ImmBuildProj
     | NotSimplify _ _ => Name_NotSimplify
     | AndSimplify _ _ => Name_AndSimplify
+    | OrSimplify _ _ => Name_OrSimplify
     | EqTr _ _ _ => Name_EqTr
     | EqCgr _ _ _ => Name_EqCgr
     | EqCgrP _ _ _ _ => Name_EqCgrP

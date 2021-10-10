@@ -127,6 +127,17 @@ Section CHECKER.
   Definition check_False  := Lit.neg (Lit._false)::nil.
 
 
+  (* * notnot           : {(not (not not x)) x} *)
+  Definition check_NotNot l :=
+    if Lit.is_pos l then
+      C._true
+    else
+      match get_hash (Lit.blit l) with
+        | Fnot2 1 x => l :: x :: nil
+        | _ => C._true
+      end.
+
+
   (* * and_neg          : {(and a_1 ... a_n) (not a_1) ... (not a_n)}
      * or_pos           : {(not (or a_1 ... a_n)) a_1 ... a_n} 
      * implies_pos      : {(not (implies a b)) (not a) b}
@@ -305,6 +316,11 @@ Section CHECKER.
     | _ => C._true
     end.
 
+
+  (* * not_simplify     : {iff (not (not x)) x}
+                          {iff (not false) true}
+                          {iff (not true) false}
+  *)
   Definition check_NotSimplify l := 
     match get_hash (Lit.blit l) with
     | Fiff a b => 
@@ -317,6 +333,13 @@ Section CHECKER.
     | _ => C._true
     end.
 
+
+  (* * and_simplify     : {iff (and true ... true) true}
+                          {iff (and x_1 ... x_n) (and x_1 ... x_n'), removing all true from x_1,...,x_n}
+                          {iff (and x_1 ... x_n) (and x_1 ... x_n'), removing all repeated literals from x_1,...,x_n}
+                          {iff (and x_1 ... false ... x_n) false}
+                          {iff (and x_1 ... x_i ... x_j ... x_n) false, if x_i = not x_j}
+  *)
   Definition check_AndSimplify l :=
     match get_hash (Lit.blit l) with
     | Fiff x y => 
@@ -359,6 +382,55 @@ Section CHECKER.
     | _ => C._true
     end.
 
+
+    (* * or_simplify     :  {iff (or false ... false) false}
+                            {iff (or x_1 ... x_n) (or x_1 ... x_n'), removing all false from x_1,...,x_n}
+                            {iff (or x_1 ... x_n) (or x_1 ... x_n'), removing all repeated literals from x_1,...,x_n}
+                            {iff (or x_1 ... true ... x_n) true}
+                            {iff (or x_1 ... x_i ... x_j ... x_n) true, if x_i = not x_j}
+    *)
+    Definition check_OrSimplify l :=
+      match get_hash (Lit.blit l) with
+      | Fiff x y => 
+        if (Lit.is_pos x) && (Lit.is_pos y) then
+          match get_hash (Lit.blit x), get_hash (Lit.blit y) with
+          (* or false ... false <-> false *)
+          | For xs, Ffalse =>
+            if PArray.forallb (fun x => eqb x true) 
+                              (PArray.map (fun x => Lit.is_pos x && match get_hash (Lit.blit x) with
+                                                    | Ffalse => true
+                                                    | _ => false
+                                                    end) xs) then
+            l::nil else C._true
+          (* or x_1 ... x_n <-> or x_1 ... x_n', where all false in x_i are removed *)
+          | For xs, For ys => if ((PArray.existsb (fun x => Lit.is_pos x && match get_hash (Lit.blit x) with
+                                                              | Ffalse => true
+                                                              | _ => false
+                                                              end) xs) &&
+                                   negb (PArray.existsb (fun x => Lit.is_pos x && match get_hash (Lit.blit x) with
+                                                              | Ffalse => true
+                                                              | _ => false
+                                                              end) ys)) ||
+          (* or x_1 ... x_n <-> or x_1 ... x_n', where all duplicates are removed *)
+                                   ((PArray.existsbi (fun i x => (PArray.existsbi (fun j y => (negb (i == j)) && (x == y)) xs)) xs) && 
+                                   negb (PArray.existsbi (fun i x => (PArray.existsbi (fun j y => (negb (i == j)) && (x == y)) ys)) ys)) then
+                                      l::nil else C._true
+          (* or x_1 ... true ... x_n <-> true *)
+          | For xs, Ftrue => if (PArray.existsb (fun x => Lit.is_pos x && match get_hash (Lit.blit x) with
+                                                            | Ftrue => true
+                                                            | _ => false
+                                                            end)
+                                          xs) ||
+          (* or x_1 ... x_i ... (not x_i) ... x_n <-> true *)
+                                  (PArray.existsb (fun x => Lit.is_pos x && 
+                                    (PArray.existsb (fun y => negb (Lit.is_pos y) && (x == y)) xs)) xs) then
+                               l::nil else C._true
+          | _, _ => C._true
+          end
+        else C._true
+      | _ => C._true
+      end.
+
     
   (** The correctness proofs *)
 
@@ -400,6 +472,11 @@ Section CHECKER.
      match goal with |- context [Lit.interp rho ?x] => 
      destruct (Lit.interp rho x);trivial end.
 
+  Lemma valid_check_NotNot : forall l, C.valid rho (check_NotNot l).
+  Proof.
+    admit.
+  Admitted.
+  
   Lemma valid_check_BuildDef : forall l, C.valid rho (check_BuildDef l).
   Proof.
    unfold check_BuildDef,C.valid;intros l.
@@ -491,6 +568,11 @@ Section CHECKER.
   Admitted.
 
   Lemma valid_check_AndSimplify : forall l, C.valid rho (check_AndSimplify l).
+  Proof.
+    admit.
+  Admitted.
+
+  Lemma valid_check_OrSimplify : forall l, C.valid rho (check_OrSimplify l).
   Proof.
     admit.
   Admitted.

@@ -240,7 +240,7 @@ rulename:
   | ASSUME { Assume } /* Inpu */
   | TRUE { True }
   | FALSE { Fals }
-  | NOTNOT { Hole } /* Needs to be updated */
+  | NOTNOT { Notnot }
   | THRESO { Hole }
   | RESO { Reso }
   | TAUT { Hole } /* Needs to be updated */
@@ -292,7 +292,7 @@ rulename:
   | NITE2 { Nite2 }
   | CONNDEF { Hole } /* Needs to be updated */
   | ANDSIMP { Andsimp } /* Needs to be updated */
-  | ORSIMP { Hole } /* Needs to be updated */
+  | ORSIMP { Orsimp } /* Needs to be updated */
   | NOTSIMP { Notsimp } /* Needs to be updated */
   | IMPSIMP { Hole } /* Needs to be updated */
   | EQSIMP { Hole } /* Needs to be updated */

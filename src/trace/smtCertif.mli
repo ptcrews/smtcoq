@@ -27,6 +27,9 @@ type 'hform rule =
   | False
      (* * false             : {(not false)}
      *)
+  | NotNot of 'hform
+     (*  * notnot           : {(not not x) --> x}
+     *)
   | BuildDef of 'hform (* the first literal of the clause *)
      (*  * and_neg          : {(and a_1 ... a_n) (not a_1) ... (not a_n)}
          * or_pos           : {(not (or a_1 ... a_n)) a_1 ... a_n}
@@ -91,6 +94,13 @@ type 'hform rule =
                               {iff (and x_1 ... x_n) (and x_1 ... x_n'), removing all repeated literals from x_1,...,x_n}
                               {iff (and x_1 ... false ... x_n) false}
                               {iff (and x_1 ... x_i ... x_j ... x_n) false, if x_i = not x_j}
+      *)
+  | OrSimplify of 'hform
+      (* * or_simplify     :  {iff (or false ... false) false}
+                              {iff (or x_1 ... x_n) (or x_1 ... x_n'), removing all false from x_1,...,x_n}
+                              {iff (or x_1 ... x_n) (or x_1 ... x_n'), removing all repeated literals from x_1,...,x_n}
+                              {iff (or x_1 ... true ... x_n) true}
+                              {iff (or x_1 ... x_i ... x_j ... x_n) true, if x_i = not x_j}
       *)
   (* Equality *)
   | EqTr of 'hform * 'hform list
