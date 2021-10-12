@@ -34,7 +34,6 @@ Section Checker_SmtEx1.
   Parse_certif_verit t_i1 t_func1 t_atom1 t_form1 root1 used_roots1 trace1 
   "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test1.smt2" 
   "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test1.vtlog".
-  (*Eval compute in (Form.check_form t_form0 && Atom.check_atom t_atom0 && Atom.wt t_i0 t_func0 t_atom0).*)
 End Checker_SmtEx1.
 
 Goal negb (true && (negb true)).
@@ -46,13 +45,18 @@ Section Checker_SmtEx2.
   Parse_certif_verit t_i2 t_func2 t_atom2 t_form2 root2 used_roots2 trace2 
   "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test2.smt2" 
   "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test2.vtlog".
-  (*Eval compute in (Form.check_form t_form0 && Atom.check_atom t_atom0 && Atom.wt t_i0 t_func0 t_atom0).*)
-End Checker_SmtEx2.
 
+End Checker_SmtEx2.
 Goal true || false.
 Proof.
   verit_bool.
 Qed.
+
+Section Checker_SmtEx3.
+  Parse_certif_verit t_i3 t_func3 t_atom3 t_form3 root3 used_roots3 trace3
+  "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test3.smt2" 
+  "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test3.vtlog".
+End Checker_SmtEx3.
 
 Goal forall p, negb (p && (negb p)).
 Proof.

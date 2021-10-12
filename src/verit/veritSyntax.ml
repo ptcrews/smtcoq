@@ -347,6 +347,16 @@ let mk_clause (id,typ,value,ids_params) =
         (match value with
           | l::_ -> Other (NotNot l)
           | _ -> assert false)
+      | Taut -> 
+        (match ids_params with
+          | [id] -> (match value with
+                    | l :: nil -> Other (Tautology ((get_clause id), l))
+                    | _ -> assert false)
+          | _ -> assert false)
+      | Cont ->
+        (match ids_params with
+          | [id] -> Other (Contraction ((get_clause id), value))
+          | _ -> assert false)
       | Andn | Orp | Impp | Xorp1 | Xorn1 | Equp1 | Equn1 | Itep1 | Iten1 ->
         (match value with
           | l::_ -> Other (BuildDef l)

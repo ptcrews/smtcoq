@@ -30,7 +30,14 @@ type 'hform rule =
      (*  * false            : {(not false)}
      *)
   | NotNot of 'hform (*the first literal of the clause *)
-     (*  * notnot           : {(not not x) --> x}
+     (*  * notnot           : {(not (not not x)) x}
+     *)
+  | Tautology of 'hform clause * 'hform
+     (*  * tautology        : {(x_1 ... x_i ... (not x_i) ... x_n) --> true)}
+     *)
+  | Contraction of 'hform clause * 'hform list
+     (*  * contraction      : {(x_1 ... x_n) --> (x_k1 ... x_kn)}, 
+          where duplicates are removed and order is preserved 
      *)
   | BuildDef of 'hform (* the first literal of the clause *)
      (*  * and_neg          : {(and a_1 ... a_n) (not a_1) ... (not a_n)}
@@ -275,9 +282,8 @@ and 'hform resolution = {
 let used_clauses r =
   match r with
   | ImmBuildProj (c, _) | ImmBuildDef c | ImmBuildDef2 c
-
-  | Weaken (c,_) | ImmFlatten (c,_)
-  | SplArith (c,_,_) | SplDistinctElim (c,_)
+  | Tautology (c, _) | Contraction (c,_) | Weaken (c,_) 
+  | ImmFlatten (c,_) | SplArith (c,_,_) | SplDistinctElim (c,_)
   | BBNot (c, _) | BBNeg (c, _) | BBExtr (c, _)
   | BBZextn (c, _) | BBSextn (c, _) -> [c]
 
@@ -314,6 +320,8 @@ let to_string r =
                            | True -> "True"
                            | False -> "False"
                            | NotNot _ -> "NotNot"
+                           | Tautology (_,_) -> "Tautology"
+                           | Contraction (_,_) -> "Contraction"
                            | BuildDef _ -> "BuildDef"
                            | BuildDef2 _ -> "BuildDef2"
                            | BuildProj _ -> "BuildProj"

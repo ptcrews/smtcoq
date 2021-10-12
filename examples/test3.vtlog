@@ -1,0 +1,6 @@
+(assume h1 (and op_0 (not op_0)))
+(step t2 (cl (= (and op_0 (not op_0)) false)) :rule and_simplify)
+(step t3 (cl (not (= (and op_0 (not op_0)) false)) (not (and op_0 (not op_0))) false) :rule equiv_pos2)
+(step t4 (cl false) :rule th_resolution :premises (h1 t2 t3))
+(step t5 (cl (not false)) :rule false)
+(step t6 (cl) :rule resolution :premises (t4 t5))

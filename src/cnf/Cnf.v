@@ -137,6 +137,27 @@ Section CHECKER.
         | _ => C._true
       end.
 
+  
+  (*  * tautology        : {(x_1 ... x_i ... (not x_i) ... x_n) --> true)}
+     *)
+  Definition check_Taut pos l :=
+    match S.get s pos, get_hash (Lit.blit l) with
+    | xs, Ttrue => if (existsb (fun x => Lit.is_pos x && 
+               (existsb (fun y => negb (Lit.is_pos y) && (x == y)) xs)) 
+               xs) then
+      l::nil else C._true
+    end.
+
+  (*  * contraction      : {(x_1 ... x_n) --> (x_k1 ... x_kn)}, 
+          where duplicates are removed and order is preserved 
+     *)
+  Definition check_Contr pos1 pos2 :=
+    match S.get s pos1, S.get s pos2 with
+    | xs, ys => (* Check whether each element in xs only occurs once in ys *)
+        if (List.forallb (fun x => Nat.eqb (List.length (List.filter (fun y => y == x) ys)) 1) xs) then
+        ys else C._true
+    end.
+
 
   (* * and_neg          : {(and a_1 ... a_n) (not a_1) ... (not a_n)}
      * or_pos           : {(not (or a_1 ... a_n)) a_1 ... a_n} 
@@ -473,6 +494,16 @@ Section CHECKER.
      destruct (Lit.interp rho x);trivial end.
 
   Lemma valid_check_NotNot : forall l, C.valid rho (check_NotNot l).
+  Proof.
+    admit.
+  Admitted.
+
+  Lemma valid_check_Taut : forall pos l, C.valid rho (check_Taut pos l).
+  Proof.
+    admit.
+  Admitted.
+
+  Lemma valid_check_Contr : forall pos1 pos2, C.valid rho (check_Contr pos1 pos2).
   Proof.
     admit.
   Admitted.

@@ -352,9 +352,9 @@ let build_certif first_root confl =
 
 let to_coq to_lit interp (cstep,
     cRes, cWeaken, cImmFlatten,
-    cTrue, cFalse, cNotNot, cBuildDef, cBuildDef2, 
-    cBuildProj, cImmBuildProj,cImmBuildDef,cImmBuildDef2,
-    cNotSimp, cAndSimp, cOrSimp,
+    cTrue, cFalse, cNotNot, cTaut, cCont, cBuildDef, 
+    cBuildDef2, cBuildProj, cImmBuildProj,cImmBuildDef,
+    cImmBuildDef2, cNotSimp, cAndSimp, cOrSimp,
     cEqTr, cEqCgr, cEqCgrP, cIffTrans, cIffCong,
     cLiaMicromega, cLiaDiseq, cSplArith, cSplDistinctElim,
     cBBVar, cBBConst, cBBOp, cBBNot, cBBEq, cBBDiseq,
@@ -395,6 +395,11 @@ let to_coq to_lit interp (cstep,
               | True -> mklApp cTrue [|out_c c|]
 	            | False -> mklApp cFalse [|out_c c|]
               | NotNot f -> mklApp cNotNot [|out_c c; out_f f|]
+              | Tautology (c', l) -> 
+                mklApp cTaut [|out_c c; out_c c'; out_f l|]
+              | Contraction (c', fl) -> 
+                let out_cl cl = List.fold_right (fun f l -> mklApp ccons [|Lazy.force cint; out_f f; l|]) cl (mklApp cnil [|Lazy.force cint|]) in
+                mklApp cCont [|out_c c; out_c c'; out_cl fl|]
 	            | BuildDef f -> mklApp cBuildDef [|out_c c; out_f f|]
 	            | BuildDef2 f -> mklApp cBuildDef2 [|out_c c;out_f f|]
 	            | BuildProj (f, i) -> mklApp cBuildProj [|out_c c; out_f f;mkInt i|]

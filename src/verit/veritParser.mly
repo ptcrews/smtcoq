@@ -243,8 +243,8 @@ rulename:
   | NOTNOT { Notnot }
   | THRESO { Hole }
   | RESO { Reso }
-  | TAUT { Hole } /* Needs to be updated */
-  | CONT { Hole } /* Needs to be updated */
+  | TAUT { Taut } /* Needs to be checked */
+  | CONT { Cont } /* Needs to be checked */
   | REFL { Hole } /* Needs to be updated */
   | TRANS { Trans }
   | CONG { Hole } /* Needs to be updated */

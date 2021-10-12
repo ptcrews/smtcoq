@@ -326,6 +326,8 @@ Inductive step :=
   | CTrue (pos:int)
   | CFalse (pos:int)
   | NotNot (pos:int) (l:_lit)
+  | Taut (pos:int) (cid:clause_id) (l:_lit)
+  | Contr (pos:int) (cid1 cid2:clause_id)
   | BuildDef (pos:int) (l:_lit)
   | BuildDef2 (pos:int) (l:_lit)
   | BuildProj (pos:int) (l:_lit) (i:int)
@@ -385,6 +387,8 @@ Inductive step :=
       | CTrue pos => S.set_clause s pos Cnf.check_True
       | CFalse pos => S.set_clause s pos Cnf.check_False
       | NotNot pos l => S.set_clause s pos (check_NotNot t_form l)
+      | Taut pos cid l => S.set_clause s pos (check_Taut s cid l)
+      | Contr pos cid1 cid2 => S.set_clause s pos (check_Contr s cid1 cid2)
       | BuildDef pos l => S.set_clause s pos (check_BuildDef t_form l)
       | BuildDef2 pos l => S.set_clause s pos (check_BuildDef2 t_form l)
       | BuildProj pos l i => S.set_clause s pos (check_BuildProj t_form l i)
@@ -439,7 +443,7 @@ Inductive step :=
     set (empty_bv := (fun (a:Atom.atom) s => BITVECTOR_LIST.zeros s)).
     intros rho H1 H2 H10 s Hs. destruct (Form.check_form_correct (Atom.interp_form_hatom t_i t_func t_atom) (Atom.interp_form_hatom_bv t_i t_func t_atom) _ H1)
     as [[Ht1 Ht2] Ht3]. destruct (Atom.check_atom_correct _ H2) as
-    [Ha1 Ha2]. intros [pos res|pos cid c|pos cid lf|pos|pos|pos l|pos l|pos l|pos l i|pos cid
+    [Ha1 Ha2]. intros [pos res|pos cid c|pos cid lf|pos|pos|pos l|pos cid l|pos cid1 cid2|pos l|pos l|pos l i|pos cid
     |pos cid|pos cid i|pos l|pos l|pos l|pos l fl|pos l fl|pos l1 l2 fl|pos l c|pos l c| pos cl c|pos l|pos orig res l
     |pos orig res|pos res|pos res|pos orig1 orig2 res|pos orig res|pos orig res
     |pos orig1 orig2 res|pos orig1 orig2 res
@@ -454,6 +458,8 @@ Inductive step :=
     - apply valid_check_True; auto.
     - apply valid_check_False; auto.
     - apply valid_check_NotNot; auto.
+    - apply valid_check_Taut; auto.
+    - apply valid_check_Contr; auto.
     - apply valid_check_BuildDef; auto.
     - apply valid_check_BuildDef2; auto.
     - apply valid_check_BuildProj; auto.
@@ -563,6 +569,8 @@ Inductive step :=
       | CTrue pos
       | CFalse pos
       | NotNot pos _
+      | Taut pos _ _
+      | Contr pos _ _
       | BuildDef pos _
       | BuildDef2 pos _
       | BuildProj pos _ _
@@ -626,6 +634,8 @@ Inductive step :=
   | Name_CTrue
   | Name_CFalse
   | Name_NotNot
+  | Name_Taut
+  | Name_Contr
   | Name_BuildDef
   | Name_BuildDef2
   | Name_BuildProj
@@ -675,6 +685,8 @@ Inductive step :=
     | CTrue _ => Name_CTrue
     | CFalse _ => Name_CFalse
     | NotNot _ _ => Name_NotNot
+    | Taut _ _ _ => Name_Taut
+    | Contr _ _ _ => Name_Contr
     | BuildDef _ _ => Name_BuildDef
     | BuildDef2 _ _ => Name_BuildDef2
     | BuildProj _ _ _ => Name_BuildProj
