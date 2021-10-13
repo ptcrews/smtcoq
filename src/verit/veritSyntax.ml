@@ -223,10 +223,12 @@ let mkCongrPred p =
 let mkIffCong prems value =
     (match value with
       | l::_ -> if is_eq l then
+                  (* congruence over functions, use eq_congruent and resolution *)
                   (*let res = {rc1 = mkCongr_aux l prems; rc2 = List.hd prems; rtail = List.tl prems} in
                   Res res*)
                   Other (IffCong (prems, l))
                 else if is_iff l then
+                  (* congruence over predicates *)
                   Other (IffCong (prems, l))
                 else raise (Debug "VeritSyntax.mkIffCong: conclusion must be an equality or iff")
       | _ -> raise (Debug "VeritSyntax.mkIffCong: conclusion has no or more than one literal"))

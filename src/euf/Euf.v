@@ -40,6 +40,7 @@ Section certif.
     end.
   (* Register get_eq as PrimInline. *)
 
+
   Fixpoint check_trans_aux (t1 t2:int)
       (eqs:list _lit) (res:_lit) (clause:C.t) : C.t :=
     match eqs with
@@ -78,6 +79,7 @@ Section certif.
       get_eq xeq
         (fun t1 t2 => check_trans_aux t1 t2 eqs res (Lit.nlit xeq :: nil))
     end.
+
 
   (* eqs: disequalities in the premises, l r: arguments of the conclusion,
      c: clause to be constructed, initially consisting only of the conclusion *)
@@ -181,111 +183,115 @@ Section certif.
   (* * iffcong               : {(= x_1 y_1) --> (= x_2 y_2) --> ... --> (= x_n y_n)
                                 --> (= f(x_1, ..., x_n) f(y_1, ..., y_n)
     *)
-
-    Definition form_eqb (x y : form) : bool := 
-      match x, y with
-      | Fatom x, Fatom y => x == y
-      | Ftrue, Ftrue | Ffalse, Ffalse => true
-      | Fnot2 m x, Fnot2 n y => (x == y) && 
-                               (((is_even m) && (is_even n)) || 
-                               (negb (is_even m) && negb (is_even n)))
-      | Fand xs, Fand ys => PArray.eqb (Int63Native.eqb) xs ys
-      | For xs, For ys => PArray.eqb (Int63Native.eqb) xs ys
-      | Fimp xs, Fimp ys => PArray.eqb (Int63Native.eqb) xs ys
-      | Fxor x1 x2, Fxor y1 y2 => (x1 == y1) && (x2 == y2)
-      | Fiff x1 x2, Fiff y1 y2 => (x1 == y1) && (x2 == y2)
-      | Fite x1 x2 x3, Fite y1 y2 y3 => (x1 == y1) && (x2 == y2) && (x3 == y3)
-      | _, _ => false
+    
+    Fixpoint check_iffcong_aux_atom (ps: list _lit) (c1:list int) (c2:list int) :=
+      match ps, c1, c2 with
+      | nil, nil, nil => true
+      | psh::pstl, c1h::c1tl, c2h::c2tl => 
+          (* All premises are positive equalities *)
+          if Lit.is_pos psh then
+            (match get_form (Lit.blit psh) with
+            | Fatom a => match get_atom a with
+                         | Atom.Abop (Atom.BO_eq _) psh1 psh2 => 
+                            if ((psh1 == c1h) && (psh2 == c2h)) || ((psh1 == c2h) && (psh2 == c1h)) then
+                              check_iffcong_aux_atom pstl c1tl c2tl
+                            else if (c1h == c2h) then 
+                              check_iffcong_aux_atom ps c1tl c2tl
+                            else false
+                         | _ => false
+                         end
+            | _ => false
+            end)
+          else false
+      | nil, c1h::c1tl, c2h::c2tl => if (c1h == c2h) then check_iffcong_aux_atom ps c1tl c2tl else false
+      | _, _, _ => false
       end.
-
-    Fixpoint check_iffcong_aux (ps:list _lit) (c1:list int) (c2:list int) :=
+          
+    Fixpoint check_iffcong_aux_form (ps:list _lit) (c1:list int) (c2:list int) :=
       match ps, c1, c2 with
       | nil, nil, nil => true
       | psh::pstl, c1h::c1tl, c2h::c2tl =>
           (* All premises are positive equalities *)
           if Lit.is_pos psh then
             match get_form (Lit.blit psh) with
-            | Fiff psh1 psh2 => match get_form (Lit.blit psh1), get_form (Lit.blit psh2), 
-                                      get_form (Lit.blit c1h), get_form (Lit.blit c2h) with
-                                | psh1', psh2', c1h', c2h' => 
-                                  if (((form_eqb psh1' c1h') && (form_eqb psh2' c2h')) ||
-                                     ((form_eqb psh1' c2h') && (form_eqb psh2' c1h'))) then
-                                    check_iffcong_aux pstl c1tl c2tl
-                                  else if (form_eqb c1h' c2h') then
-                                    check_iffcong_aux ps c1tl c2tl
-                                  else false
-                                end
+            | Fiff psh1 psh2 => if ((psh1 == c1h) && (psh2 == c2h)) || ((psh1 == c2h) && (psh2 == c1h)) then
+                                  check_iffcong_aux_form pstl c1tl c2tl
+                                else if (c1h == c2h) then
+                                  check_iffcong_aux_form ps c1tl c2tl
+                                else false
             | _ => false
             end
           else false
-      | nil, c1h::c1tl, c2h::c2tl => if (form_eqb (get_form (Lit.blit c1h)) (get_form (Lit.blit c2h))) then
-                                      check_iffcong_aux nil c1tl c2tl
-                                     else false
+      | nil, c1h::c1tl, c2h::c2tl => if (c1h == c2h) then check_iffcong_aux_form nil c1tl c2tl else false
       | _, _, _ => false
       end.
 
     Definition check_iffcong (ls:list _lit) (l:_lit) :=
       (* Fetch equalities from premise clauses *)
       let prems := List.map (fun x => match S.get s x with
-                                       | l :: nil => l
+                                       | p :: nil => p
                                        | _ => Lit._true
                                       end) ls in
-      let extract_args := fun x => match get_form (Lit.blit x) with
-                                    | Fatom a => a
-                                    | _ => Lit._true
-                                   end in
       (* Conclusion is a positive equality *)
       if Lit.is_pos l then
         match get_form (Lit.blit l) with
-        | Fiff l1 l2 => match get_form (Lit.blit l1), get_form (Lit.blit l2) with
-                        (* Theory predicates *)
-                        | Fatom a, Fatom b => match get_atom a, get_atom b with
-                          | Atom.Abop o1 a1 a2, Atom.Abop o2 b1 b2 =>
-                              if Atom.bop_eqb o1 o2 then
-                                if (check_iffcong_aux prems (a1::a2::nil) (b1::b2::nil)) then 
-                                  l::nil 
+        | Fiff l1 l2 => if (Lit.is_pos l1) && (Lit.is_pos l2) then
+                          (match get_form (Lit.blit l1), get_form (Lit.blit l2) with
+                          (* Theory predicates *)
+                          | Fatom a, Fatom b => match get_atom a, get_atom b with
+                              | Atom.Abop o1 a1 a2, Atom.Abop o2 b1 b2 =>
+                                if Atom.bop_eqb o1 o2 then
+                                  if (check_iffcong_aux_atom prems (a1::a2::nil) (b1::b2::nil)) then 
+                                    l::nil 
+                                  else C._true
                                 else C._true
-                              else C._true
-                          | Atom.Auop o1 a, Atom.Auop o2 b =>
-                              if Atom.uop_eqb o1 o2 then
-                                if (check_iffcong_aux prems (a::nil) (b::nil)) then
-                                  l::nil 
+                              | Atom.Auop o1 a, Atom.Auop o2 b =>
+                                if Atom.uop_eqb o1 o2 then
+                                  if (check_iffcong_aux_atom prems (a::nil) (b::nil)) then
+                                    l::nil 
+                                  else C._true
                                 else C._true
-                              else C._true
-                          | Atom.Aapp p a, Atom.Aapp p' b =>
-                              if p == p' then
-                                if (check_iffcong_aux prems a b) then l::nil else C._true
-                              else C._true
-                          | _, _ => C._true
-                          end
-                        (* Formulas as predicates *)
-                        | Fand a, Fand b => let a_args := List.map extract_args (PArray.to_list a) in
-                                            let b_args := List.map extract_args (PArray.to_list b) in
-                                            if (check_iffcong_aux prems a_args b_args) then 
+                              | Atom.Aapp p a, Atom.Aapp p' b =>
+                                if p == p' then
+                                  if (check_iffcong_aux_atom prems a b) then l::nil else C._true
+                                else C._true
+                              | _, _ => C._true
+                              end
+                          (* Formulas as predicates *)
+                          | Fand a, Fand b => let a_args := (PArray.to_list a) in
+                                              let b_args := (PArray.to_list b) in
+                                              if (check_iffcong_aux_form prems a_args b_args) then 
+                                                l::nil
+                                              else C._true
+                          | For a, For b => let a_args := (PArray.to_list a) in
+                                            let b_args := (PArray.to_list b) in
+                                            if (check_iffcong_aux_form prems a_args b_args) then 
                                               l::nil
                                             else C._true
-                        | For a, For b => let a_args := List.map extract_args (PArray.to_list a) in
-                                          let b_args := List.map extract_args (PArray.to_list b) in
-                                          if (check_iffcong_aux prems a_args b_args) then 
-                                            l::nil
-                                          else C._true
-                        | Fimp a, Fimp b => let a_args := List.map extract_args (PArray.to_list a) in
-                                          let b_args := List.map extract_args (PArray.to_list b) in
-                                          if (check_iffcong_aux prems a_args b_args) then 
-                                            l::nil
-                                          else C._true
-                        | Fxor a1 b1, Fxor a2 b2 => let a_args := List.map extract_args (a1::b1::nil) in
-                                          let b_args := List.map extract_args (a2::b2::nil) in
-                                          if (check_iffcong_aux prems a_args b_args) then 
-                                            l::nil
-                                          else C._true
-                        | Fiff a1 b1, Fiff a2 b2 => let a_args := List.map extract_args (a1::b1::nil) in
-                                          let b_args := List.map extract_args (a2::b2::nil) in
-                                          if (check_iffcong_aux prems a_args b_args) then 
-                                            l::nil
-                                          else C._true
-                        | _, _ => C._true
-                        end
+                          | Fimp a, Fimp b => let a_args := (PArray.to_list a) in
+                                              let b_args := (PArray.to_list b) in
+                                              if (check_iffcong_aux_form prems a_args b_args) then 
+                                                l::nil
+                                              else C._true
+                          | Fxor a1 b1, Fxor a2 b2 => let a_args := (a1::b1::nil) in
+                                                      let b_args := (a2::b2::nil) in
+                                                      if (check_iffcong_aux_form prems a_args b_args) then 
+                                                        l::nil
+                                                      else C._true
+                          | Fiff a1 b1, Fiff a2 b2 => let a_args := (a1::b1::nil) in
+                                                      let b_args := (a2::b2::nil) in
+                                                      if (check_iffcong_aux_form prems a_args b_args) then 
+                                                        l::nil
+                                                      else C._true
+                          | _, _ => C._true
+                          end)
+                        (* not as a predicate *)
+                        else if (negb (Lit.is_pos l1) && negb (Lit.is_pos l2)) then
+                          (* Check that the negated conclusion elements are equal to the premises *)
+                          (if check_iffcong_aux_form prems ((Lit.neg l1)::nil) ((Lit.neg l2)::nil) then
+                            l::nil
+                          else C._true)
+                        else C._true
         | _ => C._true
         end
       else C._true.

@@ -48,6 +48,21 @@ Module Form.
   (* TODO: replace [list _lit] with [fargs] *)
   .
 
+  (*Definition form_eqb (x y : form) : bool := 
+      match x, y with
+      | Fatom x, Fatom y => x == y
+      | Ftrue, Ftrue | Ffalse, Ffalse => true
+      | Fnot2 m x, Fnot2 n y => (x == y) && 
+                               (((is_even m) && (is_even n)) || 
+                               (negb (is_even m) && negb (is_even n)))
+      | Fand xs, Fand ys => PArray.eqb (Int63Native.eqb) xs ys
+      | For xs, For ys => PArray.eqb (Int63Native.eqb) xs ys
+      | Fimp xs, Fimp ys => PArray.eqb (Int63Native.eqb) xs ys
+      | Fxor x1 x2, Fxor y1 y2 => (x1 == y1) && (x2 == y2)
+      | Fiff x1 x2, Fiff y1 y2 => (x1 == y1) && (x2 == y2)
+      | Fite x1 x2 x3, Fite y1 y2 y3 => (x1 == y1) && (x2 == y2) && (x3 == y3)
+      | _, _ => false
+      end.*)
 
   Definition is_Ftrue h :=
     match h with Ftrue => true | _ => false end.

@@ -47,6 +47,7 @@ Section Checker_SmtEx2.
   "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test2.vtlog".
 
 End Checker_SmtEx2.
+
 Goal true || false.
 Proof.
   verit_bool.
