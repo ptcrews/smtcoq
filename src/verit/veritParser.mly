@@ -290,13 +290,13 @@ rulename:
   | ITEN2 { Iten2 }
   | NITE1 { Nite1 }
   | NITE2 { Nite2 }
-  | CONNDEF { Hole } /* Needs to be updated */
+  | CONNDEF { Conndef } /* Needs to be checked */
   | ANDSIMP { Andsimp }
   | ORSIMP { Orsimp }
   | NOTSIMP { Notsimp }
-  | IMPSIMP { Impsimp }
-  | EQSIMP { Hole } /* Needs to be updated */
-  | BOOLSIMP { Hole } /* Needs to be updated */
+  | IMPSIMP { Impsimp } /* Needs to be checked */
+  | EQSIMP { Eqsimp } /* Needs to be checked */
+  | BOOLSIMP { Boolsimp } /* Needs to be checked */
   | ACSIMP { Hole } /* Needs to be updated */
   | ITESIMP { Hole } /* Needs to be updated */
   | EQUALSIMP { Hole } /* Needs to be updated */

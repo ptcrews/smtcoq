@@ -120,6 +120,30 @@ type 'hform rule =
                               {iff (x -> not x) (not x)}
                               {iff ((x -> y) -> y) (or x y)}
       *)
+  | EquivSimplify of 'hform
+      (* * equiv_simplify  :  {iff (iff (not x) (not y)) (iff x y)}
+                              {iff (iff x x) true}
+                              {iff (iff x (not x)) false}
+                              {iff (iff (not x) x) false}
+                              {iff (iff true x) x}
+                              {iff (iff x true) x}
+                              {iff (iff false x) (not x)}
+                              {iff (iff x false) (not x)}
+      *)
+  | BoolSimplify of 'hform
+      (* * bool_simplify   :  {iff (not (x -> y)) (and x (not y))}
+                              {iff (not (or x y)) (and (not x) (not y))}
+                              {iff (not (and x y)) (or (not x) (not y))}
+                              {iff (x -> (y -> z)) ((and x y) -> z)}
+                              {iff ((x -> y) -> y) (or x y)}
+                              {iff (and x (x -> y)) (and x y)}
+                              {iff (and (x -> y) x) (and x y)}
+      *)
+  | ConnDef of 'hform
+      (* * connective_def  :  {iff (xor x y) (or (and (not x) y) (and x (not y)))}
+                              {iff (iff x y) (and (x -> y) (y -> x)))}
+                              {iff (ite f x y) (and (f -> x) ((not f) -> (not y))))}
+      *)
   (* Equality *)
   | EqTr of 'hform * 'hform list
     (*  * eq_reflexive     : {(= x x)}

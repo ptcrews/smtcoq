@@ -246,6 +246,7 @@ val make_certif_ops :
            Structures.constr lazy_t * Structures.constr lazy_t * Structures.constr lazy_t *
            Structures.constr lazy_t * Structures.constr lazy_t * Structures.constr lazy_t *
            Structures.constr lazy_t * Structures.constr lazy_t * Structures.constr lazy_t *
+           Structures.constr lazy_t * Structures.constr lazy_t * Structures.constr lazy_t *
            Structures.constr lazy_t * Structures.constr lazy_t
 
 (* Some constructions *)

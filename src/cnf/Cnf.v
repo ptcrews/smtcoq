@@ -540,8 +540,241 @@ Fixpoint list_eqb l1 l2 : bool :=
           end
       | _ => C._true
       end.
+
+      
+    (* equiv_simplify     :   {iff (iff (not x) (not y)) (iff x y)}
+                              {iff (iff x x) true}
+                              {iff (iff x (not x)) false}
+                              {iff (iff (not x) x) false}
+                              {iff (iff true x) x}
+                              {iff (iff x true) x}
+                              {iff (iff false x) (not x)}
+                              {iff (iff x false) (not x)}
+    *)
+    Definition check_EquivSimplify l :=
+      match get_hash (Lit.blit l) with
+      | Fiff x y => 
+          match get_hash (Lit.blit x) with
+          | Fiff x1 x2 => 
+            let x1h := get_hash (Lit.blit x1) in
+            let x2h := get_hash (Lit.blit x2) in
+            let yh := get_hash (Lit.blit y) in
+            (* More general cases first *)
+            (* iff (iff true x) x *)
+            if (x2 == y) && (form_eqb x1h Ftrue) then l::nil 
+            (* iff (iff x true) x *)
+            else if (x1 == y) && (form_eqb x2h Ftrue) then l::nil
+            (* iff (iff false x) (not x) *)
+            else if (y == Lit.neg x2) && (form_eqb x1h Ffalse) then l::nil
+            (* iff (iff x false) (not x) *)
+            else if (y == Lit.neg x1) && (form_eqb x2h Ffalse) then l::nil
+            (* More specific cases next *)
+            else 
+              match x1h, x2h, yh with
+              (* iff (iff x x) true *)
+              | _, _, Ftrue => if (x1 == x2) then l::nil else C._true
+              (* iff (iff x (not x)) false *)
+              | _, _, Ffalse => if (x2 == Lit.neg x1) then l::nil else
+                                if (x1 == Lit.neg x2) then l::nil else C._true
+              | _, _, Fiff y1 y2 => if (x1 == Lit.neg y1) && (x2 == Lit.neg y2) then l::nil 
+                                    else C._true
+              | _, _, _ => C._true
+              end
+          | _ => C._true
+          end
+      | _ => C._true
+      end.
+
     
-    
+    (* bool_simplify     :    {iff (not (x -> y)) (and x (not y))}
+                              {iff (not (or x y)) (and (not x) (not y))}
+                              {iff (not (and x y)) (or (not x) (not y))}
+                              {iff (x -> (y -> z)) ((and x y) -> z)}
+                              {iff ((x -> y) -> y) (or x y)}
+                              {iff (and x (x -> y)) (and x y)}
+                              {iff (and (x -> y) x) (and x y)}
+    *)    
+    Definition check_BoolSimplify l :=
+      match get_hash (Lit.blit l) with
+      | Fiff x y => 
+          match get_hash (Lit.blit x), get_hash (Lit.blit y) with
+          (* iff (not (x -> y)) (and x (not y)) *)
+          | Fimp xs, Fand ys => 
+              if (PArray.length xs == 2) && (PArray.length ys == 2) 
+              && negb (Lit.is_pos x) && (Lit.is_pos y) then
+                let x0 := xs.[0] in
+                let x1 := xs.[1] in
+                let y0 := ys.[0] in
+                let y1 := ys.[1] in
+                if (x0 == y0) && (y1 == Lit.neg x1) then l::nil else C._true 
+              else C._true
+          (* iff (not (or x y)) (and (not x) (not y)) *)
+          | For xs, Fand ys =>
+              if (PArray.length xs == 2) && (PArray.length ys == 2) 
+              && negb (Lit.is_pos x) && (Lit.is_pos y) then
+                let x0 := xs.[0] in
+                let x1 := xs.[1] in
+                let y0 := ys.[0] in
+                let y1 := ys.[1] in
+                if (y0 == Lit.neg x0) && (y1 == Lit.neg x1) then l::nil else C._true 
+              else C._true
+          (* iff (not (and x y)) (or (not x) (not y)) *)
+          | Fand xs, For ys =>
+              if (PArray.length xs == 2) && (PArray.length ys == 2) 
+              && negb (Lit.is_pos x) && (Lit.is_pos y) then
+                let x0 := xs.[0] in
+                let x1 := xs.[1] in
+                let y0 := ys.[0] in
+                let y1 := ys.[1] in
+                if (y0 == Lit.neg x0) && (y1 == Lit.neg x1) then l::nil else C._true 
+              else C._true
+          (* iff (x -> (y -> z)) ((and x y) -> z) *)
+          | Fimp xs, Fimp ys =>
+              if (PArray.length xs == 2) && (PArray.length ys == 2) 
+              && (Lit.is_pos x) && (Lit.is_pos y) then
+                let x0 := xs.[0] in
+                let x1 := xs.[1] in
+                let y0 := ys.[0] in
+                let y1 := ys.[1] in
+                match get_hash (Lit.blit x1), get_hash (Lit.blit y0) with
+                | Fimp x1s, Fand y0s => 
+                    if (PArray.length x1s == 2) && (PArray.length y0s == 2) 
+                    && (Lit.is_pos x1) && (Lit.is_pos y0) then
+                      let x10 := xs.[0] in
+                      let x11 := xs.[1] in
+                      let y00 := ys.[0] in
+                      let y01 := ys.[1] in
+                      if (x0 == y00) && (x10 == y00) && (x11 == y1) then l::nil 
+                      else C._true
+                    else C._true
+                | _, _ => C._true
+                end
+              else C._true
+          (* iff ((x -> y) -> y) (or x y) *)
+          | Fimp xs, For ys => 
+              if (PArray.length xs == 2) && (PArray.length ys == 2) 
+              && (Lit.is_pos x) && (Lit.is_pos y) then
+                let x0 := xs.[0] in
+                let x1 := xs.[1] in
+                let y0 := ys.[0] in
+                let y1 := ys.[1] in
+                match get_hash (Lit.blit x0) with
+                | Fimp x0s => 
+                    if (PArray.length x0s == 2) && (Lit.is_pos x0) then
+                      let x00 := xs.[0] in
+                      let x01 := xs.[1] in
+                      if (x00 == y0) && (x01 == x1) && (x1 == y1) then l::nil 
+                      else C._true 
+                    else C._true
+                | _ => C._true
+                end
+              else C._true
+          (* iff (and (x -> y) x) (and x y) *)
+          (* iff (and x (x -> y)) (and x y) *)
+          | Fand xs, Fand ys => 
+              if (PArray.length xs == 2) && (PArray.length ys == 2) 
+              && (Lit.is_pos x) && (Lit.is_pos y) then
+                let x0 := xs.[0] in
+                let x1 := xs.[1] in
+                let y0 := ys.[0] in
+                let y1 := ys.[1] in
+                match get_hash (Lit.blit x0), get_hash (Lit.blit x1) with
+                | Fimp x0s, _ =>
+                    if (PArray.length x0s == 2) && (Lit.is_pos x0) then
+                      let x00 := xs.[0] in
+                      let x01 := xs.[1] in
+                      if (x00 == y0) && (x01 == y1) && (x1 == y0) then l::nil 
+                      else C._true 
+                    else C._true
+                | _, Fimp x1s =>
+                    if (PArray.length x1s == 2) && (Lit.is_pos x1) then
+                      let x10 := xs.[0] in
+                      let x11 := xs.[1] in
+                      if (x0 == x10) && (x10 == y0) && (x11 == y1) then l::nil 
+                      else C._true 
+                    else C._true
+                | _, _ => C._true
+                end
+              else C._true
+          | _, _ => C._true
+          end
+      | _ => C._true
+      end.
+
+
+    (* connective_def     : {iff (xor x y) (or (and (not x) y) (and x (not y)))}
+                            {iff (iff x y) (and (x -> y) (y -> x)))}
+                            {iff (ite f x y) (and (f -> x) ((not f) -> (not y))))}
+    *)
+    Definition check_ConnectiveDef l :=
+      match get_hash (Lit.blit l) with
+      | Fiff x y => 
+          if (Lit.is_pos x) && (Lit.is_pos y) then
+            match get_hash (Lit.blit x), get_hash (Lit.blit y) with
+            (* iff (xor x y) (or (and (not x) y) (and x (not y))) *)
+            | Fxor x0 x1, For ys =>
+                if (PArray.length ys == 2)then
+                  let y0 := ys.[0] in
+                  let y1 := ys.[1] in
+                  match get_hash (Lit.blit y0), get_hash (Lit.blit y1) with
+                    | Fand y0s, Fand y1s => 
+                        if (PArray.length y0s == 2) && (Lit.is_pos y0) && 
+                           (PArray.length y1s == 2) && (Lit.is_pos y1) then
+                          let y00 := y0s.[0] in
+                          let y01 := y0s.[1] in
+                          let y10 := y1s.[0] in
+                          let y11 := y1s.[1] in
+                          if (x0 == y10) && (y00 == Lit.neg x0) && (x1 == y01) && (y11 == Lit.neg x1) then
+                          l::nil else C._true
+                        else C._true
+                    | _, _ => C._true
+                  end
+                else C._true
+            (* iff (iff x y) (and (x -> y) (y -> x))) *)
+            | Fiff x0 x1, Fand ys =>
+                if (PArray.length ys == 2)then
+                  let y0 := ys.[0] in
+                  let y1 := ys.[1] in
+                  match get_hash (Lit.blit y0), get_hash (Lit.blit y1) with
+                    | Fimp y0s, Fimp y1s => 
+                        if (PArray.length y0s == 2) && (Lit.is_pos y0) && 
+                           (PArray.length y1s == 2) && (Lit.is_pos y1) then
+                          let y00 := y0s.[0] in
+                          let y01 := y0s.[1] in
+                          let y10 := y1s.[0] in
+                          let y11 := y1s.[1] in
+                          if (x0 == y00) && (x0 == y11) && (x1 == y01) && (x1 == y10) then
+                          l::nil else C._true
+                        else C._true
+                    | _, _ => C._true
+                  end
+                else C._true
+            (* iff (ite f x y) (and (f -> x) ((not f) -> (not y)))) *)
+            | Fite f x0 x1, Fand ys =>
+                if (PArray.length ys == 2)then
+                  let y0 := ys.[0] in
+                  let y1 := ys.[1] in
+                  match get_hash (Lit.blit y0), get_hash (Lit.blit y1) with
+                    | Fimp y0s, Fimp y1s => 
+                        if (PArray.length y0s == 2) && (Lit.is_pos y0) && 
+                           (PArray.length y1s == 2) && (Lit.is_pos y1) then
+                          let y00 := y0s.[0] in
+                          let y01 := y0s.[1] in
+                          let y10 := y1s.[0] in
+                          let y11 := y1s.[1] in
+                          if (f == y00) && (y10 == Lit.neg f) && (x0 == y01) && (y11 == Lit.neg x1) then
+                          l::nil else C._true
+                        else C._true
+                    | _, _ => C._true
+                  end
+                else C._true
+            | _, _ => C._true
+            end
+          else C._true
+      | _ => C._true
+      end.
+
+
   (** The correctness proofs *)
 
   Variable interp_atom : atom -> bool.
@@ -698,6 +931,21 @@ Fixpoint list_eqb l1 l2 : bool :=
   Admitted.
 
   Lemma valid_check_ImpliesSimplify : forall l, C.valid rho (check_ImpliesSimplify l).
+  Proof.
+    admit.
+  Admitted.
+
+  Lemma valid_check_EquivSimplify : forall l, C.valid rho (check_EquivSimplify l).
+  Proof.
+    admit.
+  Admitted.
+
+  Lemma valid_check_BoolSimplify : forall l, C.valid rho (check_BoolSimplify l).
+  Proof.
+    admit.
+  Admitted.
+
+  Lemma valid_check_ConnectiveDef : forall l, C.valid rho (check_ConnectiveDef l).
   Proof.
     admit.
   Admitted.
