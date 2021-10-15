@@ -1,5 +1,5 @@
-(**************************************************************************)
 (*                                                                        *)
+(**************************************************************************)
 (*     SMTCoq                                                             *)
 (*     Copyright (C) 2011 - 2021                                          *)
 (*                                                                        *)
@@ -49,6 +49,11 @@ Section Checker_SmtEx2.
 End Checker_SmtEx2.
 
 Goal true || false.
+Proof.
+  verit_bool.
+Qed.
+
+Goal false && true -> true || false.
 Proof.
   verit_bool.
 Qed.

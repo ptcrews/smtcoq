@@ -109,6 +109,17 @@ type 'hform rule =
                               {iff (or x_1 ... true ... x_n) true}
                               {iff (or x_1 ... x_i ... x_j ... x_n) true, if x_i = not x_j}
       *)
+  | ImpSimplify of 'hform
+      (* * implies_simplify:  {iff (not x -> not y) (y -> x)}
+                              {iff (false -> x) true}
+                              {iff (x -> true) true}
+                              {iff (true -> x) x}
+                              {iff (x -> false) (not x)}
+                              {iff (x -> x) true}
+                              {iff (not x -> x) x}
+                              {iff (x -> not x) (not x)}
+                              {iff ((x -> y) -> y) (or x y)}
+      *)
   (* Equality *)
   | EqTr of 'hform * 'hform list
     (*  * eq_reflexive     : {(= x x)}

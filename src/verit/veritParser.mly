@@ -291,10 +291,10 @@ rulename:
   | NITE1 { Nite1 }
   | NITE2 { Nite2 }
   | CONNDEF { Hole } /* Needs to be updated */
-  | ANDSIMP { Andsimp } /* Needs to be updated */
-  | ORSIMP { Orsimp } /* Needs to be updated */
-  | NOTSIMP { Notsimp } /* Needs to be updated */
-  | IMPSIMP { Hole } /* Needs to be updated */
+  | ANDSIMP { Andsimp }
+  | ORSIMP { Orsimp }
+  | NOTSIMP { Notsimp }
+  | IMPSIMP { Impsimp }
   | EQSIMP { Hole } /* Needs to be updated */
   | BOOLSIMP { Hole } /* Needs to be updated */
   | ACSIMP { Hole } /* Needs to be updated */

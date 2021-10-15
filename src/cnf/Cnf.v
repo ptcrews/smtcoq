@@ -451,7 +451,96 @@ Section CHECKER.
         else C._true
       | _ => C._true
       end.
+About List.
 
+Fixpoint list_eqb l1 l2 : bool :=
+  if Nat.eqb (List.length l1) (List.length l2) then
+    match l1, l2 with
+    | h1 :: t1, h2 :: t2 => (h1 == h2) && list_eqb t1 t2
+    | _, _ => false
+    end
+  else false.
+
+  Definition form_eqb (x y : form) : bool := 
+    match x, y with
+    | Fatom x, Fatom y => x == y
+    | Ftrue, Ftrue | Ffalse, Ffalse => true
+    | Fnot2 m x, Fnot2 n y => (x == y) && 
+                             (((is_even m) && (is_even n)) || 
+                             (negb (is_even m) && negb (is_even n)))
+    | Fand xs, Fand ys => PArray.eqb (Int63Native.eqb) xs ys
+    | For xs, For ys => PArray.eqb (Int63Native.eqb) xs ys
+    | Fimp xs, Fimp ys => PArray.eqb (Int63Native.eqb) xs ys
+    | Fxor x1 x2, Fxor y1 y2 => (x1 == y1) && (x2 == y2)
+    | Fiff x1 x2, Fiff y1 y2 => (x1 == y1) && (x2 == y2)
+    | Fite x1 x2 x3, Fite y1 y2 y3 => (x1 == y1) && (x2 == y2) && (x3 == y3)
+    | FbbT x1 x2, FbbT y1 y2 => (x1 == y1) && (list_eqb x2 y2)
+    | _, _ => false
+    end.
+
+    (* implies_simplify     : {iff (not x -> not y) (y -> x)}
+                              {iff (false -> x) true}
+                              {iff (x -> true) true}
+                              {iff (true -> x) x}
+                              {iff (x -> false) (not x)}
+                              {iff (x -> x) true}
+                              {iff (not x -> x) x}
+                              {iff (x -> not x) (not x)}
+                              {iff ((x -> y) -> y) (or x y)}
+    *)
+    Definition check_ImpliesSimplify l :=
+      match get_hash (Lit.blit l) with
+      | Fiff x y => 
+          match get_hash (Lit.blit x) with
+          | Fimp xs => 
+            if PArray.length xs == 2 then
+              let x0 := xs.[0] in
+              let x1 := xs.[1] in
+              let x0h := get_hash (Lit.blit x0) in
+              let x1h := get_hash (Lit.blit x1) in
+              let yh := get_hash (Lit.blit y) in
+              (* More general cases first *)
+              (* iff (x -> x) true *)
+              if (x0 == x1) && (form_eqb yh Ftrue) then l::nil 
+              (* iff (true -> x) x *)
+              else if (x1 == y) && (form_eqb x0h Ftrue) then l::nil
+              (* iff (x -> false) (not x) *)
+              else if (y == Lit.neg x0) && (form_eqb x1h Ffalse) then l::nil
+              (* iff (x -> not x) (not x) *)
+              else if (x1 == Lit.neg x0) && (x1 == y) then l::nil
+              (* iff (not x -> x) x *)
+              else if (x0 == Lit.neg x1) && (x1 == y) then l::nil
+              (* More specific cases next *)
+              else 
+                match x0h, x1h, yh with
+                (* iff (false -> x) true *)
+                | Ffalse, _, Ftrue => l::nil
+                (* iff (x -> true) true *)
+                | _, Ftrue, Ftrue => l::nil
+                (* iff (not x -> not y) (y -> x) *)
+                | x0h, x1h, Fimp ys => 
+                  if PArray.length ys == 2 then
+                    let y0 := ys.[0] in
+                    let y1 := ys.[1] in
+                    if (x0 == Lit.neg y1) && (x1 == Lit.neg y0) then l::nil else C._true
+                  else C._true
+                (*iff ((x -> y) -> y) (or x y)*)
+                | Fimp x0s, x1h, For ys =>
+                  if (PArray.length x0s == 2) && (PArray.length ys == 2) then
+                    let x00 := x0s.[0] in
+                    let x01 := x0s.[1] in
+                    let y0 := ys.[0] in
+                    let y1 := ys.[1] in
+                    if (x00 == y0) && (x01 == x1) && (x1 == y1) then l::nil else C._true
+                  else C._true
+                | _, _, _ => C._true
+                end
+            else C._true
+          | _ => C._true
+          end
+      | _ => C._true
+      end.
+    
     
   (** The correctness proofs *)
 
@@ -604,6 +693,11 @@ Section CHECKER.
   Admitted.
 
   Lemma valid_check_OrSimplify : forall l, C.valid rho (check_OrSimplify l).
+  Proof.
+    admit.
+  Admitted.
+
+  Lemma valid_check_ImpliesSimplify : forall l, C.valid rho (check_ImpliesSimplify l).
   Proof.
     admit.
   Admitted.

@@ -111,6 +111,17 @@ type 'hform rule =
                               {iff (or x_1 ... true ... x_n) true}
                               {iff (or x_1 ... x_i ... x_j ... x_n) true, if x_i = not x_j}
       *)
+  | ImpSimplify of 'hform
+      (* * implies_simplify:  {iff (not x -> not y) (y -> x)}
+                              {iff (false -> x) true}
+                              {iff (x -> true) true}
+                              {iff (true -> x) x}
+                              {iff (x -> false) (not x)}
+                              {iff (x -> x) true}
+                              {iff (not x -> x) x}
+                              {iff (x -> not x) (not x)}
+                              {iff ((x -> y) -> y) (or x y)}
+      *)
   (* Equality *)
   | EqTr of 'hform * 'hform list
     (*  * eq_reflexive     : {(= x x)}
@@ -298,9 +309,9 @@ let used_clauses r =
 
   | True | False | NotNot _ | BuildDef _ 
   | BuildDef2 _ | BuildProj _ | NotSimplify _ 
-  | AndSimplify _ | OrSimplify _ | EqTr _ | EqCgr _ 
-  | EqCgrP _ | LiaMicromega _ | LiaDiseq _
-  | BBVar _ | BBConst _ | BBDiseq _
+  | AndSimplify _ | OrSimplify _ | ImpSimplify _ 
+  | EqTr _ | EqCgr _ | EqCgrP _ | LiaMicromega _ 
+  | LiaDiseq _ | BBVar _ | BBConst _ | BBDiseq _
   | RowEq _ | RowNeq _ | Ext _ -> []
 
 (* For debugging certif processing purposes : <add_scertif> <select> <occur> <alloc> *)
@@ -331,6 +342,7 @@ let to_string r =
                            | NotSimplify _ -> "NotSimplify"
                            | AndSimplify _ -> "AndSimplify"
                            | OrSimplify _ -> "OrSimplify"
+                           | ImpSimplify _ -> "ImpSimplify"
                            | EqTr _ -> "EqTr"
                            | EqCgr _ -> "EqCgr"
                            | EqCgrP _ -> "EqCgrP"

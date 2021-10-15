@@ -337,6 +337,7 @@ Inductive step :=
   | NotSimplify (pos:int) (l:_lit)
   | AndSimplify (pos:int) (l:_lit)
   | OrSimplify (pos:int) (l:_lit)
+  | ImpliesSimplify (pos:int) (l:_lit)
   | EqTr (pos:int) (l:_lit) (fl: list _lit)
   | EqCgr (pos:int) (l:_lit) (fl: list (option _lit))
   | EqCgrP (pos:int) (l1:_lit) (l2:_lit) (fl: list (option _lit))
@@ -398,6 +399,7 @@ Inductive step :=
       | NotSimplify pos l => S.set_clause s pos (check_NotSimplify t_form l)
       | AndSimplify pos l => S.set_clause s pos (check_AndSimplify t_form l)
       | OrSimplify pos l => S.set_clause s pos (check_OrSimplify t_form l)
+      | ImpliesSimplify pos l => S.set_clause s pos (check_ImpliesSimplify t_form l)
       | EqTr pos l fl => S.set_clause s pos (check_trans t_form t_atom l fl)
       | EqCgr pos l fl => S.set_clause s pos (check_congr t_form t_atom l fl)
       | EqCgrP pos l1 l2 fl => S.set_clause s pos (check_congr_pred t_form t_atom l1 l2 fl)
@@ -444,7 +446,7 @@ Inductive step :=
     intros rho H1 H2 H10 s Hs. destruct (Form.check_form_correct (Atom.interp_form_hatom t_i t_func t_atom) (Atom.interp_form_hatom_bv t_i t_func t_atom) _ H1)
     as [[Ht1 Ht2] Ht3]. destruct (Atom.check_atom_correct _ H2) as
     [Ha1 Ha2]. intros [pos res|pos cid c|pos cid lf|pos|pos|pos l|pos cid l|pos cid1 cid2|pos l|pos l|pos l i|pos cid
-    |pos cid|pos cid i|pos l|pos l|pos l|pos l fl|pos l fl|pos l1 l2 fl|pos l c|pos l c| pos cl c|pos l|pos orig res l
+    |pos cid|pos cid i|pos l|pos l|pos l|pos l|pos l fl|pos l fl|pos l1 l2 fl|pos l c|pos l c| pos cl c|pos l|pos orig res l
     |pos orig res|pos res|pos res|pos orig1 orig2 res|pos orig res|pos orig res
     |pos orig1 orig2 res|pos orig1 orig2 res
     |pos orig1 orig2 res|pos orig1 orig2 res|pos orig1 orig2 res|pos orig1 orig2 res
@@ -469,6 +471,7 @@ Inductive step :=
     - apply valid_check_NotSimplify; auto.
     - apply valid_check_AndSimplify; auto.
     - apply valid_check_OrSimplify; auto.
+    - apply valid_check_ImpliesSimplify; auto.
     - apply valid_check_trans; auto.
     - apply valid_check_congr; auto.
     - apply valid_check_congr_pred; auto.
@@ -580,6 +583,7 @@ Inductive step :=
       | NotSimplify pos _
       | AndSimplify pos _
       | OrSimplify pos _
+      | ImpliesSimplify pos _
       | EqTr pos _ _
       | EqCgr pos _ _
       | EqCgrP pos _ _ _
@@ -645,6 +649,7 @@ Inductive step :=
   | Name_NotSimplify
   | Name_AndSimplify
   | Name_OrSimplify
+  | Name_ImpliesSimplify
   | Name_EqTr
   | Name_EqCgr
   | Name_EqCgrP
@@ -696,6 +701,7 @@ Inductive step :=
     | NotSimplify _ _ => Name_NotSimplify
     | AndSimplify _ _ => Name_AndSimplify
     | OrSimplify _ _ => Name_OrSimplify
+    | ImpliesSimplify _ _ => Name_ImpliesSimplify
     | EqTr _ _ _ => Name_EqTr
     | EqCgr _ _ _ => Name_EqCgr
     | EqCgrP _ _ _ _ => Name_EqCgrP
