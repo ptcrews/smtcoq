@@ -456,6 +456,14 @@ let mk_clause (id,typ,value,ids_params) =
         (match value with
           | l::_ -> Other (ConnDef l)
           | _ -> assert false)
+      | Itesimp ->
+        (match value with
+          | l::_ -> Other (IteSimplify l)
+          | _ -> assert false)
+      | Equalsimp ->
+        (match value with
+          | l::_ -> Other (EqSimplify l)
+          | _ -> assert false)
       (* Equality *)
       | Eqre -> mkTrans value
       | Eqtr -> mkTrans value
@@ -484,8 +492,6 @@ let mk_clause (id,typ,value,ids_params) =
       (* Not implemented *)
       | Refl -> raise (Debug "VeritSyntax.ml: rule refl not implemented yet")
       | Acsimp -> raise (Debug "VeritSyntax.ml: rule acsimp not implemented yet")
-      | Itesimp -> raise (Debug "VeritSyntax.ml: rule itesimp not implemented yet")
-      | Equalsimp -> raise (Debug "VeritSyntax.ml: rule equalsimp not implemented yet")
   in
   let cl =
     (* TODO: change this into flatten when necessary *)

@@ -775,6 +775,88 @@ Fixpoint list_eqb l1 l2 : bool :=
       end.
 
 
+    (* ite_simplify       :   {iff (ite true x y) x}
+                              {iff (ite false x y) y)}
+                              {iff (ite f x x) x}
+                              {iff (ite (not f) x y) (ite f y x)}
+                              {iff (ite f (ite f x y) z) (ite f x z)}
+                              {iff (ite f x (ite f y z)) (ite f x z)}
+                              {iff (ite f true false) f}
+                              {iff (ite f false true) (not f)}
+                              {iff (ite f true x) (or f x)}
+                              {iff (ite f x false) (and f x)}
+                              {iff (ite f false x) (and (not f) x)}
+                              {iff (ite f x true) (or (not f) x)}
+    *)
+    Definition check_IteSimplify l :=
+      match get_hash (Lit.blit l) with
+      | Fiff x y => 
+        if (Lit.is_pos x) then
+          match get_hash (Lit.blit x) with
+          | Fite xf x1 x2 => 
+            (* iff (ite f x x) x *)
+            if (x1 == x2) && (x1 == y) then l::nil else
+            match get_hash (Lit.blit xf), get_hash (Lit.blit x1), get_hash (Lit.blit x2), get_hash (Lit.blit y) with
+              (* iff (ite f (ite f x y) z) (ite f x z) *)
+              | _, Fite x1f x11 x12, _, Fite yf y1 y2 => 
+                if (Lit.is_pos x1) && (Lit.is_pos y) && (xf == x1f) && (xf == yf) && (x11 == y1) && (x2 == y2) then 
+                l::nil else C._true
+              (* iff (ite f x (ite f y z)) (ite f x z) *)
+              | _, _, Fite x2f x21 x22, Fite yf y1 y2 =>
+                if (Lit.is_pos x2) && (Lit.is_pos y) && (xf == x2f) && (xf == yf) && (x1 == y1) && (x22 == y2) then 
+                l::nil else C._true
+              (* iff (ite (not f) x y) (ite f y x) *)
+              | _, _, _, Fite yf y1 y2 =>
+                if (Lit.is_pos y) && (xf == Lit.neg yf) && (x1 == y2) && (x2 == y1) then l::nil else C._true
+              (* iff (ite f true x) (or f x) *)
+              | _, Ftrue, _, For ys =>
+                if (Lit.is_pos y) && (PArray.length ys == 2)then
+                  let y0 := ys.[0] in
+                  let y1 := ys.[1] in
+                  if (xf == y0) && (x2 == y1) then l::nil else C._true
+                else C._true
+              (* iff (ite f x false) (and f x) *)
+              | _, _, Ffalse, Fand ys =>
+                if (Lit.is_pos y) && (PArray.length ys == 2)then
+                  let y0 := ys.[0] in
+                  let y1 := ys.[1] in
+                  if (xf == y0) && (x1 == y1) then l::nil else C._true
+                else C._true
+              (* iff (ite f false x) (and (not f) x) *)
+              | _, Ffalse, _, Fand ys =>
+                if (Lit.is_pos y) && (PArray.length ys == 2)then
+                  let y0 := ys.[0] in
+                  let y1 := ys.[1] in
+                  if (y0 == Lit.neg xf) && (x2 == y1) then l::nil else C._true
+                else C._true
+              (* iff (ite f x true) (or (not f) x) *)
+              | _, _, Ftrue, For ys =>
+                if (Lit.is_pos y) && (PArray.length ys == 2)then
+                  let y0 := ys.[0] in
+                  let y1 := ys.[1] in
+                  if (y0 == Lit.neg xf) && (x1 == y1) then l::nil else C._true
+                else C._true
+              (* iff (ite true x y) x *)
+              | Ftrue, _, _, _ =>
+                if (x1 == y) then l::nil else C._true
+              (* iff (ite false x y) y) *)
+              | Ffalse, _, _, _ =>
+                if (x2 == y) then l::nil else C._true
+              (* iff (ite f true false) f *)
+              | _, Ftrue, Ffalse, _ => 
+                if (xf == y) then l::nil else C._true
+              (* iff (ite f false true) (not f) *)
+              | _, Ffalse, Ftrue, _ => 
+                if (y == Lit.neg xf) then l::nil else C._true
+              | _, _, _, _ => C._true
+            end
+          | _ => C._true
+          end
+        else C._true
+      | _ => C._true
+      end.
+
+
   (** The correctness proofs *)
 
   Variable interp_atom : atom -> bool.
@@ -946,6 +1028,11 @@ Fixpoint list_eqb l1 l2 : bool :=
   Admitted.
 
   Lemma valid_check_ConnectiveDef : forall l, C.valid rho (check_ConnectiveDef l).
+  Proof.
+    admit.
+  Admitted.
+
+  Lemma valid_check_IteSimplify : forall l, C.valid rho (check_IteSimplify l).
   Proof.
     admit.
   Admitted.

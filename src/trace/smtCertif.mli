@@ -144,6 +144,25 @@ type 'hform rule =
                               {iff (iff x y) (and (x -> y) (y -> x)))}
                               {iff (ite f x y) (and (f -> x) ((not f) -> (not y))))}
       *)
+  | IteSimplify of 'hform
+      (* * ite_simplify    :  {iff (ite true x y) x}
+                              {iff (ite false x y) y)}
+                              {iff (ite f x x) x}
+                              {iff (ite (not f) x y) (ite f y x)}
+                              {iff (ite f (ite f x y) z) (ite f x z)}
+                              {iff (ite f x (ite f y z)) (ite f x z)}
+                              {iff (ite f true false) f}
+                              {iff (ite f false true) (not f)}
+                              {iff (ite f true x) (or f x)}
+                              {iff (ite f x false) (and f x)}
+                              {iff (ite f false x) (and (not f) x)}
+                              {iff (ite f x true) (or (not f) x)}
+      *)
+  | EqSimplify of 'hform
+      (* * eq_simplify     :  {iff (x = x) true}
+                              {iff (x = y) false} if x and y are different numeric constants
+                              {iff (not (x = x)) false} if x is a numeric constant
+      *)
   (* Equality *)
   | EqTr of 'hform * 'hform list
     (*  * eq_reflexive     : {(= x x)}

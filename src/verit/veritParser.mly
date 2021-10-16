@@ -298,5 +298,5 @@ rulename:
   | EQSIMP { Eqsimp } /* Needs to be checked */
   | BOOLSIMP { Boolsimp } /* Needs to be checked */
   | ACSIMP { Hole } /* Needs to be updated */
-  | ITESIMP { Hole } /* Needs to be updated */
-  | EQUALSIMP { Hole } /* Needs to be updated */
+  | ITESIMP { Itesimp } /* Needs to be checked */
+  | EQUALSIMP { Eqsimp } /* Needs to be checked */

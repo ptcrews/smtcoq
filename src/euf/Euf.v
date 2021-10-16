@@ -297,6 +297,42 @@ Section certif.
       else C._true.
 
 
+    (* eq_simplify        :   {iff (x = x) true}
+                              {iff (x = y) false} if x and y are different numeric constants
+                              {iff (not (x = x)) false} if x is a numeric constant
+    *)
+    Definition check_eqsimplify l :=
+      match get_form (Lit.blit l) with
+      | Fiff x y => 
+          match get_form (Lit.blit x) with
+          | Fiff x1 x2 => 
+              match get_form (Lit.blit x) with
+              | Fatom a => 
+                  match get_atom a with
+                  | Atom.Abop (Atom.BO_eq _) a b => 
+                      match get_form (Lit.blit y) with
+                      (* iff (x = x) true *)
+                      | Ftrue => if (a == b) then l::nil else C._true
+                      (* iff (x = y) false, if x and y are different numeric constants *)
+                      | Ffalse => if Lit.is_pos x then 
+                                  (* Do I need to unhash a and b, and check that they are either
+                                    UO_xO, UO_xI, UO_Zpos, UO_Zneg, CO_xH, or CO_Z0? *)
+                                    if negb (a == b) then l::nil else C._true
+                                  (* iff (not (x = x)) false, if x is a numeric constant *)
+                                  else
+                                    if (a == b) then l::nil else C._true
+                      | _ => C._true
+                      end
+                  | _ => C._true
+                  end
+              | _ => C._true
+              end
+          | _ => C._true
+          end
+      | _ => C._true
+      end.
+
+
   Section Proof.
 
     Variables (t_i : array SMT_classes.typ_compdec)
@@ -704,6 +740,11 @@ Section certif.
     Admitted.
 
     Lemma valid_check_iffcong : forall ls l, C.valid rho (check_iffcong ls l).
+    Proof.
+      admit.
+    Admitted.
+
+    Lemma valid_check_eqsimplify : forall l, C.valid rho (check_eqsimplify l).
     Proof.
       admit.
     Admitted.

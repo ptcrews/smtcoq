@@ -355,7 +355,7 @@ let to_coq to_lit interp (cstep,
     cTrue, cFalse, cNotNot, cTaut, cCont, cBuildDef, 
     cBuildDef2, cBuildProj, cImmBuildProj,cImmBuildDef,
     cImmBuildDef2, cNotSimp, cAndSimp, cOrSimp, cImpSimp,
-    cEquivSimp, cBoolSimp, cConnDef,
+    cEquivSimp, cBoolSimp, cConnDef, cIteSimp, cEqSimp,
     cEqTr, cEqCgr, cEqCgrP, cIffTrans, cIffCong,
     cLiaMicromega, cLiaDiseq, cSplArith, cSplDistinctElim,
     cBBVar, cBBConst, cBBOp, cBBNot, cBBEq, cBBDiseq,
@@ -414,6 +414,8 @@ let to_coq to_lit interp (cstep,
               | EquivSimplify f -> mklApp cEquivSimp [|out_c c; out_f f|]
               | BoolSimplify f -> mklApp cBoolSimp [|out_c c; out_f f|]
               | ConnDef f -> mklApp cConnDef [|out_c c; out_f f|]
+              | IteSimplify f -> mklApp cIteSimp [|out_c c; out_f f|]
+              | EqSimplify f -> mklApp cEqSimp [|out_c c; out_f f|]
               | EqTr (f, fl) ->
                 let res = List.fold_right (fun f l -> mklApp ccons [|Lazy.force cint; out_f f; l|]) fl (mklApp cnil [|Lazy.force cint|]) in
                 mklApp cEqTr [|out_c c; out_f f; res|]
