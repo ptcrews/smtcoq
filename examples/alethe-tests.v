@@ -19,6 +19,7 @@ Require Import SMTCoq.SMTCoq.
 Require Import Bool.
 
 Require Import ZArith.
+Require Import Int31.
 
 Import BVList.BITVECTOR_LIST.
 Local Open Scope bv_scope.
@@ -28,13 +29,107 @@ Local Open Scope farray_scope.
 
 (* Examples that check ZChaff certificates *)
 
-Local Open Scope int63_scope.
+(*Local Open Scope int63_scope.*)
+Local Open Scope int31_scope.
+Local Open Scope array_scope.
 
-Section Checker_SmtEx1.
+Section Checker_SmtEx1Debug.
   Parse_certif_verit t_i1 t_func1 t_atom1 t_form1 root1 used_roots1 trace1 
   "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test1.smt2" 
   "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test1.vtlog".
-End Checker_SmtEx1.
+  (*
+  Structures_standard.v
+  ---------------------
+  Definition trace (step:Type) := ((list step) * step)%type.
+
+  Trace.v
+  -------
+  Definition _trace_ := Structures.trace step.
+
+  Inductive certif :=
+  | Certif : int -> _trace_ step -> int -> certif.
+  *)
+  Print trace1. 
+  
+  (* Components of the certificate *)
+  Definition nclauses1 := Eval vm_compute in (match trace1 with Certif a _ _ => a end).
+  Definition c1 := Eval vm_compute in (match trace1 with Certif _ a _ => a end).
+  Definition conf1 := Eval vm_compute in (match trace1 with Certif _ _ a => a end).
+  (* list step * step *)
+  Print c1.
+  
+  (* Sanity check that atoms and formulas are well-typed. Must return true *)
+  Eval vm_compute in (Form.check_form t_form1 && Atom.check_atom t_atom1 && Atom.wt t_i1 t_func1 t_atom1).
+  
+  (* States from c1 *)
+  Definition s0_1 := Eval vm_compute in (add_roots (S.make nclauses1) root1 used_roots1).
+  Print s0_1.
+  Definition s1_1 := Eval vm_compute in (step_checker s0_1 (List.nth 0 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
+  Print s1_1.
+  Definition s2_1 := Eval vm_compute in (step_checker s1_1 (List.nth 1 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
+  Print s2_1.
+  Definition s3_1 := Eval vm_compute in (step_checker s2_1 (List.nth 2 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
+  Print s3_1.
+  Definition s4_1 := Eval vm_compute in (step_checker s3_1 (List.nth 3 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
+  Print s4_1.
+  Definition s5_1 := Eval vm_compute in (step_checker s4_1 (List.nth 4 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
+  Print s5_1.
+  Definition s6_1 := Eval vm_compute in (step_checker s5_1 (List.nth 5 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
+  (*Eval vm_compute in (S.set_resolve s6_1 3 (PArray.set (PArray.set (PArray.make 2 0) 0 2) 1 3)).*)
+  Print s6_1.
+  Definition s7_1 := Eval vm_compute in (step_checker s6_1 (List.nth 6 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
+  Print s7_1.
+  Definition s8_1 := Eval vm_compute in (step_checker s7_1 (List.nth 7 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
+  Print s8_1.
+  Definition s9_1 := Eval vm_compute in (step_checker s8_1 (List.nth 8 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
+  Print s9_1.
+  Definition s10_1 := Eval vm_compute in (step_checker s9_1 (List.nth 9 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
+  Print s10_1.
+  (*
+  trace1 = 
+    Certif (t_i:=t_i1) (t_func:=t_func1) (t_atom:=t_atom1) (t_form:=t_form1) 4
+      (NotSimplify (t_i:=t_i1) t_func1 t_atom1 t_form1 1 6 :: 
+       IffCong (t_i:=t_i1) t_func1 t_atom1 t_form1 1 (1 :: nil) 10 :: 
+       AndSimplify (t_i:=t_i1) t_func1 t_atom1 t_form1 2 14 :: 
+       AndSimplify (t_i:=t_i1) t_func1 t_atom1 t_form1 3 16 :: 
+       IffTrans (t_i:=t_i1) t_func1 t_atom1 t_form1 3 (1 :: 2 :: 3 :: nil) 18 :: 
+       BuildDef2 (t_i:=t_i1) t_func1 t_atom1 t_form1 2 19 :: 
+       Hole (t_i:=t_i1) (t_func:=t_func1) (t_atom:=t_atom1) (t_form:=t_form1) 2 (0 :: 3 :: 2 :: nil) (prem:=(4 :: nil) :: (18 :: nil) :: (19 :: 5 :: 2 :: nil) :: nil) (concl:=2 :: nil) ass156637799 :: 
+       CFalse (t_i:=t_i1) t_func1 t_atom1 t_form1 3 :: 
+       Res (t_i:=t_i1) t_func1 t_atom1 t_form1 3 (PArray.set (PArray.set (PArray.make 2 0) 0 2) 1 3) :: nil,
+    Res (t_i:=t_i1) t_func1 t_atom1 t_form1 0 (PArray.make 0 0)) 3
+    : certif (t_i:=t_i1) t_func1 t_atom1 t_form1
+
+  s0_1 = ({| 0 -> (4 :: nil) |}, 
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int
+  s1_1 = ({| 0 -> (4 :: nil),  1 -> (6 :: nil) |}, 
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int
+  s2_1 = ({| 0 -> (4 :: nil), 1 -> (10 :: nil) |}, 
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int
+  s3_1 = ({| 0 -> (4 :: nil), 1 -> (10 :: nil), 2 -> (14 :: nil) |}, 
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int
+  s4_1 = ({| 0 -> (4 :: nil), 1 -> (10 :: nil), 2 -> (14 :: nil), 3 -> (16 :: nil) |}, 
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int
+  s5_1 = ({| 0 -> (4 :: nil), 1 -> (10 :: nil), 2 -> (14 :: nil), 3 -> (18 :: nil) |}, 
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int
+  s6_1 = ({| 0 -> (4 :: nil), 1 -> (10 :: nil), 2 -> (2 :: 5 :: 19 :: nil), 3 -> (18 :: nil) |}
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int
+  s7_1 = ({| 0 -> (4 :: nil), 1 -> (10 :: nil), 2 -> (2 :: nil), 3 -> (18 :: nil) |},
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int
+  s8_1 = ({| 0 -> (4 :: nil), 1 -> (10 :: nil), 2 -> (2 :: nil), 3 ->  (3 :: nil) |},
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int
+  s9_1 = ({| 0 -> (4 :: nil), 1 -> (10 :: nil), 2 -> (2 :: nil), 3 -> nil |},
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int
+  s10_1 = ({| 0 -> (0 :: nil), 1 -> (10 :: nil), 2 -> (2 :: nil), 3 -> nil |},
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int
+  *)
+End Checker_SmtEx1Debug.
+
+(*Section Checker_SmtEx1.
+  Parse_certif_verit t_i1 t_func1 t_atom1 t_form1 root1 used_roots1 trace1 
+  "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test1.smt2" 
+  "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test1.vtlog".
+End Checker_SmtEx1.*)
 
 Goal negb (true && (negb true)).
 Proof.
@@ -45,7 +140,6 @@ Section Checker_SmtEx2.
   Parse_certif_verit t_i2 t_func2 t_atom2 t_form2 root2 used_roots2 trace2 
   "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test2.smt2" 
   "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test2.vtlog".
-
 End Checker_SmtEx2.
 
 Goal true || false.
@@ -57,21 +151,44 @@ Goal false && true -> true || false.
 Proof.
   verit_bool.
 Qed.
-
+(*
 Section Checker_SmtEx3.
   Parse_certif_verit t_i3 t_func3 t_atom3 t_form3 root3 used_roots3 trace3
   "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test3.smt2" 
   "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test3.vtlog".
 End Checker_SmtEx3.
-
+*)
 Goal forall p, negb (p && (negb p)).
 Proof.
-  verit_bool. 
-Qed.
+  verit_bool. Admitted.
+
+Section Checker_SmtEx3Debug.
+  Parse_certif_verit t_i3 t_func3 t_atom3 t_form3 root3 used_roots3 trace3
+  "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test3.smt2" 
+  "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test3.vtlog".
+  Print trace3.
+  (* Components of certif*)
+  Definition nclauses3 := Eval vm_compute in (match trace3 with Certif a _ _ => a end).
+  Definition c3 := Eval vm_compute in (match trace3 with Certif _ a _ => a end).
+  Definition conf3 := Eval vm_compute in (match trace3 with Certif _ _ a => a end).
+  Eval vm_compute in List.length (fst c3).
+  (* Check that this returns true for well-typed *)
+  Eval vm_compute in (Form.check_form t_form3 && Atom.check_atom t_atom3 && Atom.wt t_i3 t_func3 t_atom3).
+  (* Now, run the checker, step-by=step *)
+  (* Step through steps *)
+  Definition s0_2 := Eval vm_compute in (add_roots (S.make nclauses3) root3 used_roots3).
+  Print s0_2.
+  Definition s1_2 := Eval vm_compute in (step_checker s0_2 (List.nth 0 (fst c3) (CTrue t_func3 t_atom3 t_form3 0))).
+  Print s1_2.
+  (* Problem with call to And_simplify, call the step-checker for And_Simplify *)
+  Eval vm_compute in (List.nth 0 (fst c3) (CTrue t_func3 t_atom3 t_form3 0)).
+  Eval vm_compute in (Cnf.check_AndSimplify t_form3 8).
+  (* Step through check_AndSimplify, check type of Lit.Blit l *)
+End Checker_SmtEx3Debug.
 
 Goal forall p, p || (negb p).
 Proof.
-  verit.
+  verit_bool.
 Qed.
 
 Goal forall a b c, ((a || b || c) && ((negb a) || (negb b) || (negb c)) && ((negb a) || b) && ((negb b) || c) && ((negb c) || a)) = false.

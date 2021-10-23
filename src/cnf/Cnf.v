@@ -395,7 +395,7 @@ Section CHECKER.
                                         xs) ||
         (* and x_1 ... x_i ... (not x_i) ... x_n <-> false *)
                                 (PArray.existsb (fun x => Lit.is_pos x && 
-                                  (PArray.existsb (fun y => negb (Lit.is_pos y) && (x == y)) xs)) xs) then
+                                  (PArray.existsb (fun y => negb (Lit.is_pos y) && (Lit.blit x == Lit.blit y)) xs)) xs) then
                              l::nil else C._true
         | _, _ => C._true
         end
@@ -444,7 +444,7 @@ Section CHECKER.
                                           xs) ||
           (* or x_1 ... x_i ... (not x_i) ... x_n <-> true *)
                                   (PArray.existsb (fun x => Lit.is_pos x && 
-                                    (PArray.existsb (fun y => negb (Lit.is_pos y) && (x == y)) xs)) xs) then
+                                    (PArray.existsb (fun y => negb (Lit.is_pos y) && (Lit.blit x == Lit.blit y)) xs)) xs) then
                                l::nil else C._true
           | _, _ => C._true
           end
