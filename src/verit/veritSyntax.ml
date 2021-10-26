@@ -440,20 +440,20 @@ let mk_clause (id,typ,value,ids_params) =
         (match ids_params with
           | [id] -> Other (ImmBuildDef2 (get_clause id))
           | _ -> assert false)
-      | And | Nor ->
+      | And | Nor -> 
         (match ids_params, value with
           | [id], x::nil -> 
               let c = get_clause id in
                 (match c.value with
-                | Some (l::nil) -> 
+                | Some (l::nil) ->
                     (match Form.pform l with
                       | Fapp (For, args) -> (match array_find (Array.map Form.pform args) 
                                                               (Form.pform (Form.neg x)) with
-                                            | Some i -> Other (BuildProj (l, i))
+                                            | Some i -> Other (ImmBuildProj (c, i))
                                             | None -> assert false)
                       | Fapp (Fand, args) -> (match array_find (Array.map Form.pform args) 
                                                                (Form.pform x) with
-                                             | Some i -> Other (BuildProj (l,i))
+                                             | Some i -> Other (ImmBuildProj (c,i))
                                              | None -> assert false)
                       | _ -> assert false)
                 | _ -> assert false)
