@@ -16,9 +16,19 @@
   open SmtForm
   open VeritSyntax
 
+  exception InvalidProofStepNo
+
   let symbol_to_id s = 
-    let l = (String.length s) - 1 in
-    int_of_string (String.sub s 1 l)
+    (* f transforms string "tn" to int n *)
+    let f = (fun s -> let l = (String.length s) - 1 in
+                      int_of_string (String.sub s 1 l)) in
+    (* Subproof steps have labels*)                  
+    let syms = List.map f (String.split_on_char '.' s) in
+    if (List.length syms == 1) then 
+      List.hd syms
+    else 
+      raise InvalidProofStepNo
+    
 
 (*  let parse_bv s =
     let l = ref [] in

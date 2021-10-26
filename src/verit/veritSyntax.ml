@@ -91,6 +91,20 @@ type typ =
   | Fatom ha -> 
   | Fapp (_, _) -> raise (Debug "This is ")*)
 
+
+(* Given an array and an element, find the index of the first occurrence of the 
+   element in the array. *)
+let rec list_find l x i = 
+  match l with
+  | h::t when h == x -> Some i
+  | h::t -> list_find t x (i+1)
+  | [] ->  None
+
+let array_find a x =
+  let l = Array.to_list a in 
+  list_find l x 0
+
+
 (* About equality *)
 
 let get_eq l =
@@ -389,8 +403,18 @@ let mk_clause (id,typ,value,ids_params) =
           | l::_ -> Other (BuildDef2 l)
           | _ -> assert false)
       | Orn | Andp ->
-        (match value,ids_params with
-          | l::_, [p] -> Other (BuildProj (l,p))
+        (match value with
+          | l::x::nil -> 
+              (match Form.pform l with
+              | Fapp (For, args) -> (match array_find (Array.map Form.pform args) 
+                                                      (Form.pform (Form.neg x)) with
+                                    | Some i -> Other (BuildProj (l,i))
+                                    | None -> assert false)
+              | Fapp (Fand, args) -> (match array_find (Array.map Form.pform args) 
+                                                       (Form.pform x) with
+                                    | Some i -> Other (BuildProj (l,i))
+                                    | None -> assert false)
+              | _ -> assert false)
           | _ -> assert false)
       | Impn1 ->
         (match value with
@@ -417,8 +441,22 @@ let mk_clause (id,typ,value,ids_params) =
           | [id] -> Other (ImmBuildDef2 (get_clause id))
           | _ -> assert false)
       | And | Nor ->
-        (match ids_params with
-          | [id;p] -> Other (ImmBuildProj (get_clause id,p))
+        (match ids_params, value with
+          | [id], x::nil -> 
+              let c = get_clause id in
+                (match c.value with
+                | Some (l::nil) -> 
+                    (match Form.pform l with
+                      | Fapp (For, args) -> (match array_find (Array.map Form.pform args) 
+                                                              (Form.pform (Form.neg x)) with
+                                            | Some i -> Other (BuildProj (l, i))
+                                            | None -> assert false)
+                      | Fapp (Fand, args) -> (match array_find (Array.map Form.pform args) 
+                                                               (Form.pform x) with
+                                             | Some i -> Other (BuildProj (l,i))
+                                             | None -> assert false)
+                      | _ -> assert false)
+                | _ -> assert false)
           | _ -> assert false)
       | Nimp1 ->
         (match ids_params with
