@@ -251,7 +251,7 @@ rulename:
   | TRUE { True }
   | FALSE { Fals }
   | NOTNOT { Notnot }
-  | THRESO { Hole } /* Needs to be updated */
+  | THRESO { Threso } /* Needs to be updated */
   | RESO { Reso }
   | TAUT { Taut } /* Needs to be checked */
   | CONT { Cont } /* Needs to be checked */

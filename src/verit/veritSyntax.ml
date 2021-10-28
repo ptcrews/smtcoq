@@ -495,7 +495,15 @@ let mk_clause (id,typ,value,ids_params) =
           mkIffCong prems value
       (* Linear integer arithmetic *)
       (* Resolution *)
-      | Threso | Reso ->
+      | Threso -> 
+        let ids_params = merge (List.rev ids_params) in
+         (match ids_params with
+            | cl1::cl2::q ->
+               let res = {rc1 = get_clause cl1; rc2 = get_clause cl2; rtail = List.map get_clause q} in
+               Res res
+            | [fins_id] -> Same (get_clause fins_id)
+            | [] -> assert false)
+      | Reso ->
          let ids_params = merge ids_params in
          (match ids_params with
             | cl1::cl2::q ->

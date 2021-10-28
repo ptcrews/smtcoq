@@ -137,7 +137,7 @@ End Checker_SmtEx1Debug.
   "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test1.vtlog".
 End Checker_SmtEx1.*)
 
-Goal negb (true && (negb true)).
+Lemma ex1: negb (true && (negb true)).
 Proof.
   verit_bool.
 Qed.
@@ -148,15 +148,11 @@ Section Checker_SmtEx2.
   "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test2.vtlog".
 End Checker_SmtEx2.
 
-Goal true || false.
+Lemma ex2: true || false.
 Proof.
   verit_bool.
 Qed.
 
-Goal false && true -> true || false.
-Proof.
-  verit_bool.
-Qed.
 (*
 Section Checker_SmtEx3.
   Parse_certif_verit t_i3 t_func3 t_atom3 t_form3 root3 used_roots3 trace3
@@ -164,9 +160,10 @@ Section Checker_SmtEx3.
   "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test3.vtlog".
 End Checker_SmtEx3.
 *)
-Goal forall p, negb (p && (negb p)).
+Lemma ex3: forall p, negb (p && (negb p)).
 Proof.
-  verit_bool. Admitted.
+  verit_bool.
+Qed.
 
 Section Checker_SmtEx3Debug.
   Parse_certif_verit t_i3 t_func3 t_atom3 t_form3 root3 used_roots3 trace3
@@ -192,14 +189,20 @@ Section Checker_SmtEx3Debug.
   (* Step through check_AndSimplify, check type of Lit.Blit l *)
 End Checker_SmtEx3Debug.
 
-Goal forall p, p || (negb p).
-Proof.
-  verit_bool. Admitted.
-
-Goal forall a b c, ((a || b || c) && ((negb a) || (negb b) || (negb c)) && ((negb a) || b) && ((negb b) || c) && ((negb c) || a)) = false.
+Lemma ex4: forall a b c, ((a || b || c) && ((negb a) || (negb b) || (negb c)) && ((negb a) || b) && ((negb b) || c) && ((negb c) || a)) = false.
 Proof.
   verit_bool.
 Qed.
+
+Lemma ex5: false && true -> true || false.
+Proof.
+  verit_bool.
+Qed.
+
+Lemma ex6: forall p, p || (negb p).
+Proof.
+  verit_bool. Admitted.
+
 
 Local Open Scope Z_scope.
 
