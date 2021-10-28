@@ -208,52 +208,32 @@ let mkCongr p =
   |[c] -> mkCongr_aux c prem
   |_ -> raise (Debug "VeritSyntax.mkCongr: no conclusion or more than one conclusion in congruence")
 
-(* eq_congruence_pred needs to be changed, and this must replace the current definition of mkCongrPred to start
 let mkCongrPred p =
   let (concl,prem) = List.partition Form.is_pos p in
   match concl with
-  |[c] ->
-    let prem_val = List.map (fun l -> (l,get_eq l)) prem in
-      let (c1, c2) = get_eq c in
-      (match Atom.atom (get_at c1), Atom.atom (get_at c2) with
-        | Abop(aop,a1,a2), Abop(bop,b1,b2) when (aop = bop) ->
-           let a_args = [a1;a2] in
-           let b_args = [b1;b2] in
-           let cert = process_congr a_args b_args prem_val [] in
-           Other (EqCgrP (c1,c2,cert))
-        | Aapp (a_f,a_args), Aapp (b_f,b_args) ->
-           if indexed_op_index a_f = indexed_op_index b_f then
-             let cert = process_congr (Array.to_list a_args) (Array.to_list b_args) prem_val [] in
-             Other (EqCgrP (c1,c2,cert))
-           else raise (Debug "VeritSyntax.mkCongrPred: unmatching predicates")
-        | _ -> raise (Debug "VeritSyntax.mkCongrPred : not a predicate app"))
-  | _ -> raise (Debug "VeritSyntax.mkCongrPred: no or more than one conclusion in congruence")
-*)
-
-let mkCongrPred p =
-  let (concl,prem) = List.partition Form.is_pos p in
-  let (prem,prem_P) = List.partition is_eq prem in
-  match concl with
-  |[c] ->
-    (match prem_P with
-     |[p_p] ->
-       let prem_val = List.map (fun l -> (l,get_eq l)) prem in
-       (match Atom.atom (get_at c), Atom.atom (get_at p_p) with
-        | Abop(aop,a1,a2), Abop(bop,b1,b2) when (aop = bop) ->
-           let a_args = [a1;a2] in
-           let b_args = [b1;b2] in
-           let cert = process_congr a_args b_args prem_val [] in
-           Other (EqCgrP (p_p,c,cert))
-        | Aapp (a_f,a_args), Aapp (b_f,b_args) ->
-           if indexed_op_index a_f = indexed_op_index b_f then
-             let cert = process_congr (Array.to_list a_args) (Array.to_list b_args) prem_val [] in
-             Other (EqCgrP (p_p,c,cert))
-           else raise (Debug "VeritSyntax.mkCongrPred: unmatching predicates")
-        | _ -> raise (Debug "VeritSyntax.mkCongrPred : not pred app"))
-     |_ ->  raise (Debug "VeritSyntax.mkCongr: no or more than one predicate app premise in congruence"))
+  |[x] -> 
+    (match Form.pform x with
+      | Fapp (Fiff, args) -> 
+        if Array.length args == 2 then
+          let p_p = Array.get args 0 in
+          let c = Array.get args 1 in
+          let prem_val = List.map (fun l -> (l,get_eq l)) prem in
+          (match Atom.atom (get_at c), Atom.atom (get_at p_p) with
+            | Abop(aop,a1,a2), Abop(bop,b1,b2) when (aop = bop) ->
+               let a_args = [a1;a2] in
+               let b_args = [b1;b2] in
+               let cert = process_congr a_args b_args prem_val [] in
+               Other (EqCgrP (p_p,c,cert))
+            | Aapp (a_f,a_args), Aapp (b_f,b_args) ->
+               if indexed_op_index a_f = indexed_op_index b_f then
+                 let cert = process_congr (Array.to_list a_args) (Array.to_list b_args) prem_val [] in
+                 Other (EqCgrP (p_p,c,cert))
+               else raise (Debug "VeritSyntax.mkCongrPred: unmatching predicates")
+            | _ -> raise (Debug "VeritSyntax.mkCongrPred: not pred app"))
+        else assert false
+      | _ -> raise (Debug "VeritSyntax.mkCongrPred: conclusion is not an iff"))
   |[] ->  raise (Debug "VeritSyntax.mkCongrPred: no conclusion in congruence")
   |_ -> raise (Debug "VeritSyntax.mkCongrPred: more than one conclusion in congruence")
-
 
 let mkIffCong prems value =
     (match value with
@@ -515,7 +495,7 @@ let mk_clause (id,typ,value,ids_params) =
           mkIffCong prems value
       (* Linear integer arithmetic *)
       (* Resolution *)
-      | Reso | Threso ->
+      | Threso | Reso ->
          let ids_params = merge ids_params in
          (match ids_params with
             | cl1::cl2::q ->
@@ -523,7 +503,6 @@ let mk_clause (id,typ,value,ids_params) =
                Res res
             | [fins_id] -> Same (get_clause fins_id)
             | [] -> assert false)
-
       (* Holes in proofs *)
       | Hole -> Other (SmtCertif.Hole (List.map get_clause ids_params, value))
 

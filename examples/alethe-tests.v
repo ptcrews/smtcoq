@@ -57,7 +57,6 @@ Section Checker_SmtEx1Debug.
   Definition conf1 := Eval vm_compute in (match trace1 with Certif _ _ a => a end).
   (* list step * step *)
   Print c1.
-  
   (* Sanity check that atoms and formulas are well-typed. Must return true *)
   Eval vm_compute in (Form.check_form t_form1 && Atom.check_atom t_atom1 && Atom.wt t_i1 t_func1 t_atom1).
   
@@ -81,10 +80,17 @@ Section Checker_SmtEx1Debug.
   Print s7_1.
   Definition s8_1 := Eval vm_compute in (step_checker s7_1 (List.nth 7 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
   Print s8_1.
+(* s8_1 = ({| 0 -> (4 :: nil), 1 -> (10 :: nil), 2 -> (2 :: 0:: 19 :: nil), 3 ->  (3 :: nil) |},
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
   Definition s9_1 := Eval vm_compute in (step_checker s8_1 (List.nth 8 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
-  Print s9_1.
-  Definition s10_1 := Eval vm_compute in (step_checker s9_1 (List.nth 9 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
+  Print s9_1. 
+(* s9_1 = ({| 0 -> (4 :: nil), 1 -> (10 :: nil), 2 -> (2 :: 0 :: 19 :: nil), 3 -> 0 :: 19 :: nil |},
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+  Eval vm_compute in euf_checker (* t_atom t_form *) C.is_false (add_roots (S.make nclauses1) root1 used_roots1) c1 conf1.
+  Definition s10_1 := Eval vm_compute in (step_checker s9_1 (List.nth 9 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))). Eval vm_compute in (List.nth 9 (fst c1) (CTrue t_func1 t_atom1 t_form1 0)). Eval vm_compute in List.length (fst c1).
   Print s10_1.
+(* s10_1 = ({| 0 -> (0 :: nil), 1 -> (10 :: nil), 2 -> (2 :: 0 :: 19 :: nil), 3 -> 0 :: 19 :: nil |},
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
   (*
   trace1 = 
     Certif (t_i:=t_i1) (t_func:=t_func1) (t_atom:=t_atom1) (t_form:=t_form1) 4
