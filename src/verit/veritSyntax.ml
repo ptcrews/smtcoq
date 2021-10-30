@@ -235,18 +235,14 @@ let mkCongrPred p =
   |[] ->  raise (Debug "VeritSyntax.mkCongrPred: no conclusion in congruence")
   |_ -> raise (Debug "VeritSyntax.mkCongrPred: more than one conclusion in congruence")
 
-let mkIffCong prems value =
-    (match value with
-      | l::_ -> if is_eq l then
-                  (* congruence over functions, use eq_congruent and resolution *)
-                  (*let res = {rc1 = mkCongr_aux l prems; rc2 = List.hd prems; rtail = List.tl prems} in
-                  Res res*)
-                  Other (IffCong (prems, l))
-                else if is_iff l then
-                  (* congruence over predicates *)
-                  Other (IffCong (prems, l))
-                else raise (Debug "VeritSyntax.mkIffCong: conclusion must be an equality or iff")
-      | _ -> raise (Debug "VeritSyntax.mkIffCong: conclusion has no or more than one literal"))
+(* Return true if typ is Cong and value is a singleton clause of an equality (function case), 
+   else return false *)
+let isIffCongFunc typ value =
+  (match typ with
+   | Cong -> (match value with
+             | l::_ -> if is_eq l then true else false
+             | _ -> false)
+   | _ -> false)
 
 
 (* Linear arithmetic *)
@@ -352,7 +348,7 @@ let rec merge ids_params =
 
 let to_add = ref []
 
-let mk_clause (id,typ,value,ids_params) =
+let mk_clause (id,typ,value,ids_params,args) =
   let kind =
     match typ with
       (* Roots *)
@@ -492,7 +488,21 @@ let mk_clause (id,typ,value,ids_params) =
           | l::_ -> Other (IffTrans (prems, l))
           | _ -> assert false)
       | Cong -> let prems = List.map get_clause ids_params in
-          mkIffCong prems value
+          (match value with
+            | l::_ -> 
+              if is_eq l then
+                (* congruence over functions *)
+                let prems' = List.map (fun x -> match x.value with | Some l -> List.hd l | None -> assert false) prems in
+                let kind =  mkCongr_aux l prems' in
+                  add_clause (List.hd args) (SmtTrace.mk_scertif kind (Some value));
+                  let res = {rc1 = get_clause max_int; rc2 = List.hd prems; rtail = List.tl prems} in
+                    Res res
+              (*Other (IffCong (prems, l))*)
+              else if is_iff l then
+                (* congruence over predicates *)
+                Other (IffCong (prems, l))
+              else assert false
+            | _ -> assert false)
       (* Linear integer arithmetic *)
       (* Resolution *)
       | Threso -> 
@@ -523,7 +533,13 @@ let mk_clause (id,typ,value,ids_params) =
     if SmtTrace.isRoot kind then SmtTrace.mkRootV value
     else SmtTrace.mk_scertif kind (Some value) in
   add_clause id cl;
-  if id > 1 then SmtTrace.link (get_clause (id-1)) cl;
+  (*if id > 1 then SmtTrace.link (get_clause (id-1)) cl;
+  id*)
+  if (id > 1) && (isIffCongFunc typ value) then
+    (SmtTrace.link (get_clause (id-1)) (get_clause (List.hd args));
+     SmtTrace.link (get_clause (List.hd args)) cl)
+  else if (id > 1) then 
+    SmtTrace.link (get_clause (id-1)) cl;
   id
 
 let mk_clause cl =

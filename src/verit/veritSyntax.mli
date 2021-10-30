@@ -87,7 +87,7 @@ val add_ref : int -> int -> unit
 val get_ref : int -> int
 val to_add : (int * SmtAtom.Form.t list) list ref
 
-val mk_clause : SmtCertif.clause_id * typ * SmtAtom.Form.t list * SmtCertif.clause_id list -> SmtCertif.clause_id
+val mk_clause : SmtCertif.clause_id * typ * SmtAtom.Form.t list * SmtCertif.clause_id list * int list -> SmtCertif.clause_id
 
 val apply_dec_atom : (?declare:bool -> SmtAtom.hatom -> SmtAtom.hatom) ->
                      bool * Form.atom_form_lit -> bool * Form.atom_form_lit

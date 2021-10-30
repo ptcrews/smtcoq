@@ -29,6 +29,8 @@
     else 
       raise InvalidProofStepNo
     
+  (* Counter for any cong rules encountered *)
+  let congCtr = ref max_int
 
 (*  let parse_bv s =
     let l = ref [] in
@@ -85,22 +87,30 @@ line:
   | LPAREN ASSUME s=SYMBOL l=lit RPAREN EOL
     { let id = symbol_to_id s in
       let _, l' = l in
-      mk_clause (id, Assume, [l'], []) }
+      mk_clause (id, Assume, [l'], [], []) }
   | LPAREN STEP s=SYMBOL c=clause COLRULE r=rulename RPAREN EOL
     { let id = symbol_to_id s in
-      mk_clause (id, r, c, []) }
+        mk_clause (id, r, c, [], []) }
   | LPAREN STEP s=SYMBOL c=clause COLRULE r=rulename COLPREMISES LPAREN prems=SYMBOL+ RPAREN RPAREN EOL
     { let id = symbol_to_id s in
       let prems' = List.map symbol_to_id prems in
-      mk_clause (id, r, c, prems') }
+      match r with
+      (* For the congruence rule, that internally uses EqCongr and Resolution, we 
+         maintain a separate id counter to store the result of the EqCongr application,
+         this id counter is passed as an argument since the Cong rule takes no arguments  *)
+      | Cong -> 
+          let arg = !congCtr in
+            congCtr := !congCtr - 1;
+            mk_clause (id, r, c, prems', [arg])
+      | _ -> mk_clause (id, r, c, prems', []) }
   | LPAREN STEP s=SYMBOL c=clause COLRULE r=rulename COLPREMISES LPAREN prems=SYMBOL+ RPAREN
       COLARGS LPAREN args=INT+ RPAREN RPAREN EOL
     { let id = symbol_to_id s in
       let prems' = List.map symbol_to_id prems in
-      mk_clause (id, r, c, (prems' @ args)) }
+      mk_clause (id, r, c, prems', args) }
   | LPAREN STEP s=SYMBOL c=clause COLRULE r=rulename COLARGS LPAREN args=INT+ RPAREN RPAREN EOL
     { let id = symbol_to_id s in
-      mk_clause (id, r, c, args) }
+      mk_clause (id, r, c, [], args) }
   /*| LPAREN ANCHOR COLSTEP SYMBOL RPAREN { "" }
   | LPAREN ANCHOR COLSTEP SYMBOL COLARGS proof_args RPAREN { "" }
   | LPAREN DEFINEFUN function_def RPAREN { "" }*/
@@ -251,7 +261,7 @@ rulename:
   | TRUE { True }
   | FALSE { Fals }
   | NOTNOT { Notnot }
-  | THRESO { Threso } /* Needs to be updated */
+  | THRESO { Threso }
   | RESO { Reso }
   | TAUT { Taut } /* Needs to be checked */
   | CONT { Cont } /* Needs to be checked */
