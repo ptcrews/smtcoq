@@ -147,12 +147,12 @@ Section Checker_SmtEx2.
   "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test2.smt2" 
   "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test2.vtlog".
 End Checker_SmtEx2.
-
+(* Fix th_reso
 Lemma ex2: true || false.
 Proof.
   verit_bool.
 Qed.
-
+*)
 (*
 Section Checker_SmtEx3.
   Parse_certif_verit t_i3 t_func3 t_atom3 t_form3 root3 used_roots3 trace3
@@ -193,7 +193,7 @@ Lemma ex4: forall a b c, ((a || b || c) && ((negb a) || (negb b) || (negb c)) &&
 Proof.
   verit_bool.
 Qed.
-
+(* Fix th_reso
 Lemma ex5: false && true -> true || false.
 Proof.
   verit_bool.
@@ -201,8 +201,9 @@ Qed.
 
 Lemma ex6: forall p, p || (negb p).
 Proof.
-  verit_bool. Admitted.
-
+  verit_bool.
+Qed.
+*)
 
 Local Open Scope Z_scope.
 
