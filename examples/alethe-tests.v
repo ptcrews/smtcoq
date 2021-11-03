@@ -53,82 +53,78 @@ Section Checker_SmtEx1Debug.
   
   (* Components of the certificate *)
   Definition nclauses1 := Eval vm_compute in (match trace1 with Certif a _ _ => a end).
-  Definition c1 := Eval vm_compute in (match trace1 with Certif _ a _ => a end).
-  Definition conf1 := Eval vm_compute in (match trace1 with Certif _ _ a => a end).
+  Definition c1 := Eval vm_compute in (match trace1 with Certif _ a _ => a end). (* Certificate *)
+  Definition conf1 := Eval vm_compute in (match trace1 with Certif _ _ a => a end). (* Look here in the state for the empty clause*)
   (* list step * step *)
-  Print c1.
+  Print c1. Print conf1.
+  Eval vm_compute in List.length (fst c1).
+  (* 9 steps in the certificate *)
+
   (* Sanity check that atoms and formulas are well-typed. Must return true *)
   Eval vm_compute in (Form.check_form t_form1 && Atom.check_atom t_atom1 && Atom.wt t_i1 t_func1 t_atom1).
   
+
   (* States from c1 *)
+  
+  (* Start state *)
   Definition s0_1 := Eval vm_compute in (add_roots (S.make nclauses1) root1 used_roots1).
   Print s0_1.
+  (* s0_1 = ({| 0 -> (4 :: nil) |}, 
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+
+  (* NotSimplify 1 6 *)
   Definition s1_1 := Eval vm_compute in (step_checker s0_1 (List.nth 0 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
   Print s1_1.
+  (* s1_1 = ({| 0 -> (4 :: nil),  1 -> (6 :: nil) |}, 
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+
+  (* IffCong 1 (1 :: nil) 10 *)
   Definition s2_1 := Eval vm_compute in (step_checker s1_1 (List.nth 1 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
   Print s2_1.
+  (* s2_1 = ({| 0 -> (4 :: nil), 1 -> (10 :: nil) |}, 
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+
+  (* AndSimplify 2 14 *)
   Definition s3_1 := Eval vm_compute in (step_checker s2_1 (List.nth 2 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
   Print s3_1.
+  (* s3_1 = ({| 0 -> (4 :: nil), 1 -> (10 :: nil), 2 -> (14 :: nil) |}, 
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+
+  (* AndSimplify 3 16 *)
   Definition s4_1 := Eval vm_compute in (step_checker s3_1 (List.nth 3 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
   Print s4_1.
+  (* s4_1 = ({| 0 -> (4 :: nil), 1 -> (10 :: nil), 2 -> (14 :: nil), 3 -> (16 :: nil) |}, 
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+
+  (* IffTrans 3 (1 :: 2 :: 3 :: nil) 18 *)
   Definition s5_1 := Eval vm_compute in (step_checker s4_1 (List.nth 4 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
   Print s5_1.
+  (* s5_1 = ({| 0 -> (4 :: nil), 1 -> (10 :: nil), 2 -> (14 :: nil), 3 -> (18 :: nil) |}, 
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+
+  (* BuildDef2 2 19 *)
   Definition s6_1 := Eval vm_compute in (step_checker s5_1 (List.nth 5 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
-  (*Eval vm_compute in (S.set_resolve s6_1 3 (PArray.set (PArray.set (PArray.make 2 0) 0 2) 1 3)).*)
   Print s6_1.
+  (* s6_1 = ({| 0 -> (4 :: nil), 1 -> (10 :: nil), 2 -> (2 :: 5 :: 19 :: nil), 3 -> (18 :: nil) |}
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+
+  (* Res 0 ({| 0 -> 2, 1 -> 3, 2 -> 0 |}) *)
   Definition s7_1 := Eval vm_compute in (step_checker s6_1 (List.nth 6 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
   Print s7_1.
+  (* s7_1 = ({| 0 -> (2 :: nil), 1 -> (10 :: nil), 2 -> (2 :: 5 :: 19 :: nil), 3 -> (18 :: nil) |},
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+
+  (* CFalse 3 *)
   Definition s8_1 := Eval vm_compute in (step_checker s7_1 (List.nth 7 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
   Print s8_1.
-(* s8_1 = ({| 0 -> (4 :: nil), 1 -> (10 :: nil), 2 -> (2 :: 0:: 19 :: nil), 3 ->  (3 :: nil) |},
+  (* s8_1 = ({| 0 -> (2 :: nil), 1 -> (10 :: nil), 2 -> (2 :: 5 :: 19 :: nil), 3 ->  (3 :: nil) |},
     0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
-  Definition s9_1 := Eval vm_compute in (step_checker s8_1 (List.nth 8 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
-  Print s9_1. 
-(* s9_1 = ({| 0 -> (4 :: nil), 1 -> (10 :: nil), 2 -> (2 :: 0 :: 19 :: nil), 3 -> 0 :: 19 :: nil |},
-    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
-  Eval vm_compute in euf_checker (* t_atom t_form *) C.is_false (add_roots (S.make nclauses1) root1 used_roots1) c1 conf1.
-  Definition s10_1 := Eval vm_compute in (step_checker s9_1 (List.nth 9 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))). Eval vm_compute in (List.nth 9 (fst c1) (CTrue t_func1 t_atom1 t_form1 0)). Eval vm_compute in List.length (fst c1).
-  Print s10_1.
-(* s10_1 = ({| 0 -> (0 :: nil), 1 -> (10 :: nil), 2 -> (2 :: 0 :: 19 :: nil), 3 -> 0 :: 19 :: nil |},
-    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
-  (*
-  trace1 = 
-    Certif (t_i:=t_i1) (t_func:=t_func1) (t_atom:=t_atom1) (t_form:=t_form1) 4
-      (NotSimplify (t_i:=t_i1) t_func1 t_atom1 t_form1 1 6 :: 
-       IffCong (t_i:=t_i1) t_func1 t_atom1 t_form1 1 (1 :: nil) 10 :: 
-       AndSimplify (t_i:=t_i1) t_func1 t_atom1 t_form1 2 14 :: 
-       AndSimplify (t_i:=t_i1) t_func1 t_atom1 t_form1 3 16 :: 
-       IffTrans (t_i:=t_i1) t_func1 t_atom1 t_form1 3 (1 :: 2 :: 3 :: nil) 18 :: 
-       BuildDef2 (t_i:=t_i1) t_func1 t_atom1 t_form1 2 19 :: 
-       Hole (t_i:=t_i1) (t_func:=t_func1) (t_atom:=t_atom1) (t_form:=t_form1) 2 (0 :: 3 :: 2 :: nil) (prem:=(4 :: nil) :: (18 :: nil) :: (19 :: 5 :: 2 :: nil) :: nil) (concl:=2 :: nil) ass156637799 :: 
-       CFalse (t_i:=t_i1) t_func1 t_atom1 t_form1 3 :: 
-       Res (t_i:=t_i1) t_func1 t_atom1 t_form1 3 (PArray.set (PArray.set (PArray.make 2 0) 0 2) 1 3) :: nil,
-    Res (t_i:=t_i1) t_func1 t_atom1 t_form1 0 (PArray.make 0 0)) 3
-    : certif (t_i:=t_i1) t_func1 t_atom1 t_form1
 
-  s0_1 = ({| 0 -> (4 :: nil) |}, 
-    0 :: nil, 4) : PArray.Map.t C.t * C.t * int
-  s1_1 = ({| 0 -> (4 :: nil),  1 -> (6 :: nil) |}, 
-    0 :: nil, 4) : PArray.Map.t C.t * C.t * int
-  s2_1 = ({| 0 -> (4 :: nil), 1 -> (10 :: nil) |}, 
-    0 :: nil, 4) : PArray.Map.t C.t * C.t * int
-  s3_1 = ({| 0 -> (4 :: nil), 1 -> (10 :: nil), 2 -> (14 :: nil) |}, 
-    0 :: nil, 4) : PArray.Map.t C.t * C.t * int
-  s4_1 = ({| 0 -> (4 :: nil), 1 -> (10 :: nil), 2 -> (14 :: nil), 3 -> (16 :: nil) |}, 
-    0 :: nil, 4) : PArray.Map.t C.t * C.t * int
-  s5_1 = ({| 0 -> (4 :: nil), 1 -> (10 :: nil), 2 -> (14 :: nil), 3 -> (18 :: nil) |}, 
-    0 :: nil, 4) : PArray.Map.t C.t * C.t * int
-  s6_1 = ({| 0 -> (4 :: nil), 1 -> (10 :: nil), 2 -> (2 :: 5 :: 19 :: nil), 3 -> (18 :: nil) |}
-    0 :: nil, 4) : PArray.Map.t C.t * C.t * int
-  s7_1 = ({| 0 -> (4 :: nil), 1 -> (10 :: nil), 2 -> (2 :: nil), 3 -> (18 :: nil) |},
-    0 :: nil, 4) : PArray.Map.t C.t * C.t * int
-  s8_1 = ({| 0 -> (4 :: nil), 1 -> (10 :: nil), 2 -> (2 :: nil), 3 ->  (3 :: nil) |},
-    0 :: nil, 4) : PArray.Map.t C.t * C.t * int
-  s9_1 = ({| 0 -> (4 :: nil), 1 -> (10 :: nil), 2 -> (2 :: nil), 3 -> nil |},
-    0 :: nil, 4) : PArray.Map.t C.t * C.t * int
-  s10_1 = ({| 0 -> (0 :: nil), 1 -> (10 :: nil), 2 -> (2 :: nil), 3 -> nil |},
-    0 :: nil, 4) : PArray.Map.t C.t * C.t * int
-  *)
+  (* Res 3 ({| 0 -> 0, 1 -> 3 |}) *)
+  Definition s9_1 := Eval vm_compute in (step_checker s8_1 (List.nth 8 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
+  Print s9_1.
+  (* s9_1 = ({| 0 -> (2 :: nil), 1 -> (10 :: nil), 2 -> (2 :: 5 :: 19 :: nil), 3 -> nil |},
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
 End Checker_SmtEx1Debug.
 
 (*Section Checker_SmtEx1.
@@ -142,68 +138,250 @@ Proof.
   verit_bool.
 Qed.
 
+Section Checker_SmtEx2Debug.
+  Parse_certif_verit t_i2 t_func2 t_atom2 t_form2 root2 used_roots2 trace2 
+  "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test2.smt2" 
+  "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test2.vtlog".
+  (*
+  Structures_standard.v
+  ---------------------
+  Definition trace (step:Type) := ((list step) * step)%type.
+
+  Trace.v
+  -------
+  Definition _trace_ := Structures.trace step.
+
+  Inductive certif :=
+  | Certif : int -> _trace_ step -> int -> certif.
+  *)
+  Print trace2. 
+  
+  (* Components of the certificate *)
+  Definition nclauses2 := Eval vm_compute in (match trace2 with Certif a _ _ => a end).
+  Definition c2 := Eval vm_compute in (match trace2 with Certif _ a _ => a end).
+  Definition conf2 := Eval vm_compute in (match trace2 with Certif _ _ a => a end).
+  (* list step * step *)
+  Print c2.
+  Eval vm_compute in List.length (fst c2).
+  (* 12 steps in the certificate *)
+
+  (* Sanity check that atoms and formulas are well-typed. Must return true *)
+  Eval vm_compute in (Form.check_form t_form2 && Atom.check_atom t_atom2 && Atom.wt t_i2 t_func2 t_atom2).
+  
+
+  (* States from c2 *)
+  
+  (* Start state *)
+  Definition s0_2 := Eval vm_compute in (add_roots (S.make nclauses2) root2 used_roots2).
+  Print s0_2.
+  (* s0_2 = ({| 0 -> (5 :: nil) |}, 
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+
+  (* OrSimplify 1 8 *)
+  Definition s1_2 := Eval vm_compute in (step_checker s0_2 (List.nth 0 (fst c2) (CTrue t_func2 t_atom2 t_form2 0))).
+  Print s1_2.
+  (* s1_2 = ({| 0 -> (5 :: nil),  1 -> (8 :: nil) |}, 
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+
+  (* OrSimplify 2 10 *)
+  Definition s2_2 := Eval vm_compute in (step_checker s1_2 (List.nth 1 (fst c2) (CTrue t_func2 t_atom2 t_form2 0))).
+  Print s2_2.
+  (* s2_2 = ({| 0 -> (5 :: nil), 1 -> (8 :: nil), 2 -> (10 :: nil) |}, 
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+
+  (* IffTrans 2 12 *)
+  Definition s3_2 := Eval vm_compute in (step_checker s2_2 (List.nth 2 (fst c2) (CTrue t_func2 t_atom2 t_form2 0))).
+  Print s3_2.
+  (* s3_2 = ({| 0 -> (5 :: nil), 1 -> (8 :: nil), 2 -> (12 :: nil) |}, 
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+
+  (* IffCong 2 (2 :: nil) 14 *)
+  Definition s4_2 := Eval vm_compute in (step_checker s3_2 (List.nth 3 (fst c2) (CTrue t_func2 t_atom2 t_form2 0))).
+  Print s4_2.
+  (* s4_2 = ({| 0 -> (5 :: nil), 1 -> (8 :: nil), 2 -> (14 :: nil) |}, 
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+
+  (* NotSimplify 1 16 *)
+  Definition s5_2 := Eval vm_compute in (step_checker s4_2 (List.nth 4 (fst c2) (CTrue t_func2 t_atom2 t_form2 0))).
+  Print s5_2.
+  (* s5_2 = ({| 0 -> (5 :: nil), 1 -> (16 :: nil), 2 -> (14 :: nil) |}, 
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+
+  (* IffTrans 1 (2 :: 1 :: nil) 18 *)
+  Definition s6_2 := Eval vm_compute in (step_checker s5_2 (List.nth 5 (fst c2) (CTrue t_func2 t_atom2 t_form2 0))).
+  Print s6_2.
+  (* s6_2 = ({| 0 -> (5 :: nil), 1 -> (18 :: nil), 2 -> (14 :: nil) |}
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+
+  (* BuildDef2 2 19 *)
+  Definition s7_2 := Eval vm_compute in (step_checker s6_2 (List.nth 6 (fst c2) (CTrue t_func2 t_atom2 t_form2 0))).
+  Print s7_2.
+  (* s7_2 = ({| 0 -> (5 :: nil), 1 -> (18 :: nil), 2 -> (2 :: 4 :: 19 :: nil) |},
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+  
+  (* NotNot 3 5 *)
+  Definition s8_2 := Eval vm_compute in (step_checker s7_2 (List.nth 7 (fst c2) (CTrue t_func2 t_atom2 t_form2 0))).
+  Print s8_2.
+  Eval vm_compute in (Cnf.check_NotNot t_form2 5).
+  Eval vm_compute in PArray.get t_form2 (Lit.blit 5).
+  (* s8_2 = ({| 0 -> (5 :: nil), 1 -> (18 :: nil), 2 -> (2 :: 4 :: 19 :: nil), 3 ->  (0 :: nil) |},
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+
+  (* Res 3 ({| 0 -> 2, 1 -> 3|}) *)
+  Definition s9_2 := Eval vm_compute in (step_checker s8_2 (List.nth 8 (fst c2) (CTrue t_func2 t_atom2 t_form2 0))).
+  Print s9_2. 
+  
+  (* Res 0 ({| 0 -> 3, 1 -> 1, 2 -> 0 |}) *)
+  Definition s10_2 := Eval vm_compute in (step_checker s9_2 (List.nth 9 (fst c2) (CTrue t_func2 t_atom2 t_form2 0))).
+  Print s10_2.
+
+  (* CFalse 1 *)
+  Definition s11_2 := Eval vm_compute in (step_checker s10_2 (List.nth 10 (fst c2) (CTrue t_func2 t_atom2 t_form2 0))).
+  Print s11_2.
+
+  (* Res 1 ({| 0 -> 0, 1 -> 1 |}) *)
+  Definition s12_2 := Eval vm_compute in (step_checker s11_2 (List.nth 11 (fst c2) (CTrue t_func2 t_atom2 t_form2 0))).
+  Print s12_2.
+
+End Checker_SmtEx2Debug.
+
+(*
 Section Checker_SmtEx2.
   Parse_certif_verit t_i2 t_func2 t_atom2 t_form2 root2 used_roots2 trace2 
   "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test2.smt2" 
   "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test2.vtlog".
 End Checker_SmtEx2.
-(* Fix th_reso
+*)
+
+(* Fix notnot
 Lemma ex2: true || false.
 Proof.
   verit_bool.
-Qed.
-*)
-(*
+Qed.*)
+
 Section Checker_SmtEx3.
   Parse_certif_verit t_i3 t_func3 t_atom3 t_form3 root3 used_roots3 trace3
   "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test3.smt2" 
   "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test3.vtlog".
 End Checker_SmtEx3.
-*)
+
 Lemma ex3: forall p, negb (p && (negb p)).
 Proof.
   verit_bool.
 Qed.
 
-Section Checker_SmtEx3Debug.
-  Parse_certif_verit t_i3 t_func3 t_atom3 t_form3 root3 used_roots3 trace3
-  "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test3.smt2" 
-  "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test3.vtlog".
-  Print trace3.
-  (* Components of certif*)
-  Definition nclauses3 := Eval vm_compute in (match trace3 with Certif a _ _ => a end).
-  Definition c3 := Eval vm_compute in (match trace3 with Certif _ a _ => a end).
-  Definition conf3 := Eval vm_compute in (match trace3 with Certif _ _ a => a end).
-  Eval vm_compute in List.length (fst c3).
-  (* Check that this returns true for well-typed *)
-  Eval vm_compute in (Form.check_form t_form3 && Atom.check_atom t_atom3 && Atom.wt t_i3 t_func3 t_atom3).
-  (* Now, run the checker, step-by=step *)
-  (* Step through steps *)
-  Definition s0_2 := Eval vm_compute in (add_roots (S.make nclauses3) root3 used_roots3).
-  Print s0_2.
-  Definition s1_2 := Eval vm_compute in (step_checker s0_2 (List.nth 0 (fst c3) (CTrue t_func3 t_atom3 t_form3 0))).
-  Print s1_2.
-  (* Problem with call to And_simplify, call the step-checker for And_Simplify *)
-  Eval vm_compute in (List.nth 0 (fst c3) (CTrue t_func3 t_atom3 t_form3 0)).
-  Eval vm_compute in (Cnf.check_AndSimplify t_form3 8).
-  (* Step through check_AndSimplify, check type of Lit.Blit l *)
-End Checker_SmtEx3Debug.
-
 Lemma ex4: forall a b c, ((a || b || c) && ((negb a) || (negb b) || (negb c)) && ((negb a) || b) && ((negb b) || c) && ((negb c) || a)) = false.
 Proof.
   verit_bool.
 Qed.
-(* Fix th_reso
-Lemma ex5: false && true -> true || false.
+
+Section Checker_SmtEx5Debug.
+  Parse_certif_verit t_i5 t_func5 t_atom5 t_form5 root5 used_roots5 trace5 
+  "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test5.smt2" 
+  "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritparser/smtcoq/examples/test5.vtlog".
+  (*
+  Structures_standard.v
+  ---------------------
+  Definition trace (step:Type) := ((list step) * step)%type.
+
+  Trace.v
+  -------
+  Definition _trace_ := Structures.trace step.
+
+  Inductive certif :=
+  | Certif : int -> _trace_ step -> int -> certif.
+  *)
+  Print trace5. 
+  
+  (* Components of the certificate *)
+  Definition nclauses5 := Eval vm_compute in (match trace5 with Certif a _ _ => a end).
+  Definition c5 := Eval vm_compute in (match trace5 with Certif _ a _ => a end).
+  Definition conf5 := Eval vm_compute in (match trace5 with Certif _ _ a => a end).
+  (* list step * step *)
+  Print c5.
+  Eval vm_compute in List.length (fst c5).
+  (* 10 steps in the certificate *)
+
+  (* Sanity check that atoms and formulas are well-typed. Must return true *)
+  Eval vm_compute in (Form.check_form t_form5 && Atom.check_atom t_atom5 && Atom.wt t_i5 t_func5 t_atom5).
+  
+
+  (* States from c5 *)
+  
+  (* Start state *)
+  Definition s0_5 := Eval vm_compute in (add_roots (S.make nclauses2) root5 used_roots5).
+  Print s0_5.
+  (* s0_5 = ({| 0 -> (7 :: nil) |}, 
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+
+  (* OrSimplify 1 8 *)
+  Definition s1_5 := Eval vm_compute in (step_checker s0_5 (List.nth 0 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s1_5.
+  (* s1_5 = ({| 0 -> (7 :: nil),  1 -> (8 :: nil) |}, 
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+
+  (* IffCong 1 (1 :: nil) 10 *)
+  Definition s2_5 := Eval vm_compute in (step_checker s1_5 (List.nth 1 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s2_5.
+  (* s2_5 = ({| 0 -> (7 :: nil), 1 -> (10 :: nil) |}, 
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+
+  (* NotSimplify 2 12 *)
+  Definition s3_5 := Eval vm_compute in (step_checker s2_5 (List.nth 2 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s3_5.
+  (* s3_5 = ({| 0 -> (7 :: nil), 1 -> (10 :: nil), 2 -> (12 :: nil) |}, 
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+
+  (* IffTrans 2 (1 :: 2 :: nil) 14 *)
+  Definition s4_5 := Eval vm_compute in (step_checker s3_5 (List.nth 3 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s4_5.
+  (* s4_5 = ({| 0 -> (7 :: nil), 1 -> (10 :: nil), 2 -> (14 :: nil) |}, 
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+
+  (* BuildDef2 1 15 *)
+  Definition s5_5 := Eval vm_compute in (step_checker s4_5 (List.nth 4 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s5_5.
+  (* s5_5 = ({| 0 -> (7 :: nil), 1 -> (2 :: 16 :: 15 :: nil), 2 -> (14 :: nil) |}, 
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+
+  (* NotNot 3 7 *)
+  Definition s6_5 := Eval vm_compute in (step_checker s5_5 (List.nth 5 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s6_5.
+  (* s6_5 = ({| 0 -> (7 :: nil), 1 -> (2 :: 6 :: 15 :: nil), 2 -> (14 :: nil), 3 -> (0 :: nil) |}
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+
+  (* Res 3 {| 0 -> 1, 1 -> 3 |} *)
+  Definition s7_5 := Eval vm_compute in (step_checker s6_5 (List.nth 6 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s7_5.
+
+  (* Res 0 {| 0 -> 3, 1 -> 2 |} *)
+  Definition s8_5 := Eval vm_compute in (step_checker s7_5 (List.nth 7 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s8_5.
+  
+  (* CFalse 2 *)
+  Definition s9_5 := Eval vm_compute in (step_checker s8_5 (List.nth 8 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s9_5. 
+  
+  (* Res 2 {| 0 -> 0, 1 -> 2 |} *)
+  Definition s10_5 := Eval vm_compute in (step_checker s9_5 (List.nth 9 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s10_5.
+
+  (* CFalse 1 *)
+  Definition s11_5 := Eval vm_compute in (step_checker s10_5 (List.nth 10 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s11_5.
+
+  (* Res 1 ({| 0 -> 0, 1 -> 1 |}) *)
+  Definition s12_5 := Eval vm_compute in (step_checker s11_5 (List.nth 11 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s12_5.
+
+End Checker_SmtEx5Debug.
+
+(* Fix th_reso *)
+Lemma ex5: forall p, p || (negb p).
 Proof.
   verit_bool.
 Qed.
 
-Lemma ex6: forall p, p || (negb p).
-Proof.
-  verit_bool.
-Qed.
-*)
 
 Local Open Scope Z_scope.
 

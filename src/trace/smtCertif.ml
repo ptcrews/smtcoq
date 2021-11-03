@@ -29,7 +29,7 @@ type 'hform rule =
   | False
      (*  * false            : {(not false)}
      *)
-  | NotNot of 'hform (*the first literal of the clause *)
+  | NotNot of 'hform (* the first literal of the clause *)
      (*  * notnot           : {(not (not not x)) x}
      *)
   | Tautology of 'hform clause * 'hform

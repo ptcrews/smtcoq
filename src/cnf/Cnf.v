@@ -129,13 +129,11 @@ Section CHECKER.
 
   (* * notnot           : {(not (not not x)) x} *)
   Definition check_NotNot l :=
-    if Lit.is_pos l then
-      C._true
-    else
-      match get_hash (Lit.blit l) with
-        | Fnot2 1 x => l :: x :: nil
-        | _ => C._true
-      end.
+    match get_hash (Lit.blit l) with
+      | Fnot2 i x => (*if (i == 1) then*) (Lit.neg l) :: x :: nil
+                     (*else (Lit.neg l) :: (Fnot2 (i-1) x) :: nil*)
+      | _ => C._true
+    end.
 
   
   (*  * tautology        : {(x_1 ... x_i ... (not x_i) ... x_n) --> true)}
@@ -451,7 +449,6 @@ Section CHECKER.
         else C._true
       | _ => C._true
       end.
-About List.
 
 Fixpoint list_eqb l1 l2 : bool :=
   if Nat.eqb (List.length l1) (List.length l2) then
@@ -856,6 +853,66 @@ Fixpoint list_eqb l1 l2 : bool :=
       | _ => C._true
       end.
 
+      
+    (* ac_simp        :       {iff x (y_1 o y_2 o ... o y_n), where o is and/or and
+                                - all chains with and/or are flattened
+                                - repeated literals in each and/or application are removed}
+    *)
+    (*Fixpoint array_of_list_aux l ar i :=
+      match l with
+      | nil => ar
+      | h :: t => array_of_list_aux t (@PArray.set int ar i h) (i+1)
+      end.
+
+    Definition array_of_list l :=
+      match l with
+      | nil => PArray.make 0 0
+      | l => let ar := PArray.make (Int31.phi_inv (Z.of_nat (List.length l))) 0 in
+              array_of_list_aux l ar 0
+      end.
+
+    Definition arrAppend x y :=
+      array_of_list (List.app (PArray.to_list x) (PArray.to_list y)).
+
+    Fixpoint acSimp x :=
+      match get_hash (Lit.blit x) with
+      | Fand xs => 
+        let xs' := PArray.map (fun x => match get_hash (Lit.blit x) with
+        (* for each literal, if literal is Fand, recursive call, and then flatten *)
+                                       | Fand xs2 => match (acSimp x) with
+                                                     | Fand xs2' => Fand (arrAppend xs xs2')
+                                                     | y => y
+                                                     end
+        (* for each literal, if literal is For, recursive call *)
+                                       | For xs2 => acSimp x 
+                                       | y => y
+                                       end) xs in
+        (* remove repetitions *)
+        Fand xs'
+      | For xs => 
+        let xs' := PArray.map (fun x => match get_hash (Lit.blit x) with
+        (* for each literal, if literal is For, recursive call, and then flatten *)
+                                       | For xs2 => match (acSimp x) with
+                                                     | For xs2' => For (arrAppend xs xs2')
+                                                     | y => y
+                                                    end
+        (* for each literal, if literal is Fand, recursive call *)
+                                       | Fand xs2 => acSimp x 
+                                       | y => y
+                                       end) xs in
+        (* remove repetitions *)
+        For xs'
+      | y => y
+      end.
+
+    Definition check_AcSimp l :=
+      match get_hash (Lit.blit l) with
+      | Fiff x y => 
+        if (Lit.is_pos x) && (Lit.is_pos y) then
+          if check_AcSimp_aux x y then l else C._true
+        else C._true
+      | _ => C._true
+      end.*)
 
   (** The correctness proofs *)
 
