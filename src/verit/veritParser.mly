@@ -181,7 +181,7 @@ sorted_var:
 ;*/
 
 clause:
-  | LPAREN CL lits=lit* RPAREN 
+  | LPAREN CL lits=lit* RPAREN
     { let _, l = list_dec lits in l }
 ;
 
@@ -193,7 +193,7 @@ lit:   /* returns a SmtAtom.Form.t option */
 ;
 
 nlit:
-  | LPAREN NOT lit RPAREN                                      { apply_dec Form.neg $3 }
+  | LPAREN NOT l=lit RPAREN       { apply_dec Form.neg l }
 ;
 
 term: /* term will produce many shift/reduce conflicts */
@@ -260,7 +260,7 @@ rulename:
   | ASSUME { Assume } /* Inpu */
   | TRUE { True }
   | FALSE { Fals }
-  | NOTNOT { Notnot }
+  | NOTNOT { Hole }
   | THRESO { Threso }
   | RESO { Reso }
   | TAUT { Taut } /* Needs to be checked */

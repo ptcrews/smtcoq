@@ -125,6 +125,9 @@ Section Checker_SmtEx1Debug.
   Print s9_1.
   (* s9_1 = ({| 0 -> (2 :: nil), 1 -> (10 :: nil), 2 -> (2 :: 5 :: 19 :: nil), 3 -> nil |},
     0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+  
+  (* If the main_checker returns true, SMTCoq has successfully managed to check the proof *)
+  Eval vm_compute in (euf_checker C.is_false (add_roots (S.make nclauses1) root1 used_roots1) c1 conf1).
 End Checker_SmtEx1Debug.
 
 (*Section Checker_SmtEx1.
@@ -154,14 +157,14 @@ Section Checker_SmtEx2Debug.
   Inductive certif :=
   | Certif : int -> _trace_ step -> int -> certif.
   *)
-  Print trace2. 
+  Print trace2.
   
   (* Components of the certificate *)
   Definition nclauses2 := Eval vm_compute in (match trace2 with Certif a _ _ => a end).
   Definition c2 := Eval vm_compute in (match trace2 with Certif _ a _ => a end).
   Definition conf2 := Eval vm_compute in (match trace2 with Certif _ _ a => a end).
   (* list step * step *)
-  Print c2.
+  Print c2. Print conf2.
   Eval vm_compute in List.length (fst c2).
   (* 12 steps in the certificate *)
 
@@ -189,7 +192,7 @@ Section Checker_SmtEx2Debug.
   (* s2_2 = ({| 0 -> (5 :: nil), 1 -> (8 :: nil), 2 -> (10 :: nil) |}, 
     0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
 
-  (* IffTrans 2 12 *)
+  (* IffTrans 2 (1 :: 2 :: nil) 12 *)
   Definition s3_2 := Eval vm_compute in (step_checker s2_2 (List.nth 2 (fst c2) (CTrue t_func2 t_atom2 t_form2 0))).
   Print s3_2.
   (* s3_2 = ({| 0 -> (5 :: nil), 1 -> (8 :: nil), 2 -> (12 :: nil) |}, 
@@ -218,19 +221,22 @@ Section Checker_SmtEx2Debug.
   Print s7_2.
   (* s7_2 = ({| 0 -> (5 :: nil), 1 -> (18 :: nil), 2 -> (2 :: 4 :: 19 :: nil) |},
     0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
-  
+
   (* NotNot 3 5 *)
   Definition s8_2 := Eval vm_compute in (step_checker s7_2 (List.nth 7 (fst c2) (CTrue t_func2 t_atom2 t_form2 0))).
   Print s8_2.
-  Eval vm_compute in (Cnf.check_NotNot t_form2 5).
-  Eval vm_compute in PArray.get t_form2 (Lit.blit 5).
-  (* s8_2 = ({| 0 -> (5 :: nil), 1 -> (18 :: nil), 2 -> (2 :: 4 :: 19 :: nil), 3 ->  (0 :: nil) |},
+  (* s8_2 = ({| 0 -> (5 :: nil), 1 -> (18 :: nil), 2 -> (2 :: 4 :: 19 :: nil), 3 ->  (4 :: 5 :: nil) |},
     0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
 
   (* Res 3 ({| 0 -> 2, 1 -> 3|}) *)
   Definition s9_2 := Eval vm_compute in (step_checker s8_2 (List.nth 8 (fst c2) (CTrue t_func2 t_atom2 t_form2 0))).
-  Print s9_2. 
-  
+  Print s9_2.
+  (* s8_2 = ({| 0 -> (5 :: nil), 1 -> (18 :: nil), 2 -> (2 :: 4 :: 19 :: nil), 3 ->  (2 :: 4 :: 5 :: 0 :: nil) |},
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+  Eval vm_compute in (C.resolve (2 :: 4 :: 19 :: nil) (4 :: 5 ::nil)).
+  (* Result: 2 :: 4 :: 5 :: 0 :: nil 
+     Expected Result: 2 :: 4 :: 19 *)
+
   (* Res 0 ({| 0 -> 3, 1 -> 1, 2 -> 0 |}) *)
   Definition s10_2 := Eval vm_compute in (step_checker s9_2 (List.nth 9 (fst c2) (CTrue t_func2 t_atom2 t_form2 0))).
   Print s10_2.
@@ -253,7 +259,7 @@ Section Checker_SmtEx2.
 End Checker_SmtEx2.
 *)
 
-(* Fix notnot
+(* Fix notnot*)
 Lemma ex2: true || false.
 Proof.
   verit_bool.

@@ -129,11 +129,14 @@ Section CHECKER.
 
   (* * notnot           : {(not (not not x)) x} *)
   Definition check_NotNot l :=
-    match get_hash (Lit.blit l) with
-      | Fnot2 i x => (*if (i == 1) then*) (Lit.neg l) :: x :: nil
+    if Lit.is_pos l then C._true
+    else
+      (l :: Lit.neg l :: nil).
+      (*match get_hash (Lit.blit l) with
+      | Fnot2 i x => (*if (i == 1) then*) l :: x :: nil
                      (*else (Lit.neg l) :: (Fnot2 (i-1) x) :: nil*)
       | _ => C._true
-    end.
+      end.*)
 
   
   (*  * tautology        : {(x_1 ... x_i ... (not x_i) ... x_n) --> true)}
