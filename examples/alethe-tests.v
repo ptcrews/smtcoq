@@ -225,30 +225,41 @@ Section Checker_SmtEx2Debug.
   (* NotNot 3 5 *)
   Definition s8_2 := Eval vm_compute in (step_checker s7_2 (List.nth 7 (fst c2) (CTrue t_func2 t_atom2 t_form2 0))).
   Print s8_2.
-  (* s8_2 = ({| 0 -> (5 :: nil), 1 -> (18 :: nil), 2 -> (2 :: 4 :: 19 :: nil), 3 ->  (4 :: 5 :: nil) |},
+  (* s8_2 = ({| 0 -> (5 :: nil), 1 -> (18 :: nil), 2 -> (2 :: 4 :: 19 :: nil), 3 ->  (4 :: 21 :: nil) |},
     0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
-
+  (* Since we correctly parse double negations as `Fnot2 1`, this step correctly
+     constructs `~(Fnot2 1 (T or F))`.
+     However, the previous step constructs `[~(T or F) != F, (T or F), F]`
+     instead of `[(~T or F) != F, Fnot2 1 (T or F), F]` because 
+     `Cnf.check_BuildDef2` constructs the second and third terms of the 
+     clause. To change `check_BuildDef2`, we need to be able to hash 
+     `Fnot2` terms, which isn't straightforward. *)
   (* Res 3 ({| 0 -> 2, 1 -> 3|}) *)
   Definition s9_2 := Eval vm_compute in (step_checker s8_2 (List.nth 8 (fst c2) (CTrue t_func2 t_atom2 t_form2 0))).
   Print s9_2.
-  (* s8_2 = ({| 0 -> (5 :: nil), 1 -> (18 :: nil), 2 -> (2 :: 4 :: 19 :: nil), 3 ->  (2 :: 4 :: 5 :: 0 :: nil) |},
+  (* s8_2 = ({| 0 -> (5 :: nil), 1 -> (18 :: nil), 2 -> (2 :: 4 :: 19 :: nil), 3 ->  (2 :: 4 :: 19 :: 0 :: nil) |},
     0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
-  Eval vm_compute in (C.resolve (2 :: 4 :: 19 :: nil) (4 :: 5 ::nil)).
-  (* Result: 2 :: 4 :: 5 :: 0 :: nil 
-     Expected Result: 2 :: 4 :: 19 *)
-
+  
   (* Res 0 ({| 0 -> 3, 1 -> 1, 2 -> 0 |}) *)
   Definition s10_2 := Eval vm_compute in (step_checker s9_2 (List.nth 9 (fst c2) (CTrue t_func2 t_atom2 t_form2 0))).
   Print s10_2.
+  (* s8_2 = ({| 0 -> (2 :: 0 :: nil), 1 -> (18 :: nil), 2 -> (2 :: 4 :: 19 :: nil), 3 ->  (2 :: 4 :: 19 :: 0 :: nil) |},
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
 
   (* CFalse 1 *)
   Definition s11_2 := Eval vm_compute in (step_checker s10_2 (List.nth 10 (fst c2) (CTrue t_func2 t_atom2 t_form2 0))).
   Print s11_2.
+  (* s8_2 = ({| 0 -> (2 :: 0 :: nil), 1 -> (3 :: nil), 2 -> (2 :: 4 :: 19 :: nil), 3 ->  (2 :: 4 :: 19 :: 0 :: nil) |},
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
 
   (* Res 1 ({| 0 -> 0, 1 -> 1 |}) *)
   Definition s12_2 := Eval vm_compute in (step_checker s11_2 (List.nth 11 (fst c2) (CTrue t_func2 t_atom2 t_form2 0))).
   Print s12_2.
+  (* s8_2 = ({| 0 -> (2 :: 0 :: nil), 1 -> (0 :: nil), 2 -> (2 :: 4 :: 19 :: nil), 3 ->  (2 :: 4 :: 19 :: 0 :: nil) |},
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
 
+  (* If the main_checker returns true, SMTCoq has successfully managed to check the proof *)
+  Eval vm_compute in (euf_checker C.is_false (add_roots (S.make nclauses2) root2 used_roots2) c2 conf2).
 End Checker_SmtEx2Debug.
 
 (*

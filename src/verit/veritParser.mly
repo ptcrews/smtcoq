@@ -188,29 +188,20 @@ clause:
 lit:   /* returns a SmtAtom.Form.t option */
   | t=term
   { let decl, t' = t in 
-      decl, Form.lit_of_atom_form_lit rf (decl, t') }
-  | n=nlit_aux 
+      decl, Form.lit_of_atom_form_lit rf (decl, t') 
+  }
+  | LPAREN NOT l=lit RPAREN
   {
-    let m, t = n in
-    let decl, t' = t in
-    let l = Form.lit_of_atom_form_lit rf (decl, t') in
-    let f = Form.Form (Fapp (Fnot2 (m/2), Array.make 1 l)) in
-    if (m mod 2 == 0) then
-      decl, Form.lit_of_atom_form_lit rf (decl, f)
+    let decl, l' = l in
+    if Form.is_pos l' then
+      decl, Form.neg l'
     else
-      decl, Form.neg (Form.lit_of_atom_form_lit rf (decl, f))
+      let f = Form.Form (Fapp (Fnot2 1, Array.make 1 (Form.neg l'))) in
+      decl, (Form.lit_of_atom_form_lit rf (decl, f))
   }
 ;
 
-nlit_aux:
-  | LPAREN NOT n=nlit_aux RPAREN
-  { let m, t = n in
-      (m+1, t) }
-  | LPAREN NOT t=term RPAREN
-  { (1, t) }
-
-nlit:
-  | n=nlit_aux 
+  (*| n=nlit_aux 
   {
     let m, t = n in
     let decl, t' = t in
@@ -220,6 +211,17 @@ nlit:
       decl, Form.lit_of_atom_form_lit rf (decl, f)
     else
       decl, Form.neg (Form.lit_of_atom_form_lit rf (decl, f))
+  }*)
+
+nlit:
+  | LPAREN NOT l=lit RPAREN
+  {
+    let decl, l' = l in
+    if Form.is_pos l' then
+      decl, Form.neg l'
+    else
+      let f = Form.Form (Fapp (Fnot2 1, Array.make 1 (Form.neg l'))) in
+      decl, (Form.lit_of_atom_form_lit rf (decl, f))
   }
 ;
 
@@ -227,7 +229,6 @@ term: /* term will produce many shift/reduce conflicts */
   | LPAREN t=term RPAREN        { t }
   | TRUE                        { true, Form.Form Form.pform_true }
   | FALSE                       { true, Form.Form Form.pform_false }
-  /*| LPAREN NOT term RPAREN      { apply_dec Form.neg $3 }*/
   | LPAREN IMPLIES lits=lit* RPAREN 
     { apply_dec (fun x -> Form.Form (Fapp (Fimp, Array.of_list x))) 
                 (list_dec lits) }
@@ -287,7 +288,7 @@ rulename:
   | ASSUME { Assume } /* Inpu */
   | TRUE { True }
   | FALSE { Fals }
-  | NOTNOT { Hole }
+  | NOTNOT { Notnot }
   | THRESO { Threso }
   | RESO { Reso }
   | TAUT { Taut } /* Needs to be checked */
