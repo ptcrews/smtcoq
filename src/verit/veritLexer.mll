@@ -99,12 +99,24 @@
         "equiv_simplify", EQSIMP;
         "bool_simplify", BOOLSIMP;
         "ac_simp", ACSIMP;
+        "distinct_elim", DISTELIM;
 
       (* Simplifications on ITE operators *)
         "ite_simplify", ITESIMP;
 
       (* Simplifications on equalities *)
         "eq_simplify", EQUALSIMP;
+
+      (* Linear Integer Arithmetic *)
+        "la_generic", LAGE;
+        "lia_generic", LIAGE;
+        "la_tautology", LATA;
+        "la_disequality", LADE;
+        "div_simplify", DIVSIMP;
+        "prod_simplify", PRODSIMP;
+        "unary_minus_simplify", UMINUSSIMP;
+        "minus_simplify", MINUSSIMP;
+        "la_rw_eq", LARWEQ;
       ]
 }
 

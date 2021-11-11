@@ -856,11 +856,23 @@ Fixpoint list_eqb l1 l2 : bool :=
       | _ => C._true
       end.
 
-      
+      Local Open Scope int31_scope.  
     (* ac_simp        :       {iff x (y_1 o y_2 o ... o y_n), where o is and/or and
                                 - all chains with and/or are flattened
                                 - repeated literals in each and/or application are removed}
     *)
+
+    (* Array append *)
+    (*Definition array_append {A:Type} x1 x2 :=
+      let len1 := @PArray.length A x1 in
+      let len2 := @PArray.length A x2 in
+      let def := PArray.default x1 in
+      let res := PArray.make (len1 + len2) def in
+      PArray.mapi (fun i x => if negb (i < 0) && (i < len1) then
+                                PArray.get x1 i
+                              else
+                                PArray.get x2 (i-len1)) res.
+
     (*Fixpoint array_of_list_aux l ar i :=
       match l with
       | nil => ar
@@ -875,7 +887,7 @@ Fixpoint list_eqb l1 l2 : bool :=
       end.
 
     Definition arrAppend x y :=
-      array_of_list (List.app (PArray.to_list x) (PArray.to_list y)).
+      array_of_list (List.app (PArray.to_list x) (PArray.to_list y)).*)
 
     Fixpoint acSimp x :=
       match get_hash (Lit.blit x) with
@@ -883,7 +895,7 @@ Fixpoint list_eqb l1 l2 : bool :=
         let xs' := PArray.map (fun x => match get_hash (Lit.blit x) with
         (* for each literal, if literal is Fand, recursive call, and then flatten *)
                                        | Fand xs2 => match (acSimp x) with
-                                                     | Fand xs2' => Fand (arrAppend xs xs2')
+                                                     | Fand xs2' => Fand (array_append xs xs2')
                                                      | y => y
                                                      end
         (* for each literal, if literal is For, recursive call *)
@@ -896,7 +908,7 @@ Fixpoint list_eqb l1 l2 : bool :=
         let xs' := PArray.map (fun x => match get_hash (Lit.blit x) with
         (* for each literal, if literal is For, recursive call, and then flatten *)
                                        | For xs2 => match (acSimp x) with
-                                                     | For xs2' => For (arrAppend xs xs2')
+                                                     | For xs2' => For (array_append xs xs2')
                                                      | y => y
                                                     end
         (* for each literal, if literal is Fand, recursive call *)

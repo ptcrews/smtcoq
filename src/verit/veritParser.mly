@@ -72,10 +72,10 @@
 %token EQUP1 EQUP2 EQUN1 EQUN2
 %token ITE1 ITE2 ITEP1 ITEP2 ITEN1 ITEN2 NITE1 NITE2
 %token CONNDEF ANDSIMP ORSIMP NOTSIMP IMPSIMP
-%token EQSIMP BOOLSIMP ACSIMP
-%token ITESIMP
-%token EQUALSIMP
+%token EQSIMP BOOLSIMP ACSIMP ITESIMP EQUALSIMP DISTELIM
 %token EQ
+%token LAGE LIAGE LATA LADE DIVSIMP PRODSIMP 
+%token UMINUSSIMP MINUSSIMP LARWEQ
 
 %type <int> line
 %start line
@@ -336,3 +336,13 @@ rulename:
   | ACSIMP { Hole } /* Needs to be updated */
   | ITESIMP { Itesimp } /* Needs to be checked */
   | EQUALSIMP { Eqsimp } /* Needs to be checked */
+  | DISTELIM { Distelim }
+  | LAGE { Lage }
+  | LIAGE { Liage }
+  | LATA { Lata} 
+  | LADE { Lade }
+  | DIVSIMP { Divsimp } 
+  | PRODSIMP { Prodsimp }
+  | UMINUSSIMP { Uminussimp }
+  | MINUSSIMP { Minussimp }
+  | LARWEQ { Larweq }

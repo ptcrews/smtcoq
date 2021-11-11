@@ -78,6 +78,16 @@ type typ =
   | Acsimp (* New *)
   | Itesimp (* New *)
   | Equalsimp (* New *)
+  | Distelim (* New *)
+  | Lage
+  | Liage
+  | Lata
+  | Lade
+  | Divsimp 
+  | Prodsimp
+  | Uminussimp
+  | Minussimp
+  | Larweq
   | Hole
 
 val get_clause : int -> SmtAtom.Form.t SmtCertif.clause

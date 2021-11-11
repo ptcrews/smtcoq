@@ -84,6 +84,16 @@ type typ =
   | Acsimp (* New *)
   | Itesimp (* New *)
   | Equalsimp (* New *)
+  | Distelim (* New *)
+  | Lage
+  | Liage
+  | Lata
+  | Lade
+  | Divsimp 
+  | Prodsimp
+  | Uminussimp
+  | Minussimp
+  | Larweq
   | Hole
 
 (*let get_type x = 
@@ -506,6 +516,10 @@ let mk_clause (id,typ,value,ids_params,args) =
               else assert false
             | _ -> assert false)
       (* Linear integer arithmetic *)
+      | Liage | Lata | Lade | Larweq
+      | Divsimp | Prodsimp | Uminussimp | Minussimp -> mkMicromega value
+      (* Holes in proofs *)
+      | Hole -> Other (SmtCertif.Hole (List.map get_clause ids_params, value))
       (* Resolution *)
       | Threso -> 
         let ids_params = merge (List.rev ids_params) in
@@ -523,12 +537,11 @@ let mk_clause (id,typ,value,ids_params,args) =
                Res res
             | [fins_id] -> Same (get_clause fins_id)
             | [] -> assert false)
-      (* Holes in proofs *)
-      | Hole -> Other (SmtCertif.Hole (List.map get_clause ids_params, value))
-
       (* Not implemented *)
       | Refl -> raise (Debug "VeritSyntax.ml: rule refl not implemented yet")
       | Acsimp -> raise (Debug "VeritSyntax.ml: rule acsimp not implemented yet")
+      | Lage -> raise (Debug "VeritSyntax.ml: rule la_generic not implemented yet")
+      | Distelim -> raise (Debug "VeritSyntax.ml: rule distinct_elim not implemented yet")
   in
   let cl =
     (* TODO: change this into flatten when necessary *)
