@@ -56,24 +56,29 @@ Module Lit.
   Definition is_pos (l:_lit) := is_even l.
   (* Register is_pos as PrimInline. *)
 
+  (* Literal to variable *)
   Definition blit (l:_lit) : var := l >> 1.
   (* Register blit as PrimInline. *)
 
+  (* Positive literal for variable n is 2n *)
   Definition lit (x:var) : _lit := x << 1.
   (* Register lit as PrimInline. *)
 
   Definition neg (l:_lit) : _lit := l lxor 1.
   (* Register neg as PrimInline. *)
 
+  (* Negative literal for variable n is 2n+1 *)
   Definition nlit (x:var) : _lit := neg (lit x).
   (* Register nlit as PrimInline. *)
 
+  (* Literal true is 0 *)
   Definition _true : _lit := Eval compute in lit Var._true.
   (* Register _true as PrimInline. *)
 
   Lemma lit_true : _true = lit Var._true.
   Proof. reflexivity. Qed.
 
+  (* Literal false is 2 *)
   Definition _false : _lit := Eval compute in lit Var._false.
   (* Register _false as PrimInline. *)
 
@@ -245,6 +250,9 @@ Qed.
 
 Module C.
 
+  (* A clause is an ordered list of literals.
+     The order of literals is ascending in their
+     integer value *)
   Definition t := list _lit.
 
   Definition interp (rho:Valuation.t) (l:t) :=
@@ -305,6 +313,8 @@ Module C.
 
   End OR.
 
+  (* Assumes c1 and c2 are ordered, and return
+     an ordered clause that combines the two *)
   Fixpoint or (c1 c2:t) {struct c1} : t :=
     match c1, c2 with
     | nil, _ => c2

@@ -170,7 +170,7 @@ Section Checker_SmtEx2Debug.
 
   (* Sanity check that atoms and formulas are well-typed. Must return true *)
   Eval vm_compute in (Form.check_form t_form2 && Atom.check_atom t_atom2 && Atom.wt t_i2 t_func2 t_atom2).
-  
+
 
   (* States from c2 *)
   
@@ -225,37 +225,49 @@ Section Checker_SmtEx2Debug.
   (* NotNot 3 5 *)
   Definition s8_2 := Eval vm_compute in (step_checker s7_2 (List.nth 7 (fst c2) (CTrue t_func2 t_atom2 t_form2 0))).
   Print s8_2.
+  (* s8_2 = ({| 0 -> (5 :: nil), 1 -> (18 :: nil), 2 -> (2 :: 4 :: 19 :: nil), 3 ->  (4 :: 5 :: nil) |},
+    0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
+  
   (* s8_2 = ({| 0 -> (5 :: nil), 1 -> (18 :: nil), 2 -> (2 :: 4 :: 19 :: nil), 3 ->  (4 :: 21 :: nil) |},
     0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
-  (* Since we correctly parse double negations as `Fnot2 1`, this step correctly
+  (* Solution 1: Since we correctly parse double negations as `Fnot2 1`, this step correctly
      constructs `~(Fnot2 1 (T or F))`.
      However, the previous step constructs `[~(T or F) != F, (T or F), F]`
      instead of `[(~T or F) != F, Fnot2 1 (T or F), F]` because 
      `Cnf.check_BuildDef2` constructs the second and third terms of the 
      clause. To change `check_BuildDef2`, we need to be able to hash 
      `Fnot2` terms, which isn't straightforward. *)
+
   (* Res 3 ({| 0 -> 2, 1 -> 3|}) *)
   Definition s9_2 := Eval vm_compute in (step_checker s8_2 (List.nth 8 (fst c2) (CTrue t_func2 t_atom2 t_form2 0))).
   Print s9_2.
-  (* s8_2 = ({| 0 -> (5 :: nil), 1 -> (18 :: nil), 2 -> (2 :: 4 :: 19 :: nil), 3 ->  (2 :: 4 :: 19 :: 0 :: nil) |},
+  Eval vm_compute in C.resolve (2 :: 4 :: 19 :: nil) (4 :: 5 :: nil).
+  (* Expected output : 2 :: 4 :: 19 :: nil *)
+  (* Actual output : 2 :: 4 :: 5 :: 0 :: nil *)
+  (* Solution 2: From C.resolve:
+     When the clauses being resolved have a common literal, that literal is taken out of consideration for being a pivot.
+     Since both clauses have 4, 4 is never eventually compared with 5 for resolution. Perhaps this was an optimization that 
+     didn't invalidate proofs when the not_not rule didn't exist, but now we can have proofs where the pivot can appear more 
+     than 2 times in the premises for resolution (because of the elimination of double negations in the not_not rule). *)
+  (* s8_2 = ({| 0 -> (5 :: nil), 1 -> (18 :: nil), 2 -> (2 :: 4 :: 19 :: nil), 3 ->  (2 :: 4 :: 5 :: 0 :: nil) |},
     0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
   
   (* Res 0 ({| 0 -> 3, 1 -> 1, 2 -> 0 |}) *)
   Definition s10_2 := Eval vm_compute in (step_checker s9_2 (List.nth 9 (fst c2) (CTrue t_func2 t_atom2 t_form2 0))).
   Print s10_2.
-  (* s8_2 = ({| 0 -> (2 :: 0 :: nil), 1 -> (18 :: nil), 2 -> (2 :: 4 :: 19 :: nil), 3 ->  (2 :: 4 :: 19 :: 0 :: nil) |},
+  (* s8_2 = ({| 0 -> (2 :: 0 :: nil), 1 -> (18 :: nil), 2 -> (2 :: 4 :: 19 :: nil), 3 ->  (2 :: 4 :: 5 :: 0 :: nil) |},
     0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
 
   (* CFalse 1 *)
   Definition s11_2 := Eval vm_compute in (step_checker s10_2 (List.nth 10 (fst c2) (CTrue t_func2 t_atom2 t_form2 0))).
   Print s11_2.
-  (* s8_2 = ({| 0 -> (2 :: 0 :: nil), 1 -> (3 :: nil), 2 -> (2 :: 4 :: 19 :: nil), 3 ->  (2 :: 4 :: 19 :: 0 :: nil) |},
+  (* s8_2 = ({| 0 -> (2 :: 0 :: nil), 1 -> (3 :: nil), 2 -> (2 :: 4 :: 19 :: nil), 3 ->  (2 :: 4 :: 5 :: 0 :: nil) |},
     0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
 
   (* Res 1 ({| 0 -> 0, 1 -> 1 |}) *)
   Definition s12_2 := Eval vm_compute in (step_checker s11_2 (List.nth 11 (fst c2) (CTrue t_func2 t_atom2 t_form2 0))).
   Print s12_2.
-  (* s8_2 = ({| 0 -> (2 :: 0 :: nil), 1 -> (0 :: nil), 2 -> (2 :: 4 :: 19 :: nil), 3 ->  (2 :: 4 :: 19 :: 0 :: nil) |},
+  (* s8_2 = ({| 0 -> (2 :: 0 :: nil), 1 -> (0 :: nil), 2 -> (2 :: 4 :: 19 :: nil), 3 ->  (2 :: 4 :: 5 :: 0 :: nil) |},
     0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
 
   (* If the main_checker returns true, SMTCoq has successfully managed to check the proof *)
@@ -270,7 +282,7 @@ Section Checker_SmtEx2.
 End Checker_SmtEx2.
 *)
 
-(* Fix notnot*)
+(* Fix double negation
 Lemma ex2: true || false.
 Proof.
   verit_bool.
@@ -393,7 +405,7 @@ Section Checker_SmtEx5Debug.
 
 End Checker_SmtEx5Debug.
 
-(* Fix th_reso *)
+(* Fix double negation *)
 Lemma ex5: forall p, p || (negb p).
 Proof.
   verit_bool.

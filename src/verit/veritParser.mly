@@ -190,39 +190,27 @@ lit:   /* returns a SmtAtom.Form.t option */
   { let decl, t' = t in 
       decl, Form.lit_of_atom_form_lit rf (decl, t') 
   }
-  | LPAREN NOT l=lit RPAREN
-  {
+  | LPAREN NOT l=lit RPAREN       { apply_dec Form.neg l }
+(*{
     let decl, l' = l in
     if Form.is_pos l' then
       decl, Form.neg l'
     else
       let f = Form.Form (Fapp (Fnot2 1, Array.make 1 (Form.neg l'))) in
       decl, (Form.lit_of_atom_form_lit rf (decl, f))
-  }
+  }*)
 ;
 
-  (*| n=nlit_aux 
-  {
-    let m, t = n in
-    let decl, t' = t in
-    let l = Form.lit_of_atom_form_lit rf (decl, t') in
-    let f = Form.Form (Fapp (Fnot2 (m/2), Array.make 1 l)) in
-    if (m mod 2 == 0) then
-      decl, Form.lit_of_atom_form_lit rf (decl, f)
-    else
-      decl, Form.neg (Form.lit_of_atom_form_lit rf (decl, f))
-  }*)
-
 nlit:
-  | LPAREN NOT l=lit RPAREN
-  {
+  | LPAREN NOT l=lit RPAREN       { apply_dec Form.neg l }
+(*{
     let decl, l' = l in
     if Form.is_pos l' then
       decl, Form.neg l'
     else
       let f = Form.Form (Fapp (Fnot2 1, Array.make 1 (Form.neg l'))) in
       decl, (Form.lit_of_atom_form_lit rf (decl, f))
-  }
+  }*)
 ;
 
 term: /* term will produce many shift/reduce conflicts */
