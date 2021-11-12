@@ -143,6 +143,14 @@ let is_iff l =
   | Fapp (Fiff, _) -> true
   | _ -> false
 
+let get_iff l =
+  match Form.pform l with
+  | Fapp (Fiff, args) -> 
+      if (Array.length args == 2) then
+        (args.(0), args.(1))
+      else raise (Debug "VeritSyntax.get_iff: two arguments were expected")
+  | _ -> raise (Debug "VeritSyntax.get_iff: iff was expected")
+
 (* Transitivity *)
 (* list_find_remove p l finds the first element x in l, such that p(x) holds and returns (x, l') where l' is l without x *)
 let rec list_find_remove p = function
@@ -289,6 +297,9 @@ let mkSplArith orig cl =
 (* Elimination of operators *)
 
 let mkDistinctElim old value =
+  (*let (x, y) = get_iff value in*)
+  (* compare l1 and l2 pairwise, and return the first element 
+     of l2 which isn't equal to the pairwise element in l1 *)
   let rec find_res l1 l2 =
     match l1,l2 with
     | t1::q1,t2::q2 -> if t1 == t2 then find_res q1 q2 else t2
@@ -488,6 +499,7 @@ let mk_clause (id,typ,value,ids_params,args) =
         (match value with
           | l::_ -> Other (EqSimplify l)
           | _ -> assert false)
+      (*| Distelim -> mkDistinctElim value*)
       (* Equality *)
       | Eqre -> mkTrans value
       | Eqtr -> mkTrans value
@@ -516,7 +528,7 @@ let mk_clause (id,typ,value,ids_params,args) =
               else assert false
             | _ -> assert false)
       (* Linear integer arithmetic *)
-      | Liage | Lata | Lade | Larweq
+      | Liage | Lata | Lade | Lage | Larweq
       | Divsimp | Prodsimp | Uminussimp | Minussimp -> mkMicromega value
       (* Holes in proofs *)
       | Hole -> Other (SmtCertif.Hole (List.map get_clause ids_params, value))
@@ -540,7 +552,6 @@ let mk_clause (id,typ,value,ids_params,args) =
       (* Not implemented *)
       | Refl -> raise (Debug "VeritSyntax.ml: rule refl not implemented yet")
       | Acsimp -> raise (Debug "VeritSyntax.ml: rule acsimp not implemented yet")
-      | Lage -> raise (Debug "VeritSyntax.ml: rule la_generic not implemented yet")
       | Distelim -> raise (Debug "VeritSyntax.ml: rule distinct_elim not implemented yet")
   in
   let cl =

@@ -325,7 +325,13 @@ intros. destruct H0; now contradict H0.
     Variable check_var : var -> var -> bool.
 
     Definition check_lit l1 l2 :=
-      (l1 == l2) || ((Bool.eqb (Lit.is_pos l1) (Lit.is_pos l2)) && (check_var (Lit.blit l1) (Lit.blit l2))) || ((Bool.eqb (Lit.is_pos l1) (negb (Lit.is_pos l2))) && (check_distinct_two_args (Lit.blit l1) (Lit.blit l2))).
+      (l1 == l2) 
+        || 
+      ((Bool.eqb (Lit.is_pos l1) (Lit.is_pos l2)) 
+      && (check_var (Lit.blit l1) (Lit.blit l2))) 
+        || 
+      ((Bool.eqb (Lit.is_pos l1) (negb (Lit.is_pos l2))) 
+      && (check_distinct_two_args (Lit.blit l1) (Lit.blit l2))).
 
     (* Definition check_lit l1 l2 := *)
     (*   (l1 == l2) || ((Lit.is_pos l1) && (Lit.is_pos l2) && (check_var (Lit.blit l1) (Lit.blit l2))) || ((negb (Lit.is_pos l1)) && (negb (Lit.is_pos l2)) && (check_var (Lit.blit l2) (Lit.blit l1))). *)
