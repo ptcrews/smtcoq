@@ -856,7 +856,7 @@ Fixpoint list_eqb l1 l2 : bool :=
       | _ => C._true
       end.
 
-      Local Open Scope int31_scope.  
+
     (* ac_simp        :       {iff x (y_1 o y_2 o ... o y_n), where o is and/or and
                                 - all chains with and/or are flattened
                                 - repeated literals in each and/or application are removed}
@@ -873,7 +873,7 @@ Fixpoint list_eqb l1 l2 : bool :=
                               else
                                 PArray.get x2 (i-len1)) res.
 
-    (*Fixpoint array_of_list_aux l ar i :=
+    Fixpoint array_of_list_aux l ar i :=
       match l with
       | nil => ar
       | h :: t => array_of_list_aux t (@PArray.set int ar i h) (i+1)
@@ -887,10 +887,10 @@ Fixpoint list_eqb l1 l2 : bool :=
       end.
 
     Definition arrAppend x y :=
-      array_of_list (List.app (PArray.to_list x) (PArray.to_list y)).*)
+      array_of_list (List.app (PArray.to_list x) (PArray.to_list y)).
 
-    Fixpoint acSimp x :=
-      match get_hash (Lit.blit x) with
+    Fixpoint acSimp l :=
+      match get_hash (Lit.blit l) with
       | Fand xs => 
         let xs' := PArray.map (fun x => match get_hash (Lit.blit x) with
         (* for each literal, if literal is Fand, recursive call, and then flatten *)
@@ -903,7 +903,7 @@ Fixpoint list_eqb l1 l2 : bool :=
                                        | y => y
                                        end) xs in
         (* remove repetitions *)
-        Fand xs'
+        Fand xs' (* this is ill-typed since xs' is unhashed, we need to hash it again *)
       | For xs => 
         let xs' := PArray.map (fun x => match get_hash (Lit.blit x) with
         (* for each literal, if literal is For, recursive call, and then flatten *)
@@ -916,7 +916,7 @@ Fixpoint list_eqb l1 l2 : bool :=
                                        | y => y
                                        end) xs in
         (* remove repetitions *)
-        For xs'
+        For xs' (* this is ill-typed since xs' is unhashed, we need to hash it again *)
       | y => y
       end.
 
@@ -924,10 +924,11 @@ Fixpoint list_eqb l1 l2 : bool :=
       match get_hash (Lit.blit l) with
       | Fiff x y => 
         if (Lit.is_pos x) && (Lit.is_pos y) then
-          if check_AcSimp_aux x y then l else C._true
+          if (acSimp x) == y then l else C._true
         else C._true
       | _ => C._true
       end.*)
+
 
   (** The correctness proofs *)
 

@@ -31,7 +31,7 @@ Section Operators.
   Local Notation get_form := (PArray.get t_form).
   Local Notation get_atom := (PArray.get t_atom).
 
-
+  (* Return true if x is in l, false otherwise *)
   Fixpoint check_in x l :=
     match l with
       | nil => false
@@ -92,7 +92,8 @@ Section Operators.
   Fixpoint check_diseqs_complete dist t :=
     match dist with
       | nil => true
-      | a::q => if check_diseqs_complete_aux a q t then check_diseqs_complete q t else false
+      | a::q => if check_diseqs_complete_aux a q t then 
+                check_diseqs_complete q t else false
     end.
 
 

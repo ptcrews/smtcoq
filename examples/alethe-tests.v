@@ -1,5 +1,5 @@
-(*                                                                        *)
 (**************************************************************************)
+(*                                                                        *)
 (*     SMTCoq                                                             *)
 (*     Copyright (C) 2011 - 2021                                          *)
 (*                                                                        *)
@@ -405,11 +405,11 @@ Section Checker_SmtEx5Debug.
 
 End Checker_SmtEx5Debug.
 
-(* Fix double negation *)
+(* Fix double negation
 Lemma ex5: forall p, p || (negb p).
 Proof.
   verit_bool.
-Qed.
+Qed.*)
 
 
 Local Open Scope Z_scope.
