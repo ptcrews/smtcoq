@@ -62,7 +62,7 @@
 %token ASSUME STEP ANCHOR DEFINEFUN CL ASTOK CHOICE
 %token LET FORALL EXISTS MATCH
 
-%token TRUE FALSE NOT IMPLIES AND OR XOR
+%token TRUE FALSE NOT IMPLIES AND OR XOR DIST ITE
 %token NOTNOT
 %token THRESO RESO TAUT CONT
 %token REFL TRANS CONG EQRE EQTR EQCO EQCP
@@ -73,7 +73,7 @@
 %token ITE1 ITE2 ITEP1 ITEP2 ITEN1 ITEN2 NITE1 NITE2
 %token CONNDEF ANDSIMP ORSIMP NOTSIMP IMPSIMP
 %token EQSIMP BOOLSIMP ACSIMP ITESIMP EQUALSIMP DISTELIM
-%token EQ
+%token EQ LT LEQ GT GEQ PLUS MINUS MULT
 %token LAGE LIAGE LATA LADE DIVSIMP PRODSIMP 
 %token UMINUSSIMP MINUSSIMP LARWEQ
 
@@ -115,15 +115,6 @@ line:
   | LPAREN ANCHOR COLSTEP SYMBOL COLARGS proof_args RPAREN { "" }
   | LPAREN DEFINEFUN function_def RPAREN { "" }*/
 ;
-
-/*
-  | SAT                                                    { raise Sat }
-  | INT COLON LPAREN typ clause                   RPAREN EOL   { mk_clause ($1,$4,$5,[]) }
-  | INT COLON LPAREN typ clause clause_ids_params RPAREN EOL   { mk_clause ($1,$4,$5,$6) }
-  | INT COLON LPAREN TPQT LPAREN SHARPINT COLON LPAREN forall_decl RPAREN RPAREN INT RPAREN EOL { add_solver $6 $9; add_ref $6 $1; mk_clause ($1, Tpqt, [], [$12]) }
-  | INT COLON LPAREN FINS LPAREN SHARPINT COLON LPAREN OR LPAREN NOT SHARPINT RPAREN lit RPAREN RPAREN RPAREN EOL
-  { mk_clause ($1, Fins, [snd $14], [get_ref $12]) }
-;*/
 
 /*sexpr:
   | SYMBOL { "" }
@@ -213,28 +204,65 @@ nlit:
   }*)
 ;
 
-term: /* term will produce many shift/reduce conflicts */
-  | LPAREN t=term RPAREN        { t }
-  | TRUE                        { true, Form.Form Form.pform_true }
-  | FALSE                       { true, Form.Form Form.pform_false }
-  | LPAREN IMPLIES lits=lit* RPAREN 
-    { apply_dec (fun x -> Form.Form (Fapp (Fimp, Array.of_list x))) 
-                (list_dec lits) }
-  | LPAREN AND lits=lit* RPAREN 
+(*name_term:   /* returns a bool * (SmtAtom.Form.pform or a SmtAtom.hatom), the boolean indicates if we should declare the term or not */
+  (*| b=BITV                        { true, Form.Atom (Atom.mk_bvconst ra (parse_bv b)) }*)
+  | TRUE                            { true, Form.Form Form.pform_true }
+  | FALSE                           { true, Form.Form Form.pform_false }
+  | q=qual_id                       { q }
+  (*| b=BINDVAR                     { true, Hashtbl.find hlets b }*)
+  | i=INT                           { true, Form.Atom (Atom.hatom_Z_of_int ra i) }
+  | i=BIGINT                        { true, Form.Atom (Atom.hatom_Z_of_bigint ra i) }
+;*)
+
+/* term will produce many shift/reduce conflicts. The issue seems to be recursive calls to term.
+   The old parser uses a separate name_term which might be the solution */
+term: /* returns a bool * (SmtAtom.Form.pform or SmtAtom.hatom), the boolean indicates if we should declare the term or not */
+  (*| LPAREN t=term RPAREN            { t }*)
+
+  (* Formulas *)
+  | TRUE                            { true, Form.Form Form.pform_true }
+  | FALSE                           { true, Form.Form Form.pform_false }
+  | LPAREN AND lits=lit* RPAREN
     { apply_dec (fun x -> Form.Form (Fapp (Fand, Array.of_list x))) 
                 (list_dec lits) }
   | LPAREN OR lits=lit* RPAREN
     { apply_dec (fun x -> Form.Form (Fapp (For, Array.of_list x))) 
                 (list_dec lits) }
+  | LPAREN IMPLIES lits=lit* RPAREN
+    { apply_dec (fun x -> Form.Form (Fapp (Fimp, Array.of_list x))) 
+                (list_dec lits) }
   | LPAREN XOR lits=lit* RPAREN
     { apply_dec (fun x -> Form.Form (Fapp (Fxor, Array.of_list x))) 
                 (list_dec lits) }
-  | q=qual_id                   { q }
-  | i=INT                       { true, Form.Atom (Atom.hatom_Z_of_int ra i) }
-  | b=BIGINT                    { true, Form.Atom (Atom.hatom_Z_of_bigint ra b) }
+  | LPAREN ITE lits=lit* RPAREN
+    { apply_dec (fun x -> Form.Form (Fapp (Fite, Array.of_list x))) 
+                (list_dec lits) }
+
+  (* Atoms *)
+  | i=INT                             { true, Form.Atom (Atom.hatom_Z_of_int ra i) }
+  | b=BIGINT                          { true, Form.Atom (Atom.hatom_Z_of_bigint ra b) }
+  | LPAREN LT x=term y=term RPAREN    { apply_bdec_atom (Atom.mk_lt ra) x y }
+  | LPAREN LEQ x=term y=term RPAREN   { apply_bdec_atom (Atom.mk_le ra) x y }
+  | LPAREN GT x=term y=term RPAREN    { apply_bdec_atom (Atom.mk_gt ra) x y }
+  | LPAREN GEQ x=term y=term RPAREN   { apply_bdec_atom (Atom.mk_ge ra) x y }
+  | LPAREN PLUS x=term y=term RPAREN  { apply_bdec_atom (Atom.mk_plus ra) x y }
+  | LPAREN MULT x=term y=term RPAREN  { apply_bdec_atom (Atom.mk_mult ra) x y }
+  | LPAREN MINUS x=term y=term RPAREN { apply_bdec_atom (Atom.mk_minus ra) x y }
+  | LPAREN MINUS x=term RPAREN        { apply_dec_atom (fun ?declare:d a -> Atom.mk_neg ra a) x }
+  (*| OPP x=term                      { apply_dec_atom (Atom.mk_opp ra) x }*)
+  | LPAREN DIST terms=term* RPAREN
+    { let args = List.map (fun x -> (match x with
+                | decl, Form.Atom h -> (decl, h)
+                | _ -> assert false)) terms in
+      let da, la = list_dec args in
+    	let a = Array.of_list la in
+        da, Form.Atom (Atom.mk_distinct ra ~declare:da (Atom.type_of a.(0)) a) }
+
+  (* Both formulas and atoms *)
+  | q=qual_id                       { q }
   | LPAREN f=SYMBOL l=term+ RPAREN
     { let args = List.map (fun x -> match x with 
-                                    | decl, Form.Atom h -> (decl, h)
+                                    | decl, Form.Atom h -> (decl, h) (* does this mean we can't parse applications of user-defined predicate symbols? *)
                                     | _ -> assert false)
                           l in
       match find_opt_qvar f with 
@@ -242,7 +270,7 @@ term: /* term will produce many shift/reduce conflicts */
                    false, Form.Atom (Atom.get ~declare:false ra (Aapp (op, Array.of_list (snd (list_dec args))))) 
       | None ->    let dl, l = list_dec args in 
                    dl, Form.Atom (Atom.get ra ~declare:dl (Aapp (SmtMaps.get_fun f, Array.of_list l))) }
-  | EQ t1=term t2=term                                 
+  | LPAREN EQ t1=term t2=term RPAREN
   { match t1,t2 with 
     | (decl1, Form.Atom h1), (decl2, Form.Atom h2) when 
           (match Atom.type_of h1 with 
@@ -252,11 +280,11 @@ term: /* term will produce many shift/reduce conflicts */
     | (decl1, t1), (decl2, t2) -> decl1 && decl2, Form.Form (Fapp (Fiff, [|Form.lit_of_atom_form_lit rf (decl1, t1); 
                                                                    Form.lit_of_atom_form_lit rf (decl2, t2)|])) 
   }
-  | EQ n=nlit l=lit                                            
+  | LPAREN EQ n=nlit l=lit RPAREN
   { match n,l with 
     (decl1, t1), (decl2, t2) -> decl1 && decl2, Form.Form (Fapp (Fiff, [|t1; t2|])) 
   }
-  | EQ t=term n=nlit                                      
+  | LPAREN EQ t=term n=nlit RPAREN
   { match t, n with 
     | (decl1, t1), (decl2, t2) -> decl1 && decl2, Form.Form (Fapp (Fiff, [|Form.lit_of_atom_form_lit rf (decl1, t1); t2|])) 
   }

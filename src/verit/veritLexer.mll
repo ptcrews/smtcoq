@@ -26,6 +26,8 @@
         "and", AND;
         "or", OR;
         "xor", XOR;
+        "ite", ITE;
+        "distinct", DIST;
 
       (*Basic proof rules*)
         "assume", ASSUME;
@@ -153,7 +155,7 @@ let decimal = numeral '.' '0'* numeral
 let hexadecimal = '#' 'x' hexdigit+
 let binary = '#' 'b' bindigit+
 let qstring = '"' (wspace | printable_char)* '"'
-let spec_constant = numeral | decimal | hexadecimal | binary | qstring
+(*let spec_constant = numeral | decimal | hexadecimal | binary | qstring*)
 let index = numeral | symbol
 let isymbol = '(' '_' symbol index+ ')'
 let keyword = ':' simple_symbol
@@ -182,8 +184,16 @@ rule token = parse
   | "match" { MATCH }
   | "Formula is Satisfiable" { SAT }
   | "=" { EQ }
+  | "<"                        { LT }
+  | "<="                       { LEQ }
+  | ">"                        { GT }
+  | ">="                       { GEQ }
+  | "+"                        { PLUS }
+  | "-"                        { MINUS }
+  | "*"                        { MULT }
+(* We probably don't need this because we parse more fine grained constants
   | spec_constant   { let s = Lexing.lexeme lexbuf in 
-                      SPECCONST s }
+                      SPECCONST s }*)
   | keyword         { let k = Lexing.lexeme lexbuf in 
                       try Hashtbl.find typ_table k with
                       | Not_found -> KEYWORD k }
