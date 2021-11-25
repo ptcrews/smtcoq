@@ -118,6 +118,8 @@
         "prod_simplify", PRODSIMP;
         "unary_minus_simplify", UMINUSSIMP;
         "minus_simplify", MINUSSIMP;
+        "sum_simplify", SUMSIMP;
+        "comp_simplify", COMPSIMP;
         "la_rw_eq", LARWEQ;
       ]
 }
@@ -151,11 +153,11 @@ let int = '-'? digit+
 let simple_symbol = (letter | spl) (letter | digit | spl)*
 let symbol = simple_symbol | '|' (wspace | printable_char # ['|' '\\'])* '|'
 let numeral = '0' | non_zero_digit digit*
-let decimal = numeral '.' '0'* numeral
+(*let decimal = numeral '.' '0'* numeral
 let hexadecimal = '#' 'x' hexdigit+
 let binary = '#' 'b' bindigit+
 let qstring = '"' (wspace | printable_char)* '"'
-(*let spec_constant = numeral | decimal | hexadecimal | binary | qstring*)
+let spec_constant = numeral | decimal | hexadecimal | binary | qstring*)
 let index = numeral | symbol
 let isymbol = '(' '_' symbol index+ ')'
 let keyword = ':' simple_symbol

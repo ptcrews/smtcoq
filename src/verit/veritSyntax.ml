@@ -89,11 +89,13 @@ type typ =
   | Liage
   | Lata
   | Lade
-  | Divsimp 
-  | Prodsimp
-  | Uminussimp
-  | Minussimp
-  | Larweq
+  | Divsimp (* New *)
+  | Prodsimp (* New *)
+  | Uminussimp (* New *)
+  | Minussimp (* New *)
+  | Sumsimp (* New *)
+  | Compsimp (* New *)
+  | Larweq (* New *)
   | Hole
 
 (*let get_type x = 
@@ -529,7 +531,8 @@ let mk_clause (id,typ,value,ids_params,args) =
             | _ -> assert false)
       (* Linear integer arithmetic *)
       | Liage | Lata | Lade | Lage | Larweq
-      | Divsimp | Prodsimp | Uminussimp | Minussimp -> mkMicromega value
+      | Divsimp | Prodsimp | Uminussimp | Minussimp 
+      | Sumsimp | Compsimp -> mkMicromega value
       (* Holes in proofs *)
       | Hole -> Other (SmtCertif.Hole (List.map get_clause ids_params, value))
       (* Resolution *)

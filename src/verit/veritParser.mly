@@ -75,7 +75,7 @@
 %token EQSIMP BOOLSIMP ACSIMP ITESIMP EQUALSIMP DISTELIM
 %token EQ LT LEQ GT GEQ PLUS MINUS MULT
 %token LAGE LIAGE LATA LADE DIVSIMP PRODSIMP 
-%token UMINUSSIMP MINUSSIMP LARWEQ
+%token UMINUSSIMP MINUSSIMP SUMSIMP COMPSIMP LARWEQ
 
 %type <int> line
 %start line
@@ -104,16 +104,22 @@ line:
             mk_clause (id, r, c, prems', [arg])
       | _ -> mk_clause (id, r, c, prems', []) }
   | LPAREN STEP s=SYMBOL c=clause COLRULE r=rulename COLPREMISES LPAREN prems=SYMBOL+ RPAREN
-      COLARGS LPAREN args=INT+ RPAREN RPAREN EOL
+      COLARGS LPAREN args=par+ RPAREN RPAREN EOL
     { let id = symbol_to_id s in
       let prems' = List.map symbol_to_id prems in
       mk_clause (id, r, c, prems', args) }
-  | LPAREN STEP s=SYMBOL c=clause COLRULE r=rulename COLARGS LPAREN args=INT+ RPAREN RPAREN EOL
+  | LPAREN STEP s=SYMBOL c=clause COLRULE r=rulename COLARGS LPAREN args=par+ RPAREN RPAREN EOL
     { let id = symbol_to_id s in
       mk_clause (id, r, c, [], args) }
   /*| LPAREN ANCHOR COLSTEP SYMBOL RPAREN { "" }
   | LPAREN ANCHOR COLSTEP SYMBOL COLARGS proof_args RPAREN { "" }
   | LPAREN DEFINEFUN function_def RPAREN { "" }*/
+;
+
+par:
+  | i=INT { i }
+  | LPAREN i=INT RPAREN { i } (* Negative ints are parameterized *)
+  | LPAREN MINUS i=INT RPAREN { (-i) }
 ;
 
 /*sexpr:
@@ -194,7 +200,7 @@ lit:   /* returns a SmtAtom.Form.t option */
 
 nlit:
   | LPAREN NOT l=lit RPAREN       { apply_dec Form.neg l }
-(*{
+(*{ Parse double negations as Fnot2 instead of simplifying
     let decl, l' = l in
     if Form.is_pos l' then
       decl, Form.neg l'
@@ -214,10 +220,9 @@ nlit:
   | i=BIGINT                        { true, Form.Atom (Atom.hatom_Z_of_bigint ra i) }
 ;*)
 
-/* term will produce many shift/reduce conflicts. The issue seems to be recursive calls to term.
-   The old parser uses a separate name_term which might be the solution */
 term: /* returns a bool * (SmtAtom.Form.pform or SmtAtom.hatom), the boolean indicates if we should declare the term or not */
-  (*| LPAREN t=term RPAREN            { t }*)
+  (* This will make term produce shift-reduce conflicts, and seems unnecessary
+  | LPAREN t=term RPAREN            { t }*)
 
   (* Formulas *)
   | TRUE                            { true, Form.Form Form.pform_true }
@@ -373,4 +378,6 @@ rulename:
   | PRODSIMP { Prodsimp }
   | UMINUSSIMP { Uminussimp }
   | MINUSSIMP { Minussimp }
+  | SUMSIMP { Sumsimp }
+  | COMPSIMP { Compsimp }
   | LARWEQ { Larweq }

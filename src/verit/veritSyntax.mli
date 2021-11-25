@@ -83,11 +83,13 @@ type typ =
   | Liage
   | Lata
   | Lade
-  | Divsimp 
-  | Prodsimp
-  | Uminussimp
-  | Minussimp
-  | Larweq
+  | Divsimp (* New *)
+  | Prodsimp (* New *)
+  | Uminussimp (* New *)
+  | Minussimp (* New *)
+  | Sumsimp (* New *)
+  | Compsimp (* New *)
+  | Larweq (* New *)
   | Hole
 
 val get_clause : int -> SmtAtom.Form.t SmtCertif.clause
