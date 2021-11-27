@@ -141,7 +141,7 @@ Section CHECKER.
   
   (*  * tautology        : {(x_1 ... x_i ... (not x_i) ... x_n) --> true)}
      *)
-  Definition check_Taut pos l :=
+  Definition check_Tautology pos l :=
     match S.get s pos, get_hash (Lit.blit l) with
     | xs, Ttrue => if (existsb (fun x => Lit.is_pos x && 
                (existsb (fun y => negb (Lit.is_pos y) && (x == y)) xs)) 
@@ -149,10 +149,10 @@ Section CHECKER.
       l::nil else C._true
     end.
 
-  (*  * contraction      : {(x_1 ... x_n) --> (x_k1 ... x_kn)}, 
+  (*  * Contractionction      : {(x_1 ... x_n) --> (x_k1 ... x_kn)}, 
           where duplicates are removed and order is preserved 
      *)
-  Definition check_Contr pos1 pos2 :=
+  Definition check_Contraction pos1 pos2 :=
     match S.get s pos1, S.get s pos2 with
     | xs, ys => (* Check whether each element in xs only occurs once in ys *)
         if (List.forallb (fun x => Nat.eqb (List.length (List.filter (fun y => y == x) ys)) 1) xs) then
@@ -706,7 +706,7 @@ Fixpoint list_eqb l1 l2 : bool :=
                             {iff (iff x y) (and (x -> y) (y -> x)))}
                             {iff (ite f x y) (and (f -> x) ((not f) -> (not y))))}
     *)
-    Definition check_ConnectiveDef l :=
+    Definition check_ConnDef l :=
       match get_hash (Lit.blit l) with
       | Fiff x y => 
           if (Lit.is_pos x) && (Lit.is_pos y) then
@@ -975,12 +975,12 @@ Fixpoint list_eqb l1 l2 : bool :=
     admit.
   Admitted.
 
-  Lemma valid_check_Taut : forall pos l, C.valid rho (check_Taut pos l).
+  Lemma valid_check_Tautology : forall pos l, C.valid rho (check_Tautology pos l).
   Proof.
     admit.
   Admitted.
 
-  Lemma valid_check_Contr : forall pos1 pos2, C.valid rho (check_Contr pos1 pos2).
+  Lemma valid_check_Contraction : forall pos1 pos2, C.valid rho (check_Contraction pos1 pos2).
   Proof.
     admit.
   Admitted.
@@ -1100,7 +1100,7 @@ Fixpoint list_eqb l1 l2 : bool :=
     admit.
   Admitted.
 
-  Lemma valid_check_ConnectiveDef : forall l, C.valid rho (check_ConnectiveDef l).
+  Lemma valid_check_ConnDef : forall l, C.valid rho (check_ConnDef l).
   Proof.
     admit.
   Admitted.

@@ -229,31 +229,26 @@ let mkCongr p =
   |_ -> raise (Debug "VeritSyntax.mkCongr: no conclusion or more than one conclusion in congruence")
 
 let mkCongrPred p =
-  let (concl,prem) = List.partition Form.is_pos p in
-  match concl with
-  |[x] -> 
-    (match Form.pform x with
-      | Fapp (Fiff, args) -> 
-        if Array.length args == 2 then
-          let p_p = Array.get args 0 in
-          let c = Array.get args 1 in
-          let prem_val = List.map (fun l -> (l,get_eq l)) prem in
-          (match Atom.atom (get_at c), Atom.atom (get_at p_p) with
-            | Abop(aop,a1,a2), Abop(bop,b1,b2) when (aop = bop) ->
-               let a_args = [a1;a2] in
-               let b_args = [b1;b2] in
-               let cert = process_congr a_args b_args prem_val [] in
+    let (concl,prem) = List.partition Form.is_pos p in
+    let (prem,prem_P) = List.partition is_eq prem in
+    match concl with
+    |[c] ->
+      (match prem_P with
+       |[p_p] ->
+         let prem_val = List.map (fun l -> (l,get_eq l)) prem in
+         (match Atom.atom (get_at c), Atom.atom (get_at p_p) with
+          | Abop(aop,a1,a2), Abop(bop,b1,b2) when (aop = bop) ->
+             let a_args = [a1;a2] in
+             let b_args = [b1;b2] in
+             let cert = process_congr a_args b_args prem_val [] in
+             Other (EqCgrP (p_p,c,cert))
+          | Aapp (a_f,a_args), Aapp (b_f,b_args) ->
+             if indexed_op_index a_f = indexed_op_index b_f then
+               let cert = process_congr (Array.to_list a_args) (Array.to_list b_args) prem_val [] in
                Other (EqCgrP (p_p,c,cert))
-            | Aapp (a_f,a_args), Aapp (b_f,b_args) ->
-               if indexed_op_index a_f = indexed_op_index b_f then
-                 let cert = process_congr (Array.to_list a_args) (Array.to_list b_args) prem_val [] in
-                 Other (EqCgrP (p_p,c,cert))
-               else raise (Debug "VeritSyntax.mkCongrPred: unmatching predicates")
-            | _ -> raise (Debug "VeritSyntax.mkCongrPred: not pred app"))
-        else assert false
-      | _ -> raise (Debug "VeritSyntax.mkCongrPred: conclusion is not an iff"))
-  |[] ->  raise (Debug "VeritSyntax.mkCongrPred: no conclusion in congruence")
-  |_ -> raise (Debug "VeritSyntax.mkCongrPred: more than one conclusion in congruence")
+             else raise (Debug "VeritSyntax.mkCongrPred: unmatching predicates")
+          | _ -> raise (Debug "VeritSyntax.mkCongrPred : not pred app"))
+       |_ ->  raise (Debug "VeritSyntax.mkCongr: no or more than one predicate app premise in congruence"))  
 
 (* Return true if typ is Cong and value is a singleton clause of an equality (function case), 
    else return false *)
@@ -501,7 +496,6 @@ let mk_clause (id,typ,value,ids_params,args) =
         (match value with
           | l::_ -> Other (EqSimplify l)
           | _ -> assert false)
-      (*| Distelim -> mkDistinctElim value*)
       (* Equality *)
       | Eqre -> mkTrans value
       | Eqtr -> mkTrans value
@@ -529,6 +523,14 @@ let mk_clause (id,typ,value,ids_params,args) =
                 Other (IffCong (prems, l))
               else assert false
             | _ -> assert false)
+      (*| Distelim ->
+          (match value with
+          | l :: nil -> if is_iff l then
+                          let (x,y) = get_iff l in
+                          let c = SmtTrace.mk_scertif _ (Some (x::nil)) in
+                          Other (SplDistinctElim (c, y))
+                        else assert false
+          | _ -> assert false)*)
       (* Linear integer arithmetic *)
       | Liage | Lata | Lade | Lage | Larweq
       | Divsimp | Prodsimp | Uminussimp | Minussimp 
@@ -556,13 +558,7 @@ let mk_clause (id,typ,value,ids_params,args) =
       | Refl -> raise (Debug "VeritSyntax.ml: rule refl not implemented yet")
       | Acsimp -> raise (Debug "VeritSyntax.ml: rule acsimp not implemented yet")
       | Distelim -> raise (Debug "VeritSyntax.ml: rule distelim not implemented yet")
-          (*(match value with
-          | l :: nil -> if is_iff l then
-                          let (x,y) = get_iff l in
-                          let c = SmtTrace.mk_scertif _ (Some (x::nil)) in
-                          Other (SplDistinctElim (c, y))
-                        else assert false
-          | _ -> assert false)*)
+      
   in
   let cl =
     (* TODO: change this into flatten when necessary *)

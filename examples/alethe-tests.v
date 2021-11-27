@@ -414,13 +414,13 @@ Qed.*)
 
 Local Open Scope Z_scope.
 
-(* New veriT produces old format eq_congruent_pred proof
+(* Fix double negation
 Goal forall (a b : Z) (P : Z -> bool) (f : Z -> Z),
   (negb (Z.eqb (f a) b)) || (negb (P (f a))) || (P b).
 Proof.
   verit_bool.
 Qed.
-*)
+
 Goal forall b1 b2 x1 x2,
     implb
       (ifb b1
@@ -428,8 +428,8 @@ Goal forall b1 b2 x1 x2,
            (ifb b2 (Z.eqb (2*x1) (2*x2+1)) (Z.eqb (2*x1) (2*x2))))
       ((implb b1 b2) && (implb b2 b1) && (Z.eqb x1 x2)).
 Proof.
-  (*verit_bool. Fix eq_congruent_pred output in verit*) admit.
-Admitted.
+  verit_bool.
+Qed.
 
 Goal forall
     (x y: Z)
@@ -437,7 +437,7 @@ Goal forall
     x = y + 1 -> f y = f (x - 1).
 Proof.
   verit.
-Qed.
+Qed.*)
 
 
 (* Some examples of using verit with lemmas. Use <verit H1 .. Hn> to

@@ -326,8 +326,8 @@ Inductive step :=
   | CTrue (pos:int)
   | CFalse (pos:int)
   | NotNot (pos:int) (l:_lit)
-  | Taut (pos:int) (cid:clause_id) (l:_lit)
-  | Contr (pos:int) (cid1 cid2:clause_id)
+  | Tautology (pos:int) (cid:clause_id) (l:_lit)
+  | Contraction (pos:int) (cid1 cid2:clause_id)
   | BuildDef (pos:int) (l:_lit)
   | BuildDef2 (pos:int) (l:_lit)
   | BuildProj (pos:int) (l:_lit) (i:int)
@@ -340,7 +340,7 @@ Inductive step :=
   | ImpliesSimplify (pos:int) (l:_lit)
   | EquivSimplify (pos:int) (l:_lit)
   | BoolSimplify (pos:int) (l:_lit)
-  | ConnectiveDef (pos:int) (l:_lit)
+  | ConnDef (pos:int) (l:_lit)
   | IteSimplify (pos:int) (l:_lit)
   | EqSimplify (pos:int) (l:_lit)
   | EqTr (pos:int) (l:_lit) (fl: list _lit)
@@ -393,8 +393,8 @@ Inductive step :=
       | CTrue pos => S.set_clause s pos Cnf.check_True
       | CFalse pos => S.set_clause s pos Cnf.check_False
       | NotNot pos l => S.set_clause s pos (check_NotNot (*t_form*) l)
-      | Taut pos cid l => S.set_clause s pos (check_Taut s cid l)
-      | Contr pos cid1 cid2 => S.set_clause s pos (check_Contr s cid1 cid2)
+      | Tautology pos cid l => S.set_clause s pos (check_Tautology s cid l)
+      | Contraction pos cid1 cid2 => S.set_clause s pos (check_Contraction s cid1 cid2)
       | BuildDef pos l => S.set_clause s pos (check_BuildDef t_form l)
       | BuildDef2 pos l => S.set_clause s pos (check_BuildDef2 t_form l)
       | BuildProj pos l i => S.set_clause s pos (check_BuildProj t_form l i)
@@ -407,7 +407,7 @@ Inductive step :=
       | ImpliesSimplify pos l => S.set_clause s pos (check_ImpliesSimplify t_form l)
       | EquivSimplify pos l => S.set_clause s pos (check_EquivSimplify t_form l)
       | BoolSimplify pos l => S.set_clause s pos (check_BoolSimplify t_form l)
-      | ConnectiveDef pos l => S.set_clause s pos (check_ConnectiveDef t_form l)
+      | ConnDef pos l => S.set_clause s pos (check_ConnDef t_form l)
       | IteSimplify pos l => S.set_clause s pos (check_IteSimplify t_form l)
       | EqSimplify pos l => S.set_clause s pos (check_eqsimplify t_form t_atom l)
       | EqTr pos l fl => S.set_clause s pos (check_trans t_form t_atom l fl)
@@ -470,8 +470,8 @@ Inductive step :=
     - apply valid_check_True; auto.
     - apply valid_check_False; auto.
     - apply valid_check_NotNot; auto.
-    - apply valid_check_Taut; auto.
-    - apply valid_check_Contr; auto.
+    - apply valid_check_Tautology; auto.
+    - apply valid_check_Contraction; auto.
     - apply valid_check_BuildDef; auto.
     - apply valid_check_BuildDef2; auto.
     - apply valid_check_BuildProj; auto.
@@ -484,7 +484,7 @@ Inductive step :=
     - apply valid_check_ImpliesSimplify; auto.
     - apply valid_check_EquivSimplify; auto.
     - apply valid_check_BoolSimplify; auto.
-    - apply valid_check_ConnectiveDef; auto.
+    - apply valid_check_ConnDef; auto.
     - apply valid_check_IteSimplify; auto.
     - apply valid_check_eqsimplify; auto.
     - apply valid_check_trans; auto.
@@ -587,8 +587,8 @@ Inductive step :=
       | CTrue pos
       | CFalse pos
       | NotNot pos _
-      | Taut pos _ _
-      | Contr pos _ _
+      | Tautology pos _ _
+      | Contraction pos _ _
       | BuildDef pos _
       | BuildDef2 pos _
       | BuildProj pos _ _
@@ -601,7 +601,7 @@ Inductive step :=
       | ImpliesSimplify pos _
       | EquivSimplify pos _
       | BoolSimplify pos _
-      | ConnectiveDef pos _
+      | ConnDef pos _
       | IteSimplify pos _
       | EqSimplify pos _
       | EqTr pos _ _
@@ -658,8 +658,8 @@ Inductive step :=
   | Name_CTrue
   | Name_CFalse
   | Name_NotNot
-  | Name_Taut
-  | Name_Contr
+  | Name_Tautology
+  | Name_Contraction
   | Name_BuildDef
   | Name_BuildDef2
   | Name_BuildProj
@@ -672,7 +672,7 @@ Inductive step :=
   | Name_ImpliesSimplify
   | Name_EquivSimplify
   | Name_BoolSimplify
-  | Name_ConnectiveDef
+  | Name_ConnDef
   | Name_IteSimplify
   | Name_EqSimplify
   | Name_EqTr
@@ -715,8 +715,8 @@ Inductive step :=
     | CTrue _ => Name_CTrue
     | CFalse _ => Name_CFalse
     | NotNot _ _ => Name_NotNot
-    | Taut _ _ _ => Name_Taut
-    | Contr _ _ _ => Name_Contr
+    | Tautology _ _ _ => Name_Tautology
+    | Contraction _ _ _ => Name_Contraction
     | BuildDef _ _ => Name_BuildDef
     | BuildDef2 _ _ => Name_BuildDef2
     | BuildProj _ _ _ => Name_BuildProj
@@ -729,7 +729,7 @@ Inductive step :=
     | ImpliesSimplify _ _ => Name_ImpliesSimplify
     | EquivSimplify _ _ => Name_EquivSimplify
     | BoolSimplify _ _ => Name_BoolSimplify
-    | ConnectiveDef _ _ => Name_ConnectiveDef
+    | ConnDef _ _ => Name_ConnDef
     | IteSimplify _ _ => Name_IteSimplify
     | EqSimplify _ _ => Name_EqSimplify
     | EqTr _ _ _ => Name_EqTr
