@@ -152,9 +152,9 @@ Section CHECKER.
   (*  * Contractionction      : {(x_1 ... x_n) --> (x_k1 ... x_kn)}, 
           where duplicates are removed and order is preserved 
      *)
-  Definition check_Contraction pos1 pos2 :=
-    match S.get s pos1, S.get s pos2 with
-    | xs, ys => (* Check whether each element in xs only occurs once in ys *)
+  Definition check_Contraction pos ys :=
+    match S.get s pos with
+    | xs => (* Check whether each element in xs only occurs once in ys *)
         if (List.forallb (fun x => Nat.eqb (List.length (List.filter (fun y => y == x) ys)) 1) xs) then
         ys else C._true
     end.

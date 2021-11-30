@@ -494,6 +494,8 @@ intros. destruct H0; now contradict H0.
       | l::q => if check_lit' l res then res::q else l::(check_distinct_elim q res)
     end.
 
+  Definition check_DistElim input res := check_distinct_elim input res.
+
 
   Section Valid.
 
@@ -557,6 +559,12 @@ intros. destruct H0; now contradict H0.
       simpl; rewrite H, orb_true_r; auto.
       simpl; rewrite (IHc H), orb_true_r; auto.
     Qed.
+
+    Lemma valid_check_DistElim : 
+      forall input res, C.valid rho (check_distinct_elim input res).
+    Proof.
+      admit.
+    Admitted.
 
   End Valid.
 

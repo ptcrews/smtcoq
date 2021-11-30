@@ -290,6 +290,7 @@ let make_certif_ops modules args =
   gen_constant "ImpSimplify", gen_constant "EquivSimplify",
   gen_constant "BoolSimplify", gen_constant "ConnDef",
   gen_constant "IteSimplify", gen_constant "EqSimplify",
+  gen_constant "DistElim",
   gen_constant "EqTr", gen_constant "EqCgr", gen_constant "EqCgrP", 
   gen_constant "IffTrans", gen_constant "IffCong",
   gen_constant "LiaMicromega", gen_constant "LiaDiseq",

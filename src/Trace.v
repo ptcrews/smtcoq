@@ -327,7 +327,7 @@ Inductive step :=
   | CFalse (pos:int)
   | NotNot (pos:int) (l:_lit)
   | Tautology (pos:int) (cid:clause_id) (l:_lit)
-  | Contraction (pos:int) (cid1 cid2:clause_id)
+  | Contraction (pos:int) (cid:clause_id) (cl:list _lit)
   | BuildDef (pos:int) (l:_lit)
   | BuildDef2 (pos:int) (l:_lit)
   | BuildProj (pos:int) (l:_lit) (i:int)
@@ -343,6 +343,7 @@ Inductive step :=
   | ConnDef (pos:int) (l:_lit)
   | IteSimplify (pos:int) (l:_lit)
   | EqSimplify (pos:int) (l:_lit)
+  | DistElim (pos:int) (cl:list _lit) (l:_lit)
   | EqTr (pos:int) (l:_lit) (fl: list _lit)
   | EqCgr (pos:int) (l:_lit) (fl: list (option _lit))
   | EqCgrP (pos:int) (l1:_lit) (l2:_lit) (fl: list (option _lit))
@@ -410,6 +411,7 @@ Inductive step :=
       | ConnDef pos l => S.set_clause s pos (check_ConnDef t_form l)
       | IteSimplify pos l => S.set_clause s pos (check_IteSimplify t_form l)
       | EqSimplify pos l => S.set_clause s pos (check_eqsimplify t_form t_atom l)
+      | DistElim pos cl l => S.set_clause s pos (check_DistElim t_form t_atom cl l)
       | EqTr pos l fl => S.set_clause s pos (check_trans t_form t_atom l fl)
       | EqCgr pos l fl => S.set_clause s pos (check_congr t_form t_atom l fl)
       | EqCgrP pos l1 l2 fl => S.set_clause s pos (check_congr_pred t_form t_atom l1 l2 fl)
@@ -456,7 +458,7 @@ Inductive step :=
     intros rho H1 H2 H10 s Hs. destruct (Form.check_form_correct (Atom.interp_form_hatom t_i t_func t_atom) (Atom.interp_form_hatom_bv t_i t_func t_atom) _ H1)
     as [[Ht1 Ht2] Ht3]. destruct (Atom.check_atom_correct _ H2) as
     [Ha1 Ha2]. intros [pos res|pos cid c|pos cid lf|pos|pos|pos l|pos cid l|pos cid1 cid2|pos l|pos l|pos l i|pos cid
-    |pos cid|pos cid i|pos l|pos l|pos l|pos l|pos l|pos l|pos l|pos l|pos l|pos l fl|pos l fl|pos l1 l2 fl|pos l c|pos l c| pos cl c
+    |pos cid|pos cid i|pos l|pos l|pos l|pos l|pos l|pos l|pos l|pos l|pos l|pos cl l|pos l fl|pos l fl|pos l1 l2 fl|pos l c|pos l c| pos cl c
     |pos l|pos orig res l|pos orig res|pos res|pos res|pos orig1 orig2 res|pos orig res|pos orig res
     |pos orig1 orig2 res|pos orig1 orig2 res
     |pos orig1 orig2 res|pos orig1 orig2 res|pos orig1 orig2 res|pos orig1 orig2 res
@@ -487,6 +489,7 @@ Inductive step :=
     - apply valid_check_ConnDef; auto.
     - apply valid_check_IteSimplify; auto.
     - apply valid_check_eqsimplify; auto.
+    - apply valid_check_DistElim; auto.
     - apply valid_check_trans; auto.
     - apply valid_check_congr; auto.
     - apply valid_check_congr_pred; auto.
@@ -604,6 +607,7 @@ Inductive step :=
       | ConnDef pos _
       | IteSimplify pos _
       | EqSimplify pos _
+      | DistElim pos _ _
       | EqTr pos _ _
       | EqCgr pos _ _
       | EqCgrP pos _ _ _
@@ -675,6 +679,7 @@ Inductive step :=
   | Name_ConnDef
   | Name_IteSimplify
   | Name_EqSimplify
+  | Name_DistElim
   | Name_EqTr
   | Name_EqCgr
   | Name_EqCgrP
@@ -732,6 +737,7 @@ Inductive step :=
     | ConnDef _ _ => Name_ConnDef
     | IteSimplify _ _ => Name_IteSimplify
     | EqSimplify _ _ => Name_EqSimplify
+    | DistElim _ _ _ => Name_DistElim
     | EqTr _ _ _ => Name_EqTr
     | EqCgr _ _ _ => Name_EqCgr
     | EqCgrP _ _ _ _ => Name_EqCgrP

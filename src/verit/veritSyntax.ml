@@ -523,14 +523,14 @@ let mk_clause (id,typ,value,ids_params,args) =
                 Other (IffCong (prems, l))
               else assert false
             | _ -> assert false)
-      (*| Distelim ->
+      | Distelim ->
           (match value with
           | l :: nil -> if is_iff l then
                           let (x,y) = get_iff l in
-                          let c = SmtTrace.mk_scertif _ (Some (x::nil)) in
-                          Other (SplDistinctElim (c, y))
+                          let c = x::nil in
+                          Other (DistElim (c, y))
                         else assert false
-          | _ -> assert false)*)
+          | _ -> assert false)
       (* Linear integer arithmetic *)
       | Liage | Lata | Lade | Lage | Larweq
       | Divsimp | Prodsimp | Uminussimp | Minussimp 
@@ -557,7 +557,7 @@ let mk_clause (id,typ,value,ids_params,args) =
       (* Not implemented *)
       | Refl -> raise (Debug "VeritSyntax.ml: rule refl not implemented yet")
       | Acsimp -> raise (Debug "VeritSyntax.ml: rule acsimp not implemented yet")
-      | Distelim -> raise (Debug "VeritSyntax.ml: rule distelim not implemented yet")
+      (*| Distelim -> raise (Debug "VeritSyntax.ml: rule distelim not implemented yet")*)
       
   in
   let cl =

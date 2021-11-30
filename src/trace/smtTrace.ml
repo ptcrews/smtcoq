@@ -356,7 +356,7 @@ let to_coq to_lit interp (cstep,
     cBuildDef2, cBuildProj, cImmBuildProj,cImmBuildDef,
     cImmBuildDef2, cNotSimp, cAndSimp, cOrSimp, cImpSimp,
     cEquivSimp, cBoolSimp, cConnDef, cIteSimp, cEqSimp,
-    cEqTr, cEqCgr, cEqCgrP, cIffTrans, cIffCong,
+    cDistElim, cEqTr, cEqCgr, cEqCgrP, cIffTrans, cIffCong,
     cLiaMicromega, cLiaDiseq, cSplArith, cSplDistinctElim,
     cBBVar, cBBConst, cBBOp, cBBNot, cBBEq, cBBDiseq,
     cBBNeg, cBBAdd, cBBMul, cBBUlt, cBBSlt, cBBConc,
@@ -370,7 +370,8 @@ let to_coq to_lit interp (cstep,
   (* Get position of clause in linked list and convert to Coq int *)
   let out_c c = mkInt (get_pos c) in
   (* Create a left-to-right applicaiton of a list of literals in Coq *)
-  let out_cl cl = List.fold_right (fun f l -> mklApp ccons [|Lazy.force cint; out_f f; l|]) cl (mklApp cnil [|Lazy.force cint|]) in
+  let out_cl cl = List.fold_right (fun f l -> mklApp ccons [|Lazy.force cint; out_f f; l|]) 
+                                  cl (mklApp cnil [|Lazy.force cint|]) in
   let step_to_coq c =
     match c.kind with
     | Res res ->
@@ -390,7 +391,6 @@ let to_coq to_lit interp (cstep,
     | Other other ->
 	      begin match other with
               | Weaken (c',l') ->
-                let out_cl cl = List.fold_right (fun f l -> mklApp ccons [|Lazy.force cint; out_f f; l|]) cl (mklApp cnil [|Lazy.force cint|]) in
                 mklApp cWeaken [|out_c c;out_c c'; out_cl l'|]
 	            | ImmFlatten (c',f) -> mklApp cImmFlatten [|out_c c;out_c c'; out_f f|]
               | True -> mklApp cTrue [|out_c c|]
@@ -399,7 +399,6 @@ let to_coq to_lit interp (cstep,
               | Tautology (c', l) -> 
                 mklApp cTaut [|out_c c; out_c c'; out_f l|]
               | Contraction (c', fl) -> 
-                let out_cl cl = List.fold_right (fun f l -> mklApp ccons [|Lazy.force cint; out_f f; l|]) cl (mklApp cnil [|Lazy.force cint|]) in
                 mklApp cCont [|out_c c; out_c c'; out_cl fl|]
 	            | BuildDef f -> mklApp cBuildDef [|out_c c; out_f f|]
 	            | BuildDef2 f -> mklApp cBuildDef2 [|out_c c;out_f f|]
@@ -416,6 +415,8 @@ let to_coq to_lit interp (cstep,
               | ConnDef f -> mklApp cConnDef [|out_c c; out_f f|]
               | IteSimplify f -> mklApp cIteSimp [|out_c c; out_f f|]
               | EqSimplify f -> mklApp cEqSimp [|out_c c; out_f f|]
+              | DistElim (fl, f) -> 
+                mklApp cDistElim [|out_c c; out_f f; out_cl fl|]
               | EqTr (f, fl) ->
                 let res = List.fold_right (fun f l -> mklApp ccons [|Lazy.force cint; out_f f; l|]) fl (mklApp cnil [|Lazy.force cint|]) in
                 mklApp cEqTr [|out_c c; out_f f; res|]
@@ -484,8 +485,6 @@ let to_coq to_lit interp (cstep,
               | BBDiseq (res) -> mklApp cBBDiseq [|out_c c; out_f res|]
               | RowEq (res) -> mklApp cRowEq [|out_c c; out_f res|]
               | RowNeq (cl) ->
-                let out_cl cl = List.fold_right (fun f l -> mklApp ccons [|Lazy.force cint; out_f f; l|])
-                                                cl (mklApp cnil [|Lazy.force cint|]) in
                 mklApp cRowNeq [|out_c c; out_cl cl|]
               | Ext (res) -> mklApp cExt [|out_c c; out_f res|]
               | Hole (prem_id, concl) ->
