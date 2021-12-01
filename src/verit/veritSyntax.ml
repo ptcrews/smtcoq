@@ -557,8 +557,6 @@ let mk_clause (id,typ,value,ids_params,args) =
       (* Not implemented *)
       | Refl -> raise (Debug "VeritSyntax.ml: rule refl not implemented yet")
       | Acsimp -> raise (Debug "VeritSyntax.ml: rule acsimp not implemented yet")
-      (*| Distelim -> raise (Debug "VeritSyntax.ml: rule distelim not implemented yet")*)
-      
   in
   let cl =
     (* TODO: change this into flatten when necessary *)

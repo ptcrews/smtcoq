@@ -32,7 +32,7 @@
   (* Counter for any cong rules encountered *)
   let congCtr = ref max_int
 
-(*  let parse_bv s =
+  let parse_bv s =
     let l = ref [] in
     for i = 2 to String.length s - 1 do
       match s.[i] with
@@ -40,7 +40,7 @@
       | '1' -> l := true :: !l
       | _ -> assert false
     done;
-    !l*)
+    !l
 
 %}
 
@@ -76,7 +76,10 @@
 %token EQ LT LEQ GT GEQ PLUS MINUS MULT
 %token LAGE LIAGE LATA LADE DIVSIMP PRODSIMP 
 %token UMINUSSIMP MINUSSIMP SUMSIMP COMPSIMP LARWEQ
-
+%token BVAND BVOR BVXOR BVADD BVMUL BVULT BVSLT BVULE 
+%token BVSLE BVCONC BVEXTR BVZEXT BVSEXT BVNOT BVNEG
+%token BVSHL BVSHR
+%token <string> BITV
 %type <int> line
 %start line
 
@@ -210,7 +213,7 @@ nlit:
   }*)
 ;
 
-(*name_term:   /* returns a bool * (SmtAtom.Form.pform or a SmtAtom.hatom), the boolean indicates if we should declare the term or not */
+(*term:   /* returns a bool * (SmtAtom.Form.pform or a SmtAtom.hatom), the boolean indicates if we should declare the term or not */
   (*| b=BITV                        { true, Form.Atom (Atom.mk_bvconst ra (parse_bv b)) }*)
   | TRUE                            { true, Form.Form Form.pform_true }
   | FALSE                           { true, Form.Form Form.pform_false }
@@ -246,6 +249,7 @@ term: /* returns a bool * (SmtAtom.Form.pform or SmtAtom.hatom), the boolean ind
   (* Atoms *)
   | i=INT                             { true, Form.Atom (Atom.hatom_Z_of_int ra i) }
   | b=BIGINT                          { true, Form.Atom (Atom.hatom_Z_of_bigint ra b) }
+  | b=BITV                              { true, Form.Atom (Atom.mk_bvconst ra (parse_bv b)) }
   | LPAREN LT x=term y=term RPAREN    { apply_bdec_atom (Atom.mk_lt ra) x y }
   | LPAREN LEQ x=term y=term RPAREN   { apply_bdec_atom (Atom.mk_le ra) x y }
   | LPAREN GT x=term y=term RPAREN    { apply_bdec_atom (Atom.mk_gt ra) x y }
@@ -262,6 +266,110 @@ term: /* returns a bool * (SmtAtom.Form.pform or SmtAtom.hatom), the boolean ind
       let da, la = list_dec args in
     	let a = Array.of_list la in
         da, Form.Atom (Atom.mk_distinct ra ~declare:da (Atom.type_of a.(0)) a) }
+  | LPAREN BVNOT t=term RPAREN
+    { apply_dec_atom (fun ?declare:(d=true) h -> 
+                     match Atom.type_of h with 
+                     | TBV s -> Atom.mk_bvnot ra ~declare:d s h 
+                     | _ -> assert false) 
+      t }
+  | LPAREN BVAND t1=term t2=term RPAREN
+    { apply_bdec_atom (fun ?declare:(d=true) h1 h2 -> 
+                       match Atom.type_of h1 with 
+                       | TBV s -> Atom.mk_bvand ra ~declare:d s h1 h2
+                       | _ -> assert false)
+      t1 t2 }
+  | LPAREN BVOR t1=term t2=term RPAREN
+    { apply_bdec_atom (fun ?declare:(d=true) h1 h2 -> 
+                       match Atom.type_of h1 with 
+                       | TBV s -> Atom.mk_bvor ra ~declare:d s h1 h2
+                       | _ -> assert false)
+      t1 t2 }
+  | LPAREN BVXOR t1=term t2=term RPAREN
+    { apply_bdec_atom (fun ?declare:(d=true) h1 h2 -> 
+                       match Atom.type_of h1 with 
+                       | TBV s -> Atom.mk_bvxor ra ~declare:d s h1 h2 
+                       | _ -> assert false) 
+      t1 t2 }
+  | LPAREN BVNEG t=term RPAREN
+    { apply_dec_atom (fun ?declare:(d=true) h -> 
+                      match Atom.type_of h with 
+                      | TBV s -> Atom.mk_bvneg ra ~declare:d s h
+                      | _ -> assert false)
+      t }
+  | LPAREN BVADD t1=term t2=term RPAREN
+    { apply_bdec_atom (fun ?declare:(d=true) h1 h2 ->
+                       match Atom.type_of h1 with
+                       | TBV s -> Atom.mk_bvadd ra ~declare:d s h1 h2
+                       | _ -> assert false)
+      t1 t2 }
+  | LPAREN BVMUL t1=term t2=term RPAREN
+    { apply_bdec_atom (fun ?declare:(d=true) h1 h2 ->
+                       match Atom.type_of h1 with
+                       | TBV s -> Atom.mk_bvmult ra ~declare:d s h1 h2
+                       | _ -> assert false)
+      t1 t2 }
+  | LPAREN BVULT t1=term t2=term RPAREN
+    { apply_bdec_atom (fun ?declare:(d=true) h1 h2 ->
+                       match Atom.type_of h1 with
+                       | TBV s -> Atom.mk_bvult ra ~declare:d s h1 h2
+                       | _ -> assert false)
+      t1 t2 }
+  | LPAREN BVSLT t1=term t2=term RPAREN
+    { apply_bdec_atom (fun ?declare:(d=true) h1 h2 -> 
+                       match Atom.type_of h1 with
+                       | TBV s -> Atom.mk_bvslt ra ~declare:d s h1 h2
+                       | _ -> assert false)
+      t1 t2 }
+  | LPAREN BVULE t1=term t2=term RPAREN
+    { let (decl,_) as a = apply_bdec_atom (fun ?declare:(d=true) h1 h2 -> 
+                                           match Atom.type_of h1 with 
+                                           | TBV s -> Atom.mk_bvult ra ~declare:d s h1 h2 
+                                           | _ -> assert false) 
+                          t1 t2 in 
+      (decl, Form.Lit (Form.neg (Form.lit_of_atom_form_lit rf a))) }
+  | LPAREN BVSLE t1=term t2=term RPAREN
+    { let (decl,_) as a = apply_bdec_atom (fun ?declare:(d=true) h1 h2 ->
+                                           match Atom.type_of h1 with 
+                                           | TBV s -> Atom.mk_bvslt ra ~declare:d s h1 h2
+                                           | _ -> assert false) 
+                          t1 t2 in
+      (decl, Form.Lit (Form.neg (Form.lit_of_atom_form_lit rf a))) }
+  | LPAREN BVSHL t1=term t2=term RPAREN
+    { apply_bdec_atom (fun ?declare:(d=true) h1 h2 ->
+                       match Atom.type_of h1 with
+                      | TBV s -> Atom.mk_bvshl ra ~declare:d s h1 h2
+                      | _ -> assert false)
+      t1 t2 }
+  | LPAREN BVSHR t1=term t2=term RPAREN
+    { apply_bdec_atom (fun ?declare:(d=true) h1 h2 ->
+                       match Atom.type_of h1 with
+                       | TBV s -> Atom.mk_bvshr ra ~declare:d s h1 h2
+                       | _ -> assert false)
+      t1 t2 }
+  | LPAREN BVCONC t1=term t2=term RPAREN
+    { apply_bdec_atom (fun ?declare:(d=true) h1 h2 ->
+                       match Atom.type_of h1, Atom.type_of h2 with
+                       | TBV s1, TBV s2 -> Atom.mk_bvconcat ra ~declare:d s1 s2 h1 h2
+                       | _, _ -> assert false)
+      t1 t2 }
+  | LPAREN BVEXTR j=INT i=INT t=term RPAREN
+    { apply_dec_atom (fun ?declare:(d=true) h ->
+                      match Atom.type_of h with
+                      | TBV s -> Atom.mk_bvextr ra ~declare:d ~s ~i ~n:(j-i+1) h
+                      | _ -> assert false)
+      t }
+  | LPAREN BVZEXT n=INT t=term RPAREN
+    { apply_dec_atom (fun ?declare:(d=true) h ->
+                      match Atom.type_of h with
+                      | TBV s -> Atom.mk_bvzextn ra ~declare:d ~s ~n h
+                      | _ -> assert false)
+      t }
+  | LPAREN BVSEXT n=INT t=term RPAREN
+    { apply_dec_atom (fun ?declare:(d=true) h ->
+                      match Atom.type_of h with
+                      | TBV s -> Atom.mk_bvsextn ra ~declare:d ~s ~n h
+                      | _ -> assert false) 
+      t }        
 
   (* Both formulas and atoms *)
   | q=qual_id                       { q }

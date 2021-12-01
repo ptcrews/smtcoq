@@ -41,7 +41,7 @@
         "tautology", TAUT;
         "contraction", CONT;
 
-      (* Equality and congruence reasoning *)
+      (* Equality and congruence reasoning rules *)
         "refl", REFL;
         "trans", TRANS;
         "cong", CONG;
@@ -50,7 +50,7 @@
         "eq_congruent", EQCO;
         "eq_congruent_pred", EQCP;
 
-      (* Clausification of Boolean operators *)
+      (* Clausification of Boolean operators rules *)
         (*and*)
         "not_or", NOTOR;
         (*or*)
@@ -82,7 +82,7 @@
         "equiv_neg1", EQUN1;
         "equiv_neg2", EQUN2;
 
-      (* Clausification of ITE *)
+      (* Clausification of ITE rules *)
         "ite1", ITE1;
         "ite2", ITE2;
         "ite_pos1", ITEP1;
@@ -92,7 +92,7 @@
         "not_ite1", NITE1;
         "not_ite2", NITE2;
 
-      (* Simplifications on Boolean operators *)
+      (* Simplifications on Boolean operators rules *)
         "connective_def", CONNDEF;
         "and_simplify", ANDSIMP;
         "or_simplify", ORSIMP;
@@ -103,13 +103,13 @@
         "ac_simp", ACSIMP;
         "distinct_elim", DISTELIM;
 
-      (* Simplifications on ITE operators *)
+      (* Simplifications on ITE operators rules *)
         "ite_simplify", ITESIMP;
 
-      (* Simplifications on equalities *)
+      (* Simplifications on equalities rules *)
         "eq_simplify", EQUALSIMP;
 
-      (* Linear Integer Arithmetic *)
+      (* Linear Integer Arithmetic rules *)
         "la_generic", LAGE;
         "lia_generic", LIAGE;
         "la_tautology", LATA;
@@ -121,14 +121,50 @@
         "sum_simplify", SUMSIMP;
         "comp_simplify", COMPSIMP;
         "la_rw_eq", LARWEQ;
+
+      (* Bit-vector Rules *)
+        (*"bbvar", BBVA;
+        "bbconst", BBCONST;
+        "bbeq", BBEQ;
+        "bv_const_neq", BBDIS;
+        "bbop", BBOP;
+        "bbnot", BBNOT;
+        "bbneg", BBNEG;
+        "bbadd", BBADD;
+        "bbmul", BBMUL;
+        "bbult", BBULT;
+        "bbslt", BBSLT;
+        "bbconcat", BBCONC;
+        "bbextract", BBEXTR;
+        "bbzextend", BBZEXT;
+        "bbsextend", BBSEXT;
+        "bbshl", BBSHL;
+        "bbshr", BBSHR;*)
+        "bvand", BVAND;
+        "bvor", BVOR;
+        "bvxor", BVXOR;
+        "bvadd", BVADD;
+        "bvmul", BVMUL;
+        "bvult", BVULT;
+        "bvslt", BVSLT;
+        "bvule", BVULE;
+        "bvsle", BVSLE;
+        "bvshl", BVSHL;
+        "bvlshr", BVSHR;
+        "bvnot", BVNOT;
+        "bvneg", BVNEG;
+        "concat", BVCONC;
+        "extract", BVEXTR;
+        "zero_extend", BVZEXT;
+        "sign_extend", BVSEXT;
       ]
 }
 
 (*
-let digit = [ '0'-'9' ]
+let digit = [ '0'-'9' ]*)
 let bit = [ '0'-'1' ]
 let bitvector = '#' 'b' bit+
-let alpha = [ 'a'-'z' 'A' - 'Z' ]
+(*let alpha = [ 'a'-'z' 'A' - 'Z' ]
 let blank = [' ' '\t']
 let newline = ['\n' '\r']
 let var = alpha (alpha|digit|'_')*
@@ -207,4 +243,5 @@ rule token = parse
   | (int as i)      { try INT (int_of_string i)
 	                    with _ -> 
                         BIGINT (Big_int.big_int_of_string i) }
+  | bitvector as bv { BITV bv }
   | eof             { raise Eof }
