@@ -1,0 +1,7 @@
+(set-logic UFLIA)
+(declare-fun op_2 (Int) Int)
+(declare-fun op_1 () Int)
+(declare-fun op_0 () Int)
+(assert (not (=> (= op_0 (+ op_1 1)) (= (op_2 op_1) (op_2 (- op_0 1))))))
+(check-sat)
+(exit)

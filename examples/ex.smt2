@@ -1,0 +1,6 @@
+(set-logic UFLIA)
+(declare-fun x () Int)
+(declare-fun y () Int)
+(assert (= (+ 2 x) (* 2 y)))
+(assert (not (= (+ 2 x) (* 2 y))))
+(check-sat)
