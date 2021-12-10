@@ -60,7 +60,7 @@
 %token LPAREN RPAREN EOF EOL COLON BANG
 %token COLRULE COLSTEP COLARGS COLPREMISES SAT
 %token ASSUME STEP ANCHOR DEFINEFUN CL ASTOK CHOICE
-%token LET FORALL EXISTS MATCH
+%token LET FORALL EXISTS MATCH TINT TBOOL
 
 %token TRUE FALSE NOT IMPLIES AND OR XOR DIST ITE
 %token NOTNOT
@@ -76,6 +76,7 @@
 %token EQ LT LEQ GT GEQ PLUS MINUS MULT
 %token LAGE LIAGE LATA LADE DIVSIMP PRODSIMP 
 %token UMINUSSIMP MINUSSIMP SUMSIMP COMPSIMP LARWEQ
+%token FINS
 %token BVAND BVOR BVXOR BVADD BVMUL BVULT BVSLT BVULE 
 %token BVSLE BVCONC BVEXTR BVZEXT BVSEXT BVNOT BVNEG
 %token BVSHL BVSHR
@@ -153,32 +154,10 @@ ident:
     | None      -> true, Form.Atom (Atom.get ra (Aapp (SmtMaps.get_fun i, [||]))) }
 ;
 
-/*sort:
-  | ident { "" }
-  | ident sort+ { "" }
-;*/
-
 qual_id:
   | i=ident { i }
   /*| LPAREN AS ident sort RPAREN { "" }*/
 ;
-
-/*var_binding:
-  | LPAREN SYMBOL term RPAREN { "" }
-;
-
-sorted_var:
-  | LPAREN SYMBOL term RPAREN { "" }
-;*/
- 
-/*pattern:
-  | SYMBOL { "" }
-  | LPAREN SYMBOL SYMBOL+ RPAREN { "" }
-;*/
-
-/*match_case:
-  | LPAREN pattern term RPAREN { "" }
-;*/
 
 clause:
   | LPAREN CL lits=lit* RPAREN
@@ -245,6 +224,9 @@ term: /* returns a bool * (SmtAtom.Form.pform or SmtAtom.hatom), the boolean ind
   | LPAREN ITE lits=lit* RPAREN
     { apply_dec (fun x -> Form.Form (Fapp (Fite, Array.of_list x))) 
                 (list_dec lits) }
+  | LPAREN FORALL LPAREN vs=sorted_var+ RPAREN q=qlit RPAREN
+    { clear_qvar (); (*List.fold_left (fun (s, t) -> add_qvar s t) () vs;*)
+      false, Form.Form (Fapp (Fforall vs, [|Form.lit_of_atom_form_lit rf q|])) }
 
   (* Atoms *)
   | i=INT                             { true, Form.Atom (Atom.hatom_Z_of_int ra i) }
@@ -403,89 +385,114 @@ term: /* returns a bool * (SmtAtom.Form.pform or SmtAtom.hatom), the boolean ind
   }
   /*
   | LPAREN LET LPAREN var_binding+ RPAREN term RPAREN { "" }
-  | LPAREN FORALL LPAREN sorted_var+ RPAREN term RPAREN { "" }
   | LPAREN EXISTS LPAREN sorted_var+ RPAREN term RPAREN { "" }
   | LPAREN MATCH term LPAREN match_case+ RPAREN RPAREN { "" }
   | LPAREN BANG term attr+ RPAREN { "" }*/
+;
+
+qlit:
+  | t=term                          { t }
+  | LPAREN NOT l=lit RPAREN         { apply_dec (fun x -> Form.Lit (Form.neg x)) l}
+
+sort:
+  | TINT                            { TZ }
+  | TBOOL                           { Tbool }
+;
+
+sorted_var:
+  | LPAREN s=SYMBOL t=sort RPAREN   { add_qvar s t; (s,t) }
 ;
 
 /*function_def:
   | SYMBOL LPAREN sorted_var* RPAREN sort term { "" }
 ;*/
 
+/*var_binding:
+  | LPAREN SYMBOL term RPAREN { "" }
+;*/
+ 
+/*pattern:
+  | SYMBOL { "" }
+  | LPAREN SYMBOL SYMBOL+ RPAREN { "" }
+;*/
+
+/*match_case:
+  | LPAREN pattern term RPAREN { "" }
+;*/
+
 rulename: 
-  | ASSUME { Assume } /* Inpu */
-  | TRUE { True }
-  | FALSE { Fals }
-  | NOTNOT { Notnot }
-  | THRESO { Threso }
-  | RESO { Reso }
-  | TAUT { Taut } /* Needs to be checked */
-  | CONT { Cont } /* Needs to be checked */
-  | REFL { Hole } /* Needs to be updated */
-  | TRANS { Trans }
-  | CONG { Cong } /* Needs to be updated */
-  | EQRE { Eqre }
-  | EQTR { Eqtr }
-  | EQCO { Eqco }
-  | EQCP { Eqcp }
-  | AND { And }
-  | NOTOR { Nor }
-  | OR { Or }
-  | NOTAND { Nand }
-  | XOR1 { Xor1 }
-  | XOR2 { Xor2 }
-  | NXOR1 { Nxor1 }
-  | NXOR2 { Nxor2 }
-  | IMP { Imp }
-  | NIMP1 { Nimp1 }
-  | NIMP2 { Nimp2 }
-  | EQU1 { Equ1 }
-  | EQU2 { Equ2 }
-  | NEQU1 { Nequ1 }
-  | NEQU2 { Nequ2 }
-  | ANDP { Andp }
-  | ANDN { Andn }
-  | ORP { Orp }
-  | ORN { Orn }
-  | XORP1 { Xorp1 }
-  | XORP2 { Xorp2 }
-  | XORN1 { Xorn1 }
-  | XORN2 { Xorn2 }
-  | IMPP { Impp }
-  | IMPN1 { Impn1 }
-  | IMPN2 { Impn2 }
-  | EQUP1 { Equp1 }
-  | EQUP2 { Equp2 }
-  | EQUN1 { Equn1 }
-  | EQUN2 { Equn2 }
-  | ITE1 { Ite1 }
-  | ITE2 { Ite2 }
-  | ITEP1 { Itep1 }
-  | ITEP2 { Itep2 }
-  | ITEN1 { Iten1 }
-  | ITEN2 { Iten2 }
-  | NITE1 { Nite1 }
-  | NITE2 { Nite2 }
-  | CONNDEF { Conndef } /* Needs to be checked */
-  | ANDSIMP { Andsimp }
-  | ORSIMP { Orsimp }
-  | NOTSIMP { Notsimp }
-  | IMPSIMP { Impsimp } /* Needs to be checked */
-  | EQSIMP { Eqsimp } /* Needs to be checked */
-  | BOOLSIMP { Boolsimp } /* Needs to be checked */
-  | ACSIMP { Hole } /* Needs to be updated */
-  | ITESIMP { Itesimp } /* Needs to be checked */
-  | EQUALSIMP { Eqsimp } /* Needs to be checked */
-  | DISTELIM { Distelim }
-  | LAGE { Lage }
-  | LIAGE { Liage }
-  | LATA { Lata} 
-  | LADE { Lade }
-  | DIVSIMP { Divsimp } 
-  | PRODSIMP { Prodsimp }
-  | UMINUSSIMP { Uminussimp }
-  | MINUSSIMP { Minussimp }
-  | SUMSIMP { Sumsimp }
-  | COMPSIMP { Compsimp }
-  | LARWEQ { Larweq }
+  | ASSUME                          { Assume } /* Inpu */
+  | TRUE                            { True }
+  | FALSE                           { Fals }
+  | NOTNOT                          { Notnot }
+  | THRESO                          { Threso }
+  | RESO                            { Reso }
+  | TAUT                            { Taut } /* Needs to be checked */
+  | CONT                            { Cont } /* Needs to be checked */
+  | REFL                            { Hole } /* Needs to be updated */
+  | TRANS                           { Trans }
+  | CONG                            { Cong } /* Needs to be updated */
+  | EQRE                            { Eqre }
+  | EQTR                            { Eqtr }
+  | EQCO                            { Eqco }
+  | EQCP                            { Eqcp }
+  | AND                             { And }
+  | NOTOR                           { Nor }
+  | OR                              { Or }
+  | NOTAND                          { Nand }
+  | XOR1                            { Xor1 }
+  | XOR2                            { Xor2 }
+  | NXOR1                           { Nxor1 }
+  | NXOR2                           { Nxor2 }
+  | IMP                             { Imp }
+  | NIMP1                           { Nimp1 }
+  | NIMP2                           { Nimp2 }
+  | EQU1                            { Equ1 }
+  | EQU2                            { Equ2 }
+  | NEQU1                           { Nequ1 }
+  | NEQU2                           { Nequ2 }
+  | ANDP                            { Andp }
+  | ANDN                            { Andn }
+  | ORP                             { Orp }
+  | ORN                             { Orn }
+  | XORP1                           { Xorp1 }
+  | XORP2                           { Xorp2 }
+  | XORN1                           { Xorn1 }
+  | XORN2                           { Xorn2 }
+  | IMPP                            { Impp }
+  | IMPN1                           { Impn1 }
+  | IMPN2                           { Impn2 }
+  | EQUP1                           { Equp1 }
+  | EQUP2                           { Equp2 }
+  | EQUN1                           { Equn1 }
+  | EQUN2                           { Equn2 }
+  | ITE1                            { Ite1 }
+  | ITE2                            { Ite2 }
+  | ITEP1                           { Itep1 }
+  | ITEP2                           { Itep2 }
+  | ITEN1                           { Iten1 }
+  | ITEN2                           { Iten2 }
+  | NITE1                           { Nite1 }
+  | NITE2                           { Nite2 }
+  | CONNDEF                         { Conndef } /* Needs to be checked */
+  | ANDSIMP                         { Andsimp }
+  | ORSIMP                          { Orsimp }
+  | NOTSIMP                         { Notsimp }
+  | IMPSIMP                         { Impsimp } /* Needs to be checked */
+  | EQSIMP                          { Eqsimp } /* Needs to be checked */
+  | BOOLSIMP                        { Boolsimp } /* Needs to be checked */
+  | ACSIMP                          { Hole } /* Needs to be updated */
+  | ITESIMP                         { Itesimp } /* Needs to be checked */
+  | EQUALSIMP                       { Eqsimp } /* Needs to be checked */
+  | DISTELIM                        { Distelim }
+  | LAGE                            { Lage }
+  | LIAGE                           { Liage }
+  | LATA                            { Lata} 
+  | LADE                            { Lade }
+  | DIVSIMP                         { Divsimp } 
+  | PRODSIMP                        { Prodsimp }
+  | UMINUSSIMP                      { Uminussimp }
+  | MINUSSIMP                       { Minussimp }
+  | SUMSIMP                         { Sumsimp }
+  | COMPSIMP                        { Compsimp }
+  | LARWEQ                          { Larweq }

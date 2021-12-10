@@ -439,6 +439,10 @@ Proof.
   verit.
 Qed.*)
 
+Variable P : Z -> bool.
+Variable a : Z.
+Goal (forall (x : Z), P x) -> P a.
+Proof. verit. Qed.
 
 (* Some examples of using verit with lemmas. Use <verit H1 .. Hn> to
    temporarily add the lemmas H1 .. Hn to the verit environment.

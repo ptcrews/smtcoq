@@ -20,6 +20,7 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 		- [x] Change `not_not` from `~~x -> x` to `x -> x` and then eliminate double negations while parsing. This maintains consistency in the logic so that `not_not` clauses
 		can be resolved with others. However, in resolution, when the clauses being resolved have a common literal, that literal is taken out of consideration for being a pivot, and 
 		this makes an invalid resolution.
+		- [ ] Take an Alethe proof with `not_not` and translate it into a proof without `not_not`.
 		- [ ] BLOCKED: Chantal will look into producing `Fnot2` terms from the rule checkers.
 	- [x] `distinct_elim` rule, which is pretty similar to `SplDistinctElim`
 		  Exception: `distinct` is a function over terms, and formulas in SMT, but in Coq it is only defined over terms
@@ -35,6 +36,18 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 	- [ ] Possibly simplify the SMTCoq checker by:
 		- [ ] Combine `NotNot` with `BuildDef`
 		- [ ] Combine `AndSimp`, `NotSimp`, `OrSimp`, `ImpSimp`, `EquivSimp`, `IteSimp`, (maybe?) `BoolSimp` and `ConnDef`
+- [ ] Add quantifier rules
+	- [x] What support for quantifiers does SMTCoq currently have?
+	- [ ] Add parser for quantified terms
+	- [x] Find the goal in SMTCoq that leads to the basic quantifers example, and check if its as expected.
+	- [ ] Currently VeriT is called with term sharing turned off, need to be able to deal with shared terms
+	- [ ] Run the example proof through the old SMTCoq to find examples of Chantal's explanation.
+	- [ ] Compare the old and new SMTCoq proofs for the example and see what else needs to be done to support the new infrastructure (is `tmp_qnt_tidy` analogous to `qnt_cnf`?)
+		- [ ] New format uses subproofs. Understand why, and move up implementation of subproofs in the priority list.
+	- [ ] Read spec of all quantifier rules
+	- [ ] Read the skolemization section in the book
+- [ ] Add support for subproofs (reuse or redo?)
+	- [ ] Refl rule
 - [ ] Set up testing of benchmarks
 	- [x] Generate proofs for all benchmarks.
 	- [ ] Generate `verit_proof_parser` vernac for generic proof file
@@ -45,11 +58,11 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 	- [ ] Modify parser for `la_generic` which now takes arguments
 	- [ ] Test
 - [ ] Add Bit-vector rules
-	- [ ] How does a regular LFSC proof look vs a veriT proof?
-	- [ ] How does an LFSC BV proof look?
-	- [ ] Revisit the old LFSC proof signature
+	- [x] How does a regular LFSC proof look vs a veriT proof?
+	- [x] How does an LFSC BV proof look?
+	- [x] Revisit the old LFSC proof signature
 	- [ ] Check out Haniel's Lean signature
-	- [ ] How does the LFSC to VeriT translator handle bit-vectors and arrays? Seemingly, the VeriT proof format was extended with BV
+	- [x] How does the LFSC to VeriT translator handle bit-vectors and arrays? Seemingly, the VeriT proof format was extended with BV
 	and array rules and when LFSC proofs used rules in these theories,
 	those rules were converted to applications of these extended rules.
 	- [ ] Extend Alethe with BV proof rules
@@ -57,10 +70,6 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 - [ ] Add Array rules
 	- [ ] Extend Alethe with Array proof rules
 	- [ ] Add rules to SMTCoq
-- [ ] Add quantifier rules
-- [ ] Add support for subproofs (reuse or redo?)
-	- [ ] Refl rule
-- [ ] Currently VeriT is called with term sharing turned off, need to be able to deal with shared terms
 - [ ] Currently, support for CVC4/5 is turned off. Once it produces Alethe proofs, add support for CVC5.
 - [ ] Currently, we're assuming an ordering on the step numbers - we assume they are `t1,...,tn` and we don't account for sub-proofs, which would be `ti.tj`. Eventually update this to take any series of step numbers and convert them internally to an order we care about
 - [ ] Correctness proofs
@@ -70,12 +79,11 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 - [ ] Really test SMTCoq
 
 - [ ] Check how SMTCoq deals with global and local parameters.
-- [ ] Read transformations paper to see if passing of particular hypotheses is allowed by sniper.
-- [ ] Send transformations paper to Cesare with answer.
-- [ ] Separate all Alethe rules into categories, and mark the rules which are already implemented. 
+- [x] Read transformations paper to see if passing of particular hypotheses is allowed by sniper.
+- [x] Send transformations paper to Cesare with answer.
+- [x] Separate all Alethe rules into categories, and mark the rules which are already implemented. 
 - [ ] Set up a script to run SMTCoq tests on the new parser. It should call `Parse_verit_certif` on the SMT files and the veriT proof files, and check that `euf_checker` returns true.
 	- [ ] Figure out how this exactly works for a single case. 
-- [ ] Understand skolemization by reading the chapter Cesare suggested.
 - [x] Read about the epsilon calculus by reading Jeremy's chapter in the Stanford Encyclopedia.
 
 - Problem with `not_not`:

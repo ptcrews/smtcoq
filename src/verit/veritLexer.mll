@@ -199,29 +199,29 @@ let isymbol = '(' '_' symbol index+ ')'
 let keyword = ':' simple_symbol
 
 rule token = parse
-  | blank +                   { token lexbuf }
-  | lf | dos_newline          { EOL }
-  | "(" { LPAREN }
-  | ")" { RPAREN }
-  | ":" { COLON }
-  | "!" { BANG }
-  | ":rule" { COLRULE }
-  | ":step" { COLSTEP }
-  | ":args" { COLARGS }
-  | ":premises" { COLPREMISES }
-  | "assume" { ASSUME }
-  | "step" { STEP }
-  | "anchor" { ANCHOR }
-  | "define_fun" { DEFINEFUN }
-  | "cl" { CL }
-  | "as" { ASTOK }
-  | "choice" { CHOICE }
-  | "let" { LET }
-  | "forall" { FORALL }
-  | "exists" { EXISTS }
-  | "match" { MATCH }
-  | "Formula is Satisfiable" { SAT }
-  | "=" { EQ }
+  | blank +                    { token lexbuf }
+  | lf | dos_newline           { EOL }
+  | "("                        { LPAREN }
+  | ")"                        { RPAREN }
+  | ":"                        { COLON }
+  | "!"                        { BANG }
+  | ":rule"                    { COLRULE }
+  | ":step"                    { COLSTEP }
+  | ":args"                    { COLARGS }
+  | ":premises"                { COLPREMISES }
+  | "assume"                   { ASSUME }
+  | "step"                     { STEP }
+  | "anchor"                   { ANCHOR }
+  | "define_fun"               { DEFINEFUN }
+  | "cl"                       { CL }
+  | "as"                       { ASTOK }
+  | "choice"                   { CHOICE }
+  | "let"                      { LET }
+  | "forall"                   { FORALL }
+  | "exists"                   { EXISTS }
+  | "match"                    { MATCH }
+  | "Formula is Satisfiable"   { SAT }
+  | "="                        { EQ }
   | "<"                        { LT }
   | "<="                       { LEQ }
   | ">"                        { GT }
@@ -229,19 +229,20 @@ rule token = parse
   | "+"                        { PLUS }
   | "-"                        { MINUS }
   | "*"                        { MULT }
+  | "Int"     	      	       { TINT }
+  | "Bool"		                 { TBOOL }
 (* We probably don't need this because we parse more fine grained constants
   | spec_constant   { let s = Lexing.lexeme lexbuf in 
                       SPECCONST s }*)
-  | keyword         { let k = Lexing.lexeme lexbuf in 
-                      try Hashtbl.find typ_table k with
-                      | Not_found -> KEYWORD k }
-  | symbol          { let s = Lexing.lexeme lexbuf in 
-                      try Hashtbl.find typ_table s with
-                      | Not_found -> SYMBOL s }
-  | isymbol         { let i = Lexing.lexeme lexbuf in 
-                      ISYMBOL i }
-  | (int as i)      { try INT (int_of_string i)
-	                    with _ -> 
-                        BIGINT (Big_int.big_int_of_string i) }
-  | bitvector as bv { BITV bv }
-  | eof             { raise Eof }
+  | keyword                    { let k = Lexing.lexeme lexbuf in 
+                                 try Hashtbl.find typ_table k with
+                                  | Not_found -> KEYWORD k }
+  | symbol                      { let s = Lexing.lexeme lexbuf in 
+                                  try Hashtbl.find typ_table s with
+                                  | Not_found -> SYMBOL s }
+  | isymbol                     { let i = Lexing.lexeme lexbuf in 
+                                  ISYMBOL i }
+  | (int as i)                  { try INT (int_of_string i) with 
+                                  _ -> BIGINT (Big_int.big_int_of_string i) }
+  | bitvector as bv             { BITV bv }
+  | eof                         { raise Eof }
