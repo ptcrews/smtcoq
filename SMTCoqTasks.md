@@ -38,7 +38,7 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 		- [ ] Combine `AndSimp`, `NotSimp`, `OrSimp`, `ImpSimp`, `EquivSimp`, `IteSimp`, (maybe?) `BoolSimp` and `ConnDef`
 - [ ] Add quantifier rules
 	- [x] What support for quantifiers does SMTCoq currently have?
-	- [ ] Add parser for quantified terms
+	- [x] Add parser for quantified terms
 	- [x] Find the goal in SMTCoq that leads to the basic quantifers example, and check if its as expected.
 	- [ ] Currently VeriT is called with term sharing turned off, need to be able to deal with shared terms
 	- [ ] Run the example proof through the old SMTCoq to find examples of Chantal's explanation.

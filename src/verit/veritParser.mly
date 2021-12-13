@@ -28,6 +28,11 @@
       List.hd syms
     else 
       raise InvalidProofStepNo
+
+  (* transform string "@p_n" to int n *)
+  let atsymbol_to_id s = 
+    let l = (String.length s) - 3 in
+    int_of_string (String.sub s 3 l)
     
   (* Counter for any cong rules encountered *)
   let congCtr = ref max_int
@@ -50,6 +55,7 @@
 */
 
 %token <string> SYMBOL
+%token <string> ATSYMBOL
 %token <string> ISYMBOL
 %token <string> SPECCONST
 %token <string> KEYWORD
@@ -60,7 +66,7 @@
 %token LPAREN RPAREN EOF EOL COLON BANG
 %token COLRULE COLSTEP COLARGS COLPREMISES SAT
 %token ASSUME STEP ANCHOR DEFINEFUN CL ASTOK CHOICE
-%token LET FORALL EXISTS MATCH TINT TBOOL
+%token LET FORALL EXISTS MATCH TINT TBOOL NAMED
 
 %token TRUE FALSE NOT IMPLIES AND OR XOR DIST ITE
 %token NOTNOT
@@ -167,10 +173,9 @@ clause:
 lit:   /* returns a SmtAtom.Form.t option */
   | t=term
   { let decl, t' = t in 
-      decl, Form.lit_of_atom_form_lit rf (decl, t') 
+      decl, Form.lit_of_atom_form_lit rf (decl, t')
   }
-  | LPAREN NOT l=lit RPAREN       { apply_dec Form.neg l }
-(*{
+  (*{
     let decl, l' = l in
     if Form.is_pos l' then
       decl, Form.neg l'
@@ -180,8 +185,8 @@ lit:   /* returns a SmtAtom.Form.t option */
   }*)
 ;
 
-nlit:
-  | LPAREN NOT l=lit RPAREN       { apply_dec Form.neg l }
+(*nterm:
+  | LPAREN NOT t=term RPAREN       { apply_dec Form.neg t }*)
 (*{ Parse double negations as Fnot2 instead of simplifying
     let decl, l' = l in
     if Form.is_pos l' then
@@ -205,10 +210,17 @@ nlit:
 term: /* returns a bool * (SmtAtom.Form.pform or SmtAtom.hatom), the boolean indicates if we should declare the term or not */
   (* This will make term produce shift-reduce conflicts, and seems unnecessary
   | LPAREN t=term RPAREN            { t }*)
+  (* Shared terms *)
+  | LPAREN BANG t=term NAMED a=ATSYMBOL RPAREN
+    { add_solver (atsymbol_to_id a) t; t }
+  | a=ATSYMBOL                      { get_solver (atsymbol_to_id a) }
 
   (* Formulas *)
   | TRUE                            { true, Form.Form Form.pform_true }
   | FALSE                           { true, Form.Form Form.pform_false }
+  | LPAREN NOT l=lit RPAREN         
+    { let decl, t = l in
+      decl, Form.Lit (Form.neg t) }
   | LPAREN AND lits=lit* RPAREN
     { apply_dec (fun x -> Form.Form (Fapp (Fand, Array.of_list x))) 
                 (list_dec lits) }
@@ -366,7 +378,7 @@ term: /* returns a bool * (SmtAtom.Form.pform or SmtAtom.hatom), the boolean ind
       | None ->    let dl, l = list_dec args in 
                    dl, Form.Atom (Atom.get ra ~declare:dl (Aapp (SmtMaps.get_fun f, Array.of_list l))) }
   | LPAREN EQ t1=term t2=term RPAREN
-  { match t1,t2 with 
+  { match t1, t2 with 
     | (decl1, Form.Atom h1), (decl2, Form.Atom h2) when 
           (match Atom.type_of h1 with 
           | SmtBtype.Tbool -> false 
@@ -375,14 +387,14 @@ term: /* returns a bool * (SmtAtom.Form.pform or SmtAtom.hatom), the boolean ind
     | (decl1, t1), (decl2, t2) -> decl1 && decl2, Form.Form (Fapp (Fiff, [|Form.lit_of_atom_form_lit rf (decl1, t1); 
                                                                    Form.lit_of_atom_form_lit rf (decl2, t2)|])) 
   }
-  | LPAREN EQ n=nlit l=lit RPAREN
-  { match n,l with 
-    (decl1, t1), (decl2, t2) -> decl1 && decl2, Form.Form (Fapp (Fiff, [|t1; t2|])) 
+  (*| LPAREN EQ n=nterm l=lit RPAREN
+  { match n, l with 
+    | (decl1, t1), (decl2, t2) -> decl1 && decl2, Form.Form (Fapp (Fiff, [|t1; t2|])) 
   }
-  | LPAREN EQ t=term n=nlit RPAREN
+  | LPAREN EQ t=term n=nterm RPAREN
   { match t, n with 
     | (decl1, t1), (decl2, t2) -> decl1 && decl2, Form.Form (Fapp (Fiff, [|Form.lit_of_atom_form_lit rf (decl1, t1); t2|])) 
-  }
+  }*)
   /*
   | LPAREN LET LPAREN var_binding+ RPAREN term RPAREN { "" }
   | LPAREN EXISTS LPAREN sorted_var+ RPAREN term RPAREN { "" }

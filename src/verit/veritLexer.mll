@@ -183,10 +183,11 @@ let non_zero_digit = ['1'-'9']
 let hexdigit = digit | ['a'-'f' 'A'-'F']
 let bindigit = ['0'-'1']
 let letter = ['a'-'z' 'A'-'Z']
-let spl = [ '+' '-' '/' '*' '=' '%' '?' '!' '.' '$' '_' '~' '&' '^' '<' '>' '@']
+let spl = [ '+' '-' '/' '*' '=' '%' '?' '!' '.' '$' '_' '~' '&' '^' '<' '>' ]
 let int = '-'? digit+
 
 let simple_symbol = (letter | spl) (letter | digit | spl)*
+let at_symbol = '@' simple_symbol
 let symbol = simple_symbol | '|' (wspace | printable_char # ['|' '\\'])* '|'
 let numeral = '0' | non_zero_digit digit*
 (*let decimal = numeral '.' '0'* numeral
@@ -209,6 +210,7 @@ rule token = parse
   | ":step"                    { COLSTEP }
   | ":args"                    { COLARGS }
   | ":premises"                { COLPREMISES }
+  | ":named"                   { NAMED }
   | "assume"                   { ASSUME }
   | "step"                     { STEP }
   | "anchor"                   { ANCHOR }
@@ -234,12 +236,15 @@ rule token = parse
 (* We probably don't need this because we parse more fine grained constants
   | spec_constant   { let s = Lexing.lexeme lexbuf in 
                       SPECCONST s }*)
-  | keyword                    { let k = Lexing.lexeme lexbuf in 
-                                 try Hashtbl.find typ_table k with
+  | keyword                     { let k = Lexing.lexeme lexbuf in 
+                                  try Hashtbl.find typ_table k with
                                   | Not_found -> KEYWORD k }
   | symbol                      { let s = Lexing.lexeme lexbuf in 
                                   try Hashtbl.find typ_table s with
                                   | Not_found -> SYMBOL s }
+  | at_symbol                   { let s = Lexing.lexeme lexbuf in
+                                  try Hashtbl.find typ_table s with
+                                  | Not_found -> ATSYMBOL s }
   | isymbol                     { let i = Lexing.lexeme lexbuf in 
                                   ISYMBOL i }
   | (int as i)                  { try INT (int_of_string i) with 
