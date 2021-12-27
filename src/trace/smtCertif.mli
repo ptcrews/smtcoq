@@ -299,6 +299,10 @@ type 'hform rule =
          a = b \/ select a (diff a b) <> select b (diff a b)
     *)
 
+  (* *  ident    : {x --> x}
+  *)
+  | Ident of 'hform clause
+
   (* Possibility to introduce "holes" in proofs (that should be filled in Coq) *)
   | Hole of ('hform clause) list * 'hform list
 

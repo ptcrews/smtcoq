@@ -96,6 +96,7 @@ type typ =
   | Sumsimp (* New *)
   | Compsimp (* New *)
   | Larweq (* New *)
+  | Ident (* Internal *)
   | Hole
 
 (*let get_type x = 
@@ -249,6 +250,7 @@ let mkCongrPred p =
              else raise (Debug "VeritSyntax.mkCongrPred: unmatching predicates")
           | _ -> raise (Debug "VeritSyntax.mkCongrPred : not pred app"))
        |_ ->  raise (Debug "VeritSyntax.mkCongr: no or more than one predicate app premise in congruence"))  
+    | _ -> raise (Debug "VeritSyntax.mkCongr: no conclusion in congruence")
 
 (* Return true if typ is Cong and value is a singleton clause of an equality (function case), 
    else return false *)
@@ -340,8 +342,11 @@ let get_ref i = Hashtbl.find ref_cl i
 let add_ref i j = Hashtbl.add ref_cl i j
 let clear_ref () = Hashtbl.clear ref_cl
 
+
 (* Recognizing and modifying clauses depending on a forall_inst clause. *)
 
+(* From a list of clauses, find the first clause of kind Forall_inst 
+   and return its instance *)
 let rec fins_lemma ids_params =
   match ids_params with
     [] -> raise Not_found
@@ -350,6 +355,9 @@ let rec fins_lemma ids_params =
                 Other (Forall_inst (lemma, _)) -> lemma
               | _ -> fins_lemma t
 
+(* find_remove_lemma c l returns (a,b)
+   a is the first occurrence of c in the list of clauses represented by l
+   b is l without a *)
 let find_remove_lemma lemma ids_params =
   let eq_lemma h = eq_clause lemma (get_clause h) in
   list_find_remove eq_lemma ids_params
@@ -554,9 +562,14 @@ let mk_clause (id,typ,value,ids_params,args) =
                Res res
             | [fins_id] -> Same (get_clause fins_id)
             | [] -> assert false)
+      | Ident -> 
+          (match ids_params with
+          | [id] -> Other (Ident (get_clause id))
+          | _ -> assert false)
       (* Not implemented *)
       | Refl -> raise (Debug "VeritSyntax.ml: rule refl not implemented yet")
       | Acsimp -> raise (Debug "VeritSyntax.ml: rule acsimp not implemented yet")
+      | Ident -> raise (Debug "VeritSyntax.ml: internal ident rule not implemented yet")
   in
   let cl =
     (* TODO: change this into flatten when necessary *)

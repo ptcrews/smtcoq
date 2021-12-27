@@ -301,6 +301,10 @@ type 'hform rule =
          a = b \/ select a (diff a b) <> select b (diff a b)
     *)
 
+  (* *  ident    : {x --> x}
+  *)
+  | Ident of 'hform clause
+
   (* Possibility to introduce "holes" in proofs (that should be filled in Coq) *)
   | Hole of ('hform clause) list * 'hform list
 
@@ -337,7 +341,7 @@ let used_clauses r =
   | Tautology (c, _) | Contraction (c,_) | Weaken (c,_) 
   | ImmFlatten (c,_) | SplArith (c,_,_) | SplDistinctElim (c,_)
   | BBNot (c, _) | BBNeg (c, _) | BBExtr (c, _)
-  | BBZextn (c, _) | BBSextn (c, _) -> [c]
+  | BBZextn (c, _) | BBSextn (c, _) | Ident c -> [c]
 
   | BBOp (c1,c2,_) | BBAdd (c1,c2,_)
   | BBMul (c1,c2,_) | BBConc (c1,c2,_)
@@ -421,6 +425,7 @@ let to_string r =
                            | RowEq _ -> "RowEq"
                            | RowNeq _ -> "RowNeq"
                            | Ext _ -> "Ext"
+                           | Ident _ -> "Ident"
                            | Hole _ -> "Hole"
                            | Forall_inst _ -> "Forall_inst"
                            | Qf_lemma _ -> "Qf_lemma"

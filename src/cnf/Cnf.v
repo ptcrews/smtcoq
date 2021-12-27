@@ -929,6 +929,12 @@ Fixpoint list_eqb l1 l2 : bool :=
       | _ => C._true
       end.*)
 
+    
+    (* ident        :       {x -> x} *)
+    Definition check_Ident pos :=
+      match S.get s pos with
+      | x => x
+      end.
 
   (** The correctness proofs *)
 
@@ -1108,6 +1114,11 @@ Fixpoint list_eqb l1 l2 : bool :=
   Lemma valid_check_IteSimplify : forall l, C.valid rho (check_IteSimplify l).
   Proof.
     admit.
+  Admitted.
+
+  Lemma valid_check_Ident : forall pos, C.valid rho (check_Ident pos).
+  Proof.
+      admit.
   Admitted.
 
   Hypothesis Hs : S.valid rho s.

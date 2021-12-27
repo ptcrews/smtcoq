@@ -90,6 +90,7 @@ type typ =
   | Sumsimp (* New *)
   | Compsimp (* New *)
   | Larweq (* New *)
+  | Ident (* Internal *)
   | Hole
 
 val get_clause : int -> SmtAtom.Form.t SmtCertif.clause
