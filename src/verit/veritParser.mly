@@ -236,9 +236,9 @@ term: /* returns a bool * (SmtAtom.Form.pform or SmtAtom.hatom), the boolean ind
   | LPAREN ITE lits=lit* RPAREN
     { apply_dec (fun x -> Form.Form (Fapp (Fite, Array.of_list x))) 
                 (list_dec lits) }
-  | LPAREN FORALL LPAREN vs=sorted_var+ RPAREN q=qlit RPAREN
+  | LPAREN FORALL LPAREN vs=sorted_var+ RPAREN t=term RPAREN
     { clear_qvar (); (*List.fold_left (fun (s, t) -> add_qvar s t) () vs;*)
-      false, Form.Form (Fapp (Fforall vs, [|Form.lit_of_atom_form_lit rf q|])) }
+      false, Form.Form (Fapp (Fforall vs, [|Form.lit_of_atom_form_lit rf t|])) }
 
   (* Atoms *)
   | i=INT                             { true, Form.Atom (Atom.hatom_Z_of_int ra i) }
@@ -402,9 +402,9 @@ term: /* returns a bool * (SmtAtom.Form.pform or SmtAtom.hatom), the boolean ind
   | LPAREN BANG term attr+ RPAREN { "" }*/
 ;
 
-qlit:
+(*qlit:
   | t=term                          { t }
-  | LPAREN NOT l=lit RPAREN         { apply_dec (fun x -> Form.Lit (Form.neg x)) l}
+  | LPAREN NOT l=lit RPAREN         { apply_dec (fun x -> Form.Lit (Form.neg x)) l}*)
 
 sort:
   | TINT                            { TZ }

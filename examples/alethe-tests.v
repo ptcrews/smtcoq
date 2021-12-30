@@ -282,11 +282,10 @@ Section Checker_SmtEx2.
 End Checker_SmtEx2.
 *)
 
-(* Fix double negation
 Lemma ex2: true || false.
 Proof.
   verit_bool.
-Qed.*)
+Qed.
 
 Section Checker_SmtEx3.
   Parse_certif_verit t_i3 t_func3 t_atom3 t_form3 root3 used_roots3 trace3
@@ -405,22 +404,21 @@ Section Checker_SmtEx5Debug.
 
 End Checker_SmtEx5Debug.
 
-(* Fix double negation
 Lemma ex5: forall p, p || (negb p).
 Proof.
   verit_bool.
-Qed.*)
+Qed.
 
 
 Local Open Scope Z_scope.
 
-(* Fix double negation
 Goal forall (a b : Z) (P : Z -> bool) (f : Z -> Z),
   (negb (Z.eqb (f a) b)) || (negb (P (f a))) || (P b).
 Proof.
   verit_bool.
 Qed.
 
+(* Issue with LIA?
 Goal forall b1 b2 x1 x2,
     implb
       (ifb b1
@@ -429,7 +427,7 @@ Goal forall b1 b2 x1 x2,
       ((implb b1 b2) && (implb b2 b1) && (Z.eqb x1 x2)).
 Proof.
   verit_bool.
-Qed.
+Qed.*)
 
 Goal forall
     (x y: Z)
@@ -437,7 +435,7 @@ Goal forall
     x = y + 1 -> f y = f (x - 1).
 Proof.
   verit.
-Qed.*)
+Qed.
 
 Variable P : Z -> bool.
 Variable a : Z.
