@@ -14,14 +14,13 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 	- [x] `th_resolution` is exactly the same as `resolution` (according to the spec), but it doesn't seem to work. 
 		- [x] `th_resolution` chains the resolutions in an order of premises that is reverse of the order that `resolution` uses. Change the order of chaining in the checker.
 	- [x] Add the function case for the `cong` rule by composing `resolution` and `eq_congruent`
-	- [ ] Fix the `not_not` rule.
+	- [x] Fix the `not_not` rule.
 		- [x] Parse double negations into `Fnot2` and not two negations. This still doesn't work, since many rules eliminate double negations, so once the clauses produced by
 		these rules are resolved with one produced by `not_not`, we have a mismatch of the pivot (`Form.neg (Fnot2 1 x)` vs `x`, instead of `Fnot2 1 x`).
 		- [x] Change `not_not` from `~~x -> x` to `x -> x` and then eliminate double negations while parsing. This maintains consistency in the logic so that `not_not` clauses
 		can be resolved with others. However, in resolution, when the clauses being resolved have a common literal, that literal is taken out of consideration for being a pivot, and 
 		this makes an invalid resolution.
-		- [ ] Take an Alethe proof with `not_not` and translate it into a proof without `not_not`.
-		- [ ] BLOCKED: Chantal will look into producing `Fnot2` terms from the rule checkers.
+		- [x] Take an Alethe proof with `not_not` and translate it into a proof without `not_not`.
 	- [x] `distinct_elim` rule, which is pretty similar to `SplDistinctElim`
 		  Exception: `distinct` is a function over terms, and formulas in SMT, but in Coq it is only defined over terms
 			- [ ] Implement the formula version of `distinct` in SMTCoq
@@ -40,12 +39,18 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 	- [x] What support for quantifiers does SMTCoq currently have?
 	- [x] Add parser for quantified terms
 	- [x] Find the goal in SMTCoq that leads to the basic quantifers example, and check if its as expected.
-	- [ ] Currently VeriT is called with term sharing turned off, need to be able to deal with shared terms
-	- [ ] Run the example proof through the old SMTCoq to find examples of Chantal's explanation.
-	- [ ] Compare the old and new SMTCoq proofs for the example and see what else needs to be done to support the new infrastructure (is `tmp_qnt_tidy` analogous to `qnt_cnf`?)
-		- [ ] New format uses subproofs. Understand why, and move up implementation of subproofs in the priority list.
+	- [x] Currently VeriT is called with term sharing turned off, need to be able to deal with shared terms
+	- [x] Run the example proof through the old SMTCoq to find examples of Chantal's explanation.
+	- [x] Compare the old and new SMTCoq proofs for the example and see what else needs to be done to support the new infrastructure (is `tmp_qnt_tidy` analogous to `qnt_cnf`?)
+		- [x] New format uses subproofs. Understand why, and move up implementation of subproofs in the priority list.
+	- [x] Read the skolemization section in the book
+	- [ ] Why is it more complicated in Coq to prove `(forall Q1.H1) -> ... -> (forall Qn.Hn) -> G` as opposed to 
+	`forall Q1..Qn.H1 -> ... -> Hn -> G`?
+		- [ ] Read quantifier subsection of logic section of Software foundations.
 	- [ ] Read spec of all quantifier rules
-	- [ ] Read the skolemization section in the book
+	- [ ] Make a feature request to the veriT group to remove alpha renaming of proofs with quantifiers.
+	- [ ] With the current Alethe proofs, parse subproofs and parse `bind` as a no-op and for all resolutions, remove the `bind`
+	`equiv_pos2` premises.
 - [ ] Add support for subproofs (reuse or redo?)
 	- [ ] Refl rule
 - [ ] Set up testing of benchmarks
@@ -78,7 +83,7 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
     - [ ] `not_not` , `tautology`, `contraction` rules
 - [ ] Really test SMTCoq
 
-- [ ] Check how SMTCoq deals with global and local parameters.
+- [x] Check how SMTCoq deals with global and local parameters.
 - [x] Read transformations paper to see if passing of particular hypotheses is allowed by sniper.
 - [x] Send transformations paper to Cesare with answer.
 - [x] Separate all Alethe rules into categories, and mark the rules which are already implemented. 
@@ -111,4 +116,19 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
   a conclusion, and in this conclusion also. SMTCoq simplifies double 
   negations. So `1` above cant be guaranteed to produce `x` instead of 
   `~~x` unless all the rules that do this are changed (and there are 
-  quite a few, for ex `equiv_pos2`).
+  quite a few, for ex `equiv_pos2`).VC4 does not yet produce proof certificates for that
+
+1. Now that proofs with `not_not` work, set up tests with SMTCoq. Start with picking some random problems from the tests and then writing a script.
+	- By itself this just tests the parser.
+	- To test SMTCoq, this will have to be interactive since we will need the size of list `c` and the value of `conf` to find out
+	how many steps to run and where to look for the empty clause after the steps have been run. This might not be possible
+	- Use `make test` instead to test SMTCoq on the already present benchmarks.
+2. Add support for `forall_inst`. Present a feature request to the veriT group to produce proofs without alpha renaming. If this is not possible, need to eliminate `eq_pos2` and `bind` applications from the premises of all resolutions.
+3. Add support for subproofs. How do we implement contexts? `refl` will be easy to implement once we have contexts.
+4. How to implement other quantifier rules?
+	- `qnt_cnf`
+	- `one_point`
+	- `bind`
+5. Can we skolemize existentials using a transformation for sniper?
+6. Can we add support for datatypes in CVC5? Maybe with datatype proofs?
+7. Abduction
