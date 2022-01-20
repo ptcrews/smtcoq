@@ -96,6 +96,9 @@ type typ =
   | Sumsimp (* New *)
   | Compsimp (* New *)
   | Larweq (* New *)
+  | Bind (* New *)
+  | Fins
+  | Qcnf (* New *)
   | Ident (* Internal *)
   | Hole
 
@@ -337,7 +340,7 @@ let clear_clauses () = Hashtbl.clear clauses
 
 
 (* <ref_cl> maps solver integers to id integers. *)
-let ref_cl : (int, int) Hashtbl.t = Hashtbl.create 17
+let ref_cl : (string, int) Hashtbl.t = Hashtbl.create 17
 let get_ref i = Hashtbl.find ref_cl i
 let add_ref i j = Hashtbl.add ref_cl i j
 let clear_ref () = Hashtbl.clear ref_cl
@@ -578,6 +581,21 @@ let mk_clause (id,typ,value,ids_params,args) =
           (match ids_params with
           | [id] -> Other (Ident (get_clause id))
           | _ -> assert false)
+      (* Quantifiers *)
+      | Fins ->
+        (match value, ids_params with
+         | [inst], [ref_th] ->
+            let cl_th = get_clause ref_th in
+            Other (Forall_inst (repr cl_th, inst))
+         | _ -> raise (Debug "VeritSyntax.ml: unexpected form of forall_inst"))
+      | Bind -> 
+        (match ids_params with
+         | [id] -> Same (get_clause id)
+         | _ -> raise (Debug "VeritSyntax.ml: unexpected form of bind subproof"))
+      | Qcnf -> 
+        (match ids_params with
+         | [id] -> Same (get_clause id)
+         | _ -> raise (Debug "VeritSyntax.ml: unexpected form of qnt_cnf"))
       (* Not implemented *)
       | Refl -> raise (Debug "VeritSyntax.ml: rule refl not implemented yet")
       | Acsimp -> raise (Debug "VeritSyntax.ml: rule acsimp not implemented yet")

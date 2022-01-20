@@ -109,6 +109,11 @@
       (* Simplifications on equalities rules *)
         "eq_simplify", EQUALSIMP;
 
+      (* Quantifier rules *)
+        "bind", BIND;
+        "forall_inst", FINS;
+        "qnt_cnf", QCNF;
+
       (* Linear Integer Arithmetic rules *)
         "la_generic", LAGE;
         "lia_generic", LIAGE;
@@ -233,6 +238,7 @@ rule token = parse
   | "*"                        { MULT }
   | "Int"     	      	       { TINT }
   | "Bool"		                 { TBOOL }
+  | ":="                       { COLEQ }
 (* We probably don't need this because we parse more fine grained constants
   | spec_constant   { let s = Lexing.lexeme lexbuf in 
                       SPECCONST s }*)

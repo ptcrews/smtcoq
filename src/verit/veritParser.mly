@@ -63,7 +63,7 @@
 %token <int> INT
 %token <Big_int.big_int> BIGINT
 
-%token LPAREN RPAREN EOF EOL COLON BANG
+%token LPAREN RPAREN EOF EOL COLON BANG COLEQ
 %token COLRULE COLSTEP COLARGS COLPREMISES SAT
 %token ASSUME STEP ANCHOR DEFINEFUN CL ASTOK CHOICE
 %token LET FORALL EXISTS MATCH TINT TBOOL NAMED
@@ -82,7 +82,7 @@
 %token EQ LT LEQ GT GEQ PLUS MINUS MULT
 %token LAGE LIAGE LATA LADE DIVSIMP PRODSIMP 
 %token UMINUSSIMP MINUSSIMP SUMSIMP COMPSIMP LARWEQ
-%token FINS
+%token FINS BIND QCNF
 %token BVAND BVOR BVXOR BVADD BVMUL BVULT BVSLT BVULE 
 %token BVSLE BVCONC BVEXTR BVZEXT BVSEXT BVNOT BVNEG
 %token BVSHL BVSHR
@@ -121,10 +121,42 @@ line:
   | LPAREN STEP s=SYMBOL c=clause COLRULE r=rulename COLARGS LPAREN args=par+ RPAREN RPAREN EOL
     { let id = symbol_to_id s in
       mk_clause (id, r, c, [], args) }
-  /*| LPAREN ANCHOR COLSTEP SYMBOL RPAREN { "" }
-  | LPAREN ANCHOR COLSTEP SYMBOL COLARGS proof_args RPAREN { "" }
-  | LPAREN DEFINEFUN function_def RPAREN { "" }*/
+  (* Only context-type subproofs doing alpha renaming will be parsed by the following, others will 
+     result in the assertion of false *)
+  (*| LPAREN ANCHOR COLSTEP s1=SYMBOL COLARGS proof_args RPAREN EOL
+    LPAREN STEP s2=SYMBOL c2=clause COLRULE r2=rulename RPAREN EOL
+    LPAREN STEP s3=SYMBOL c3=clause COLRULE r3=rulename COLPREMISES LPAREN prems3=SYMBOL+ RPAREN RPAREN EOL
+    LPAREN STEP s4=SYMBOL c4=clause COLRULE BIND RPAREN EOL
+    LPAREN STEP s5=SYMBOL c5=clause COLRULE r5=rulename RPAREN EOL
+    LPAREN STEP s6=SYMBOL LPAREN CL a=ATSYMBOL RPAREN COLRULE r6=rulename COLPREMISES LPAREN prems6=SYMBOL+ RPAREN RPAREN EOL
+    { match r2,r3,r5,r6 with
+      | Refl, Cong, Equp2, Threso ->
+        let id = symbol_to_id s6 in
+        let param = match (List.find_opt (fun x -> x <> s4 && x <> s5) prems6) with
+                         | Some s -> symbol_to_id s
+                         | None -> assert false in
+        (add_ref a param; 
+         mk_clause (id, Bind, [], [param], []))
+      | _ -> assert false }
+  (* Here we are assuming that no simplification is done. Need to check otherwise, which will be hard *)
+  | LPAREN STEP s=SYMBOL LPAREN CL LPAREN OR LPAREN BANG term NAMED a1=ATSYMBOL RPAREN a2=ATSYMBOL RPAREN RPAREN COLRULE QCNF RPAREN EOL
+    { let id2 = get_ref a2 in
+      (add_ref a1 id2;
+       let id=symbol_to_id s in
+       mk_clause (id, Qcnf, [], [id2], [])) }
+  (* Need to use args to check that instantiation is correct *)
+  | LPAREN STEP s=SYMBOL LPAREN CL LPAREN OR a=ATSYMBOL l=lit RPAREN RPAREN COLRULE FINS COLARGS proof_args RPAREN EOL
+    { let id = symbol_to_id s in
+      mk_clause(id, Fins, [snd l], [get_ref a], []) }*)
+  /*| LPAREN DEFINEFUN function_def RPAREN { "" }*/
 ;
+
+proof_args:
+  | LPAREN p=proof_arg+ RPAREN { p }
+
+proof_arg:
+  | LPAREN COLEQ LPAREN s1=SYMBOL t1=SYMBOL RPAREN s2=SYMBOL RPAREN
+    { s1^t1^s2 }
 
 par:
   | i=INT { i }

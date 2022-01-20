@@ -90,14 +90,17 @@ type typ =
   | Sumsimp (* New *)
   | Compsimp (* New *)
   | Larweq (* New *)
+  | Bind (* New *)
+  | Fins
+  | Qcnf (* New *)
   | Ident (* Internal *)
   | Hole
 
 val get_clause : int -> SmtAtom.Form.t SmtCertif.clause
 val add_clause : int -> SmtAtom.Form.t SmtCertif.clause -> unit
 
-val add_ref : int -> int -> unit
-val get_ref : int -> int
+val add_ref : string -> int -> unit
+val get_ref : string -> int
 val to_add : (int * SmtAtom.Form.t list) list ref
 
 val mk_clause : SmtCertif.clause_id * typ * SmtAtom.Form.t list * SmtCertif.clause_id list * int list -> SmtCertif.clause_id

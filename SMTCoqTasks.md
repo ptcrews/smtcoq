@@ -48,14 +48,20 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 	`forall Q1..Qn.H1 -> ... -> Hn -> G`?
 		- [ ] Read quantifier subsection of logic section of Software foundations.
 	- [ ] Read spec of all quantifier rules
-	- [ ] Make a feature request to the veriT group to remove alpha renaming of proofs with quantifiers.
+	- [x] Make a feature request to the veriT group to remove alpha renaming of proofs with quantifiers. This request was denied because it is complicated
+	to do from veriT's point of view.
 	- [ ] With the current Alethe proofs, parse subproofs and parse `bind` as a no-op and for all resolutions, remove the `bind`
 	`equiv_pos2` premises.
 - [ ] Add support for subproofs (reuse or redo?)
 	- [ ] Refl rule
 - [ ] Set up testing of benchmarks
 	- [x] Generate proofs for all benchmarks.
-	- [ ] Generate `verit_proof_parser` vernac for generic proof file
+	- [ ] Generate proofs with sharing for all benchmarks.
+	- [x] Generate `verit_proof_parser` vernac for generic proof file
+		- [ ] Can we generalize this? We will need to use programming in Coq.
+	- [ ] Search tests to answer the following.
+		- [ ] How many proofs contain subproofs? How many are quantifier-free?
+		- [ ] How many proofs contain subproofs that are simply alpha-renamings?
 - [ ] Add Arithmetic rules
 	- [x] Implement `lia_generic`, `la_tautology`, `la_disequality` as they were by the old parser
 	- [x] Arith simplify rules: `div_simplify`, `prod_simplify`, `unary_minus_simplify`, `minus_simplify`
@@ -118,17 +124,43 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
   `~~x` unless all the rules that do this are changed (and there are 
   quite a few, for ex `equiv_pos2`).VC4 does not yet produce proof certificates for that
 
-1. Now that proofs with `not_not` work, set up tests with SMTCoq. Start with picking some random problems from the tests and then writing a script.
-	- By itself this just tests the parser.
-	- To test SMTCoq, this will have to be interactive since we will need the size of list `c` and the value of `conf` to find out
-	how many steps to run and where to look for the empty clause after the steps have been run. This might not be possible
-	- Use `make test` instead to test SMTCoq on the already present benchmarks.
-2. Add support for `forall_inst`. Present a feature request to the veriT group to produce proofs without alpha renaming. If this is not possible, need to eliminate `eq_pos2` and `bind` applications from the premises of all resolutions.
-3. Add support for subproofs. How do we implement contexts? `refl` will be easy to implement once we have contexts.
+1. Now that proofs with `not_not` work, set up tests with SMTCoq.
+	- Generate a coq file that checks each file in the Sledgehammer benchmarks
+	  as follows. 
+	  	Section Filename.
+  			Verit_Checker "Filename.smt2" "Filename.smt_inproofnew".
+		End Filename.
+	- Run tests in smtcoq/unit-tests/Tests_verit_tactics.v
+2. Add support for `forall_inst`. Parse all of the `bind` sub-proof + `equiv_pos2` and `th_res` as `qnt_tidy` was being parsed; parse `forall_inst` as it was being parsed. 
+3. Add support for subproofs. 
+	- For subproofs of type 2, involving contexts how do we implement contexts? `refl` will be easy to implement once we have contexts.
+	- For subproofs of type 1, proving H -> G, there are 3 possible implementations.
+		(a) Inline subproofs, as was being done with LFSC. This might be possible since the result of all subproofs are converted using `or` and then used in a `resolution`.
+		LFSC:
+		 Q -> []
+		---------
+		   ~Q		Q v C
+		   --------------
+		         C
+				...
+			-----------
+				[]
+		Flattened version:
+		 Q
+		...
+		----
+		 []
+		(b) Proving sub-lemmas in Coq using `assert H. {proof of H}` within a proof.
+		Since SMTCoq doesn't create an interactive proof in Coq, these must be self-contained. However, in Alethe sub-proofs can access steps from outside
+		the sub-proof (unlike old veriT proofs).
+		(c) Have SMTCoq natively support subproofs. Here a subproof state will have to be appended to the regular proof state.
 4. How to implement other quantifier rules?
 	- `qnt_cnf`
 	- `one_point`
 	- `bind`
-5. Can we skolemize existentials using a transformation for sniper?
-6. Can we add support for datatypes in CVC5? Maybe with datatype proofs?
-7. Abduction
+5. Correctness proofs of all new rules
+6. Can we skolemize existentials using a transformation for sniper?
+7. Can we add support for datatypes in CVC5? Maybe with datatype proofs?
+8. Abduction
+9. Possible optimization to sniper: define-fun vs quantified assertions - `define-fun` is better because it would avoid quantifiers. Sniper uses quantified assertions (when body of definition is quantifier free and non-recursive)
+Even with recursive functions, `define-fun-rec` is better for the SMT solver cause it could do lazy expansion.
