@@ -119,8 +119,8 @@ val apply_dec : ('a -> 'b) -> bool * 'a -> bool * 'b
 val list_dec : (bool * 'a) list -> bool * 'a list
 
 
-val get_solver : int -> bool * Form.atom_form_lit
-val add_solver : int -> bool * Form.atom_form_lit -> unit
+val get_solver : string -> bool * Form.atom_form_lit
+val add_solver : string -> bool * Form.atom_form_lit -> unit
 
 val find_opt_qvar : string -> SmtBtype.btype option 
 val add_qvar : string -> SmtBtype.btype -> unit
