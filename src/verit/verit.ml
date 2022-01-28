@@ -16,7 +16,7 @@ open SmtTrace
 open SmtAtom
 open SmtBtype
 open SmtCertif
-
+open Lexing
 
 (* let debug = false *)
 
@@ -55,6 +55,10 @@ open SmtCertif
  *   done;
  *   Format.fprintf fmt "@."; close_out out_channel *)
 
+let print_position lexbuf = 
+  let pos = lexbuf.lex_curr_p in
+  (pos.pos_fname)^":"^(string_of_int pos.pos_lnum)^":"^(string_of_int (pos.pos_cnum - pos.pos_bol + 1))
+
 let import_trace ra_quant rf_quant filename first lsmt =
   let chan = open_in filename in
   let lexbuf = Lexing.from_channel chan in
@@ -87,9 +91,9 @@ let import_trace ra_quant rf_quant filename first lsmt =
        occur !confl;
        (alloc !cfirst, !confl)
   with
-    | VeritParser.Error -> failwith ("Verit.import_trace: parsing error line "(*^(string_of_int (List.length cert))*))
-    | Failure f -> failwith ("Verit.import_trace: parsing error line "(*^(string_of_int (List.length cert))^" because of failure: "^f*))
-    | VeritSyntax.Debug s -> failwith ("Verit.import_trace: parsing error line "(*^(string_of_int (List.length cert)) ^
+    | VeritParser.Error -> failwith ("Verit.import_trace (Parser.Error) "^(print_position lexbuf))
+    | Failure f -> failwith ("Verit.import_trace: parsing error line (Failure) "(*^(string_of_int (List.length cert))^" because of failure: "^f*))
+    | VeritSyntax.Debug s -> failwith ("Verit.import_trace: parsing error line (VeritSyntax.Debug) "^(print_position lexbuf)^" "^s(*^(string_of_int (List.length cert)) ^
                             " Verit.import_trace: "^s*))
     | _ -> failwith ("Verit.import_trace: parsing error line "(*^(string_of_int (List.length cert))*))
 
