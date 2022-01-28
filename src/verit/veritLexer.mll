@@ -12,7 +12,6 @@
 
 
   open VeritParser
-  exception Eof
 
   let typ_table = Hashtbl.create 53
   let _ =
@@ -256,4 +255,4 @@ rule token = parse
   | (int as i)                  { try INT (int_of_string i) with 
                                   _ -> BIGINT (Big_int.big_int_of_string i) }
   | bitvector as bv             { BITV bv }
-  | eof                         { raise Eof }
+  | eof                         { EOF }

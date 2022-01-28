@@ -651,7 +651,7 @@ let apply_tdec_atom (f:?declare:bool -> SmtAtom.Atom.t -> SmtAtom.Atom.t -> SmtA
 let solver : (string, (bool * Form.atom_form_lit)) Hashtbl.t = Hashtbl.create 17
 let get_solver id =
   try Hashtbl.find solver id
-  with | Not_found -> raise (Debug ("VeritSyntax.get_solver : solver variable number "^(string_of_int id)^" not found\n"))
+  with | Not_found -> raise (Debug ("VeritSyntax.get_solver : solver variable number "^id^" not found\n"))
 let add_solver id cl = Hashtbl.add solver id cl
 let clear_solver () = Hashtbl.clear solver
 

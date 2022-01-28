@@ -58,26 +58,13 @@ open SmtCertif
 let import_trace ra_quant rf_quant filename first lsmt =
   let chan = open_in filename in
   let lexbuf = Lexing.from_channel chan in
-  let confl_num = ref (-1) in
-  let first_num = ref (-1) in
-  let is_first = ref true in
-  let line = ref 1 in
-  (* let _ = Parsing.set_trace true in *)
   try
-    while true do
-      confl_num := VeritParser.line VeritLexer.token lexbuf;
-      if !is_first then (
-        is_first := false;
-        first_num := !confl_num
-      );
-      incr line
-    done;
-    raise VeritLexer.Eof
-  with
-    | VeritLexer.Eof ->
+    let cert = VeritAst.process_certif (VeritParser.proof VeritLexer.token lexbuf) in
+    let first_num = List.hd cert in
+    let confl_num = List.nth cert ((List.length cert) - 1) in
        close_in chan;
-       let cfirst = ref (VeritSyntax.get_clause !first_num) in
-       let confl = ref (VeritSyntax.get_clause !confl_num) in
+       let cfirst = ref (VeritSyntax.get_clause first_num) in
+       let confl = ref (VeritSyntax.get_clause confl_num) in
        let re_hash = Form.hash_hform (Atom.hash_hatom ra_quant) rf_quant in
        begin match first with
        | None -> ()
@@ -99,12 +86,12 @@ let import_trace ra_quant rf_quant filename first lsmt =
        select !confl;
        occur !confl;
        (alloc !cfirst, !confl)
-    (*| Parsing.Parse_error -> failwith ("Verit.import_trace: parsing error line "^(string_of_int !line))*)
-    | VeritParser.Error -> failwith ("Verit.import_trace: parsing error line "^(string_of_int !line))
-    | Failure f -> failwith ("Verit.import_trace: parsing error line "^(string_of_int !line)^" because of failure: "^f)
-    | VeritSyntax.Debug s -> failwith ("Verit.import_trace: parsing error line "^(string_of_int !line)^
-                            " Verit.import_trace: "^s)
-    | _ -> failwith ("Verit.import_trace: parsing uncaught error line "^(string_of_int !line))
+  with
+    | VeritParser.Error -> failwith ("Verit.import_trace: parsing error line "(*^(string_of_int (List.length cert))*))
+    | Failure f -> failwith ("Verit.import_trace: parsing error line "(*^(string_of_int (List.length cert))^" because of failure: "^f*))
+    | VeritSyntax.Debug s -> failwith ("Verit.import_trace: parsing error line "(*^(string_of_int (List.length cert)) ^
+                            " Verit.import_trace: "^s*))
+    | _ -> failwith ("Verit.import_trace: parsing error line "(*^(string_of_int (List.length cert))*))
 
 
 let clear_all () =

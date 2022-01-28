@@ -8,7 +8,7 @@
 
 ########################################################################
 ## To generate the Makefile:                                          ##
-##   coq_makefile -f Make -o Makefile                                 ##
+##   coq_makefile -f _CoqProject -o Makefile                          ##
 ########################################################################
 
 
@@ -95,6 +95,8 @@ smtlib2/sExprParser.ml
 smtlib2/sExprParser.mli
 smtlib2/sExprLexer.ml
 
+verit/veritAst.ml
+verit/veritAst.mli
 verit/veritParser.ml
 verit/veritParser.mli
 verit/veritLexer.ml

@@ -30,6 +30,7 @@ Smtlib2_solver
 Lia
 
 VeritSyntax
+VeritAst
 VeritParser
 VeritLexer
 

@@ -1,4 +1,36 @@
-type id
+type typ = 
+  | Int
+  | Bool
+
+type term = 
+  | True
+  | False
+  | Not of term
+  | And of term list
+  | Or of term list
+  | Imp of term list
+  | Xor of term list
+  | Ite of term list
+  | Forall of (string * typ) list * term
+  | Eq of term * term
+  | App of string * (term list)
+  | Var of string
+  | STerm of string (* Shared term *)
+  | NTerm of string * term (* Named term *)
+  | Int of int (* change to bigint *)
+  | Lt of term * term
+  | Leq of term * term
+  | Gt of term * term
+  | Geq of term * term
+  | UMinus of term
+  | Plus of term * term
+  | Minus of term * term 
+  | Mult of term * term
+
+type clause = term list
+type id = string
+type params = id list
+type args = int list
 type rule = 
   | AssumeAST
   | TrueAST
@@ -19,9 +51,9 @@ type rule =
   | NorAST
   | OrAST
   | NandAST
-  | Xor1 AST
+  | Xor1AST
   | Xor2AST
-  | Nxor1 AST
+  | Nxor1AST
   | Nxor2AST
   | ImpAST
   | Nimp1AST
@@ -79,16 +111,12 @@ type rule =
   | FinsAST
   | QcnfAST
   | AnchorAST
-  | Subproof of certif
+  | SubproofAST of certif
+and step = id * rule * clause * params * args
+and certif = step list
 
-type clause
-type params
-type args
-
-type step = (id, rule, clause, params, args)
-type certif = step list
-
-val mk_step : id * rule * clause * params * args -> step
 val mk_cl : term list -> clause
+val mk_step : id * rule * clause * params * args -> step
+val mk_cert : step list -> certif
 
 val process_certif : certif -> SmtCertif.clause_id list

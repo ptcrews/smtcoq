@@ -164,3 +164,10 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 8. Abduction
 9. Possible optimization to sniper: define-fun vs quantified assertions - `define-fun` is better because it would avoid quantifiers. Sniper uses quantified assertions (when body of definition is quantifier free and non-recursive)
 Even with recursive functions, `define-fun-rec` is better for the SMT solver cause it could do lazy expansion.
+
+
+Dev Notes
+- When adding/removing files to the project, 
+	+ change /src/versions/standard/Makefile.local, /src/versions/standard/_CoqProject 
+	+ then, generate the Coq makefile by running `coq_makefile -f _CoqProject -o Makefile` in /src/versions/standard/
+	+ go back to src, `make clean` `.configure.sh`, and then `make`

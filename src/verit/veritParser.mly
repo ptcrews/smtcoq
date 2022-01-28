@@ -88,28 +88,34 @@
 %token BVSLE BVCONC BVEXTR BVZEXT BVSEXT BVNOT BVNEG
 %token BVSHL BVSHR
 %token <string> BITV
-%type <int> line
-%start line
 
+%start proof
+%type <VeritAst.certif> proof
+
+%type <VeritAst.step> line
 %%
+
+proof:
+  | l=line+ EOF { l }
+;
 
 line:
   | LPAREN ASSUME s=SYMBOL t=term RPAREN EOL
-    { mk_step (s, Assume, mk_cl [t], [], []) }
+    { mk_step (s, AssumeAST, mk_cl [t], [], []) }
   | LPAREN STEP s=SYMBOL c=clause COLRULE r=rulename RPAREN EOL
     { mk_step (s, r, c, [], []) }
   | LPAREN STEP s=SYMBOL c=clause COLRULE r=rulename COLPREMISES LPAREN prems=SYMBOL+ RPAREN RPAREN EOL
     { mk_step (s, r, c, prems, []) }
   | LPAREN STEP s=SYMBOL c=clause COLRULE r=rulename COLPREMISES LPAREN prems=SYMBOL+ RPAREN
-      COLARGS LPAREN args=arg+ RPAREN RPAREN EOL
-    { mk_step (s, r, c, prems, args) }
-  | LPAREN STEP s=SYMBOL c=clause COLRULE r=rulename COLARGS LPAREN args=arg+ RPAREN RPAREN EOL
-    { mk_step (s, r, c, [], args) }
+      COLARGS LPAREN arguments=argument* RPAREN RPAREN EOL
+    { mk_step (s, r, c, prems, arguments) }
+  | LPAREN STEP s=SYMBOL c=clause COLRULE r=rulename COLARGS LPAREN arguments=argument* RPAREN RPAREN EOL
+    { mk_step (s, r, c, [], arguments) }
   (* Add anchor *)
 ;
 
-arg:
-  | i=INT { i }
+argument:
+  | i=INT                                   { i }
   | LPAREN i=INT RPAREN                     { i } (* Negative ints are parameterized *)
   | LPAREN MINUS i=INT RPAREN               { (-i) }
   (*| LPAREN COLEQ sv=sorted_var s=SYMBOL RPAREN {}*)
@@ -133,13 +139,13 @@ term:
   (* Formulas *)
   | TRUE                                    { True }
   | FALSE                                   { False }
-  | LPAREN NOT t=term RPAREN                { Not l }  
+  | LPAREN NOT t=term RPAREN                { Not t }  
   | LPAREN AND ts=term* RPAREN              { And ts }
   | LPAREN OR ts=term* RPAREN               { Or ts }
   | LPAREN IMPLIES ts=term* RPAREN          { Imp ts }
   | LPAREN XOR ts=term* RPAREN              { Xor ts }
-  | LPAREN ITE c=term t1=term t2=term RPAREN
-    { Ite c::t1::t2::[] }
+  | LPAREN ITE ts=term* RPAREN
+    { Ite ts }
   | LPAREN FORALL LPAREN vs=sorted_var+ RPAREN t=term RPAREN
     { Forall (vs, t) }
 
@@ -192,81 +198,81 @@ sorted_var:
 ;
 
 rulename:
-  | ASSUME                                  { Assume }
-  | TRUE                                    { True }
-  | FALSE                                   { Fals }
-  | NOTNOT                                  { Notnot }
-  | THRESO                                  { Threso }
-  | RESO                                    { Reso }
-  | TAUT                                    { Taut }
-  | CONT                                    { Cont }
-  | REFL                                    { Hole }
-  | TRANS                                   { Trans }
-  | CONG                                    { Cong }
-  | EQRE                                    { Eqre }
-  | EQTR                                    { Eqtr }
-  | EQCO                                    { Eqco }
-  | EQCP                                    { Eqcp }
-  | AND                                     { And }
-  | NOTOR                                   { Nor }
-  | OR                                      { Or }
-  | NOTAND                                  { Nand }
-  | XOR1                                    { Xor1 }
-  | XOR2                                    { Xor2 }
-  | NXOR1                                   { Nxor1 }
-  | NXOR2                                   { Nxor2 }
-  | IMP                                     { Imp }
-  | NIMP1                                   { Nimp1 }
-  | NIMP2                                   { Nimp2 }
-  | EQU1                                    { Equ1 }
-  | EQU2                                    { Equ2 }
-  | NEQU1                                   { Nequ1 }
-  | NEQU2                                   { Nequ2 }
-  | ANDP                                    { Andp }
-  | ANDN                                    { Andn }
-  | ORP                                     { Orp }
-  | ORN                                     { Orn }
-  | XORP1                                   { Xorp1 }
-  | XORP2                                   { Xorp2 }
-  | XORN1                                   { Xorn1 }
-  | XORN2                                   { Xorn2 }
-  | IMPP                                    { Impp }
-  | IMPN1                                   { Impn1 }
-  | IMPN2                                   { Impn2 }
-  | EQUP1                                   { Equp1 }
-  | EQUP2                                   { Equp2 }
-  | EQUN1                                   { Equn1 }
-  | EQUN2                                   { Equn2 }
-  | ITE1                                    { Ite1 }
-  | ITE2                                    { Ite2 }
-  | ITEP1                                   { Itep1 }
-  | ITEP2                                   { Itep2 }
-  | ITEN1                                   { Iten1 }
-  | ITEN2                                   { Iten2 }
-  | NITE1                                   { Nite1 }
-  | NITE2                                   { Nite2 }
-  | CONNDEF                                 { Conndef }
-  | ANDSIMP                                 { Andsimp }
-  | ORSIMP                                  { Orsimp }
-  | NOTSIMP                                 { Notsimp }
-  | IMPSIMP                                 { Impsimp }
-  | EQSIMP                                  { Eqsimp }
-  | BOOLSIMP                                { Boolsimp }
-  | ACSIMP                                  { Hole }
-  | ITESIMP                                 { Itesimp }
-  | EQUALSIMP                               { Eqsimp }
-  | DISTELIM                                { Distelim }
-  | LAGE                                    { Lage }
-  | LIAGE                                   { Liage }
-  | LATA                                    { Lata} 
-  | LADE                                    { Lade }
-  | DIVSIMP                                 { Divsimp } 
-  | PRODSIMP                                { Prodsimp }
-  | UMINUSSIMP                              { Uminussimp }
-  | MINUSSIMP                               { Minussimp }
-  | SUMSIMP                                 { Sumsimp }
-  | COMPSIMP                                { Compsimp }
-  | LARWEQ                                  { Larweq }
+  | ASSUME                                  { AssumeAST }
+  | TRUE                                    { TrueAST }
+  | FALSE                                   { FalsAST }
+  | NOTNOT                                  { NotnotAST }
+  | THRESO                                  { ThresoAST }
+  | RESO                                    { ResoAST }
+  | TAUT                                    { TautAST }
+  | CONT                                    { ContAST }
+  (*| REFL                                    { HoleAST }*)
+  | TRANS                                   { TransAST }
+  | CONG                                    { CongAST }
+  | EQRE                                    { EqreAST }
+  | EQTR                                    { EqtrAST }
+  | EQCO                                    { EqcoAST }
+  | EQCP                                    { EqcpAST }
+  | AND                                     { AndAST }
+  | NOTOR                                   { NorAST }
+  | OR                                      { OrAST }
+  | NOTAND                                  { NandAST }
+  | XOR1                                    { Xor1AST }
+  | XOR2                                    { Xor2AST }
+  | NXOR1                                   { Nxor1AST }
+  | NXOR2                                   { Nxor2AST }
+  | IMP                                     { ImpAST }
+  | NIMP1                                   { Nimp1AST }
+  | NIMP2                                   { Nimp2AST }
+  | EQU1                                    { Equ1AST }
+  | EQU2                                    { Equ2AST }
+  | NEQU1                                   { Nequ1AST }
+  | NEQU2                                   { Nequ2AST }
+  | ANDP                                    { AndpAST }
+  | ANDN                                    { AndnAST }
+  | ORP                                     { OrpAST }
+  | ORN                                     { OrnAST }
+  | XORP1                                   { Xorp1AST }
+  | XORP2                                   { Xorp2AST }
+  | XORN1                                   { Xorn1AST }
+  | XORN2                                   { Xorn2AST }
+  | IMPP                                    { ImppAST }
+  | IMPN1                                   { Impn1AST }
+  | IMPN2                                   { Impn2AST }
+  | EQUP1                                   { Equp1AST }
+  | EQUP2                                   { Equp2AST }
+  | EQUN1                                   { Equn1AST }
+  | EQUN2                                   { Equn2AST }
+  | ITE1                                    { Ite1AST }
+  | ITE2                                    { Ite2AST }
+  | ITEP1                                   { Itep1AST }
+  | ITEP2                                   { Itep2AST }
+  | ITEN1                                   { Iten1AST }
+  | ITEN2                                   { Iten2AST }
+  | NITE1                                   { Nite1AST }
+  | NITE2                                   { Nite2AST }
+  | CONNDEF                                 { ConndefAST }
+  | ANDSIMP                                 { AndsimpAST }
+  | ORSIMP                                  { OrsimpAST }
+  | NOTSIMP                                 { NotsimpAST }
+  | IMPSIMP                                 { ImpsimpAST }
+  | EQSIMP                                  { EqsimpAST }
+  | BOOLSIMP                                { BoolsimpAST }
+  (*| ACSIMP                                  { HoleAST }*)
+  | ITESIMP                                 { ItesimpAST }
+  | EQUALSIMP                               { EqsimpAST }
+  | DISTELIM                                { DistelimAST }
+  | LAGE                                    { LageAST }
+  | LIAGE                                   { LiageAST }
+  | LATA                                    { LataAST} 
+  | LADE                                    { LadeAST }
+  | DIVSIMP                                 { DivsimpAST} 
+  | PRODSIMP                                { ProdsimpAST }
+  | UMINUSSIMP                              { UminussimpAST }
+  | MINUSSIMP                               { MinussimpAST }
+  | SUMSIMP                                 { SumsimpAST }
+  | COMPSIMP                                { CompsimpAST }
+  | LARWEQ                                  { LarweqAST}
 
 (*function_def:
   | SYMBOL LPAREN sorted_var* RPAREN sort term { "" }

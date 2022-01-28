@@ -3,6 +3,10 @@ open SmtAtom
 open SmtForm
 open VeritSyntax
 
+type typ = 
+  | Int
+  | Bool
+
 type term = 
   | True
   | False
@@ -11,7 +15,7 @@ type term =
   | Or of term list
   | Imp of term list
   | Xor of term list
-  | Ite of term * term * term
+  | Ite of term list
   | Forall of (string * typ) list * term
   | Eq of term * term
   | App of string * (term list)
@@ -28,15 +32,10 @@ type term =
   | Minus of term * term 
   | Mult of term * term
 
-
-type typ = 
-  | Int
-  | Bool
-
 type clause = term list
 type id = string
 type params = id list
-type args = (term * term) list
+type args = int list
 type rule = 
   | AssumeAST
   | TrueAST
@@ -57,9 +56,9 @@ type rule =
   | NorAST
   | OrAST
   | NandAST
-  | Xor1 AST
+  | Xor1AST
   | Xor2AST
-  | Nxor1 AST
+  | Nxor1AST
   | Nxor2AST
   | ImpAST
   | Nimp1AST
@@ -118,14 +117,13 @@ type rule =
   | QcnfAST
   | AnchorAST
   | SubproofAST of certif
-
-and step = (id, rule, clause, params, args)
+and step = id * rule * clause * params * args
 and certif = step list
 
-let mk_step (s : (id,rule,clause,params,args)) : step = s
 let mk_cl (ts : term list) : clause = ts
-
-
+let mk_step (s : (id * rule * clause * params * args)) : step = s
+let mk_cert (c : step list) : certif = c
+let mk_args (a : int list) : args = a
 (* Remove notnot rule from certificate *)
 
 let get_id (s : step ) : id = 
@@ -141,18 +139,19 @@ let rec remove x l =
 (* Remove premise from all resolutions in certif *)
 let rec remove_res_premise (i : id) (c : certif) : certif =
   match c with
-  | (i, r, c, p, a) :: t -> 
-      match r with
-      | Reso | Threso -> (i, r, c, (remove i p), a) :: (remove_res_premise t)
-      | _ -> (i, r, c, p, a) :: (remove_res_premise t)
+  | (i', r, c, p, a) :: t -> 
+      (match r with
+      | ResoAST | ThresoAST -> (i', r, c, (remove i p), a) :: (remove_res_premise i t)
+      | _ -> (i', r, c, p, a) :: (remove_res_premise i t))
+  | [] -> []
 
 (* Soundly remove all notnot rules from certificate *)
 let rec remove_notnot (c : certif) : certif = 
   match c with
-  | (i, r, _, _, _) :: t ->
-      match r with
-      | Notnot -> remove_notnot (remove_res_premise i t)
-      | _ -> h :: remove_notnot t
+  | (i, r, cl, p, a) :: t ->
+      (match r with
+      | NotnotAST -> remove_notnot (remove_res_premise i t)
+      | _ -> (i, r, cl, p, a) :: remove_notnot t)
   | [] -> []
 
 
@@ -160,7 +159,7 @@ let rec remove_notnot (c : certif) : certif =
    Do this after finishing all the transformations to the certificates 
    that might add/remove steps *)
 let ids : (string, string) Hashtbl.t = Hashtbl.create 17
-let get_id s = Hashtbl.find ids i
+let get_id s = Hashtbl.find ids s
 let add_id s i = Hashtbl.add ids s i
 let clear_ids () = Hashtbl.clear ids
 let to_sequential_ids (c : certif) : certif =
@@ -170,98 +169,106 @@ let to_sequential_ids (c : certif) : certif =
         let z' = string_of_int z in
         let p' = List.map (fun x -> get_id x) p in
         (z', r, c, p', a) :: aux (z+1) t
-  in clear_ids; aux 1 c
+    | z, [] -> []
+  in (clear_ids (); aux 1 c)
 
 
 (* Convert an AST to a linked list of clauses *)
 
-let rec process_vars (vs (string * typ) list): (string * typ) list = 
-  match vs with`
-  | (s, t) :: tl -> add_qvar s t; (s, t) :: process_vars tl
+let process_typ (t : typ) : SmtBtype.btype =
+  match t with
+  | Int -> TZ
+  | Bool -> Tbool
+
+let rec process_vars (vs : (string * typ) list) : (string * SmtBtype.btype) list = 
+  match vs with
+  | (s, t) :: tl -> let t' = process_typ t in
+                    add_qvar s t'; (s, t') :: process_vars tl
   | [] -> []
 
-let rec process_term (t : term) : bool * SmtAtom.Form.t option =
-  let decl, t' = (match t with
+let rec process_term (x: bool * SmtAtom.Form.atom_form_lit) : SmtAtom.Form.t =
+  Form.lit_of_atom_form_lit rf x
+
+(*term |-> bool * SmtAtom.Form.atom_form_lit |-> SmtAtom.Form.t*)
+
+and process_term_aux (t : term) : bool * SmtAtom.Form.atom_form_lit (*option*) =
+  let process (t : term) : (bool * SmtAtom.Form.t) =
+    let decl, t' = process_term_aux t in
+    let t'' = process_term (decl, t') in
+    decl, t''
+  in match t with
   | True -> true, Form.Form Form.pform_true
   | False -> true, Form.Form Form.pform_false
-  | Not t -> let decl, t' = process_term t in
-                 decl, Form.Lit (Form.neg t')
-  | And ts -> let ts' = List.map process_term ts in
-              apply_dec (fun x -> Form.Form (Fapp (Fand, Array.of_list x)))
-                        (list_dec ts')
-  | Or ts -> let ts' = List.map process_term ts in
-             apply_dec (fun x -> Form.Form (Fapp (For, Array.of_list x)))
-                       (list_dec ts')
-  | Imp ts -> let ts' = List.map process_term ts in
-              apply_dec (fun x -> Form.Form (Fapp (Fimp, Array.of_list x)))
-                        (list_dec ts')
-  | Xor ts -> let ts' = List.map process_term ts in
-              apply_dec (fun x -> Form.Form (Fapp (Fxor, Array.of_list x)))
-                        (list_dec ts')
-  | Ite ts -> let ts' = List.map process_term ts in
-              apply_dec (fun x -> Form.Form (Fapp (Fite, Array.of_list x)))
-                        (list_dec ts')
+  | Not t -> let decl, t' = process t in 
+             decl, Form.Lit (Form.neg t')
+  | And ts -> apply_dec (fun x -> Form.Form (Fapp (Fand, Array.of_list x)))
+              (list_dec (List.map process ts))
+  | Or ts ->  apply_dec (fun x -> Form.Form (Fapp (For, Array.of_list x)))
+              (list_dec (List.map process ts))
+  | Imp ts -> apply_dec (fun x -> Form.Form (Fapp (Fimp, Array.of_list x)))
+              (list_dec (List.map process ts))
+  | Xor ts -> apply_dec (fun x -> Form.Form (Fapp (Fxor, Array.of_list x)))
+              (list_dec (List.map process ts))
+  | Ite ts -> apply_dec (fun x -> Form.Form (Fapp (Fite, Array.of_list x)))
+              (list_dec (List.map process ts))
   | Forall (vs, t) -> let vs' = process_vars vs in
-                      let t' = process_term t in
+                      let decl, t' = process t in
                       clear_qvar ();
-                      false, Form.Form (Fapp (Fforall vs', 
-                                             [|Form.lit_of_atom_form_lit rf t'|]))
-  | Eq (t1, t2) -> let t1' = process_term t1 in
-                   let t2' = process_term t2 in
-      match t1', t2' with 
-      | (decl1, Form.Atom h1), (decl2, Form.Atom h2) 
-          when (match Atom.type_of h1 with 
-                | SmtBtype.Tbool -> false 
-                | _ -> true)                          -> 
-        decl1 && decl2, Form.Atom (Atom.mk_eq_sym ra ~declare:decl (Atom.type_of h1) h1 h2) 
-      | (decl1, t1), (decl2, t2) -> decl1 && decl2, 
-          Form.Form (Fapp (Fiff, [|Form.lit_of_atom_form_lit rf (decl1, t1); 
-                                   Form.lit_of_atom_form_lit rf (decl2, t2)|]))
-  | App (f, ts) -> let ts' = List.map process_term ts in
-                   let args = (fun x -> match x with 
+                      false, Form.Form (Fapp (Fforall vs', [|t'|]))
+  | Eq (t1, t2) -> 
+      (match (process_term_aux t1), (process_term_aux t2) with 
+      | (decl1, Form.Atom h1), (decl2, Form.Atom h2) when (match Atom.type_of h1 with 
+                                                           | SmtBtype.Tbool -> false 
+                                                           | _ -> true)
+            -> let decl = decl1 && decl2 in decl, Form.Atom (Atom.mk_eq_sym ra ~declare:decl 
+                                         (Atom.type_of h1) h1 h2) 
+      | (decl1, t1), (decl2, t2) -> 
+               decl1 && decl2, Form.Form (Fapp (Fiff, 
+                                    [|Form.lit_of_atom_form_lit rf (decl1, t1); 
+                                      Form.lit_of_atom_form_lit rf (decl2, t2)|])))
+  | App (f, ts) -> let ts' = List.map process_term_aux ts in
+                   let args = List.map (fun x -> match x with 
                                | decl, Form.Atom h -> (decl, h)
                                | _ -> assert false) ts' in
-      match find_opt_qvar f with
+      (match find_opt_qvar f with
       | Some bt -> let op = dummy_indexed_op (Rel_name f) [||] bt in
                    false, Form.Atom (Atom.get ~declare:false ra (Aapp (op, Array.of_list (snd (list_dec args))))) 
       | None ->    let dl, l = list_dec args in 
-                   dl, Form.Atom (Atom.get ra ~declare:dl (Aapp (SmtMaps.get_fun f, Array.of_list l)))
-  | Var s -> match find_opt_qvar s with
+                   dl, Form.Atom (Atom.get ra ~declare:dl (Aapp (SmtMaps.get_fun f, Array.of_list l))))
+  | Var s -> (match find_opt_qvar s with
              | Some bt   -> false, 
                 Form.Atom (Atom.get ~declare:false ra (Aapp (dummy_indexed_op (Rel_name s) [||] bt, [||])))
-             | None      -> true, Form.Atom (Atom.get ra (Aapp (SmtMaps.get_fun s, [||])))
+             | None      -> true, Form.Atom (Atom.get ra (Aapp (SmtMaps.get_fun s, [||]))))
   | STerm s -> get_solver s
-  | NTerm (s, t) -> let t' = process_term t in
-                    add_solver s t'
-  | Int i -> true, Form.Atom (Atom.hatom_Z_of_int ra i
-  | Lt (x,y) -> let x' = process_term x in
-                let t' = process_term y in 
+  | NTerm (s, t) -> let t' = process_term_aux t in
+                    add_solver s t'; t'
+  | Int i -> true, Form.Atom (Atom.hatom_Z_of_int ra i)
+  | Lt (x,y) -> let x' = process_term_aux x in
+                let y' = process_term_aux y in 
                 apply_bdec_atom (Atom.mk_lt ra) x' y'
-  | Leq (x,y) -> let x' = process_term x in
-                 let t' = process_term y in 
+  | Leq (x,y) -> let x' = process_term_aux x in
+                 let y' = process_term_aux y in 
                  apply_bdec_atom (Atom.mk_le ra) x' y'
-  | Gt (x,y) -> let x' = process_term x in
-                let t' = process_term y in 
+  | Gt (x,y) -> let x' = process_term_aux x in
+                let y' = process_term_aux y in 
                 apply_bdec_atom (Atom.mk_gt ra) x' y'
-  | Geq (x,y) -> let x' = process_term x in
-                 let y' = process_term y in 
+  | Geq (x,y) -> let x' = process_term_aux x in
+                 let y' = process_term_aux y in 
                  apply_bdec_atom (Atom.mk_ge ra) x' y'
-  | UMinus t -> let t' = process_term t in
-                apply_dec_atom (fun ?declare:d a -> Atom.mk_neg ra a) t
-  | Plus (x,y) -> let x' = process_term x in
-                  let y' = process_term y in 
+  | UMinus t -> let t' = process_term_aux t in
+                apply_dec_atom (fun ?declare:d a -> Atom.mk_neg ra a) t'
+  | Plus (x,y) -> let x' = process_term_aux x in
+                  let y' = process_term_aux y in 
                   apply_bdec_atom (Atom.mk_plus ra) x' y'
-  | Minus (x,y) -> let x' = process_term x in
-                   let t' = process_term y in
+  | Minus (x,y) -> let x' = process_term_aux x in
+                   let y' = process_term_aux y in
                    apply_bdec_atom (Atom.mk_minus ra) x' y'
-  | Mult (x,y) -> let x' = process_term x in
-                  let t' = process_term y in
-                  apply_bdec_atom (Atom.mk_mult ra) x' y') 
-  in
-  decl, Form.lit_of_atom_form_lit rf (decl, t')
+  | Mult (x,y) -> let x' = process_term_aux x in
+                  let y' = process_term_aux y in
+                  apply_bdec_atom (Atom.mk_mult ra) x' y'
 
-let process_cl (c : cl) : SmtAtom.Form.t opton list =
-  let _, l = list_dec (List.map process_term cl) in l
+let process_cl (c : clause) : SmtAtom.Form.t list =
+  List.map (fun x -> process_term (process_term_aux x)) c
 
 let process_rule (r: rule) : VeritSyntax.typ =
   match r with
@@ -284,9 +291,9 @@ let process_rule (r: rule) : VeritSyntax.typ =
   | NorAST -> Nor
   | OrAST -> Or
   | NandAST -> Nand
-  | Xor1 AST -> Xor1 
+  | Xor1AST -> Xor1 
   | Xor2AST -> Xor2
-  | Nxor1 AST -> Nxor1 
+  | Nxor1AST -> Nxor1 
   | Nxor2AST -> Nxor2
   | ImpAST -> Imp
   | Nimp1AST -> Nimp1
@@ -346,6 +353,7 @@ let process_rule (r: rule) : VeritSyntax.typ =
   | AnchorAST -> Hole
   | SubproofAST c -> Hole
 
+exception InvalidProofStepNo
 (* let symbol_to_id = int_of_string *)
 let symbol_to_id s = 
   (* f transforms string "tn" to int n *)
@@ -358,6 +366,7 @@ let symbol_to_id s =
   else 
     raise InvalidProofStepNo
 
+(* Rules with args need to be parsed properly *)
 let rec process_certif (c : certif) : SmtCertif.clause_id list =
   match c with
   | (i, r, c, p, a) :: t -> 
@@ -365,5 +374,6 @@ let rec process_certif (c : certif) : SmtCertif.clause_id list =
       let r' = process_rule r in
       let c' = process_cl c in
       let p' = List.map symbol_to_id p in
-      mk_clause (i', r', c', p', a) :: process_certif t
+      let a' = mk_args a in
+      mk_clause (i', r', c', p', a') :: process_certif t
   | [] -> []
