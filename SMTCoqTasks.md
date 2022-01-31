@@ -92,10 +92,23 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 - [x] Check how SMTCoq deals with global and local parameters.
 - [x] Read transformations paper to see if passing of particular hypotheses is allowed by sniper.
 - [x] Send transformations paper to Cesare with answer.
-- [x] Separate all Alethe rules into categories, and mark the rules which are already implemented. 
-- [ ] Set up a script to run SMTCoq tests on the new parser. It should call `Parse_verit_certif` on the SMT files and the veriT proof files, and check that `euf_checker` returns true.
-	- [ ] Figure out how this exactly works for a single case. 
+- [x] Separate all Alethe rules into categories, and mark the rules which are already implemented.
 - [x] Read about the epsilon calculus by reading Jeremy's chapter in the Stanford Encyclopedia.
+- [x] Add an AST to SMTCoq and parse SMT proofs into the AST format, and then define a function that translte the AST to `mk_clause` that was previously being done with the parser.
+	- [ ] Add better error handling so we can figure out which line has an error.
+	- [ ] Add transformation for notnot elimination
+	- [ ] Add transformation for subproof flattening
+	- [ ] Add transformation for accommodating quantifier instantiation rules
+- [ ] For quantified formulas
+	- [ ] grep Sledgehammer benchmarks for `forall_inst` and see if new veriT changes instances so they are different from the quantified lemma or not. 
+- [ ] Implement abduction
+	- [ ] Finish grocking paper
+	- [ ] Find the smallest example from benchmarks .
+	- [ ] Create small examples that manually illustrate the usage of abduction
+- [ ] Set up a script to run SMTCoq tests on the new parser. 
+	- [ ] For quantified formulas, it should call `Parse_verit_certif` on the SMT files and the veriT proof files, and check that `euf_checker` returns true.
+	- [ ] For quantifier-free formulas, it should see that `Parse_verit smtfile prooffile` returns true.
+
 
 - Problem with `not_not`:
   Proofs currently using the `not_not` rule fail on the `th_resolution` 

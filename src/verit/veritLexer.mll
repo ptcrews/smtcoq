@@ -176,10 +176,8 @@ let atvar = '@' var
 let bindvar = '?' var+
 let int = '-'? digit+
 *)
-let lf = '\010'
-let lf_cr = ['\010' '\013']
-let dos_newline = "\013\010"
-let blank = [' ' '\009' '\012']
+let newline = "\012"
+let blank = [' ' '\009']
 let wspace = ['\009' '\010' '\013' '\032']
 let printable_char = ['\032'-'\126' '\128'-'\255']
 let digit = ['0'-'9']
@@ -204,43 +202,41 @@ let isymbol = '(' '_' symbol index+ ')'
 let keyword = ':' simple_symbol
 
 rule token = parse
-  | blank +                    { token lexbuf }
-  | lf | dos_newline           { EOL }
-  | "("                        { LPAREN }
-  | ")"                        { RPAREN }
-  | ":"                        { COLON }
-  | "!"                        { BANG }
-  | ":rule"                    { COLRULE }
-  | ":step"                    { COLSTEP }
-  | ":args"                    { COLARGS }
-  | ":premises"                { COLPREMISES }
-  | ":named"                   { NAMED }
-  | "assume"                   { ASSUME }
-  | "step"                     { STEP }
-  | "anchor"                   { ANCHOR }
-  | "define_fun"               { DEFINEFUN }
-  | "cl"                       { CL }
-  | "as"                       { ASTOK }
-  | "choice"                   { CHOICE }
-  | "let"                      { LET }
-  | "forall"                   { FORALL }
-  | "exists"                   { EXISTS }
-  | "match"                    { MATCH }
-  | "Formula is Satisfiable"   { SAT }
-  | "="                        { EQ }
-  | "<"                        { LT }
-  | "<="                       { LEQ }
-  | ">"                        { GT }
-  | ">="                       { GEQ }
-  | "+"                        { PLUS }
-  | "-"                        { MINUS }
-  | "*"                        { MULT }
-  | "Int"     	      	       { TINT }
-  | "Bool"		                 { TBOOL }
-  | ":="                       { COLEQ }
-(* We probably don't need this because we parse more fine grained constants
-  | spec_constant   { let s = Lexing.lexeme lexbuf in 
-                      SPECCONST s }*)
+  | blank +                     { token lexbuf }
+  | newline                     { Lexing.new_line lexbuf;
+                                  token lexbuf }
+  | "("                         { LPAREN }
+  | ")"                         { RPAREN }
+  | ":"                         { COLON }
+  | "!"                         { BANG }
+  | ":rule"                     { COLRULE }
+  | ":step"                     { COLSTEP }
+  | ":args"                     { COLARGS }
+  | ":premises"                 { COLPREMISES }
+  | ":named"                    { NAMED }
+  | "assume"                    { ASSUME }
+  | "step"                      { STEP }
+  | "anchor"                    { ANCHOR }
+  | "define_fun"                { DEFINEFUN }
+  | "cl"                        { CL }
+  | "as"                        { ASTOK }
+  | "choice"                    { CHOICE }
+  | "let"                       { LET }
+  | "forall"                    { FORALL }
+  | "exists"                    { EXISTS }
+  | "match"                     { MATCH }
+  | "Formula is Satisfiable"    { SAT }
+  | "="                         { EQ }
+  | "<"                         { LT }
+  | "<="                        { LEQ }
+  | ">"                         { GT }
+  | ">="                        { GEQ }
+  | "+"                         { PLUS }
+  | "-"                         { MINUS }
+  | "*"                         { MULT }
+  | "Int"     	      	        { TINT }
+  | "Bool"		                  { TBOOL }
+  | ":="                        { COLEQ }
   | keyword                     { let k = Lexing.lexeme lexbuf in 
                                   try Hashtbl.find typ_table k with
                                   | Not_found -> KEYWORD k }

@@ -57,7 +57,7 @@ open Lexing
 
 let print_position lexbuf = 
   let pos = lexbuf.lex_curr_p in
-  (pos.pos_fname)^":"^(string_of_int pos.pos_lnum)^":"^(string_of_int (pos.pos_cnum - pos.pos_bol + 1))
+  "line: "^(string_of_int pos.pos_lnum)^" position: "^(string_of_int (pos.pos_cnum - pos.pos_bol + 1))
 
 let import_trace ra_quant rf_quant filename first lsmt =
   let chan = open_in filename in
@@ -91,11 +91,10 @@ let import_trace ra_quant rf_quant filename first lsmt =
        occur !confl;
        (alloc !cfirst, !confl)
   with
-    | VeritParser.Error -> failwith ("Verit.import_trace (Parser.Error) "^(print_position lexbuf))
-    | Failure f -> failwith ("Verit.import_trace: parsing error line (Failure) "(*^(string_of_int (List.length cert))^" because of failure: "^f*))
-    | VeritSyntax.Debug s -> failwith ("Verit.import_trace: parsing error line (VeritSyntax.Debug) "^(print_position lexbuf)^" "^s(*^(string_of_int (List.length cert)) ^
-                            " Verit.import_trace: "^s*))
-    | _ -> failwith ("Verit.import_trace: parsing error line "(*^(string_of_int (List.length cert))*))
+    | VeritParser.Error -> failwith ("Verit.import_trace (VeritParser.Error) - "^(print_position lexbuf))
+    | Failure f -> failwith ("Verit.import_trace (Failure) - "^(print_position lexbuf)^" - message: "^f)
+    | VeritSyntax.Debug s -> failwith ("Verit.import_trace (VeritSyntax.Debug) - "^(print_position lexbuf)^" - message: "^s)
+    | _ -> failwith ("Verit.import_trace - "^(print_position lexbuf))
 
 
 let clear_all () =
