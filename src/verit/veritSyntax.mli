@@ -96,7 +96,8 @@ type typ =
   | Ident (* Internal *)
   | Hole
 
-val get_clause : int -> SmtAtom.Form.t SmtCertif.clause
+val get_clause : int -> (SmtAtom.Form.t SmtCertif.clause) option
+val get_clause_exception : string -> int -> SmtAtom.Form.t SmtCertif.clause
 val add_clause : int -> SmtAtom.Form.t SmtCertif.clause -> unit
 
 val add_ref : string -> int -> unit

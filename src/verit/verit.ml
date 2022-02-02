@@ -68,8 +68,8 @@ let import_trace ra_quant rf_quant filename first lsmt =
     let first_num = List.hd cert' in
     let confl_num = List.nth cert' ((List.length cert') - 1) in
        close_in chan;
-       let cfirst = ref (VeritSyntax.get_clause first_num) in
-       let confl = ref (VeritSyntax.get_clause confl_num) in
+       let cfirst = ref (VeritSyntax.get_clause_exception "import_trace.cfirst" first_num) in
+       let confl = ref (VeritSyntax.get_clause_exception "import_trace.confl" confl_num) in
        let re_hash = Form.hash_hform (Atom.hash_hatom ra_quant) rf_quant in
        begin match first with
        | None -> ()
@@ -93,9 +93,9 @@ let import_trace ra_quant rf_quant filename first lsmt =
        (alloc !cfirst, !confl)
   with
     | VeritParser.Error -> Structures.error ("Verit.import_trace (VeritParser.Error)\nPosition: "^(print_position lexbuf))
-    | Failure f -> failwith ("Verit.import_trace (Failure)\nPosition: "^(print_position lexbuf)^"\nMessage: "^f)
+    | Failure f -> Structures.error ("Verit.import_trace (Failure)\nPosition: "^(print_position lexbuf)^"\nMessage: "^f)
     | VeritSyntax.Debug s -> Structures.error ("Verit.import_trace (VeritSyntax.Debug)\nPosition: "^(print_position lexbuf)^"\nMessage: "^s^"\nCertificate:\n"^(VeritAst.string_of_certif cert))
-    | _ -> failwith ("Verit.import_trace\nPosition: "^(print_position lexbuf))
+    | _ -> Structures.error ("Verit.import_trace\nPosition: "^(print_position lexbuf))
 
 
 let clear_all () =

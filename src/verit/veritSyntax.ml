@@ -327,11 +327,14 @@ let mkDistinctElim old value =
 
 let clauses : (int,Form.t clause) Hashtbl.t = Hashtbl.create 17
 let get_clause id =
-  try Hashtbl.find clauses id
-  with | Not_found -> raise (Debug ("VeritSyntax.get_clause : clause number "^(string_of_int id)^" not found\n"))
+  try Some (Hashtbl.find clauses id) with 
+  | Not_found -> None
 let add_clause id cl = Hashtbl.add clauses id cl
 let clear_clauses () = Hashtbl.clear clauses
-
+let get_clause_exception s id =
+  match get_clause id with
+  | Some c -> c
+  | None -> raise (Debug ("VeritSyntax.get_clause : clause number "^(string_of_int id)^" not found called from loc "^s))
 
 (* <ref_cl> maps solver integers to id integers. *)
 let ref_cl : (string, int) Hashtbl.t = Hashtbl.create 17
@@ -347,7 +350,7 @@ let clear_ref () = Hashtbl.clear ref_cl
 let rec fins_lemma ids_params =
   match ids_params with
     [] -> raise Not_found
-  | h :: t -> let cl_target = repr (get_clause h) in
+  | h :: t -> let cl_target = repr (get_clause_exception "fins_lemma" h) in
               match cl_target.kind with
                 Other (Forall_inst (lemma, _)) -> lemma
               | _ -> fins_lemma t
@@ -356,7 +359,7 @@ let rec fins_lemma ids_params =
    a is the first occurrence of c in the list of clauses represented by l
    b is l without a *)
 let find_remove_lemma lemma ids_params =
-  let eq_lemma h = eq_clause lemma (get_clause h) in
+  let eq_lemma h = eq_clause lemma (get_clause_exception "find_remove_lemma" h) in
   list_find_remove eq_lemma ids_params
 
 (* Removes the lemma in a list of ids containing an instance of this lemma *)
@@ -373,7 +376,7 @@ let rec merge ids_params =
 let rec remove_notnot ids_params = 
   match ids_params with
   | [] -> []
-  | h :: t -> let cl_target = repr (get_clause h) in
+  | h :: t -> let cl_target = repr (get_clause_exception "remove_notnot" h) in
               match cl_target.kind with
               | Other (NotNot _) -> remove_notnot t
               | _ -> h :: (remove_notnot t)
@@ -395,13 +398,13 @@ let mk_clause (id,typ,value,ids_params,args) =
           | _ -> assert false)
       | Taut -> 
         (match ids_params with
-          | [id] -> (match value with
-                    | l :: nil -> Other (Tautology ((get_clause id), l))
+          | [i] -> (match value with
+                    | l :: nil -> Other (Tautology ((get_clause_exception (string_of_int id) i), l))
                     | _ -> assert false)
           | _ -> assert false)
       | Cont ->
         (match ids_params with
-          | [id] -> Other (Contraction ((get_clause id), value))
+          | [i] -> Other (Contraction ((get_clause_exception (string_of_int id) i), value))
           | _ -> assert false)
       | Andn | Orp | Impp | Xorp1 | Xorn1 | Equp1 | Equn1 | Itep1 | Iten1 ->
         (match value with
@@ -435,24 +438,24 @@ let mk_clause (id,typ,value,ids_params,args) =
           | _ -> assert false)
       | Nand | Imp | Xor1 | Nxor1 | Equ2 | Nequ2 | Ite1 | Nite1 ->
         (match ids_params with
-          | [id] -> Other (ImmBuildDef (get_clause id))
+          | [i] -> Other (ImmBuildDef (get_clause_exception (string_of_int id) i))
           | _ -> assert false)
       | Or ->
          (match ids_params with
             | [id_target] ->
-               let cl_target = get_clause id_target in
+               let cl_target = get_clause_exception (string_of_int id) id_target in
                begin match cl_target.kind with
                  | Other (Forall_inst _) -> Same cl_target
                  | _ -> Other (ImmBuildDef cl_target) end
             | _ -> assert false)
       | Xor2 | Nxor2 | Equ1 | Nequ1 | Ite2 | Nite2 ->
         (match ids_params with
-          | [id] -> Other (ImmBuildDef2 (get_clause id))
+          | [i] -> Other (ImmBuildDef2 (get_clause_exception (string_of_int id) i))
           | _ -> assert false)
       | And | Nor -> 
         (match ids_params, value with
-          | [id], x::nil -> 
-              let c = get_clause id in
+          | [i], x::nil -> 
+              let c = get_clause_exception (string_of_int id) i in
                 (match c.value with
                 | Some (l::nil) ->
                     (match Form.pform l with
@@ -469,11 +472,11 @@ let mk_clause (id,typ,value,ids_params,args) =
           | _ -> assert false)
       | Nimp1 ->
         (match ids_params with
-          | [id] -> Other (ImmBuildProj (get_clause id,0))
+          | [i] -> Other (ImmBuildProj (get_clause_exception (string_of_int id) i,0))
           | _ -> assert false)
       | Nimp2 ->
         (match ids_params with
-          | [id] -> Other (ImmBuildProj (get_clause id,1))
+          | [i] -> Other (ImmBuildProj (get_clause_exception (string_of_int id) i,1))
           | _ -> assert false)
       | Notsimp ->
         (match value with
@@ -516,11 +519,11 @@ let mk_clause (id,typ,value,ids_params,args) =
       | Eqtr -> mkTrans value
       | Eqco -> mkCongr value
       | Eqcp -> mkCongrPred value
-      | Trans -> let prems = List.map get_clause ids_params in
+      | Trans -> let prems = List.map (get_clause_exception (string_of_int id)) ids_params in
         (match value with
           | l::_ -> Other (IffTrans (prems, l))
           | _ -> assert false)
-      | Cong -> let prems = List.map get_clause ids_params in
+      | Cong -> let prems = List.map (get_clause_exception (string_of_int id)) ids_params in
           (match value with
             | l::_ -> 
               (* congruence over functions *)
@@ -531,8 +534,8 @@ let mk_clause (id,typ,value,ids_params,args) =
                 let kind =  mkCongr_aux l prems' in
                   add_clause (List.hd args) (SmtTrace.mk_scertif kind (Some value));
                 (* then, resolve out all the premises from the CNF so only the conclusion is left *)
-                  let res = {rc1 = get_clause max_int; rc2 = List.hd prems; rtail = List.tl prems} in
-                    Res res
+                  let res = {rc1 = get_clause_exception (string_of_int id) max_int; rc2 = List.hd prems; rtail = List.tl prems} in
+                  Res res
               (* congruence over predicates *)
               else if is_iff l then
                 Other (IffCong (prems, l))
@@ -551,53 +554,48 @@ let mk_clause (id,typ,value,ids_params,args) =
       | Divsimp | Prodsimp | Uminussimp | Minussimp 
       | Sumsimp | Compsimp -> mkMicromega value
       (* Holes in proofs *)
-      | Hole -> Other (SmtCertif.Hole (List.map get_clause ids_params, value))
+      | Hole -> Other (SmtCertif.Hole (List.map (get_clause_exception (string_of_int id)) ids_params, value))
       (* Resolution *)
       | Threso -> 
         let ids_params = merge (List.rev ids_params) in
         let ids_params = remove_notnot ids_params in
          (match ids_params with
             | cl1::cl2::q ->
-               (try
-               let res = {rc1 = get_clause cl1; rc2 = get_clause cl2; rtail = List.map get_clause q} in
+               let res = {rc1 = get_clause_exception (string_of_int id) cl1;
+                          rc2 = get_clause_exception (string_of_int id) cl2;
+                          rtail = List.map (get_clause_exception (string_of_int id)) q} in
                Res res
-               with
-               | Debug s -> raise (Debug (s^"\nID: "^(string_of_int id))))
-            | [fins_id] -> Same (get_clause fins_id)
+            | [fins_id] -> Same (get_clause_exception (string_of_int id) fins_id)
             | [] -> assert false)
       | Reso ->
          let ids_params = merge ids_params in
          let ids_params = remove_notnot ids_params in
          (match ids_params with
             | cl1::cl2::q ->
-               (try
-               let res = {rc1 = 
-                (try get_clause cl1
-               with | Debug s -> raise (Debug (s^"\nID: "^(string_of_int id)))); 
-                         rc2 = get_clause cl2; rtail = List.map get_clause q} in
+               let res = {rc1 = get_clause_exception (string_of_int id) cl1;
+                          rc2 = get_clause_exception (string_of_int id) cl2;
+                          rtail = List.map (get_clause_exception (string_of_int id)) q} in
                Res res
-               with
-               | Debug s -> raise (Debug (s^"\nID: "^(string_of_int id))))
-            | [fins_id] -> Same (get_clause fins_id)
+            | [fins_id] -> Same (get_clause_exception (string_of_int id) fins_id)
             | [] -> assert false)
       | Ident -> 
           (match ids_params with
-          | [id] -> Other (Ident (get_clause id))
+          | [i] -> Other (Ident (get_clause_exception (string_of_int id) i))
           | _ -> assert false)
       (* Quantifiers *)
       | Fins ->
         (match value, ids_params with
          | [inst], [ref_th] ->
-            let cl_th = get_clause ref_th in
+            let cl_th = get_clause_exception (string_of_int id) ref_th in
             Other (Forall_inst (repr cl_th, inst))
          | _ -> raise (Debug ("VeritSyntax.ml: unexpected form of forall_inst\nID: "^(string_of_int id))))
       | Bind -> 
         (match ids_params with
-         | [id] -> Same (get_clause id)
+         | [i] -> Same (get_clause_exception (string_of_int id) i)
          | _ -> raise (Debug ("VeritSyntax.ml: unexpected form of bind subproof\nID: "^(string_of_int id))))
       | Qcnf -> 
         (match ids_params with
-         | [id] -> Same (get_clause id)
+         | [i] -> Same (get_clause_exception (string_of_int id) i)
          | _ -> raise (Debug ("VeritSyntax.ml: unexpected form of qnt_cnf\nID: "^(string_of_int id))))
       (* Not implemented *)
       | Refl -> raise (Debug ("VeritSyntax.ml: rule refl not implemented yet\nID: "^(string_of_int id)))
@@ -609,13 +607,12 @@ let mk_clause (id,typ,value,ids_params,args) =
     if SmtTrace.isRoot kind then SmtTrace.mkRootV value
     else SmtTrace.mk_scertif kind (Some value) in
   add_clause id cl;
-  (*if id > 1 then SmtTrace.link (get_clause (id-1)) cl;
-  id*)
   if (id > 1) && (isIffCongFunc typ value) then
-    (SmtTrace.link (get_clause (id-1)) (get_clause (List.hd args));
-     SmtTrace.link (get_clause (List.hd args)) cl)
+    (SmtTrace.link (get_clause_exception "linking in id>1 && isIffCongFunc case" (id-1))
+                   (get_clause_exception "linking in id>1 && isIffCongFunc case" (List.hd args));
+     SmtTrace.link (get_clause_exception "linking in id>1 && isIffCongFunc case" (List.hd args)) cl)
   else if (id > 1) then 
-    SmtTrace.link (get_clause (id-1)) cl;
+    SmtTrace.link (get_clause_exception "linking in id>1 case" (id-1)) cl;
   id
 
 let mk_clause cl =
