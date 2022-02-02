@@ -176,7 +176,7 @@ let atvar = '@' var
 let bindvar = '?' var+
 let int = '-'? digit+
 *)
-let newline = "\012"
+let newline = '\r' | '\n' | "\r\n"
 let blank = [' ' '\009']
 let wspace = ['\009' '\010' '\013' '\032']
 let printable_char = ['\032'-'\126' '\128'-'\255']
@@ -204,7 +204,7 @@ let keyword = ':' simple_symbol
 rule token = parse
   | blank +                     { token lexbuf }
   | newline                     { Lexing.new_line lexbuf;
-                                  token lexbuf }
+                                  EOL }
   | "("                         { LPAREN }
   | ")"                         { RPAREN }
   | ":"                         { COLON }

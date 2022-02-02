@@ -102,12 +102,6 @@ type typ =
   | Ident (* Internal *)
   | Hole
 
-(*let get_type x = 
-  match Form.pform l with
-  | Fatom ha -> 
-  | Fapp (_, _) -> raise (Debug "This is ")*)
-
-
 (* Given an array and an element, find the index of the first occurrence of the 
    element in the array. *)
 let rec list_find l x i = 
@@ -564,8 +558,11 @@ let mk_clause (id,typ,value,ids_params,args) =
         let ids_params = remove_notnot ids_params in
          (match ids_params with
             | cl1::cl2::q ->
+               (try
                let res = {rc1 = get_clause cl1; rc2 = get_clause cl2; rtail = List.map get_clause q} in
                Res res
+               with
+               | Debug s -> raise (Debug (s^"\nID: "^(string_of_int id))))
             | [fins_id] -> Same (get_clause fins_id)
             | [] -> assert false)
       | Reso ->
@@ -573,8 +570,13 @@ let mk_clause (id,typ,value,ids_params,args) =
          let ids_params = remove_notnot ids_params in
          (match ids_params with
             | cl1::cl2::q ->
-               let res = {rc1 = get_clause cl1; rc2 = get_clause cl2; rtail = List.map get_clause q} in
+               (try
+               let res = {rc1 = 
+                (try get_clause cl1
+               with | Debug s -> raise (Debug (s^"\nID: "^(string_of_int id)))); rc2 = get_clause cl2; rtail = List.map get_clause q} in
                Res res
+               with
+               | Debug s -> raise (Debug (s^"\nID: "^(string_of_int id))))
             | [fins_id] -> Same (get_clause fins_id)
             | [] -> assert false)
       | Ident -> 
@@ -587,19 +589,19 @@ let mk_clause (id,typ,value,ids_params,args) =
          | [inst], [ref_th] ->
             let cl_th = get_clause ref_th in
             Other (Forall_inst (repr cl_th, inst))
-         | _ -> raise (Debug "VeritSyntax.ml: unexpected form of forall_inst"))
+         | _ -> raise (Debug ("VeritSyntax.ml: unexpected form of forall_inst\nID: "^(string_of_int id))))
       | Bind -> 
         (match ids_params with
          | [id] -> Same (get_clause id)
-         | _ -> raise (Debug "VeritSyntax.ml: unexpected form of bind subproof"))
+         | _ -> raise (Debug ("VeritSyntax.ml: unexpected form of bind subproof\nID: "^(string_of_int id))))
       | Qcnf -> 
         (match ids_params with
          | [id] -> Same (get_clause id)
-         | _ -> raise (Debug "VeritSyntax.ml: unexpected form of qnt_cnf"))
+         | _ -> raise (Debug ("VeritSyntax.ml: unexpected form of qnt_cnf\nID: "^(string_of_int id))))
       (* Not implemented *)
-      | Refl -> raise (Debug "VeritSyntax.ml: rule refl not implemented yet")
-      | Acsimp -> raise (Debug "VeritSyntax.ml: rule acsimp not implemented yet")
-      | Ident -> raise (Debug "VeritSyntax.ml: internal ident rule not implemented yet")
+      | Refl -> raise (Debug ("VeritSyntax.ml: rule refl not implemented yet\nID: "^(string_of_int id)))
+      | Acsimp -> raise (Debug ("VeritSyntax.ml: rule acsimp not implemented yet\nID: "^(string_of_int id)))
+      | Ident -> raise (Debug ("VeritSyntax.ml: internal ident rule not implemented yet\nID: "^(string_of_int id)))
   in
   let cl =
     (* TODO: change this into flatten when necessary *)

@@ -119,4 +119,5 @@ val mk_cl : term list -> clause
 val mk_step : id * rule * clause * params * args -> step
 val mk_cert : step list -> certif
 
+val string_of_certif : certif -> string
 val process_certif : certif -> SmtCertif.clause_id list

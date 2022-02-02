@@ -29,7 +29,7 @@ type term =
   | Geq of term * term
   | UMinus of term
   | Plus of term * term
-  | Minus of term * term 
+  | Minus of term * term
   | Mult of term * term
 
 type clause = term list
@@ -124,6 +124,161 @@ let mk_cl (ts : term list) : clause = ts
 let mk_step (s : (id * rule * clause * params * args)) : step = s
 let mk_cert (c : step list) : certif = c
 let mk_args (a : int list) : args = a
+
+
+(* Convert certificates to strings for debugging *)
+let string_of_rule (r : rule) : string =
+  match r with
+  | AssumeAST -> "AssumeAST"
+  | TrueAST -> "TrueAST"
+  | FalsAST -> "FalsAST"
+  | NotnotAST -> "NotnotAST"
+  | ThresoAST -> "ThresoAST"
+  | ResoAST -> "ResoAST"
+  | TautAST -> "TautAST"
+  | ContAST -> "ContAST"
+  | ReflAST -> "ReflAST"
+  | TransAST -> "TransAST"
+  | CongAST -> "CongAST"
+  | EqreAST -> "EqreAST"
+  | EqtrAST -> "EqtrAST"
+  | EqcoAST -> "EqcoAST"
+  | EqcpAST -> "EqcpAST"
+  | AndAST -> "AndAST"
+  | NorAST -> "NorAST"
+  | OrAST -> "OrAST"
+  | NandAST -> "NandAST"
+  | Xor1AST -> "Xor1AST"
+  | Xor2AST -> "Xor2AST"
+  | Nxor1AST -> "Nxor1AST"
+  | Nxor2AST -> "Nxor2AST"
+  | ImpAST -> "ImpAST"
+  | Nimp1AST -> "Nimp1AST"
+  | Nimp2AST -> "Nimp2AST"
+  | Equ1AST -> "Equ1AST"
+  | Equ2AST -> "Equ2AST"
+  | Nequ1AST -> "Nequ1AST"
+  | Nequ2AST -> "Nequ2AST"
+  | AndpAST -> "AndpAST"
+  | AndnAST -> "AndnAST"
+  | OrpAST -> "OrpAST"
+  | OrnAST -> "OrnAST"
+  | Xorp1AST -> "Xorp1AST"
+  | Xorp2AST -> "Xorp2AST"
+  | Xorn1AST -> "Xorn1AST"
+  | Xorn2AST -> "Xorn2AST"
+  | ImppAST -> "ImppAST"
+  | Impn1AST -> "Impn1AST"
+  | Impn2AST -> "Impn2AST"
+  | Equp1AST -> "Equp1AST"
+  | Equp2AST -> "Equp2AST"
+  | Equn1AST -> "Equn1AST"
+  | Equn2AST -> "Equn2AST"
+  | Ite1AST -> "Ite1AST"
+  | Ite2AST -> "Ite2AST"
+  | Itep1AST -> "Itep1AST"
+  | Itep2AST -> "Itep2AST"
+  | Iten1AST -> "Iten1AST"
+  | Iten2AST -> "Iten2AST"
+  | Nite1AST -> "Nite1AST"
+  | Nite2AST -> "Nite2AST"
+  | ConndefAST -> "ConndefAST"
+  | AndsimpAST -> "AndsimpAST"
+  | OrsimpAST -> "OrsimpAST"
+  | NotsimpAST -> "NotsimpAST"
+  | ImpsimpAST -> "ImpsimpAST"
+  | EqsimpAST -> "EqsimpAST"
+  | BoolsimpAST -> "BoolsimpAST"
+  | AcsimpAST -> "AcsimpAST"
+  | ItesimpAST -> "ItesimpAST"
+  | EqualsimpAST -> "EqualsimpAST"
+  | DistelimAST -> "DistelimAST"
+  | LageAST -> "LageAST"
+  | LiageAST -> "LiageAST"
+  | LataAST -> "LataAST"
+  | LadeAST -> "LadeAST"
+  | DivsimpAST -> "DivsimpAST"
+  | ProdsimpAST -> "ProdsimpAST"
+  | UminussimpAST -> "UminussimpAST"
+  | MinussimpAST -> "MinussimpAST"
+  | SumsimpAST -> "SumsimpAST"
+  | CompsimpAST -> "CompsimpAST"
+  | LarweqAST -> "LarweqAST"
+  | BindAST -> "BindAST"
+  | FinsAST -> "FinsAST"
+  | QcnfAST -> "QcnfAST"
+  | AnchorAST -> "AnchorAST"
+  | SubproofAST _ -> "SubproofAST"
+
+let string_of_typ (t : typ) : string =
+  match t with
+  | Int -> "Int"
+  | Bool -> "Bool"
+
+let concat_sp x y = x^" "^y
+
+let rec string_of_term (t : term) : string = 
+  match t with
+  | True -> "true"
+  | False -> "false"
+  | Not t -> "not ("^(string_of_term t)^")"
+  | And ts -> let args = List.fold_left concat_sp "" (List.map string_of_term ts) in
+      "and ("^args^")"
+  | Or ts -> let args = List.fold_left concat_sp "" (List.map string_of_term ts) in
+      "or ("^args^")"
+  | Imp ts -> let args = List.fold_left concat_sp "" (List.map string_of_term ts) in
+      "imp ("^args^")"
+  | Xor ts -> let args = List.fold_left concat_sp "" (List.map string_of_term ts) in
+      "xor ("^args^")"
+  | Ite ts -> let args = List.fold_left concat_sp "" (List.map string_of_term ts) in
+      "ite ("^args^")"
+  | Forall (xs, t) -> let args = List.fold_left concat_sp "" (List.map (fun (s,t) -> "(s : "^(string_of_typ t)^")") xs) in
+      "forall ("^args^"), "^(string_of_term t)
+  | Eq (t1, t2) -> (string_of_term t1)^" = "^(string_of_term t2)
+  | App (f, ts) -> let args = List.fold_left concat_sp "" (List.map string_of_term ts) in
+      f^" ("^args^")"
+  | Var v -> v
+  | STerm s -> s
+  | NTerm (s, t) -> s^" :named "^(string_of_term t)
+  | Int i -> string_of_int i
+  | Lt (t1, t2) -> (string_of_term t1)^" < "^(string_of_term t2)
+  | Leq (t1, t2) -> (string_of_term t1)^" <= "^(string_of_term t2)
+  | Gt (t1, t2) -> (string_of_term t1)^" > "^(string_of_term t2)
+  | Geq (t1, t2) -> (string_of_term t1)^" >= "^(string_of_term t2)
+  | UMinus t -> "-"^(string_of_term t)
+  | Plus (t1, t2) -> (string_of_term t1)^" + "^(string_of_term t2)
+  | Minus (t1, t2) -> (string_of_term t1)^" - "^(string_of_term t2)
+  | Mult (t1, t2) -> (string_of_term t1)^" * "^(string_of_term t2)
+
+let string_of_clause (c : clause) =
+  let args = List.fold_left concat_sp "" (List.map string_of_term c) in
+  "(cl "^args^")"
+
+  exception InvalidProofStepNo
+(* let symbol_to_id = int_of_string *)
+let symbol_to_id s = 
+  (* f transforms string "tn" to int n *)
+  let f = (fun s -> let l = (String.length s) - 1 in
+                    int_of_string (String.sub s 1 l)) in
+  (* Subproof steps have labels*)                  
+  let syms = List.map f (String.split_on_char '.' s) in
+  if (List.length syms == 1) then 
+    List.hd syms
+  else 
+    raise InvalidProofStepNo
+
+let rec string_of_certif (c : certif) : string = 
+  match c with
+  | (i, r, c, p, a) :: t -> 
+      let i' = string_of_int (symbol_to_id i) in
+      let r' = string_of_rule r in
+      let c' = string_of_clause c in
+      let p' = List.fold_left concat_sp "" p in
+      let a' = List.fold_left concat_sp "" (List.map string_of_int a) in
+      "("^i'^", "^r'^", "^c'^", "^p'^", "^a'^")\n"^(string_of_certif t)
+  | [] -> ""
+
+
 (* Remove notnot rule from certificate *)
 
 let get_id (s : step ) : id = 
@@ -353,18 +508,8 @@ let process_rule (r: rule) : VeritSyntax.typ =
   | AnchorAST -> Hole
   | SubproofAST c -> Hole
 
-exception InvalidProofStepNo
-(* let symbol_to_id = int_of_string *)
-let symbol_to_id s = 
-  (* f transforms string "tn" to int n *)
-  let f = (fun s -> let l = (String.length s) - 1 in
-                    int_of_string (String.sub s 1 l)) in
-  (* Subproof steps have labels*)                  
-  let syms = List.map f (String.split_on_char '.' s) in
-  if (List.length syms == 1) then 
-    List.hd syms
-  else 
-    raise InvalidProofStepNo
+
+
 
 (* Rules with args need to be parsed properly *)
 let rec process_certif (c : certif) : SmtCertif.clause_id list =

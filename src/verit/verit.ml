@@ -57,15 +57,16 @@ open Lexing
 
 let print_position lexbuf = 
   let pos = lexbuf.lex_curr_p in
-  "line: "^(string_of_int pos.pos_lnum)^" position: "^(string_of_int (pos.pos_cnum - pos.pos_bol + 1))
-
+  "Line "^(string_of_int pos.pos_lnum)^" Position "^(string_of_int (pos.pos_cnum - pos.pos_bol + 1))
+ 
 let import_trace ra_quant rf_quant filename first lsmt =
   let chan = open_in filename in
   let lexbuf = Lexing.from_channel chan in
+  let cert = VeritParser.proof VeritLexer.token lexbuf in
   try
-    let cert = VeritAst.process_certif (VeritParser.proof VeritLexer.token lexbuf) in
-    let first_num = List.hd cert in
-    let confl_num = List.nth cert ((List.length cert) - 1) in
+    let cert' = VeritAst.process_certif cert in
+    let first_num = List.hd cert' in
+    let confl_num = List.nth cert' ((List.length cert') - 1) in
        close_in chan;
        let cfirst = ref (VeritSyntax.get_clause first_num) in
        let confl = ref (VeritSyntax.get_clause confl_num) in
@@ -91,10 +92,10 @@ let import_trace ra_quant rf_quant filename first lsmt =
        occur !confl;
        (alloc !cfirst, !confl)
   with
-    | VeritParser.Error -> failwith ("Verit.import_trace (VeritParser.Error) - "^(print_position lexbuf))
-    | Failure f -> failwith ("Verit.import_trace (Failure) - "^(print_position lexbuf)^" - message: "^f)
-    | VeritSyntax.Debug s -> failwith ("Verit.import_trace (VeritSyntax.Debug) - "^(print_position lexbuf)^" - message: "^s)
-    | _ -> failwith ("Verit.import_trace - "^(print_position lexbuf))
+    | VeritParser.Error -> Structures.error ("Verit.import_trace (VeritParser.Error)\nPosition: "^(print_position lexbuf))
+    | Failure f -> failwith ("Verit.import_trace (Failure)\nPosition: "^(print_position lexbuf)^"\nMessage: "^f)
+    | VeritSyntax.Debug s -> Structures.error ("Verit.import_trace (VeritSyntax.Debug)\nPosition: "^(print_position lexbuf)^"\nMessage: "^s^"\nCertificate:\n"^(VeritAst.string_of_certif cert))
+    | _ -> failwith ("Verit.import_trace\nPosition: "^(print_position lexbuf))
 
 
 let clear_all () =
