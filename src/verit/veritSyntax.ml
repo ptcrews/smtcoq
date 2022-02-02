@@ -573,7 +573,8 @@ let mk_clause (id,typ,value,ids_params,args) =
                (try
                let res = {rc1 = 
                 (try get_clause cl1
-               with | Debug s -> raise (Debug (s^"\nID: "^(string_of_int id)))); rc2 = get_clause cl2; rtail = List.map get_clause q} in
+               with | Debug s -> raise (Debug (s^"\nID: "^(string_of_int id)))); 
+                         rc2 = get_clause cl2; rtail = List.map get_clause q} in
                Res res
                with
                | Debug s -> raise (Debug (s^"\nID: "^(string_of_int id))))
