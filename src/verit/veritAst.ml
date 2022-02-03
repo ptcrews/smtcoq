@@ -281,14 +281,10 @@ let rec string_of_certif (c : certif) : string =
 
 (* Remove notnot rule from certificate *)
 
-let get_id (s : step ) : id = 
-match s with
-| (i, _, _, _, _) -> i
-
-(* Remove element from list *)
+(* Remove all occurrences of element from list *)
 let rec remove x l =
   match l with
-  | h :: t -> if h == x then remove x t else h :: (remove x t)
+  | h :: t -> if h = x then remove x t else h :: (remove x t)
   | [] -> []
 
 (* Remove premise from all resolutions in certif *)
@@ -509,16 +505,24 @@ let process_rule (r: rule) : VeritSyntax.typ =
   | SubproofAST c -> Hole
 
 
-
 (* Rules with args need to be parsed properly *)
-let rec process_certif (c : certif) : SmtCertif.clause_id list =
+let preprocess_certif (c: certif) : certif = 
+  remove_notnot c
+
+let rec process_certif (c : certif) : VeritSyntax.id list =
   match c with
-  | (i, r, c, p, a) :: t -> 
-      let i' = symbol_to_id i in
+  | (i, r, c, p, a) :: t ->
+      let i' = VeritSyntax.id_of_string i in
       let r' = process_rule r in
       let c' = process_cl c in
-      let p' = List.map symbol_to_id p in
-      let a' = mk_args a in
+      let p' = List.map (VeritSyntax.id_of_string) p in
+      let a' = List.map (fun x -> VeritSyntax.id_of_string (string_of_int x)) a in
       let res = mk_clause (i', r', c', p', a') in
-      res :: process_certif t
+      let t' = process_certif t in
+      if List.length t' > 0 then (
+        let x = List.hd t' in
+        SmtTrace.link (get_clause_exception ("linking clause"^(string_of_id res)^" in process_certif") res) 
+                      (get_clause_exception ("linking clause"^(string_of_id x)^" in process_certif") x)
+      );
+      res :: t'
   | [] -> []

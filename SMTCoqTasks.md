@@ -95,8 +95,9 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 - [x] Separate all Alethe rules into categories, and mark the rules which are already implemented.
 - [x] Read about the epsilon calculus by reading Jeremy's chapter in the Stanford Encyclopedia.
 - [x] Add an AST to SMTCoq and parse SMT proofs into the AST format, and then define a function that translte the AST to `mk_clause` that was previously being done with the parser.
-	- [ ] Add better error handling so we can figure out which line has an error.
-	- [ ] Add transformation for notnot elimination
+	- [x] Add better error handling so we can figure out which line has an error.
+	- [x] Add transformation for notnot elimination
+	- [ ] Process cong rule by adding two steps
 	- [ ] Add transformation for subproof flattening
 	- [ ] Add transformation for accommodating quantifier instantiation rules
 - [ ] For quantified formulas

@@ -62,41 +62,44 @@ let print_position lexbuf =
 let import_trace ra_quant rf_quant filename first lsmt =
   let chan = open_in filename in
   let lexbuf = Lexing.from_channel chan in
-  let cert = VeritParser.proof VeritLexer.token lexbuf in
   try
-    let cert' = VeritAst.process_certif cert in
-    let first_num = List.hd cert' in
-    let confl_num = List.nth cert' ((List.length cert') - 1) in
-       close_in chan;
-       let cfirst = ref (VeritSyntax.get_clause_exception "import_trace.cfirst" first_num) in
-       let confl = ref (VeritSyntax.get_clause_exception "import_trace.confl" confl_num) in
-       let re_hash = Form.hash_hform (Atom.hash_hatom ra_quant) rf_quant in
-       begin match first with
-       | None -> ()
-       | Some _ ->
-          let init_index = VeritSyntax.init_index lsmt re_hash in
-          let cf, lr = order_roots init_index !cfirst in
-          cfirst := cf;
-          let to_add = VeritSyntax.qf_to_add (List.tl lr) in
-          let to_add =
-            (match first, !cfirst.value with
-             | Some (root, l), Some [fl] when init_index fl = 1 && not (Form.equal l (re_hash fl)) ->
-                 let cfirst_value = !cfirst.value in
-                 !cfirst.value <- root.value;
-                 [Other (ImmFlatten (root, fl)), cfirst_value, !cfirst]
-             | _ -> []) @ to_add in
-       match to_add with
-       | [] -> ()
-       | _  -> confl := add_scertifs to_add !cfirst end;
-       select !confl;
-       occur !confl;
-       (alloc !cfirst, !confl)
-  with
-    | VeritParser.Error -> Structures.error ("Verit.import_trace (VeritParser.Error)\nPosition: "^(print_position lexbuf))
-    | Failure f -> Structures.error ("Verit.import_trace (Failure)\nPosition: "^(print_position lexbuf)^"\nMessage: "^f)
+    let cert = VeritParser.proof VeritLexer.token lexbuf in
+    let cert' = VeritAst.preprocess_certif cert in
+    try
+      let cert_proc = VeritAst.process_certif cert' in
+      let first_num = List.hd cert_proc in
+      let confl_num = List.nth cert_proc ((List.length cert_proc) - 1) in
+         close_in chan;
+         let cfirst = ref (VeritSyntax.get_clause_exception "import_trace.cfirst" first_num) in
+         let confl = ref (VeritSyntax.get_clause_exception "import_trace.confl" confl_num) in
+         let re_hash = Form.hash_hform (Atom.hash_hatom ra_quant) rf_quant in
+         begin match first with
+         | None -> ()
+         | Some _ ->
+            let init_index = VeritSyntax.init_index lsmt re_hash in
+            let cf, lr = order_roots init_index !cfirst in
+            cfirst := cf;
+            let to_add = VeritSyntax.qf_to_add (List.tl lr) in
+            let to_add =
+              (match first, !cfirst.value with
+               | Some (root, l), Some [fl] when init_index fl = 1 && not (Form.equal l (re_hash fl)) ->
+                   let cfirst_value = !cfirst.value in
+                   !cfirst.value <- root.value;
+                   [Other (ImmFlatten (root, fl)), cfirst_value, !cfirst]
+               | _ -> []) @ to_add in
+         match to_add with
+         | [] -> ()
+         | _  -> confl := add_scertifs to_add !cfirst end;
+         select !confl;
+         occur !confl;
+         (alloc !cfirst, !confl)
+    with
     | VeritSyntax.Debug s -> Structures.error ("Verit.import_trace (VeritSyntax.Debug)\nPosition: "^(print_position lexbuf)
-        ^"\nMessage: "^s^"\nCertificate:\n"^(VeritAst.string_of_certif cert)^"\nHash Table:\n"^(VeritSyntax.clauses_to_string))
+        ^"\nMessage: "^s^"\nCertificate:\n"^(VeritAst.string_of_certif (cert'))^"\nHash Table:\n"^(VeritSyntax.clauses_to_string))
+    | Failure f -> Structures.error ("Verit.import_trace (Failure)\nPosition: "^(print_position lexbuf)^"\nMessage: "^f)
     | _ -> Structures.error ("Verit.import_trace\nPosition: "^(print_position lexbuf))
+  with
+  | VeritParser.Error -> Structures.error ("Verit.import_trace (VeritParser.Error)\nPosition: "^(print_position lexbuf))
 
 
 let clear_all () =

@@ -96,16 +96,21 @@ type typ =
   | Ident (* Internal *)
   | Hole
 
-val get_clause : int -> (SmtAtom.Form.t SmtCertif.clause) option
-val get_clause_exception : string -> int -> SmtAtom.Form.t SmtCertif.clause
-val add_clause : int -> SmtAtom.Form.t SmtCertif.clause -> unit
+type id
+val id_of_string : string -> id
+val string_of_id : id -> string
+val generate_id : unit -> string
+
+val get_clause : id -> (SmtAtom.Form.t SmtCertif.clause) option
+val get_clause_exception : string -> id -> SmtAtom.Form.t SmtCertif.clause
+val add_clause : id -> SmtAtom.Form.t SmtCertif.clause -> unit
 val clauses_to_string : string
 
 val add_ref : string -> int -> unit
 val get_ref : string -> int
 val to_add : (int * SmtAtom.Form.t list) list ref
 
-val mk_clause : SmtCertif.clause_id * typ * SmtAtom.Form.t list * SmtCertif.clause_id list * int list -> SmtCertif.clause_id
+val mk_clause : id * typ * SmtAtom.Form.t list * id list * id list -> id
 
 val apply_dec_atom : (?declare:bool -> SmtAtom.hatom -> SmtAtom.hatom) ->
                      bool * Form.atom_form_lit -> bool * Form.atom_form_lit
