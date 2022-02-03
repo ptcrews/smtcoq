@@ -94,7 +94,8 @@ let import_trace ra_quant rf_quant filename first lsmt =
   with
     | VeritParser.Error -> Structures.error ("Verit.import_trace (VeritParser.Error)\nPosition: "^(print_position lexbuf))
     | Failure f -> Structures.error ("Verit.import_trace (Failure)\nPosition: "^(print_position lexbuf)^"\nMessage: "^f)
-    | VeritSyntax.Debug s -> Structures.error ("Verit.import_trace (VeritSyntax.Debug)\nPosition: "^(print_position lexbuf)^"\nMessage: "^s^"\nCertificate:\n"^(VeritAst.string_of_certif cert))
+    | VeritSyntax.Debug s -> Structures.error ("Verit.import_trace (VeritSyntax.Debug)\nPosition: "^(print_position lexbuf)
+        ^"\nMessage: "^s^"\nCertificate:\n"^(VeritAst.string_of_certif cert)^"\nHash Table:\n"^(VeritSyntax.clauses_to_string))
     | _ -> Structures.error ("Verit.import_trace\nPosition: "^(print_position lexbuf))
 
 

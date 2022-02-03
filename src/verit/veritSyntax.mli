@@ -99,6 +99,7 @@ type typ =
 val get_clause : int -> (SmtAtom.Form.t SmtCertif.clause) option
 val get_clause_exception : string -> int -> SmtAtom.Form.t SmtCertif.clause
 val add_clause : int -> SmtAtom.Form.t SmtCertif.clause -> unit
+val clauses_to_string : string
 
 val add_ref : string -> int -> unit
 val get_ref : string -> int

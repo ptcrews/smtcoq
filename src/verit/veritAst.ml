@@ -273,9 +273,9 @@ let rec string_of_certif (c : certif) : string =
       let i' = string_of_int (symbol_to_id i) in
       let r' = string_of_rule r in
       let c' = string_of_clause c in
-      let p' = List.fold_left concat_sp "" p in
+      let p' = List.fold_left concat_sp "" (List.map (fun x -> string_of_int (symbol_to_id x)) p) in
       let a' = List.fold_left concat_sp "" (List.map string_of_int a) in
-      "("^i'^", "^r'^", "^c'^", "^p'^", "^a'^")\n"^(string_of_certif t)
+      "("^i'^", "^r'^", "^c'^", ["^p'^"], ["^a'^"])\n"^(string_of_certif t)
   | [] -> ""
 
 
@@ -510,7 +510,6 @@ let process_rule (r: rule) : VeritSyntax.typ =
 
 
 
-
 (* Rules with args need to be parsed properly *)
 let rec process_certif (c : certif) : SmtCertif.clause_id list =
   match c with
@@ -520,5 +519,6 @@ let rec process_certif (c : certif) : SmtCertif.clause_id list =
       let c' = process_cl c in
       let p' = List.map symbol_to_id p in
       let a' = mk_args a in
-      mk_clause (i', r', c', p', a') :: process_certif t
+      let res = mk_clause (i', r', c', p', a') in
+      res :: process_certif t
   | [] -> []

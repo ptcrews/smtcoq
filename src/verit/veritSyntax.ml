@@ -325,7 +325,7 @@ let mkDistinctElim old value =
 
 (* Generating clauses *)
 
-let clauses : (int,Form.t clause) Hashtbl.t = Hashtbl.create 17
+let clauses : (int, Form.t clause) Hashtbl.t = Hashtbl.create 17
 let get_clause id =
   try Some (Hashtbl.find clauses id) with 
   | Not_found -> None
@@ -335,6 +335,9 @@ let get_clause_exception s id =
   match get_clause id with
   | Some c -> c
   | None -> raise (Debug ("VeritSyntax.get_clause : clause number "^(string_of_int id)^" not found called from loc "^s))
+let clauses_to_string : string =
+  Hashtbl.fold (fun x y z -> z^(string_of_int x)^(SmtCertif.to_string y.kind)^"\n") 
+  clauses ""
 
 (* <ref_cl> maps solver integers to id integers. *)
 let ref_cl : (string, int) Hashtbl.t = Hashtbl.create 17
