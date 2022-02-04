@@ -7,7 +7,7 @@ type typ =
   | Int
   | Bool
 
-type term = 
+type term =
   | True
   | False
   | Not of term
@@ -236,7 +236,7 @@ let rec string_of_term (t : term) : string =
       "forall ("^args^"), "^(string_of_term t)
   | Eq (t1, t2) -> (string_of_term t1)^" = "^(string_of_term t2)
   | App (f, ts) -> let args = List.fold_left concat_sp "" (List.map string_of_term ts) in
-      f^" ("^args^")"
+                                f^" ("^args^")"
   | Var v -> v
   | STerm s -> s
   | NTerm (s, t) -> s^" :named "^(string_of_term t)
@@ -254,29 +254,24 @@ let string_of_clause (c : clause) =
   let args = List.fold_left concat_sp "" (List.map string_of_term c) in
   "(cl "^args^")"
 
-  exception InvalidProofStepNo
-(* let symbol_to_id = int_of_string *)
-let symbol_to_id s = 
-  (* f transforms string "tn" to int n *)
-  let f = (fun s -> let l = (String.length s) - 1 in
-                    int_of_string (String.sub s 1 l)) in
-  (* Subproof steps have labels*)                  
-  let syms = List.map f (String.split_on_char '.' s) in
-  if (List.length syms == 1) then 
-    List.hd syms
-  else 
-    raise InvalidProofStepNo
-
 let rec string_of_certif (c : certif) : string = 
   match c with
   | (i, r, c, p, a) :: t -> 
-      let i' = string_of_int (symbol_to_id i) in
       let r' = string_of_rule r in
       let c' = string_of_clause c in
-      let p' = List.fold_left concat_sp "" (List.map (fun x -> string_of_int (symbol_to_id x)) p) in
+      let p' = List.fold_left concat_sp "" p in
       let a' = List.fold_left concat_sp "" (List.map string_of_int a) in
-      "("^i'^", "^r'^", "^c'^", ["^p'^"], ["^a'^"])\n"^(string_of_certif t)
+      "("^i^", "^r'^", "^c'^", ["^p'^"], ["^a'^"])\n"^(string_of_certif t)
   | [] -> ""
+
+
+(* Convert Cong to Eqco + Reso for congruences over functions *)
+
+(*let rec replace_cong (c : certif) : certif = 
+  match c with
+  | (i, r, c, p, a) :: t -> 
+      (match r with
+       | CongAST -> match c with)*)
 
 
 (* Remove notnot rule from certificate *)
@@ -517,12 +512,27 @@ let rec process_certif (c : certif) : VeritSyntax.id list =
       let c' = process_cl c in
       let p' = List.map (VeritSyntax.id_of_string) p in
       let a' = List.map (fun x -> VeritSyntax.id_of_string (string_of_int x)) a in
-      let res = mk_clause (i', r', c', p', a') in
-      let t' = process_certif t in
-      if List.length t' > 0 then (
-        let x = List.hd t' in
-        SmtTrace.link (get_clause_exception ("linking clause"^(string_of_id res)^" in process_certif") res) 
-                      (get_clause_exception ("linking clause"^(string_of_id x)^" in process_certif") x)
-      );
-      res :: t'
+      (* Special treatment for rules like Cong which split into multiple rules *)
+      if (match r' with | Cong -> true | _ -> false) then
+        let new_id = VeritSyntax.generate_id () in
+        let res = mk_clause (i', r', c', p', [new_id]) in
+        let t' = process_certif t in
+        if List.length t' > 0 then (
+          let x = List.hd t' in
+          SmtTrace.link (get_clause_exception ("linking clause "^(string_of_id new_id)^" in VeritAst.process_certif") new_id)
+                        (get_clause_exception ("linking clause "^(string_of_id res)^" in VeritAst.process_certif") res);
+          SmtTrace.link (get_clause_exception ("linking clause "^(string_of_id res)^" in VeritAst.process_certif") res) 
+                        (get_clause_exception ("linking clause "^(string_of_id x)^" in VeritAst.process_certif") x)
+          ) else ();
+        res :: t'
+      (* General case *)
+      else
+        let res = mk_clause (i', r', c', p', a') in
+        let t' = process_certif t in
+        if List.length t' > 0 then (
+          let x = List.hd t' in
+          SmtTrace.link (get_clause_exception ("linking clause "^(string_of_id res)^" in VeritAst.process_certif") res) 
+                        (get_clause_exception ("linking clause "^(string_of_id x)^" in VeritAst.process_certif") x)
+          ) else ();
+        res :: t'
   | [] -> []

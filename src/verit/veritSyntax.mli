@@ -99,7 +99,7 @@ type typ =
 type id
 val id_of_string : string -> id
 val string_of_id : id -> string
-val generate_id : unit -> string
+val generate_id : unit -> id
 
 val get_clause : id -> (SmtAtom.Form.t SmtCertif.clause) option
 val get_clause_exception : string -> id -> SmtAtom.Form.t SmtCertif.clause

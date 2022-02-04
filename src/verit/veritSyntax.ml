@@ -384,15 +384,6 @@ let rec merge ids_params =
     None -> ids_params
   | Some r -> merge r
 
-(* Removes all occurrences of the Notnot rule from a list of clause IDs *)
-let rec remove_notnot ids_params = 
-  match ids_params with
-  | [] -> []
-  | h :: t -> let cl_target = repr (get_clause_exception "remove_notnot" h) in
-              match cl_target.kind with
-              | Other (NotNot _) -> remove_notnot t
-              | _ -> h :: (remove_notnot t)
-
 
 let to_add = ref []
 
@@ -541,7 +532,9 @@ let mk_clause (id,typ,value,ids_params,args) =
               (* congruence over functions *)
               if is_eq l then
                 (* convert prems from clauses to forms *)
-                let prems' = List.map (fun x -> match x.value with | Some l -> List.hd l | None -> assert false) prems in
+                let prems' = List.map (fun x -> match x.value with 
+                  | Some l -> List.hd l 
+                  | None -> assert false) prems in
                 (* perform application of eq_congruent to get a CNF form of the rule application *)
                 let kind =  mkCongr_aux l prems' in
                   add_clause (List.hd args) (SmtTrace.mk_scertif kind (Some value));
@@ -570,7 +563,6 @@ let mk_clause (id,typ,value,ids_params,args) =
       (* Resolution *)
       | Threso -> 
         let ids_params = merge (List.rev ids_params) in
-        (*let ids_params = remove_notnot ids_params in*)
          (match ids_params with
             | cl1::cl2::q ->
                let res = {rc1 = get_clause_exception id cl1;
@@ -581,7 +573,6 @@ let mk_clause (id,typ,value,ids_params,args) =
             | [] -> assert false)
       | Reso ->
          let ids_params = merge ids_params in
-         (*let ids_params = remove_notnot ids_params in*)
          (match ids_params with
             | cl1::cl2::q ->
                let res = {rc1 = get_clause_exception id cl1;

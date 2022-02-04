@@ -2,7 +2,7 @@ type typ =
   | Int
   | Bool
 
-type term = 
+type term =
   | True
   | False
   | Not of term
@@ -24,7 +24,7 @@ type term =
   | Geq of term * term
   | UMinus of term
   | Plus of term * term
-  | Minus of term * term 
+  | Minus of term * term
   | Mult of term * term
 
 type clause = term list
