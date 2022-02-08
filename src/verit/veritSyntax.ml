@@ -529,22 +529,84 @@ let mk_clause (id,typ,value,ids_params,args) =
       | Cong -> let prems = List.map (get_clause_exception id) ids_params in
           (match value with
             | l::_ -> 
+              (* convert prems from clauses to forms *)
+              let prems' = List.map (fun x -> match x.value with 
+                | Some l -> Form.neg (List.hd l) 
+                | None -> assert false) prems in
               (* congruence over functions *)
-              if is_eq l then
-                (* convert prems from clauses to forms *)
-                let prems' = List.map (fun x -> match x.value with 
-                  | Some l -> Form.neg (List.hd l) 
-                  | None -> assert false) prems in
-                (* perform application of eq_congruent to get a CNF form of the rule application *)
+              if is_eq l then  
+                (* perform application of eq_congruent to 
+                   get a CNF form of the rule application *)
                 let kind =  mkCongr_aux l prems' in
                   add_clause (List.hd args) (SmtTrace.mk_scertif kind (Some value));
-                (* then, resolve out all the premises from the CNF so only the conclusion is left *)
-                  let res = {rc1 = get_clause_exception id (List.hd args); rc2 = List.hd prems; rtail = List.tl prems} in
+                (* then, resolve out all the premises from the CNF so only 
+                   the conclusion is left *)
+                  let res = {rc1 = get_clause_exception id (List.hd args); 
+                             rc2 = List.hd prems; rtail = List.tl prems} in
                   Res res
               (* congruence over predicates *)
-              (* else if is_iff l then *)
-                              
-                (* Other (IffCong (prems, l)) *)
+              (* We use eq_congruent_pred to prove cong (in the predicate case). 
+                 It is an elaborate process, but it saves us the effort of 
+                 proving a new rule correct. For cong, we have
+                 x1 = y1 and x2 = y2, and we need to prove Px = Py, 
+                    short for P(x1, x2) = P(y1, y2)
+                 ~(x1 = y1) \/ ~(x2 = y2) \/ ~Px \/ Py --(1) by eq_congruent_pred
+                 ~(x1 = y1) \/ ~(x2 = y2) \/ ~Py \/ Px --(2) by eq_congruent_pred
+
+                 (1)  (x1 = y1)  (x2 = y2)        (2)  (x1 = y1)  (x2 = y2)
+                 -------------------------Res     -------------------------Res
+                      ~Px \/ Py --(3)                   ~Py \/ Px --(4)
+                
+                Px = Py \/ Px \/ Py   --(5) by equiv_neg2
+                Px = Py \/ ~Px \/ ~Py --(6) by equiv_neg1
+
+                Finally,
+                  (3)  (5)          (4)  (6)
+                -------------Res  --------------Res
+                Px = Py \/ Py      Px = Py \/ ~Py
+                ---------------------------------Res
+                             Px = Py
+                We do something similar for the function case of cong, except 
+                that there is 1 intermediate step of calling eq_congruent, 
+                followed by a resolution. Here, there are 8. Because, when 
+                the intermediate step numbers are generated in VeritAst, 
+                it is not possible to determine the case of cong, VeritAst
+                passes 8 clause IDs to the cong rule as args (in Alethe, the
+                cong rule has no args)
+              *)
+              else if is_iff l then
+                (* Derive (1) and (2) by eq_congruent_pred to get *)
+                let (x, y) = get_iff l in
+                let kind1 = mkCongrPred (prems' @ [Form.neg x] @ [y]) in
+                let kind2 = mkCongrPred (prems' @ [Form.neg y] @ [x]) in
+                add_clause (List.nth args 1) (SmtTrace.mk_scertif kind1 (Some value));
+                add_clause (List.nth args 2) (SmtTrace.mk_scertif kind2 (Some value));
+                (* Derive (3) and (4) by resolution *)
+                let kind3 = Res {rc1 = get_clause_exception id (List.nth args 1);
+                                 rc2 = List.hd prems; rtail = List.tl prems} in
+                let kind4 = Res {rc1 = get_clause_exception id (List.nth args 2);
+                                 rc2 = List.hd prems; rtail = List.tl prems} in
+                add_clause (List.nth args 3) (SmtTrace.mk_scertif kind3 (Some value));
+                add_clause (List.nth args 4) (SmtTrace.mk_scertif kind4 (Some value));
+                (* Derive (5) and (6) by equiv_neg1 and 2 *)
+                let kind5 = Other (BuildDef2 l) in
+                let kind6 = Other (BuildDef l) in
+                add_clause (List.nth args 5) (SmtTrace.mk_scertif kind5 (Some value));
+                add_clause (List.nth args 6) (SmtTrace.mk_scertif kind6 (Some value));
+                (* Derive the intermediate clauses for the final resolution *)
+                let kind7 = Res {rc1 = get_clause_exception id (List.nth args 3);
+                                 rc2 = get_clause_exception id (List.nth args 3); 
+                                 rtail = []} in
+                let kind8 = Res {rc1 = get_clause_exception id (List.nth args 4);
+                                 rc2 = get_clause_exception id (List.nth args 6); 
+                                 rtail = []} in
+                add_clause (List.nth args 7) (SmtTrace.mk_scertif kind7 (Some value));
+                add_clause (List.nth args 8) (SmtTrace.mk_scertif kind8 (Some value));
+                (* Derive the conclusion using the final resolution *)
+                let res = {rc1 = get_clause_exception id (List.nth args 7);
+                           rc2 = get_clause_exception id (List.nth args 8);
+                           rtail = []} in
+                Res res
               else assert false
             | _ -> assert false)
       | Distelim ->
