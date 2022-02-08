@@ -533,17 +533,18 @@ let mk_clause (id,typ,value,ids_params,args) =
               if is_eq l then
                 (* convert prems from clauses to forms *)
                 let prems' = List.map (fun x -> match x.value with 
-                  | Some l -> List.hd l 
+                  | Some l -> Form.neg (List.hd l) 
                   | None -> assert false) prems in
                 (* perform application of eq_congruent to get a CNF form of the rule application *)
                 let kind =  mkCongr_aux l prems' in
                   add_clause (List.hd args) (SmtTrace.mk_scertif kind (Some value));
                 (* then, resolve out all the premises from the CNF so only the conclusion is left *)
-                  let res = {rc1 = get_clause_exception id max_id; rc2 = List.hd prems; rtail = List.tl prems} in
+                  let res = {rc1 = get_clause_exception id (List.hd args); rc2 = List.hd prems; rtail = List.tl prems} in
                   Res res
               (* congruence over predicates *)
-              else if is_iff l then
-                Other (IffCong (prems, l))
+              (* else if is_iff l then *)
+                              
+                (* Other (IffCong (prems, l)) *)
               else assert false
             | _ -> assert false)
       | Distelim ->
