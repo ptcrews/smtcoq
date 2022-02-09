@@ -96,10 +96,11 @@ type typ =
   | Ident (* Internal *)
   | Hole
 
-type id
+type id = string
 val id_of_string : string -> id
 val string_of_id : id -> string
 val generate_id : unit -> id
+val generate_ids : int -> id list
 
 val get_clause : id -> (SmtAtom.Form.t SmtCertif.clause) option
 val get_clause_exception : string -> id -> SmtAtom.Form.t SmtCertif.clause

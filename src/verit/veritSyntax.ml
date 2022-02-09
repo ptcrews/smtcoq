@@ -325,14 +325,20 @@ let mkDistinctElim old value =
 
 (* Generating clauses *)
 
-let max_id = "The max id!"
+(* Clause IDs are strings *)
 type id = string
 let id_of_string s = s
 let string_of_id i = i
+(* We want to be able to generate new IDs that don't 
+   coincide with the SMT solver's ids *)
 let new_id i = "x"^(string_of_int i)
 let id_gen = ref 1
 let generate_id () = let res = new_id !id_gen in 
                      id_gen := !id_gen+1; res
+let rec generate_ids (x : int) : id list =
+  match x with
+  | 0 -> []
+  | n -> (generate_id ()) :: generate_ids (n-1)
 
 let clauses : (id, Form.t clause) Hashtbl.t = Hashtbl.create 17
 let get_clause id =

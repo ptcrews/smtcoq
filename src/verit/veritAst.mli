@@ -30,7 +30,7 @@ type term =
 type clause = term list
 type id = string
 type params = id list
-type args = int list
+type args = id list
 type rule = 
   | AssumeAST
   | TrueAST

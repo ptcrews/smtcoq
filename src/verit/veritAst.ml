@@ -35,7 +35,7 @@ type term =
 type clause = term list
 type id = string
 type params = id list
-type args = int list
+type args = id list
 type rule = 
   | AssumeAST
   | TrueAST
@@ -123,7 +123,7 @@ and certif = step list
 let mk_cl (ts : term list) : clause = ts
 let mk_step (s : (id * rule * clause * params * args)) : step = s
 let mk_cert (c : step list) : certif = c
-let mk_args (a : int list) : args = a
+let mk_args (a : id list) : args = a
 
 
 (* Convert certificates to strings for debugging *)
@@ -260,7 +260,7 @@ let rec string_of_certif (c : certif) : string =
       let r' = string_of_rule r in
       let c' = string_of_clause c in
       let p' = List.fold_left concat_sp "" p in
-      let a' = List.fold_left concat_sp "" (List.map string_of_int a) in
+      let a' = List.fold_left concat_sp "" a in
       "("^i^", "^r'^", "^c'^", ["^p'^"], ["^a'^"])\n"^(string_of_certif t)
   | [] -> ""
 
@@ -511,44 +511,35 @@ let rec process_certif (c : certif) : VeritSyntax.id list =
       let r' = process_rule r in
       let c' = process_cl c in
       let p' = List.map (VeritSyntax.id_of_string) p in
-      let a' = List.map (fun x -> VeritSyntax.id_of_string (string_of_int x)) a in
+      let a' = List.map (VeritSyntax.id_of_string) a in
       (* Special treatment for Cong which is split into multiple rules *)
       if (match r' with | Cong -> true | _ -> false) then
-        let new_id1 = VeritSyntax.generate_id () in
-        let new_id2 = VeritSyntax.generate_id () in
-        let new_id3 = VeritSyntax.generate_id () in
-        let new_id4 = VeritSyntax.generate_id () in
-        let new_id5 = VeritSyntax.generate_id () in
-        let new_id6 = VeritSyntax.generate_id () in
-        let new_id7 = VeritSyntax.generate_id () in
-        let new_id8 = VeritSyntax.generate_id () in
-        let args = [new_id1; new_id2; new_id3; new_id4;
-                    new_id5; new_id6; new_id7; new_id8] in
+        let args = VeritSyntax.generate_ids 8 in
         let res = mk_clause (i', r', c', p', args) in
         let t' = process_certif t in
+        (* If the next rule in the certif is a Cong, find the hidden 
+           intermediate steps from its args *)
+        let x = match (List.hd t) with
+                | (_, CongAST, _, _, a_next) -> List.hd a_next
+                | _ -> List.hd t' in
         if List.length t' > 0 then (
-          (* The next step to link to is hidden in the arguments 
-             if it is a Cong step *)
-          let x = match (List.hd t) with
-                  | (_, Cong, _, _, a_next) -> List.hd a_next
-                  | _ -> List.hd t' in
-          (* Function that will link a list of IDs as long as id "" is ignored *)
+          (* Function that will link a list of IDs assuming id "" is ignored *)
           let link_clauses = fun x y -> if (x <> "") then 
-            SmtTrace.link (get_clause_exception ("linking Cong intermediaries in VeritAst.process_certif: "^i') x)
-                       (get_clause_exception ("linking Cong intermediaries in VeritAst.process_certif: "^i') y); 
+            SmtTrace.link (get_clause_exception ("linking Cong intermediaries in VeritAst.process_certif: "^i) x)
+                       (get_clause_exception ("linking Cong intermediaries in VeritAst.process_certif: "^i) y); 
             y in
           (* If the current step is a Cong of a function, there 
              is only one intermediate step to link to *)
-          match VeritSyntax.get_clause new_id2 with
+          match VeritSyntax.get_clause (List.nth args 1) with
           | None -> 
-            (* Side-effect: link all of [new_id1;res;x] sequentially *)
-            let _ = List.fold_left link_clauses "" [new_id1; res; x] in
+            (* Side-effect: link all of [0th(args);res;x] sequentially *)
+            let _ = List.fold_left link_clauses "" [(List.nth args 0); res; x] in
             ()
           (* If the current step is a Cong of predicate, there 
              are 8 intermediate step to link to *)
           | Some _ ->
             (* Side-effect: link all of [args;res;x] sequentially *)
-            let _  = List.fold_left f "" (args @ [res] @ [x]) in
+            let _  = List.fold_left link_clauses "" (args @ [res] @ [x]) in
             ()
           ) else ();
         res :: t'
@@ -556,12 +547,12 @@ let rec process_certif (c : certif) : VeritSyntax.id list =
       else
         let res = mk_clause (i', r', c', p', a') in
         let t' = process_certif t in
+        (* If the next rule in the certif is a Cong, find the hidden 
+           intermediate steps from its args *)
+        let x = match (List.hd t) with
+                | (_, CongAST, _, _, a_next) -> List.hd a_next
+                | _ -> List.hd t' in
         if List.length t' > 0 then (
-          (* The next step to link to is hidden in the arguments 
-             if it is a Cong step *)
-          let x = match (List.hd t) with
-                  | (_, Cong, _, _, a_next) -> List.hd a_next
-                  | _ -> List.hd t' in
           SmtTrace.link (get_clause_exception ("linking clause "^(string_of_id res)^" in VeritAst.process_certif") res) 
                         (get_clause_exception ("linking clause "^(string_of_id x)^" in VeritAst.process_certif") x)
           ) else ();

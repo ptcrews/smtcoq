@@ -115,10 +115,10 @@ line:
 ;
 
 argument:
-  | i=INT                                   { i }
-  | LPAREN i=INT RPAREN                     { i } (* Negative ints are parameterized *)
-  | LPAREN MINUS i=INT RPAREN               { (-i) }
-  (*| LPAREN COLEQ sv=sorted_var s=SYMBOL RPAREN {}*)
+  | s=SYMBOL                                { s }
+  | LPAREN s=SYMBOL RPAREN                  { s } (* Negative ints are parameterized *)
+  (*| LPAREN MINUS i=INT RPAREN               { (-i) }
+  | LPAREN COLEQ sv=sorted_var s=SYMBOL RPAREN {}*)
 ;
   
 ident:
