@@ -581,6 +581,11 @@ let mk_clause (id,typ,value,ids_params,args) =
                 cong rule has no args)
               *)
               else if is_iff l then
+                (* TODO: Add connectives to eq_congruent_pred and in the AST try
+                   to find the type of the hashed term and do the linking of the
+                   extra rules based on the type (is it a pred or a funct?) outside
+                   the main function
+
                 (* Derive (1) and (2) by eq_congruent_pred to get *)
                 let (x, y) = get_iff l in
                 let kind1 = mkCongrPred (prems' @ [Form.neg x] @ [y]) in
@@ -612,7 +617,8 @@ let mk_clause (id,typ,value,ids_params,args) =
                 let res = {rc1 = get_clause_exception id (List.nth args 7);
                            rc2 = get_clause_exception id (List.nth args 8);
                            rtail = []} in
-                Res res
+                Res res*)
+                Other (IffCong (prems, l))
               else assert false
             | _ -> assert false)
       | Distelim ->

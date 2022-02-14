@@ -514,6 +514,26 @@ let rec process_certif (c : certif) : VeritSyntax.id list =
       let a' = List.map (VeritSyntax.id_of_string) a in
       (* Special treatment for Cong which is split into multiple rules *)
       if (match r' with | Cong -> true | _ -> false) then
+        let new_id = VeritSyntax.generate_id () in
+        let res = mk_clause (i', r', c', p', [new_id]) in
+        let t' = process_certif t in
+        if List.length t' > 0 then (
+          let x = List.hd t' in
+          match VeritSyntax.get_clause new_id with
+          | None ->
+              SmtTrace.link (get_clause_exception ("linking clause "^(string_of_id res)^" in VeritAst.process_certif") res) 
+                            (get_clause_exception ("linking clause "^(string_of_id x)^" in VeritAst.process_certif") x)
+          | Some _ -> 
+              SmtTrace.link (get_clause_exception ("linking clause "^(string_of_id new_id)^" in VeritAst.process_certif") new_id)
+                            (get_clause_exception ("linking clause "^(string_of_id res)^" in VeritAst.process_certif") res);
+              SmtTrace.link (get_clause_exception ("linking clause "^(string_of_id res)^" in VeritAst.process_certif") res) 
+                            (get_clause_exception ("linking clause "^(string_of_id x)^" in VeritAst.process_certif") x)
+          ) else ();
+        res :: t'
+      (* TODO: try to find the type of the hashed term and do the linking of the
+          extra rules based on the type (is it a pred or a funct?) outside
+          this main function
+      if (match r' with | Cong -> true | _ -> false) then
         let args = VeritSyntax.generate_ids 8 in
         let res = mk_clause (i', r', c', p', args) in
         let t' = process_certif t in
@@ -542,7 +562,7 @@ let rec process_certif (c : certif) : VeritSyntax.id list =
             let _  = List.fold_left link_clauses "" (args @ [res] @ [x]) in
             ()
           ) else ();
-        res :: t'
+        res :: t'*)
       (* General case *)
       else
         let res = mk_clause (i', r', c', p', a') in
