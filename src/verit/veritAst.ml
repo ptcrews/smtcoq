@@ -125,6 +125,11 @@ let mk_step (s : (id * rule * clause * params * args)) : step = s
 let mk_cert (c : step list) : certif = c
 let mk_args (a : id list) : args = a
 
+let rec get_id (i : id) (c : certif) : clause option = 
+  match c with
+  | (i', r, c, p, a) :: t -> if i = i' then Some c else get_id i t
+  | [] -> None
+
 
 (* Convert certificates to strings for debugging *)
 let string_of_rule (r : rule) : string =
@@ -503,6 +508,38 @@ let process_rule (r: rule) : VeritSyntax.typ =
 (* Rules with args need to be parsed properly *)
 let preprocess_certif (c: certif) : certif = 
   remove_notnot c
+
+let rec process_cong (c : certif) : certif = 
+  let process_cong_aux (c : certif) (cog : certif) : certif = 
+    match c with
+    | (i, r, c, p, a) :: t ->
+        match r with
+        | CongAST ->
+            let i' = VeritSyntax.id_of_string i in
+            let r' = process_rule r in
+            let c' = process_cl c in
+            let p' = List.map (VeritSyntax.id_of_string) p in
+            let a' = List.map (VeritSyntax.id_of_string) a in
+            let prems = List.map (get_clause_exception i) p' in
+            match c' with
+            | l::_ -> 
+                (* congruence over functions *)
+                if is_eq l then
+                  let new_id = VeritSyntax.generate_id () in
+                  let prems = List.map (fun x -> match x with
+                                                 | Some x -> (match x with
+                                                    | h :: _ -> h
+                                                    | _ -> assert false)
+                                                 | None -> assert false) p in
+                  let new_cl = mk_cl (prems @ c) in
+                  (VeritSyntax.string_of_id new_id, EqcoAST, new_cl,[] , []) :: 
+                  (* add the resolution *) process_cong t
+              | _ -> assert false
+          (* if c is an iff then 
+              create new id
+              new_rule = (new_id, Eqco, )*)
+        | _ -> (i, r, c, p, a) :: process_cong t
+    | [] -> []
 
 let rec process_certif (c : certif) : VeritSyntax.id list =
   match c with
