@@ -505,7 +505,33 @@ let process_rule (r: rule) : VeritSyntax.typ =
   | SubproofAST c -> Hole
 
 
-(* Represent Cong in terms of Eqco and Reso *)
+(* We use eq_congruent_pred to prove cong (in the predicate case). 
+   It is an elaborate process, but it saves us the effort of 
+   proving a new rule correct. For cong, we have
+   x1 = y1 and x2 = y2, and we need to prove Px = Py, 
+      short for P(x1, x2) = P(y1, y2)
+   ~(x1 = y1) \/ ~(x2 = y2) \/ ~Px \/ Py --(1) by eq_congruent_pred
+   ~(x1 = y1) \/ ~(x2 = y2) \/ ~Py \/ Px --(2) by eq_congruent_pred
+   (1)  (x1 = y1)  (x2 = y2)        (2)  (x1 = y1)  (x2 = y2)
+   -------------------------Res     -------------------------Res
+        ~Px \/ Py --(3)                   ~Py \/ Px --(4)
+  
+  Px = Py \/ Px \/ Py   --(5) by equiv_neg2
+  Px = Py \/ ~Px \/ ~Py --(6) by equiv_neg1
+  Finally,
+    (3)  (5)          (4)  (6)
+  -------------Res  --------------Res
+  Px = Py \/ Py      Px = Py \/ ~Py
+  ---------------------------------Res
+               Px = Py
+  We do something similar for the function case of cong, except 
+  that there is 1 intermediate step of calling eq_congruent, 
+  followed by a resolution. Here, there are 8. Because, when 
+  the intermediate step numbers are generated in VeritAst, 
+  it is not possible to determine the case of cong, VeritAst
+  passes 8 clause IDs to the cong rule as args (in Alethe, the
+  cong rule has no args)
+*)
 let rec process_cong (c : certif) : certif = 
   let process_cong_aux (c : certif) (cog : certif) : certif = 
     match c with
@@ -545,13 +571,12 @@ let rec process_cong (c : certif) : certif =
 
 
 (* TODO: Rules with args need to be parsed properly *)
-let preprocess_certif (c: certif) : certif = 
+(* Final processing and linking of AST *)
+let preprocess_certif (c: certif) : certif =
   let c1 = remove_notnot c in
   let c2 = process_cong c1 in
   c2
 
-
-(* Final processing and linking of AST *)
 let rec process_certif (c : certif) : VeritSyntax.id list =
   match c with
   | (i, r, c, p, a) :: t ->
@@ -560,69 +585,14 @@ let rec process_certif (c : certif) : VeritSyntax.id list =
       let c' = process_cl c in
       let p' = List.map (VeritSyntax.id_of_string) p in
       let a' = List.map (VeritSyntax.id_of_string) a in
-      (* Special treatment for Cong which is split into multiple rules
-      if (match r' with | Cong -> true | _ -> false) then
-        let new_id = VeritSyntax.generate_id () in
-        let res = mk_clause (i', r', c', p', [new_id]) in
-        let t' = process_certif t in
-        if List.length t' > 0 then (
-          let x = List.hd t' in
-          match VeritSyntax.get_clause new_id with
-          | None ->
-              SmtTrace.link (get_clause_exception ("linking clause "^(string_of_id res)^" in VeritAst.process_certif") res) 
-                            (get_clause_exception ("linking clause "^(string_of_id x)^" in VeritAst.process_certif") x)
-          | Some _ -> 
-              SmtTrace.link (get_clause_exception ("linking clause "^(string_of_id new_id)^" in VeritAst.process_certif") new_id)
-                            (get_clause_exception ("linking clause "^(string_of_id res)^" in VeritAst.process_certif") res);
-              SmtTrace.link (get_clause_exception ("linking clause "^(string_of_id res)^" in VeritAst.process_certif") res) 
-                            (get_clause_exception ("linking clause "^(string_of_id x)^" in VeritAst.process_certif") x)
-          ) else ();
-        res :: t'
-      (* TODO: try to find the type of the hashed term and do the linking of the
-          extra rules based on the type (is it a pred or a funct?) outside
-          this main function
-      if (match r' with | Cong -> true | _ -> false) then
-        let args = VeritSyntax.generate_ids 8 in
-        let res = mk_clause (i', r', c', p', args) in
-        let t' = process_certif t in
-        (* If the next rule in the certif is a Cong, find the hidden 
-           intermediate steps from its args *)
-        let x = match (List.hd t) with
-                | (_, CongAST, _, _, a_next) -> List.hd a_next
-                | _ -> List.hd t' in
-        if List.length t' > 0 then (
-          (* Function that will link a list of IDs assuming id "" is ignored *)
-          let link_clauses = fun x y -> if (x <> "") then 
-            SmtTrace.link (get_clause_exception ("linking Cong intermediaries in VeritAst.process_certif: "^i) x)
-                       (get_clause_exception ("linking Cong intermediaries in VeritAst.process_certif: "^i) y); 
-            y in
-          (* If the current step is a Cong of a function, there 
-             is only one intermediate step to link to *)
-          match VeritSyntax.get_clause (List.nth args 1) with
-          | None -> 
-            (* Side-effect: link all of [0th(args);res;x] sequentially *)
-            let _ = List.fold_left link_clauses "" [(List.nth args 0); res; x] in
-            ()
-          (* If the current step is a Cong of predicate, there 
-             are 8 intermediate step to link to *)
-          | Some _ ->
-            (* Side-effect: link all of [args;res;x] sequentially *)
-            let _  = List.fold_left link_clauses "" (args @ [res] @ [x]) in
-            ()
-          ) else ();
-        res :: t'*)
-      (* General case *)
-      else*)
-        let res = mk_clause (i', r', c', p', a') in
-        let t' = process_certif t in
-        (* If the next rule in the certif is a Cong, find the hidden 
-           intermediate steps from its args *)
-        if List.length t' > 0 then (
-          let x = (*match (List.hd t) with
-                | (_, CongAST, _, _, a_next) -> List.hd a_next
-                | _ -> List.hd t'*) List.hd t' in
-          SmtTrace.link (get_clause_exception ("linking clause "^(string_of_id res)^" in VeritAst.process_certif") res) 
-                        (get_clause_exception ("linking clause "^(string_of_id x)^" in VeritAst.process_certif") x)
-          ) else ();
-        res :: t'
+      (* Must do this in this order to avoid side effects *)
+      let res = mk_clause (i', r', c', p', a') in
+      (* Process next step for linking *)
+      let t' = process_certif t in
+      if List.length t' > 0 then (
+        let x = List.hd t' in
+        SmtTrace.link (get_clause_exception ("linking clause "^(string_of_id res)^" in VeritAst.process_certif") res) 
+                      (get_clause_exception ("linking clause "^(string_of_id x)^" in VeritAst.process_certif") x)
+        ) else ();
+      res :: t'
   | [] -> []
