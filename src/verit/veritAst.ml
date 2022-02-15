@@ -125,9 +125,9 @@ let mk_step (s : (id * rule * clause * params * args)) : step = s
 let mk_cert (c : step list) : certif = c
 let mk_args (a : id list) : args = a
 
-let rec get_id (i : id) (c : certif) : clause option = 
+let rec get_cl (i : id) (c : certif) : clause option = 
   match c with
-  | (i', r, c, p, a) :: t -> if i = i' then Some c else get_id i t
+  | (i', r, c, p, a) :: t -> if i = i' then Some c else get_cl i t
   | [] -> None
 
 
@@ -324,7 +324,7 @@ let to_sequential_ids (c : certif) : certif =
   in (clear_ids (); aux 1 c)
 
 
-(* Convert an AST to a linked list of clauses *)
+(* Convert an AST to a list of clauses *)
 
 let process_typ (t : typ) : SmtBtype.btype =
   match t with
@@ -505,42 +505,53 @@ let process_rule (r: rule) : VeritSyntax.typ =
   | SubproofAST c -> Hole
 
 
-(* Rules with args need to be parsed properly *)
-let preprocess_certif (c: certif) : certif = 
-  remove_notnot c
-
+(* Represent Cong in terms of Eqco and Reso *)
 let rec process_cong (c : certif) : certif = 
   let process_cong_aux (c : certif) (cog : certif) : certif = 
     match c with
     | (i, r, c, p, a) :: t ->
-        match r with
+        (match r with
         | CongAST ->
             let i' = VeritSyntax.id_of_string i in
             let r' = process_rule r in
             let c' = process_cl c in
             let p' = List.map (VeritSyntax.id_of_string) p in
             let a' = List.map (VeritSyntax.id_of_string) a in
-            let prems = List.map (get_clause_exception i) p' in
-            match c' with
+            (match c' with
             | l::_ -> 
                 (* congruence over functions *)
                 if is_eq l then
                   let new_id = VeritSyntax.generate_id () in
-                  let prems = List.map (fun x -> match x with
-                                                 | Some x -> (match x with
-                                                    | h :: _ -> h
-                                                    | _ -> assert false)
-                                                 | None -> assert false) p in
+                  (* get premises and convert from clauses to formulas *)
+                  let prems = List.map (fun x -> (match (get_cl x cog) with
+                                                 | Some x -> Not (List.hd x)
+                                                 | None -> assert false)) p in
+                  (* perform application of eq_congruent to 
+                   get a CNF form of the rule application *)
                   let new_cl = mk_cl (prems @ c) in
-                  (VeritSyntax.string_of_id new_id, EqcoAST, new_cl,[] , []) :: 
+                  (* then, resolve out all the premises from the CNF so only 
+                   the conclusion is left *)
+                  (VeritSyntax.string_of_id new_id, EqcoAST, new_cl, [], []) ::
+                  (i, ResoAST, c, new_id :: p, a) :: 
                   (* add the resolution *) process_cong t
-              | _ -> assert false
-          (* if c is an iff then 
-              create new id
-              new_rule = (new_id, Eqco, )*)
-        | _ -> (i, r, c, p, a) :: process_cong t
+                else
+                  (* congruence over predicates*)
+                  (i, r, c, p, a) :: process_cong t
+              | _ -> assert false)
+        | _ -> let c' = process_cl c in 
+               (i, r, c, p, a) :: process_cong t)
     | [] -> []
+    in process_cong_aux c c
 
+
+(* TODO: Rules with args need to be parsed properly *)
+let preprocess_certif (c: certif) : certif = 
+  let c1 = remove_notnot c in
+  let c2 = process_cong c1 in
+  c2
+
+
+(* Final processing and linking of AST *)
 let rec process_certif (c : certif) : VeritSyntax.id list =
   match c with
   | (i, r, c, p, a) :: t ->
@@ -549,7 +560,7 @@ let rec process_certif (c : certif) : VeritSyntax.id list =
       let c' = process_cl c in
       let p' = List.map (VeritSyntax.id_of_string) p in
       let a' = List.map (VeritSyntax.id_of_string) a in
-      (* Special treatment for Cong which is split into multiple rules *)
+      (* Special treatment for Cong which is split into multiple rules
       if (match r' with | Cong -> true | _ -> false) then
         let new_id = VeritSyntax.generate_id () in
         let res = mk_clause (i', r', c', p', [new_id]) in
@@ -601,15 +612,15 @@ let rec process_certif (c : certif) : VeritSyntax.id list =
           ) else ();
         res :: t'*)
       (* General case *)
-      else
+      else*)
         let res = mk_clause (i', r', c', p', a') in
         let t' = process_certif t in
         (* If the next rule in the certif is a Cong, find the hidden 
            intermediate steps from its args *)
-        let x = match (List.hd t) with
-                | (_, CongAST, _, _, a_next) -> List.hd a_next
-                | _ -> List.hd t' in
         if List.length t' > 0 then (
+          let x = (*match (List.hd t) with
+                | (_, CongAST, _, _, a_next) -> List.hd a_next
+                | _ -> List.hd t'*) List.hd t' in
           SmtTrace.link (get_clause_exception ("linking clause "^(string_of_id res)^" in VeritAst.process_certif") res) 
                         (get_clause_exception ("linking clause "^(string_of_id x)^" in VeritAst.process_certif") x)
           ) else ();

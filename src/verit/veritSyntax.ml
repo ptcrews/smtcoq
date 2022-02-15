@@ -536,7 +536,7 @@ let mk_clause (id,typ,value,ids_params,args) =
           (match value with
             | l::_ -> 
               (* convert prems from clauses to forms *)
-              let prems' = List.map (fun x -> match x.value with 
+              (*let prems' = List.map (fun x -> match x.value with 
                 | Some l -> Form.neg (List.hd l) 
                 | None -> assert false) prems in
               (* congruence over functions *)
@@ -617,9 +617,9 @@ let mk_clause (id,typ,value,ids_params,args) =
                 let res = {rc1 = get_clause_exception id (List.nth args 7);
                            rc2 = get_clause_exception id (List.nth args 8);
                            rtail = []} in
-                Res res*)
+                Res res*)*)
                 Other (IffCong (prems, l))
-              else assert false
+              (*else assert false*)
             | _ -> assert false)
       | Distelim ->
           (match value with
