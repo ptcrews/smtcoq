@@ -199,6 +199,18 @@ let rec process_congr a_args b_args prem res =
   | [],[] -> List.rev res
   | _ -> raise (Debug "VeritSyntax.process_congr: incorrect number of arguments in function application")
 
+(* Using this for congruence over connectives
+let rec process_congr_form a_args b_args prem res =
+  match a_args, b_args with
+  | a::a_args,b::b_args ->
+      let (l, (a', b')) = List.find (fun (l, (a', b')) -> 
+                                      ((SmtAtom.Form.equal a a') && (SmtAtom.Form.equal b b'))||
+                                      ((SmtAtom.Form.equal a b') && (SmtAtom.Form.equal b a')))
+                               prem in
+      process_congr_form a_args b_args prem ((Some l)::res)
+  | [], [] -> List.rev res
+  | _ -> raise (Debug "VeritSyntax.process_congr_form: incorrect number of arguments in function appliction")*)
+
 let mkCongr_aux c prem = 
   let a,b = get_eq c in
     let prem_val = List.map (fun l -> (l,get_eq l)) prem in
@@ -227,6 +239,7 @@ let mkCongr p =
   |_ -> raise (Debug "VeritSyntax.mkCongr: no conclusion or more than one conclusion in congruence")
 
 let mkCongrPred p =
+  (*if (is_eq (List.hd p)) then*)
     let (concl,prem) = List.partition Form.is_pos p in
     let (prem,prem_P) = List.partition is_eq prem in
     match concl with
@@ -248,6 +261,55 @@ let mkCongrPred p =
           | _ -> raise (Debug "VeritSyntax.mkCongrPred : not pred app"))
        |_ ->  raise (Debug "VeritSyntax.mkCongr: no or more than one predicate app premise in congruence"))  
     | _ -> raise (Debug "VeritSyntax.mkCongr: no conclusion in congruence")
+  (*else if (is_iff (List.hd p)) then
+    let l = List.length p in
+    let concl = [List.nth p (l-1)] in
+    let prem_P = [List.nth p (l-2)] in
+    let prem = List.rev (List.tl (List.tl (List.rev p))) in
+    match concl with
+    |[c] ->
+      (match prem_P with
+       | [p_p] ->
+          let prem_val = List.map (fun l -> l,get_iff l) prem in
+          (match Form.pform c, Form.pform p_p with
+          | Fapp (Fand, a), Fapp (Fand, b) -> 
+              let a_args = Array.to_list a in 
+              let b_args = Array.to_list b in
+              let cert = process_congr_form a_args b_args prem_val [] in
+                Other (EqCgrP (p_p, c, cert))
+          | Fapp (For, a), Fapp (For, b) ->
+              let a_args = Array.to_list a in 
+              let b_args = Array.to_list b in
+              let cert = process_congr_form a_args b_args prem_val [] in
+                Other (EqCgrP (p_p, c, cert))
+          | Fapp (Fxor, a), Fapp (Fxor, b) ->
+              let a_args = Array.to_list a in 
+              let b_args = Array.to_list b in
+              let cert = process_congr_form a_args b_args prem_val [] in
+                Other (EqCgrP (p_p, c, cert))
+          | Fapp (Fimp, a), Fapp (Fimp, b) ->
+              let a_args = Array.to_list a in 
+              let b_args = Array.to_list b in
+              let cert = process_congr_form a_args b_args prem_val [] in
+                Other (EqCgrP (p_p, c, cert))
+          | Fapp (Fiff, a), Fapp (Fiff, b) ->
+              let a_args = Array.to_list a in 
+              let b_args = Array.to_list b in
+              let cert = process_congr_form a_args b_args prem_val [] in
+                Other (EqCgrP (p_p, c, cert)) 
+          | Fapp (Fite, a), Fapp (Fite, b) ->
+              let a_args = Array.to_list a in 
+              let b_args = Array.to_list b in
+              let cert = process_congr_form a_args b_args prem_val [] in
+                Other (EqCgrP (p_p, c, cert))
+          | f1, f2 when Form.is_neg c && Form.is_pos p_p -> 
+              let cert = process_congr_form [Form.neg c] [p_p] prem_val [] in
+                Other (EqCgrP (p_p, c, cert))
+          | _ -> raise (Debug "VeritSyntax.mkCongrPred formula case: not pred app"))
+        | _ -> raise (Debug "VeritSyntax.mkCongr formula case: no or more than 
+                                    one predicate app premise in congruence"))
+      | _ -> raise (Debug "VeritSyntax.mkCongr formula case: no conclusion in congruence")
+  else raise (Debug "VeritSyntax.mkCongr: the first premise is neither an equality nor an iff")*)
 
 (* Return true if typ is Cong and value is a singleton clause of an equality (function case), 
    else return false *)

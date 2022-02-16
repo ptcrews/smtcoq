@@ -244,7 +244,7 @@ let rec string_of_term (t : term) : string =
                                 f^" ("^args^")"
   | Var v -> v
   | STerm s -> s
-  | NTerm (s, t) -> s^" :named "^(string_of_term t)
+  | NTerm (s, t) -> "("^(string_of_term t)^" :named "^s^")"
   | Int i -> string_of_int i
   | Lt (t1, t2) -> (string_of_term t1)^" < "^(string_of_term t2)
   | Leq (t1, t2) -> (string_of_term t1)^" <= "^(string_of_term t2)
@@ -532,40 +532,68 @@ let process_rule (r: rule) : VeritSyntax.typ =
   passes 8 clause IDs to the cong rule as args (in Alethe, the
   cong rule has no args)
 *)
-let rec process_cong (c : certif) : certif = 
-  let process_cong_aux (c : certif) (cog : certif) : certif = 
+(*
+  TODO: Predicate case. Issues: Currently all premises are expected to explicit,
+  but the rule uses implicit premises such as true = true, which need to be 
+  inferred and added to the resolutions (for each of these premises a rule of refl
+  must be invoked). Without this, process_congr_form probably fails.
+*)
+let process_cong (c : certif) : certif = 
+  let rec process_cong_aux (c : certif) (cog : certif) : certif = 
     match c with
     | (i, r, c, p, a) :: t ->
         (match r with
         | CongAST ->
-            let i' = VeritSyntax.id_of_string i in
-            let r' = process_rule r in
             let c' = process_cl c in
-            let p' = List.map (VeritSyntax.id_of_string) p in
-            let a' = List.map (VeritSyntax.id_of_string) a in
             (match c' with
-            | l::_ -> 
+            | l::_ ->
+                (* get premises and convert from clauses to formulas *)
+                let prems = List.map (fun x -> (match (get_cl x cog) with
+                | Some x -> Not (List.hd x)
+                | None -> assert false)) p in
                 (* congruence over functions *)
                 if is_eq l then
                   let new_id = VeritSyntax.generate_id () in
-                  (* get premises and convert from clauses to formulas *)
-                  let prems = List.map (fun x -> (match (get_cl x cog) with
-                                                 | Some x -> Not (List.hd x)
-                                                 | None -> assert false)) p in
                   (* perform application of eq_congruent to 
                    get a CNF form of the rule application *)
                   let new_cl = mk_cl (prems @ c) in
                   (* then, resolve out all the premises from the CNF so only 
                    the conclusion is left *)
                   (VeritSyntax.string_of_id new_id, EqcoAST, new_cl, [], []) ::
-                  (i, ResoAST, c, new_id :: p, a) :: 
-                  (* add the resolution *) process_cong t
+                  (i, ResoAST, c, new_id :: p, a) :: process_cong_aux t cog
+                (* congruence over predicates*)
+                (*else if is_iff l then
+                  let new_id1 = VeritSyntax.generate_id () in
+                  let new_id2 = VeritSyntax.generate_id () in
+                  let new_id3 = VeritSyntax.generate_id () in
+                  let new_id4 = VeritSyntax.generate_id () in
+                  let new_id5 = VeritSyntax.generate_id () in
+                  let new_id6 = VeritSyntax.generate_id () in
+                  let new_id7 = VeritSyntax.generate_id () in
+                  let new_id8 = VeritSyntax.generate_id () in
+                  let (c1, c2) = (match List.hd c with
+                                  | Eq (x, y) -> (x, y)
+                                  | _ -> assert false) in
+                  (* Construct (1) and (2) *)
+                  let cl1 = (new_id1, EqcpAST, mk_cl (prems @ [Not c1] @ [c2]), [], []) in
+                  let cl2 = (new_id2, EqcpAST, mk_cl (prems @ [Not c2] @ [c1]), [], []) in
+                  (* Construct (3) and (4) *)
+                  let cl3 = (new_id3, ResoAST, mk_cl [Not c1; c2], new_id1::p, []) in
+                  let cl4 = (new_id4, ResoAST, mk_cl [Not c2; c1], new_id2::p, []) in
+                  (* Construct (5) and (6) *)
+                  let cl5 = (new_id5, Nequ2AST, mk_cl [List.hd c; c1; c2], [], []) in
+                  let cl6 = (new_id6, Nequ1AST, mk_cl [List.hd c; Not c1; Not c2], [], []) in
+                  (* Final resolutions *)
+                  let cl7 = (new_id7, ResoAST, mk_cl [List.hd c; c1], [new_id3; new_id5], []) in
+                  let cl8 = (new_id8, ResoAST, mk_cl [List.hd c; Not c1], [new_id4; new_id6], []) in
+                  let cl9 = (i, ResoAST, c, [new_id7; new_id8], []) in
+                  cl1 :: cl2 :: cl3 :: cl4 :: cl5 :: cl6 :: cl7 :: cl8 :: cl9 :: process_cong_aux t cog*)
                 else
-                  (* congruence over predicates*)
-                  (i, r, c, p, a) :: process_cong t
+                  (i, r, c, p, a) :: process_cong_aux t cog
               | _ -> assert false)
-        | _ -> let c' = process_cl c in 
-               (i, r, c, p, a) :: process_cong t)
+        | _ -> (* This is necessary to add the shared terms to the hash tables *)
+               let c' = process_cl c in
+               (i, r, c, p, a) :: process_cong_aux t cog)
     | [] -> []
     in process_cong_aux c c
 
