@@ -111,14 +111,21 @@ line:
     { mk_step (s, r, c, prems, arguments) }
   | LPAREN STEP s=SYMBOL c=clause COLRULE r=rulename COLARGS LPAREN arguments=argument* RPAREN RPAREN EOL
     { mk_step (s, r, c, [], arguments) }
-  (* Add anchor *)
+  | LPAREN ANCHOR COLSTEP s1=SYMBOL COLARGS LPAREN arguments=argument* RPAREN RPAREN EOL
+    LPAREN STEP s2=SYMBOL c2=clause COLRULE REFL RPAREN EOL
+    LAPREN STEP s3=SYMBOL c3=clause COLRULE BIND RPAREN EOL
+    LPAREN STEP s4=SYMBOL c4=clause COLRULE EQUP2 RPAREN EOL
+    LPAREN STEP s5=SYMBOL c5=clause COLRULE THRESO COLPREMISES LPAREN prems=SYMBOL+ RPAREN RPAREN EOL
+    {}
 ;
 
 argument:
   | s=SYMBOL                                { s }
   | LPAREN s=SYMBOL RPAREN                  { s } (* Negative ints are parameterized *)
-  (*| LPAREN MINUS i=INT RPAREN               { (-i) }
-  | LPAREN COLEQ sv=sorted_var s=SYMBOL RPAREN {}*)
+  | LPAREN MINUS i=INT RPAREN               { string_of_int (-i) }
+  | i=INT                                   { string_of_int i }
+  | LPAREN COLEQ sv=sorted_var s=SYMBOL RPAREN 
+    { s } (* Need to process these properly *)
 ;
   
 ident:
@@ -206,7 +213,7 @@ rulename:
   | RESO                                    { ResoAST }
   | TAUT                                    { TautAST }
   | CONT                                    { ContAST }
-  (*| REFL                                    { HoleAST }*)
+  | REFL                                    { ReflAST }
   | TRANS                                   { TransAST }
   | CONG                                    { CongAST }
   | EQRE                                    { EqreAST }
@@ -273,7 +280,7 @@ rulename:
   | SUMSIMP                                 { SumsimpAST }
   | COMPSIMP                                { CompsimpAST }
   | LARWEQ                                  { LarweqAST}
-
+  | BIND                                    { BindAST }
 (*function_def:
   | SYMBOL LPAREN sorted_var* RPAREN sort term { "" }
 ;
