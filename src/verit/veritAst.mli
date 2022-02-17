@@ -1,6 +1,7 @@
 type typ = 
   | Int
   | Bool
+  | Unintr of string
 
 type term =
   | True

@@ -6,6 +6,7 @@ open VeritSyntax
 type typ = 
   | Int
   | Bool
+  | Unintr of string
 
 type term =
   | True
@@ -131,6 +132,84 @@ let rec get_cl (i : id) (c : certif) : clause option =
   | [] -> None
 
 
+(* Term equality with alpha renaming of foralls *)
+let type_eq (t1 : typ) (t2 : typ) : bool =
+  match t1, t2 with
+  | Int, Int -> true
+  | Bool, Bool -> true
+  | Unintr s1, Unintr s2 -> s1 = s2
+  | _, _ -> false
+
+let rec term_eq_alpha (subs : (string * string) list) (t1 : term) (t2 : term) : bool =
+  let check_arg_lists (x : term list) (y : term list) : bool =
+    if List.length x = List.length y then
+      List.fold_left (&&) true (List.map2 (term_eq_alpha subs) x y)
+    else false
+  in match t1, t2 with
+  | True, True -> true
+  | False, False -> true
+  | Not t1', Not t2' -> term_eq_alpha subs t1' t2'
+  | And ts1, And ts2 -> check_arg_lists ts1 ts2
+  | Or ts1, Or ts2 -> check_arg_lists ts1 ts2
+  | Imp ts1, Imp ts2 -> check_arg_lists ts1 ts2
+  | Xor ts1, Xor ts2 -> check_arg_lists ts1 ts2
+  | Ite ts1, Ite ts2 -> check_arg_lists ts1 ts2
+  | Forall (xs, t1'), Forall (ys, t2') ->
+      raise (Debug ("checking equality of forall term nested inside another forall term"))
+  | Eq (t11, t12), Eq (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
+  | App (f1, t1'), App (f2, t2') -> f1 = f2 && check_arg_lists t1' t2'
+  | Var x, Var y -> x = y || 
+    List.exists (fun (a, b) -> a = x && b = y || a = y && b = x) subs
+  | STerm x, STerm y -> x = y
+  | NTerm (s1, t1'), NTerm (s2, t2') -> s1 = s2 && term_eq_alpha subs t1' t2'
+  | Int i, Int j -> i = j
+  | Lt (t11, t12), Lt (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
+  | Leq (t11, t12), Leq (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
+  | Gt (t11, t12), Gt (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
+  | Geq (t11, t12), Geq (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
+  | UMinus t1', UMinus t2' -> term_eq_alpha subs t1' t2'
+  | Plus (t11, t12), Lt (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
+  | Minus (t11, t12), Lt (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
+  | Mult (t11, t12), Lt (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
+  | _ -> false
+
+let rec term_eq (t1 : term) (t2 : term) : bool =
+  let check_arg_lists (x : term list) (y : term list) : bool =
+    if List.length x = List.length y then
+      List.fold_left (&&) true (List.map2 term_eq x y)
+    else false
+  in match t1, t2 with
+  | True, True -> true
+  | False, False -> true
+  | Not t1', Not t2' -> term_eq t1' t2'
+  | And ts1, And ts2 -> check_arg_lists ts1 ts2
+  | Or ts1, Or ts2 -> check_arg_lists ts1 ts2
+  | Imp ts1, Imp ts2 -> check_arg_lists ts1 ts2
+  | Xor ts1, Xor ts2 -> check_arg_lists ts1 ts2
+  | Ite ts1, Ite ts2 -> check_arg_lists ts1 ts2
+  | Forall (xs, t1'), Forall (ys, t2') ->
+      let subs = List.map2 (fun (x, tx) (y, ty) -> (x, y)) xs ys in
+      (List.length xs = List.length ys) &&
+      (List.fold_left (&&) true 
+        (List.map2 (fun (x, tx) (y, ty) -> type_eq tx ty) xs ys)) && 
+      term_eq_alpha subs t1' t2'
+  | Eq (t11, t12), Eq (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
+  | App (f1, t1'), App (f2, t2') -> f1 = f2 && check_arg_lists t1' t2'
+  | Var x, Var y -> x = y
+  | STerm x, STerm y -> x = y
+  | NTerm (s1, t1'), NTerm (s2, t2') -> s1 = s2 && term_eq t1' t2'
+  | Int i, Int j -> i = j
+  | Lt (t11, t12), Lt (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
+  | Leq (t11, t12), Leq (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
+  | Gt (t11, t12), Gt (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
+  | Geq (t11, t12), Geq (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
+  | UMinus t1', UMinus t2' -> term_eq t1' t2'
+  | Plus (t11, t12), Lt (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
+  | Minus (t11, t12), Lt (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
+  | Mult (t11, t12), Lt (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
+  | _ -> false
+
+
 (* Convert certificates to strings for debugging *)
 let string_of_rule (r : rule) : string =
   match r with
@@ -219,6 +298,7 @@ let string_of_typ (t : typ) : string =
   match t with
   | Int -> "Int"
   | Bool -> "Bool"
+  | Unintr s -> "(Unintr "^s^")"
 
 let concat_sp x y = x^" "^y
 
@@ -270,13 +350,96 @@ let rec string_of_certif (c : certif) : string =
   | [] -> ""
 
 
-(* Convert Cong to Eqco + Reso for congruences over functions *)
+(* Given a certificate, and a set of terms-alias pairs, 
+   replace all aliases by the original term *)
 
-(*let rec replace_cong (c : certif) : certif = 
+(* Replace an alias by its original term *)
+let rec replace_name (n : string) (t : term) (al : term) : term = 
+  match al with
+| True | False | Int _ | Var _ | NTerm (_, _) -> al
+| Not t' -> Not (replace_name n t t')
+| And ts -> And (List.map (replace_name n t) ts)
+| Or ts -> And (List.map (replace_name n t) ts)
+| Imp ts -> And (List.map (replace_name n t) ts)
+| Xor ts -> And (List.map (replace_name n t) ts)
+| Ite ts -> And (List.map (replace_name n t) ts)
+| Forall (vs, t') -> Forall (vs, (replace_name n t t'))
+| Eq (t1, t2) -> Eq ((replace_name n t t1), (replace_name n t t1))
+| App (f, ts) -> App (f, (List.map (replace_name n t) ts))
+| STerm s -> if n = s then t else al
+| Lt (t1, t2) -> Lt ((replace_name n t t1), (replace_name n t t1))
+| Leq (t1, t2) -> Leq ((replace_name n t t1), (replace_name n t t1))
+| Gt (t1, t2) -> Gt ((replace_name n t t1), (replace_name n t t1))
+| Geq (t1, t2) -> Geq ((replace_name n t t1), (replace_name n t t1))
+| UMinus t' -> UMinus (replace_name n t t')
+| Plus (t1, t2) -> Plus ((replace_name n t t1), (replace_name n t t1))
+| Minus (t1, t2) -> Minus ((replace_name n t t1), (replace_name n t t1))
+| Mult (t1, t2) -> Mult ((replace_name n t t1), (replace_name n t t1))
+
+(* Replace all aliases that occur in a clause *)
+let rec replace_name_cl (n : string) (t : term) (c : clause) : clause =
   match c with
-  | (i, r, c, p, a) :: t -> 
-      (match r with
-       | CongAST -> match c with)*)
+  | h :: t' -> replace_name n t h :: replace_name_cl n t t'
+  | [] -> []
+
+(* Replace all occurrences of the input aliases in a certif *)
+let rec replace_name_certif (named_terms : (string * term) list) (c : certif) : certif =
+  match c with
+  | (i, r, c, p, a) :: t ->
+      let c' = List.fold_left (fun c (n,t) -> replace_name_cl n t c) c named_terms in
+      (i, r, c', p, a) :: replace_name_certif named_terms t
+  | [] -> []
+
+
+(* Given a clause, return a list of term-alias pairs created in the clause *)
+let rec term_alias (t : term) : (string * term) list =
+  match t with
+  | True | False | Int _ | Var _ | STerm _ -> []
+  | NTerm (n, t') -> let l = term_alias t' in l @ [n, t']
+  | Not t' -> term_alias t'
+  | And ts -> List.fold_left (@) [] (List.map term_alias ts)
+  | Or ts -> List.fold_left (@) [] (List.map term_alias ts)
+  | Imp ts -> List.fold_left (@) [] (List.map term_alias ts)
+  | Xor ts -> List.fold_left (@) [] (List.map term_alias ts)
+  | Ite ts -> List.fold_left (@) [] (List.map term_alias ts)
+  | Forall (vs, t') -> term_alias t'
+  | Eq (t1, t2) -> (term_alias t1) @ (term_alias t2)
+  | App (f, ts) -> List.fold_left (@) [] (List.map term_alias ts)
+  | Lt (t1, t2) -> (term_alias t1) @ (term_alias t2)
+  | Leq (t1, t2) -> (term_alias t1) @ (term_alias t2)
+  | Gt (t1, t2) -> (term_alias t1) @ (term_alias t2)
+  | Geq (t1, t2) -> (term_alias t1) @ (term_alias t2)
+  | UMinus t' -> term_alias t'
+  | Plus (t1, t2) -> (term_alias t1) @ (term_alias t2)
+  | Minus (t1, t2) -> (term_alias t1) @ (term_alias t2)
+  | Mult (t1, t2) -> (term_alias t1) @ (term_alias t2)
+
+let term_alias_cl (c : clause) : (string * term) list =
+  List.fold_left (@) [] (List.map term_alias c)
+
+
+(* Process the forall_inst rule, with all the alpha renamings *)
+let rec process_fins (c : certif) : certif =
+  match c with
+  | (i1, AnchorAST, c1, p1, a1) :: (i2, ReflAST, c2, p2, a2) ::
+    (i3, CongAST, c3, p3, a3)   :: (i4, BindAST, c4, p4, a4) ::
+    (i5, Equn2AST, c5, p5, a5)  :: (i6, ThresoAST, c6, p6, a6) :: t ->
+      let () = (match (List.hd c6) with
+      | STerm s -> add_ref s i6
+      | _ -> raise (VeritSyntax.Debug ("Expecting clause at "^(string_of_id i6)^" to be an alias."))) in
+      let als = (term_alias_cl c2) @ (term_alias_cl c3) 
+              @ (term_alias_cl c4) @ (term_alias_cl c5)
+              @ (term_alias_cl c6) in
+      (i6, BindAST, [], [List.hd p6], []) :: process_fins (replace_name_certif als t)
+  | (_, QcnfAST, c, _, _) :: t ->
+      let als = term_alias_cl c in process_fins (replace_name_certif als t)
+  | (i, FinsAST, c, p, a) :: t -> 
+      let st = (match (List.hd c) with
+      | Or [(Not (STerm s)); t2] -> (i, FinsAST, [t2], [get_ref s], [])
+      | _ -> raise (VeritSyntax.Debug ("Expecting argument of forall_inst to be (or (Not lemma) instance) at "^(string_of_id i)))) in
+    st :: process_fins t
+  | (i, r, c, p, a) :: t -> (i, r, c, p, a) :: process_fins t
+  | [] -> []
 
 
 (* Remove notnot rule from certificate *)
@@ -603,7 +766,8 @@ let process_cong (c : certif) : certif =
 let preprocess_certif (c: certif) : certif =
   let c1 = remove_notnot c in
   let c2 = process_cong c1 in
-  c2
+  let c3 = process_fins c2 in
+  c3
 
 let rec process_certif (c : certif) : VeritSyntax.id list =
   match c with

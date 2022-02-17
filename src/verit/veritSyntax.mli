@@ -110,8 +110,8 @@ val get_clause_exception : string -> id -> SmtAtom.Form.t SmtCertif.clause
 val add_clause : id -> SmtAtom.Form.t SmtCertif.clause -> unit
 val clauses_to_string : string
 
-val add_ref : string -> int -> unit
-val get_ref : string -> int
+val add_ref : string -> id -> unit
+val get_ref : string -> id
 val to_add : (int * SmtAtom.Form.t list) list ref
 
 val mk_clause : id * typ * SmtAtom.Form.t list * id list * id list -> id

@@ -111,12 +111,8 @@ line:
     { mk_step (s, r, c, prems, arguments) }
   | LPAREN STEP s=SYMBOL c=clause COLRULE r=rulename COLARGS LPAREN arguments=argument* RPAREN RPAREN EOL
     { mk_step (s, r, c, [], arguments) }
-  | LPAREN ANCHOR COLSTEP s1=SYMBOL COLARGS LPAREN arguments=argument* RPAREN RPAREN EOL
-    LPAREN STEP s2=SYMBOL c2=clause COLRULE REFL RPAREN EOL
-    LAPREN STEP s3=SYMBOL c3=clause COLRULE BIND RPAREN EOL
-    LPAREN STEP s4=SYMBOL c4=clause COLRULE EQUP2 RPAREN EOL
-    LPAREN STEP s5=SYMBOL c5=clause COLRULE THRESO COLPREMISES LPAREN prems=SYMBOL+ RPAREN RPAREN EOL
-    {}
+  | LPAREN ANCHOR COLSTEP s=SYMBOL COLARGS LPAREN arguments=argument* RPAREN RPAREN EOL
+    { mk_step ((generate_id ()), AnchorAST, [], [s], arguments) }
 ;
 
 argument:
@@ -281,6 +277,8 @@ rulename:
   | COMPSIMP                                { CompsimpAST }
   | LARWEQ                                  { LarweqAST}
   | BIND                                    { BindAST }
+  | FINS                                    { FinsAST }
+  | QCNF                                    { QcnfAST }
 (*function_def:
   | SYMBOL LPAREN sorted_var* RPAREN sort term { "" }
 ;

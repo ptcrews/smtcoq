@@ -417,7 +417,7 @@ let clauses_to_string : string =
   clauses ""
 
 (* <ref_cl> maps solver integers to id integers. *)
-let ref_cl : (string, int) Hashtbl.t = Hashtbl.create 17
+let ref_cl : (string, id) Hashtbl.t = Hashtbl.create 17
 let get_ref i = Hashtbl.find ref_cl i
 let add_ref i j = Hashtbl.add ref_cl i j
 let clear_ref () = Hashtbl.clear ref_cl
@@ -644,7 +644,7 @@ let mk_clause (id,typ,value,ids_params,args) =
             let cl_th = get_clause_exception id ref_th in
             Other (Forall_inst (repr cl_th, inst))
          | _ -> raise (Debug ("VeritSyntax.ml: unexpected form of forall_inst\nID: "^id)))
-      | Bind -> 
+      | Bind ->
         (match ids_params with
          | [i] -> Same (get_clause_exception id i)
          | _ -> raise (Debug ("VeritSyntax.ml: unexpected form of bind subproof\nID: "^id)))
