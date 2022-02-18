@@ -117,6 +117,7 @@ type rule =
   | FinsAST
   | QcnfAST
   | AnchorAST
+  | SameAST
   | SubproofAST of certif
 and step = id * rule * clause * params * args
 and certif = step list
@@ -291,6 +292,7 @@ let string_of_rule (r : rule) : string =
   | BindAST -> "BindAST"
   | FinsAST -> "FinsAST"
   | QcnfAST -> "QcnfAST"
+  | SameAST -> "SameAST"
   | AnchorAST -> "AnchorAST"
   | SubproofAST _ -> "SubproofAST"
 
@@ -350,75 +352,34 @@ let rec string_of_certif (c : certif) : string =
   | [] -> ""
 
 
-(* Given a certificate, and a set of terms-alias pairs, 
-   replace all aliases by the original term *)
+(* Pass through certificate and store all shared term names in a 
+   hash table *)
+let sterms : (string, term) Hashtbl.t = Hashtbl.create 17
+let get_sterm s =
+  try Hashtbl.find sterms s
+  with 
+  | Not_found -> raise (Debug 
+      ("VeritAST.get_sterm : shared term with name "^s^" not found\n"))
+let add_sterm s t = Hashtbl.add sterms s t
+let clear_sterms () = Hashtbl.clear sterms
 
-(* Replace an alias by its original term *)
-let rec replace_name (n : string) (t : term) (al : term) : term = 
-  match al with
-| True | False | Int _ | Var _ | NTerm (_, _) -> al
-| Not t' -> Not (replace_name n t t')
-| And ts -> And (List.map (replace_name n t) ts)
-| Or ts -> And (List.map (replace_name n t) ts)
-| Imp ts -> And (List.map (replace_name n t) ts)
-| Xor ts -> And (List.map (replace_name n t) ts)
-| Ite ts -> And (List.map (replace_name n t) ts)
-| Forall (vs, t') -> Forall (vs, (replace_name n t t'))
-| Eq (t1, t2) -> Eq ((replace_name n t t1), (replace_name n t t1))
-| App (f, ts) -> App (f, (List.map (replace_name n t) ts))
-| STerm s -> if n = s then t else al
-| Lt (t1, t2) -> Lt ((replace_name n t t1), (replace_name n t t1))
-| Leq (t1, t2) -> Leq ((replace_name n t t1), (replace_name n t t1))
-| Gt (t1, t2) -> Gt ((replace_name n t t1), (replace_name n t t1))
-| Geq (t1, t2) -> Geq ((replace_name n t t1), (replace_name n t t1))
-| UMinus t' -> UMinus (replace_name n t t')
-| Plus (t1, t2) -> Plus ((replace_name n t t1), (replace_name n t t1))
-| Minus (t1, t2) -> Minus ((replace_name n t t1), (replace_name n t t1))
-| Mult (t1, t2) -> Mult ((replace_name n t t1), (replace_name n t t1))
-
-(* Replace all aliases that occur in a clause *)
-let rec replace_name_cl (n : string) (t : term) (c : clause) : clause =
-  match c with
-  | h :: t' -> replace_name n t h :: replace_name_cl n t t'
-  | [] -> []
-
-(* Replace all occurrences of the input aliases in a certif *)
-let rec replace_name_certif (named_terms : (string * term) list) (c : certif) : certif =
-  match c with
-  | (i, r, c, p, a) :: t ->
-      let c' = List.fold_left (fun c (n,t) -> replace_name_cl n t c) c named_terms in
-      (i, r, c', p, a) :: replace_name_certif named_terms t
-  | [] -> []
-
-
-(* Given a clause, return a list of term-alias pairs created in the clause *)
-let rec term_alias (t : term) : (string * term) list =
+let stored_shared_terms_t (t : term) : unit =
   match t with
-  | True | False | Int _ | Var _ | STerm _ -> []
-  | NTerm (n, t') -> let l = term_alias t' in l @ [n, t']
-  | Not t' -> term_alias t'
-  | And ts -> List.fold_left (@) [] (List.map term_alias ts)
-  | Or ts -> List.fold_left (@) [] (List.map term_alias ts)
-  | Imp ts -> List.fold_left (@) [] (List.map term_alias ts)
-  | Xor ts -> List.fold_left (@) [] (List.map term_alias ts)
-  | Ite ts -> List.fold_left (@) [] (List.map term_alias ts)
-  | Forall (vs, t') -> term_alias t'
-  | Eq (t1, t2) -> (term_alias t1) @ (term_alias t2)
-  | App (f, ts) -> List.fold_left (@) [] (List.map term_alias ts)
-  | Lt (t1, t2) -> (term_alias t1) @ (term_alias t2)
-  | Leq (t1, t2) -> (term_alias t1) @ (term_alias t2)
-  | Gt (t1, t2) -> (term_alias t1) @ (term_alias t2)
-  | Geq (t1, t2) -> (term_alias t1) @ (term_alias t2)
-  | UMinus t' -> term_alias t'
-  | Plus (t1, t2) -> (term_alias t1) @ (term_alias t2)
-  | Minus (t1, t2) -> (term_alias t1) @ (term_alias t2)
-  | Mult (t1, t2) -> (term_alias t1) @ (term_alias t2)
+  | NTerm (s, t) -> add_sterm s t
+  | _ -> ()
 
-let term_alias_cl (c : clause) : (string * term) list =
-  List.fold_left (@) [] (List.map term_alias c)
+let store_shared_terms_cl (c : clause) : unit =
+  List.iter stored_shared_terms_t c
+
+let rec store_shared_terms (c : certif) : unit = 
+  match c with
+  | (i, r, cl, p, a) :: t -> 
+      let () = store_shared_terms_cl cl in
+      store_shared_terms t
+  | [] -> ()
 
 
-(* Process the forall_inst rule, with all the alpha renamings *)
+(* Process the forall_inst rule, with all the alpha renamings
 let rec process_fins (c : certif) : certif =
   match c with
   | (i1, AnchorAST, c1, p1, a1) :: (i2, ReflAST, c2, p2, a2) ::
@@ -426,20 +387,72 @@ let rec process_fins (c : certif) : certif =
     (i5, Equn2AST, c5, p5, a5)  :: (i6, ThresoAST, c6, p6, a6) :: t ->
       let () = (match (List.hd c6) with
       | STerm s -> add_ref s i6
-      | _ -> raise (VeritSyntax.Debug ("Expecting clause at "^(string_of_id i6)^" to be an alias."))) in
-      let als = (term_alias_cl c2) @ (term_alias_cl c3) 
-              @ (term_alias_cl c4) @ (term_alias_cl c5)
-              @ (term_alias_cl c6) in
-      (i6, BindAST, [], [List.hd p6], []) :: process_fins (replace_name_certif als t)
+      | _ -> raise (VeritSyntax.Debug 
+        ("Expecting clause at "^(string_of_id i6)^" to be an alias."))) in
+      (i6, SameAST, [], [List.hd p6], []) :: process_fins t
   | (_, QcnfAST, c, _, _) :: t ->
-      let als = term_alias_cl c in process_fins (replace_name_certif als t)
+      (* Ignoring this rule assuming no transformation is performed, 
+         we need to handle this rule for more complex CNF 
+         transformations of quantified formulas*)
+      process_fins t
   | (i, FinsAST, c, p, a) :: t -> 
       let st = (match (List.hd c) with
-      | Or [(Not (STerm s)); t2] -> (i, FinsAST, [t2], [get_ref s], [])
-      | _ -> raise (VeritSyntax.Debug ("Expecting argument of forall_inst to be (or (Not lemma) instance) at "^(string_of_id i)))) in
+      | Or [STerm s; t2] -> 
+        (match get_sterm s with
+        | Not (STerm s') -> (i, FinsAST, [t2], [get_ref s'], [])
+        | _ -> raise (VeritSyntax.Debug 
+        ("Expecting argument of forall_inst to be (or (Not lemma) instance) at "
+         ^(string_of_id i))))
+      | _ -> raise (VeritSyntax.Debug 
+        ("Expecting argument of forall_inst to be (or (Not lemma) instance) at "
+         ^(string_of_id i)))) in
     st :: process_fins t
   | (i, r, c, p, a) :: t -> (i, r, c, p, a) :: process_fins t
-  | [] -> []
+  | [] -> []*)
+
+(* Process forall_inst rule by:
+   1. Ignoring all alpha renaming sub-proofs 
+   2. Dealing qnt_cnf rule 
+   3. Finding the lemma from the inputs and passing it as argument
+      to forall_inst 
+      Replacing the clause in the forall_inst rule to the instance *)
+let rec find_lemma (t : term) (c : certif) : id =
+  match c with
+  | (i, r, cl, p, a) :: tl ->
+      (match r, cl with
+      | AssumeAST, NTerm (s, t') :: _ when term_eq t t' -> i
+      | AssumeAST, STerm s :: _ when term_eq t (get_sterm s) -> i
+      | AssumeAST, t' :: _ when term_eq t t' -> i
+      | _ -> find_lemma t tl)
+  | [] -> raise (Debug ("Can't find the lemma to be instantiated by forall_inst
+                         in the certificate"))
+let process_fins (c : certif) : certif =
+  let rec process_fins_aux (c : certif) (cog : certif) : certif =
+    match c with
+    | (i1, AnchorAST, c1, p1, a1) :: (i2, ReflAST, c2, p2, a2) ::
+      (i3, CongAST, c3, p3, a3)   :: (i4, BindAST, c4, p4, a4) ::
+      (i5, Equn2AST, c5, p5, a5)  :: (i6, ThresoAST, c6, p6, a6) :: t ->
+        process_fins_aux t cog
+    | (_, QcnfAST, c, _, _) :: t ->
+        (* Ignoring this rule assuming no transformation is performed, 
+           we need to handle this rule for more complex CNF 
+           transformations of quantified formulas*)
+        process_fins_aux t cog
+    | (i, FinsAST, c, p, a) :: tl -> 
+        let st = (match (List.hd c) with
+        | Or [STerm s; t2] ->
+          (match get_sterm s with
+          | Not t -> (i, FinsAST, [t2], [(find_lemma t cog)], [])
+          | _ -> raise (VeritSyntax.Debug 
+          ("Expecting argument of forall_inst to be (or (Not lemma) instance) at "
+           ^(string_of_id i))))
+        | _ -> raise (VeritSyntax.Debug 
+          ("Expecting argument of forall_inst to be (or (Not lemma) instance) at "
+           ^(string_of_id i)))) in
+        st :: process_fins_aux tl cog
+    | (i, r, c, p, a) :: t -> (i, r, c, p, a) :: process_fins_aux t cog
+    | [] -> []
+  in process_fins_aux c c
 
 
 (* Remove notnot rule from certificate *)
@@ -467,24 +480,6 @@ let rec remove_notnot (c : certif) : certif =
       | NotnotAST -> remove_notnot (remove_res_premise i t)
       | _ -> (i, r, cl, p, a) :: remove_notnot t)
   | [] -> []
-
-
-(* Convert the sequence of ids in the steps to sequential integers.
-   Do this after finishing all the transformations to the certificates 
-   that might add/remove steps *)
-let ids : (string, string) Hashtbl.t = Hashtbl.create 17
-let get_id s = Hashtbl.find ids s
-let add_id s i = Hashtbl.add ids s i
-let clear_ids () = Hashtbl.clear ids
-let to_sequential_ids (c : certif) : certif =
-  let rec aux (z : int) (c : certif) : certif = 
-    match z, c with
-    | z, (i, r, c, p, a) :: t -> add_id i (string_of_int z);
-        let z' = string_of_int z in
-        let p' = List.map (fun x -> get_id x) p in
-        (z', r, c, p', a) :: aux (z+1) t
-    | z, [] -> []
-  in (clear_ids (); aux 1 c)
 
 
 (* Convert an AST to a list of clauses *)
@@ -553,7 +548,10 @@ and process_term_aux (t : term) : bool * SmtAtom.Form.atom_form_lit (*option*) =
              | Some bt   -> false, 
                 Form.Atom (Atom.get ~declare:false ra (Aapp (dummy_indexed_op (Rel_name s) [||] bt, [||])))
              | None      -> true, Form.Atom (Atom.get ra (Aapp (SmtMaps.get_fun s, [||]))))
-  | STerm s -> get_solver s
+  | STerm s -> 
+      (try get_solver s with
+      | Not_found -> let t = get_sterm s in
+                      process_term_aux t)
   | NTerm (s, t) -> let t' = process_term_aux t in
                     add_solver s t'; t'
   | Int i -> true, Form.Atom (Atom.hatom_Z_of_int ra i)
@@ -664,6 +662,7 @@ let process_rule (r: rule) : VeritSyntax.typ =
   | BindAST -> Bind
   | FinsAST -> Fins
   | QcnfAST -> Qcnf
+  | SameAST -> Same
   | AnchorAST -> Hole
   | SubproofAST c -> Hole
 
@@ -764,10 +763,11 @@ let process_cong (c : certif) : certif =
 (* TODO: Rules with args need to be parsed properly *)
 (* Final processing and linking of AST *)
 let preprocess_certif (c: certif) : certif =
+  let () = store_shared_terms c in
   let c1 = remove_notnot c in
   let c2 = process_cong c1 in
-  (*let c3 = process_fins c2 in*)
-  c2
+  let c3 = process_fins c2 in
+  c3
 
 let rec process_certif (c : certif) : VeritSyntax.id list =
   match c with

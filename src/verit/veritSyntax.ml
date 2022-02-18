@@ -99,6 +99,7 @@ type typ =
   | Bind (* New *)
   | Fins
   | Qcnf (* New *)
+  | Same
   | Hole
 
 (* Given an array and an element, find the index of the first occurrence of the 
@@ -639,11 +640,13 @@ let mk_clause (id,typ,value,ids_params,args) =
             let cl_th = get_clause_exception id ref_th in
             Other (Forall_inst (repr cl_th, inst))
          | _ -> raise (Debug ("VeritSyntax.ml: unexpected form of forall_inst\nID: "^id)))
-      | Bind ->
+      | Same ->
         (match ids_params with
          | [i] -> Same (get_clause_exception id i)
-         | _ -> raise (Debug ("VeritSyntax.ml: unexpected form of bind subproof\nID: "^id)))
+         | _ -> raise (Debug ("VeritSyntax.ml: unexpected form of same,
+                        might be caused by bind subproof\nID: "^id)))
       (* Not implemented *)
+      | Bind -> raise (Debug ("VeritSyntax.ml: rule bind not implemented yet\nID"^id))
       | Qcnf -> raise (Debug ("VeritSyntax.ml: rule qnt_cnf not implemented yet\nID"^id))
       | Refl -> raise (Debug ("VeritSyntax.ml: rule refl not implemented yet\nID: "^id))
       | Acsimp -> raise (Debug ("VeritSyntax.ml: rule acsimp not implemented yet\nID: "^id))

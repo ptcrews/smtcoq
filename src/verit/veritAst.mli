@@ -112,9 +112,12 @@ type rule =
   | FinsAST
   | QcnfAST
   | AnchorAST
+  | SameAST
   | SubproofAST of certif
 and step = id * rule * clause * params * args
 and certif = step list
+
+val clear_sterms : unit -> unit
 
 val mk_cl : term list -> clause
 val mk_step : id * rule * clause * params * args -> step

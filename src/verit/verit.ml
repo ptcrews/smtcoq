@@ -105,6 +105,7 @@ let import_trace ra_quant rf_quant filename first lsmt =
 let clear_all () =
   SmtTrace.clear ();
   SmtMaps.clear ();
+  VeritAst.clear_sterms ();
   VeritSyntax.clear ()
 
 
