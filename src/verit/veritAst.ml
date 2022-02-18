@@ -766,8 +766,8 @@ let process_cong (c : certif) : certif =
 let preprocess_certif (c: certif) : certif =
   let c1 = remove_notnot c in
   let c2 = process_cong c1 in
-  let c3 = process_fins c2 in
-  c3
+  (*let c3 = process_fins c2 in*)
+  c2
 
 let rec process_certif (c : certif) : VeritSyntax.id list =
   match c with

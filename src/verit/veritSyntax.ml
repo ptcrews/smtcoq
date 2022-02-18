@@ -99,7 +99,6 @@ type typ =
   | Bind (* New *)
   | Fins
   | Qcnf (* New *)
-  | Ident (* Internal *)
   | Hole
 
 (* Given an array and an element, find the index of the first occurrence of the 
@@ -633,10 +632,6 @@ let mk_clause (id,typ,value,ids_params,args) =
                Res res
             | [fins_id] -> Same (get_clause_exception id fins_id)
             | [] -> assert false)
-      | Ident -> 
-          (match ids_params with
-          | [i] -> Other (Ident (get_clause_exception id i))
-          | _ -> assert false)
       (* Quantifiers *)
       | Fins ->
         (match value, ids_params with
@@ -648,14 +643,10 @@ let mk_clause (id,typ,value,ids_params,args) =
         (match ids_params with
          | [i] -> Same (get_clause_exception id i)
          | _ -> raise (Debug ("VeritSyntax.ml: unexpected form of bind subproof\nID: "^id)))
-      | Qcnf -> 
-        (match ids_params with
-         | [i] -> Same (get_clause_exception id i)
-         | _ -> raise (Debug ("VeritSyntax.ml: unexpected form of qnt_cnf\nID: "^id)))
       (* Not implemented *)
+      | Qcnf -> raise (Debug ("VeritSyntax.ml: rule qnt_cnf not implemented yet\nID"^id))
       | Refl -> raise (Debug ("VeritSyntax.ml: rule refl not implemented yet\nID: "^id))
       | Acsimp -> raise (Debug ("VeritSyntax.ml: rule acsimp not implemented yet\nID: "^id))
-      | Ident -> raise (Debug ("VeritSyntax.ml: internal ident rule not implemented yet\nID: "^id))
   in
   let cl =
     (* TODO: change this into flatten when necessary *)

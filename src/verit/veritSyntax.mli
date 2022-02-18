@@ -93,7 +93,6 @@ type typ =
   | Bind (* New *)
   | Fins
   | Qcnf (* New *)
-  | Ident (* Internal *)
   | Hole
 
 val is_iff : SmtAtom.Form.t -> bool
