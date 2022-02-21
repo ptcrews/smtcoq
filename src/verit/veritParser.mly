@@ -122,6 +122,7 @@ argument:
   | i=INT                                   { string_of_int i }
   | LPAREN COLEQ sv=sorted_var s=SYMBOL RPAREN 
     { s } (* Need to process these properly *)
+  | LPAREN COLEQ s1=SYMBOL s2=SYMBOL RPAREN { s1 }
 ;
   
 ident:

@@ -133,84 +133,6 @@ let rec get_cl (i : id) (c : certif) : clause option =
   | [] -> None
 
 
-(* Term equality with alpha renaming of foralls *)
-let type_eq (t1 : typ) (t2 : typ) : bool =
-  match t1, t2 with
-  | Int, Int -> true
-  | Bool, Bool -> true
-  | Unintr s1, Unintr s2 -> s1 = s2
-  | _, _ -> false
-
-let rec term_eq_alpha (subs : (string * string) list) (t1 : term) (t2 : term) : bool =
-  let check_arg_lists (x : term list) (y : term list) : bool =
-    if List.length x = List.length y then
-      List.fold_left (&&) true (List.map2 (term_eq_alpha subs) x y)
-    else false
-  in match t1, t2 with
-  | True, True -> true
-  | False, False -> true
-  | Not t1', Not t2' -> term_eq_alpha subs t1' t2'
-  | And ts1, And ts2 -> check_arg_lists ts1 ts2
-  | Or ts1, Or ts2 -> check_arg_lists ts1 ts2
-  | Imp ts1, Imp ts2 -> check_arg_lists ts1 ts2
-  | Xor ts1, Xor ts2 -> check_arg_lists ts1 ts2
-  | Ite ts1, Ite ts2 -> check_arg_lists ts1 ts2
-  | Forall (xs, t1'), Forall (ys, t2') ->
-      raise (Debug ("checking equality of forall term nested inside another forall term"))
-  | Eq (t11, t12), Eq (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
-  | App (f1, t1'), App (f2, t2') -> f1 = f2 && check_arg_lists t1' t2'
-  | Var x, Var y -> x = y || 
-    List.exists (fun (a, b) -> a = x && b = y || a = y && b = x) subs
-  | STerm x, STerm y -> x = y
-  | NTerm (s1, t1'), NTerm (s2, t2') -> s1 = s2 && term_eq_alpha subs t1' t2'
-  | Int i, Int j -> i = j
-  | Lt (t11, t12), Lt (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
-  | Leq (t11, t12), Leq (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
-  | Gt (t11, t12), Gt (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
-  | Geq (t11, t12), Geq (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
-  | UMinus t1', UMinus t2' -> term_eq_alpha subs t1' t2'
-  | Plus (t11, t12), Lt (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
-  | Minus (t11, t12), Lt (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
-  | Mult (t11, t12), Lt (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
-  | _ -> false
-
-let rec term_eq (t1 : term) (t2 : term) : bool =
-  let check_arg_lists (x : term list) (y : term list) : bool =
-    if List.length x = List.length y then
-      List.fold_left (&&) true (List.map2 term_eq x y)
-    else false
-  in match t1, t2 with
-  | True, True -> true
-  | False, False -> true
-  | Not t1', Not t2' -> term_eq t1' t2'
-  | And ts1, And ts2 -> check_arg_lists ts1 ts2
-  | Or ts1, Or ts2 -> check_arg_lists ts1 ts2
-  | Imp ts1, Imp ts2 -> check_arg_lists ts1 ts2
-  | Xor ts1, Xor ts2 -> check_arg_lists ts1 ts2
-  | Ite ts1, Ite ts2 -> check_arg_lists ts1 ts2
-  | Forall (xs, t1'), Forall (ys, t2') ->
-      let subs = List.map2 (fun (x, tx) (y, ty) -> (x, y)) xs ys in
-      (List.length xs = List.length ys) &&
-      (List.fold_left (&&) true 
-        (List.map2 (fun (x, tx) (y, ty) -> type_eq tx ty) xs ys)) && 
-      term_eq_alpha subs t1' t2'
-  | Eq (t11, t12), Eq (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
-  | App (f1, t1'), App (f2, t2') -> f1 = f2 && check_arg_lists t1' t2'
-  | Var x, Var y -> x = y
-  | STerm x, STerm y -> x = y
-  | NTerm (s1, t1'), NTerm (s2, t2') -> s1 = s2 && term_eq t1' t2'
-  | Int i, Int j -> i = j
-  | Lt (t11, t12), Lt (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
-  | Leq (t11, t12), Leq (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
-  | Gt (t11, t12), Gt (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
-  | Geq (t11, t12), Geq (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
-  | UMinus t1', UMinus t2' -> term_eq t1' t2'
-  | Plus (t11, t12), Lt (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
-  | Minus (t11, t12), Lt (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
-  | Mult (t11, t12), Lt (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
-  | _ -> false
-
-
 (* Convert certificates to strings for debugging *)
 let string_of_rule (r : rule) : string =
   match r with
@@ -363,52 +285,130 @@ let get_sterm s =
 let add_sterm s t = Hashtbl.add sterms s t
 let clear_sterms () = Hashtbl.clear sterms
 
-let stored_shared_terms_t (t : term) : unit =
+let rec store_shared_terms_t (t : term) : term =
   match t with
-  | NTerm (s, t) -> add_sterm s t
-  | _ -> ()
+  | True | False -> t
+  | Not t' -> Not (store_shared_terms_t t')
+  | And ts -> And (List.map store_shared_terms_t ts)
+  | Or ts -> Or (List.map store_shared_terms_t ts)
+  | Imp ts -> Imp (List.map store_shared_terms_t ts)
+  | Xor ts -> Xor (List.map store_shared_terms_t ts)
+  | Ite ts -> Ite (List.map store_shared_terms_t ts)
+  | Forall (xs, t') -> Forall (xs, (store_shared_terms_t t'))
+  | Eq (t1, t2) -> Eq ((store_shared_terms_t t1), (store_shared_terms_t t2))
+  | App (f, ts) -> App (f, (List.map store_shared_terms_t ts))
+  | Var s -> Var s
+  | STerm s -> STerm s
+  | NTerm (s, t') -> let t'' = store_shared_terms_t t' in
+                     add_sterm s t''; STerm s
+  | Int i -> Int i
+  | Lt (t1, t2) -> Lt ((store_shared_terms_t t1), (store_shared_terms_t t2))
+  | Leq (t1, t2) -> Leq ((store_shared_terms_t t1), (store_shared_terms_t t2))
+  | Gt (t1, t2) -> Gt ((store_shared_terms_t t1), (store_shared_terms_t t2))
+  | Geq (t1, t2) -> Geq ((store_shared_terms_t t1), (store_shared_terms_t t2))
+  | UMinus t' -> UMinus (store_shared_terms_t t')
+  | Plus (t1, t2) -> Plus ((store_shared_terms_t t1), (store_shared_terms_t t2))
+  | Minus (t1, t2) -> Minus ((store_shared_terms_t t1), (store_shared_terms_t t2))
+  | Mult (t1, t2) -> Mult ((store_shared_terms_t t1), (store_shared_terms_t t2))
 
-let store_shared_terms_cl (c : clause) : unit =
-  List.iter stored_shared_terms_t c
+let store_shared_terms_cl (c : clause) : clause =
+  List.map store_shared_terms_t c
 
-let rec store_shared_terms (c : certif) : unit = 
+let rec store_shared_terms (c : certif) : certif = 
   match c with
-  | (i, r, cl, p, a) :: t -> 
-      let () = store_shared_terms_cl cl in
-      store_shared_terms t
-  | [] -> ()
+  | (i, r, cl, p, a) :: t -> let cl' = (store_shared_terms_cl cl) in
+                              (i, r, cl', p, a) :: store_shared_terms t
+  | [] -> []
 
 
-(* Process the forall_inst rule, with all the alpha renamings
-let rec process_fins (c : certif) : certif =
-  match c with
-  | (i1, AnchorAST, c1, p1, a1) :: (i2, ReflAST, c2, p2, a2) ::
-    (i3, CongAST, c3, p3, a3)   :: (i4, BindAST, c4, p4, a4) ::
-    (i5, Equn2AST, c5, p5, a5)  :: (i6, ThresoAST, c6, p6, a6) :: t ->
-      let () = (match (List.hd c6) with
-      | STerm s -> add_ref s i6
-      | _ -> raise (VeritSyntax.Debug 
-        ("Expecting clause at "^(string_of_id i6)^" to be an alias."))) in
-      (i6, SameAST, [], [List.hd p6], []) :: process_fins t
-  | (_, QcnfAST, c, _, _) :: t ->
-      (* Ignoring this rule assuming no transformation is performed, 
-         we need to handle this rule for more complex CNF 
-         transformations of quantified formulas*)
-      process_fins t
-  | (i, FinsAST, c, p, a) :: t -> 
-      let st = (match (List.hd c) with
-      | Or [STerm s; t2] -> 
-        (match get_sterm s with
-        | Not (STerm s') -> (i, FinsAST, [t2], [get_ref s'], [])
-        | _ -> raise (VeritSyntax.Debug 
-        ("Expecting argument of forall_inst to be (or (Not lemma) instance) at "
-         ^(string_of_id i))))
-      | _ -> raise (VeritSyntax.Debug 
-        ("Expecting argument of forall_inst to be (or (Not lemma) instance) at "
-         ^(string_of_id i)))) in
-    st :: process_fins t
-  | (i, r, c, p, a) :: t -> (i, r, c, p, a) :: process_fins t
-  | [] -> []*)
+(* Get expression modulo aliasing*)
+let rec get_expr = function
+  | STerm t -> get_expr (get_sterm t)
+  (*| NTerm (_, e) -> e*)
+  | e -> e
+
+
+(* Term equality with alpha renaming of foralls *)
+let type_eq (t1 : typ) (t2 : typ) : bool =
+  match t1, t2 with
+  | Int, Int -> true
+  | Bool, Bool -> true
+  | Unintr s1, Unintr s2 -> s1 = s2
+  | _, _ -> false
+
+let rec term_eq_alpha (subs : (string * string) list) (t1 : term) (t2 : term) : bool =
+  let t1 = get_expr t1 in
+  let t2 = get_expr t2 in
+  let check_arg_lists (x : term list) (y : term list) : bool =
+    if List.length x = List.length y then
+      List.fold_left (&&) true (List.map2 (term_eq_alpha subs) x y)
+    else false
+  in match t1, t2 with
+  | True, True -> true
+  | False, False -> true
+  | Not t1', Not t2' -> term_eq_alpha subs t1' t2'
+  | And ts1, And ts2 -> check_arg_lists ts1 ts2
+  | Or ts1, Or ts2 -> check_arg_lists ts1 ts2
+  | Imp ts1, Imp ts2 -> check_arg_lists ts1 ts2
+  | Xor ts1, Xor ts2 -> check_arg_lists ts1 ts2
+  | Ite ts1, Ite ts2 -> check_arg_lists ts1 ts2
+  | Forall (xs, t1'), Forall (ys, t2') ->
+      raise (Debug ("checking equality of forall term nested inside another forall term"))
+  | Eq (t11, t12), Eq (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
+  | App (f1, t1'), App (f2, t2') -> f1 = f2 && check_arg_lists t1' t2'
+  | Var x, Var y -> x = y || 
+    List.exists (fun (a, b) -> a = x && b = y || a = y && b = x) subs
+  | STerm x, STerm y -> x = y
+  | NTerm (s1, t1'), NTerm (s2, t2') -> s1 = s2 && term_eq_alpha subs t1' t2'
+  | Int i, Int j -> i = j
+  | Lt (t11, t12), Lt (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
+  | Leq (t11, t12), Leq (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
+  | Gt (t11, t12), Gt (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
+  | Geq (t11, t12), Geq (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
+  | UMinus t1', UMinus t2' -> term_eq_alpha subs t1' t2'
+  | Plus (t11, t12), Lt (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
+  | Minus (t11, t12), Lt (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
+  | Mult (t11, t12), Lt (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
+  | _ -> false
+
+let rec term_eq (t1 : term) (t2 : term) : bool =
+  let t1 = get_expr t1 in
+  let t2 = get_expr t2 in
+  let check_arg_lists (x : term list) (y : term list) : bool =
+    if List.length x = List.length y then
+      List.fold_left (&&) true (List.map2 term_eq x y)
+    else false
+  in match t1, t2 with
+  | True, True -> true
+  | False, False -> true
+  | Not t1', Not t2' -> term_eq t1' t2'
+  | And ts1, And ts2 -> check_arg_lists ts1 ts2
+  | Or ts1, Or ts2 -> check_arg_lists ts1 ts2
+  | Imp ts1, Imp ts2 -> check_arg_lists ts1 ts2
+  | Xor ts1, Xor ts2 -> check_arg_lists ts1 ts2
+  | Ite ts1, Ite ts2 -> check_arg_lists ts1 ts2
+  | Forall (xs, t1'), Forall (ys, t2') ->
+      let subs = List.map2 (fun (x, tx) (y, ty) -> (x, y)) xs ys in
+      (List.length xs = List.length ys) &&
+      (List.fold_left (&&) true 
+        (List.map2 (fun (x, tx) (y, ty) -> type_eq tx ty) xs ys)) && 
+      term_eq_alpha subs t1' t2'
+  | Eq (t11, t12), Eq (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
+  | App (f1, t1'), App (f2, t2') -> f1 = f2 && check_arg_lists t1' t2'
+  | Var x, Var y -> x = y
+  | STerm x, STerm y -> x = y
+  | NTerm (s1, t1'), NTerm (s2, t2') -> s1 = s2 && term_eq t1' t2'
+  | Int i, Int j -> i = j
+  | Lt (t11, t12), Lt (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
+  | Leq (t11, t12), Leq (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
+  | Gt (t11, t12), Gt (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
+  | Geq (t11, t12), Geq (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
+  | UMinus t1', UMinus t2' -> term_eq t1' t2'
+  | Plus (t11, t12), Lt (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
+  | Minus (t11, t12), Lt (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
+  | Mult (t11, t12), Lt (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
+  | _ -> false
+
 
 (* Process forall_inst rule by:
    1. Ignoring all alpha renaming sub-proofs 
@@ -420,42 +420,10 @@ let rec find_lemma (t : term) (c : certif) : id =
   match c with
   | (i, r, cl, p, a) :: tl ->
       (match r, cl with
-      | AssumeAST, NTerm (s, t') :: _ when term_eq t t' -> i
-      | AssumeAST, STerm s :: _ when term_eq t (get_sterm s) -> i
-      | AssumeAST, t' :: _ when term_eq t t' -> i
+      | AssumeAST, (t' :: _) when term_eq t t' -> i
+      (* | AssumeAST, (t' :: _) -> Printf.printf "t=%s and t' = %s" (string_of_term (get_expr t)) (string_of_term (get_expr t')); find_lemma t tl *)
       | _ -> find_lemma t tl)
-  | [] -> raise (Debug ("Can't find the lemma to be instantiated by forall_inst
-                         in the certificate"))
-let process_fins (c : certif) : certif =
-  let rec process_fins_aux (c : certif) (cog : certif) : certif =
-    match c with
-    | (i1, AnchorAST, c1, p1, a1) :: (i2, ReflAST, c2, p2, a2) ::
-      (i3, CongAST, c3, p3, a3)   :: (i4, BindAST, c4, p4, a4) ::
-      (i5, Equn2AST, c5, p5, a5)  :: (i6, ThresoAST, c6, p6, a6) :: t ->
-        process_fins_aux t cog
-    | (_, QcnfAST, c, _, _) :: t ->
-        (* Ignoring this rule assuming no transformation is performed, 
-           we need to handle this rule for more complex CNF 
-           transformations of quantified formulas*)
-        process_fins_aux t cog
-    | (i, FinsAST, c, p, a) :: tl -> 
-        let st = (match (List.hd c) with
-        | Or [STerm s; t2] ->
-          (match get_sterm s with
-          | Not t -> (i, FinsAST, [t2], [(find_lemma t cog)], [])
-          | _ -> raise (VeritSyntax.Debug 
-          ("Expecting argument of forall_inst to be (or (Not lemma) instance) at "
-           ^(string_of_id i))))
-        | _ -> raise (VeritSyntax.Debug 
-          ("Expecting argument of forall_inst to be (or (Not lemma) instance) at "
-           ^(string_of_id i)))) in
-        st :: process_fins_aux tl cog
-    | (i, r, c, p, a) :: t -> (i, r, c, p, a) :: process_fins_aux t cog
-    | [] -> []
-  in process_fins_aux c c
-
-
-(* Remove notnot rule from certificate *)
+  | [] -> raise (Debug ("Can't find the lemma to be instantiated by forall_inst in the certificate"))
 
 (* Remove all occurrences of element from list *)
 let rec remove x l =
@@ -471,6 +439,38 @@ let rec remove_res_premise (i : id) (c : certif) : certif =
       | ResoAST | ThresoAST -> (i', r, c, (remove i p), a) :: (remove_res_premise i t)
       | _ -> (i', r, c, p, a) :: (remove_res_premise i t))
   | [] -> []
+
+let process_fins (c : certif) : certif =
+  let rec process_fins_aux (c : certif) (cog : certif) : certif =
+    match c with
+    | (i1, AnchorAST, c1, p1, a1) :: (i2, ReflAST, c2, p2, a2) ::
+      (i3, CongAST, c3, p3, a3)   :: (i4, BindAST, c4, p4, a4) ::
+      (i5, Equp2AST, c5, p5, a5)  :: (i6, ThresoAST, c6, p6, a6) :: t ->
+        process_fins_aux (remove_res_premise i6 t) cog
+    | (_, QcnfAST, c, _, _) :: t ->
+        (* Ignoring this rule assuming no transformation is performed, 
+           we need to handle this rule for more complex CNF 
+           transformations of quantified formulas*)
+        process_fins_aux t cog
+    | (i, FinsAST, c, p, a) :: tl -> 
+        let st = (match (List.hd c) with
+        | Or [e; t2] ->
+          let t = get_expr e in
+            (match t with
+            | Not t -> (i, FinsAST, [t2], [(find_lemma t cog)], [])
+            | _ -> Printf.printf "e: %s\nt: %s" (string_of_term e) (string_of_term t);
+            raise (VeritSyntax.Debug ("Expecting argument of forall_inst to be (or (Not lemma) instance) at "
+           ^(string_of_id i))))
+        | _ -> raise (VeritSyntax.Debug 
+          ("Expecting argument of forall_inst to be an or at "
+           ^(string_of_id i)))) in
+        st :: process_fins_aux tl cog
+    | ircpa :: t -> ircpa :: process_fins_aux t cog
+    | [] -> []
+  in process_fins_aux c c
+
+
+(* Remove notnot rule from certificate *)
 
 (* Soundly remove all notnot rules from certificate *)
 let rec remove_notnot (c : certif) : certif = 
@@ -548,10 +548,15 @@ and process_term_aux (t : term) : bool * SmtAtom.Form.atom_form_lit (*option*) =
              | Some bt   -> false, 
                 Form.Atom (Atom.get ~declare:false ra (Aapp (dummy_indexed_op (Rel_name s) [||] bt, [||])))
              | None      -> true, Form.Atom (Atom.get ra (Aapp (SmtMaps.get_fun s, [||]))))
-  | STerm s -> 
+  | STerm s ->
+      (* s has either been processed and stored in the solver hashtable, 
+         or it has to be fetched first from the sterms hashtable, processed,
+         stored in the solver hashtable and then returned *)
       (try get_solver s with
-      | Not_found -> let t = get_sterm s in
-                      process_term_aux t)
+       | VeritSyntax.Debug _ -> let t' = (try get_sterm s with
+                                | Not_found -> raise (VeritSyntax.Debug ("Can't find "^s^" in sterms\n")))
+                      in let t'' = process_term_aux t' in
+                              add_solver s t''; t'')
   | NTerm (s, t) -> let t' = process_term_aux t in
                     add_solver s t'; t'
   | Int i -> true, Form.Atom (Atom.hatom_Z_of_int ra i)
@@ -763,11 +768,15 @@ let process_cong (c : certif) : certif =
 (* TODO: Rules with args need to be parsed properly *)
 (* Final processing and linking of AST *)
 let preprocess_certif (c: certif) : certif =
-  let () = store_shared_terms c in
-  let c1 = remove_notnot c in
-  let c2 = process_cong c1 in
+  let c1 = store_shared_terms c in
+  Printf.printf ("Certif before remove_notnot: %s\n") (string_of_certif c1);
+  let c2 = remove_notnot c1 in
+  Printf.printf ("Certif before process_fins: %s\n") (string_of_certif c2);
   let c3 = process_fins c2 in
-  c3
+  Printf.printf ("Certif before process_cong: %s\n") (string_of_certif c3);
+  let c4 = process_cong c3 in
+  Printf.printf ("Certif after preprocessing: %s\n") (string_of_certif c4);
+  c4
 
 let rec process_certif (c : certif) : VeritSyntax.id list =
   match c with
