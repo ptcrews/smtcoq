@@ -92,3 +92,9 @@ TACTIC EXTEND Tactic_verit
 | [ "verit_bool_base" constr(lpl) ] -> [ Verit.tactic lpl (get_lemmas ()) ]
 | [ "verit_bool_no_check_base" constr(lpl) ] -> [ Verit.tactic_no_check lpl (get_lemmas ()) ]
 END
+
+
+TACTIC EXTEND Tactic_cvc5
+| [ "cvc5_bool_base" constr(lpl) ] -> [ Cvc5.tactic lpl (get_lemmas ()) ]
+| [ "cvc5_bool_no_check_base" constr(lpl) ] -> [ Cvc5.tactic_no_check lpl (get_lemmas ()) ]
+END

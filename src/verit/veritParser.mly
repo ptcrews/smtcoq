@@ -65,7 +65,7 @@
 %token <Big_int.big_int> BIGINT
 
 %token LPAREN RPAREN EOF EOL COLON BANG COLEQ
-%token COLRULE COLSTEP COLARGS COLPREMISES SAT
+%token COLRULE COLSTEP COLARGS COLPREMISES SAT UNSAT
 %token ASSUME STEP ANCHOR DEFINEFUN CL ASTOK CHOICE
 %token LET FORALL EXISTS MATCH TINT TBOOL NAMED
 
@@ -100,6 +100,7 @@ proof:
 ;
 
 line:
+  | UNSAT EOL { mk_step (generate_id (), TrueAST, [True], [], []) }
   | LPAREN ASSUME s=SYMBOL t=term RPAREN EOL
     { mk_step (s, AssumeAST, mk_cl [t], [], []) }
   | LPAREN STEP s=SYMBOL c=clause COLRULE r=rulename RPAREN EOL

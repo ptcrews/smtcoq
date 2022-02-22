@@ -22,7 +22,7 @@ open Lexing
 
 
 (******************************************************************************)
-(* Given a verit trace build the corresponding certif and theorem             *)
+(* Given a cvc5 alethe trace build the corresponding certif and theorem             *)
 (******************************************************************************)
 (* exception Import_trace of int *)
 
@@ -94,12 +94,12 @@ let import_trace ra_quant rf_quant filename first lsmt =
          occur !confl;
          (alloc !cfirst, !confl)
     with
-    | VeritSyntax.Debug s -> Structures.error ("Verit.import_trace (VeritSyntax.Debug)\nPosition: "^(print_position lexbuf)
+    | VeritSyntax.Debug s -> Structures.error ("Cvc5.import_trace (VeritSyntax.Debug)\nPosition: "^(print_position lexbuf)
         ^"\nMessage: "^s^"\nCertificate:\n"^(VeritAst.string_of_certif (cert'))^"\nHash Table:\n"^(VeritSyntax.clauses_to_string))
-    | Failure f -> Structures.error ("Verit.import_trace (Failure)\nPosition: "^(print_position lexbuf)^"\nMessage: "^f)
-    | _ -> Structures.error ("Verit.import_trace\nPosition: "^(print_position lexbuf))
+    | Failure f -> Structures.error ("Cvc5.import_trace (Failure)\nPosition: "^(print_position lexbuf)^"\nMessage: "^f)
+    | _ -> Structures.error ("Cvc5.import_trace\nPosition: "^(print_position lexbuf))
   with
-  | VeritParser.Error -> Structures.error ("Verit.import_trace (VeritParser.Error)\nPosition: "^(print_position lexbuf))
+  | VeritParser.Error -> Structures.error ("Cvc5.import_trace (VeritParser.Error)\nPosition: "^(print_position lexbuf))
 
 
 let clear_all () =
@@ -170,19 +170,19 @@ let export out_channel rt ro lsmt =
 
 exception Unknown
 
-let call_verit _ rt ro ra_quant rf_quant first lsmt =
-  let (filename, outchan) = Filename.open_temp_file "verit_coq" ".smt2" in
+let call_cvc5 _ rt ro ra_quant rf_quant first lsmt =
+  let (filename, outchan) = Filename.open_temp_file "cvc5_coq" ".smt2" in
   export outchan rt ro lsmt;
   close_out outchan;
   let logfilename = Filename.chop_extension filename ^ ".vtlog" in
-  let wname, woc = Filename.open_temp_file "warnings_verit" ".log" in
+  let wname, woc = Filename.open_temp_file "warnings_cvc5" ".log" in
   close_out woc;
-  let command = "veriT --proof-prune --proof-merge --proof-with-sharing --cnf-definitional --disable-ackermann --input=smtlib2 --proof=" ^ logfilename ^ " " ^ filename ^ " 2> " ^ wname in
+  let command = "cvc5 --dump-proofs --proof-prune-input --proof-format-mode=alethe --simplification=none --dag-thres=0 --lang=smt2 --proof-granularity=dsl-rewrite " ^ filename " > " ^ logfilename ^ " 2> " ^ wname in
   Format.eprintf "%s@." command;
   let t0 = Sys.time () in
   let exit_code = Sys.command command in
   let t1 = Sys.time () in
-  Format.eprintf "Verit = %.5f@." (t1-.t0);
+  Format.eprintf "cvc5 = %.5f@." (t1-.t0);
 
   let win = open_in wname in
 
@@ -194,28 +194,28 @@ let call_verit _ rt ro ra_quant rf_quant first lsmt =
         if l = "warning : proof_done: status is still open" then
           raise Unknown
         else if l = "Invalid memory reference" then
-          Structures.warning "verit-warning" ("veriT outputted the warning: " ^ l)
+          Structures.warning "cvc5-warning" ("cvc5 outputted the warning: " ^ l)
         else if n >= 7 && String.sub l 0 7 = "warning" then
-          Structures.warning "verit-warning" ("veriT outputted the warning: " ^ (String.sub l 7 (n-7)))
+          Structures.warning "cvc5-warning" ("cvc5 outputted the warning: " ^ (String.sub l 7 (n-7)))
         else if n >= 8 && String.sub l 0 8 = "error : " then
-          Structures.error ("veriT failed with the error: " ^ (String.sub l 8 (n-8)))
+          Structures.error ("cvc5 failed with the error: " ^ (String.sub l 8 (n-8)))
         else
-          Structures.error ("veriT failed with the error: " ^ l)
+          Structures.error ("cvc5 failed with the error: " ^ l)
       done
     with End_of_file -> () in
 
   try
-    if exit_code <> 0 then Structures.warning "verit-non-zero-exit-code" ("Verit.call_verit: command " ^ command ^ " exited with code " ^ string_of_int exit_code);
+    if exit_code <> 0 then Structures.warning "cvc5-non-zero-exit-code" ("Cvc5.call_cvc5: command " ^ command ^ " exited with code " ^ string_of_int exit_code);
     raise_warnings_errors ();
     let res = import_trace ra_quant rf_quant logfilename (Some first) lsmt in
     close_in win; Sys.remove wname; res
   with x -> close_in win; Sys.remove wname;
             match x with
-            | Unknown -> Structures.error "veriT returns 'unknown'"
-            | VeritSyntax.Sat -> Structures.error "veriT found a counter-example"
+            | Unknown -> Structures.error "cvc5 returns 'unknown'"
+            | VeritSyntax.Sat -> Structures.error "cvc5 found a counter-example"
             | _ -> raise x
 
-let verit_logic =
+let cvc5_logic =
   SL.of_list [LUF; LLia]
 
 let tactic_gen vm_cast lcpl lcepl =
@@ -236,6 +236,6 @@ let tactic_gen vm_cast lcpl lcepl =
   let rf = VeritSyntax.rf in
   let ra_quant = VeritSyntax.ra_quant in
   let rf_quant = VeritSyntax.rf_quant in
-  SmtCommands.tactic call_verit verit_logic rt ro ra rf ra_quant rf_quant vm_cast lcpl lcepl
+  SmtCommands.tactic call_cvc5 cvc5_logic rt ro ra rf ra_quant rf_quant vm_cast lcpl lcepl
 let tactic = tactic_gen vm_cast_true
 let tactic_no_check = tactic_gen (fun _ -> vm_cast_true_no_check)

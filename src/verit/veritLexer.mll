@@ -226,6 +226,7 @@ rule token = parse
   | "exists"                    { EXISTS }
   | "match"                     { MATCH }
   | "Formula is Satisfiable"    { SAT }
+  | "unsat"                     { UNSAT }
   | "="                         { EQ }
   | "<"                         { LT }
   | "<="                        { LEQ }
