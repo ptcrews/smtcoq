@@ -114,7 +114,7 @@ line:
   | LPAREN ANCHOR COLSTEP s=SYMBOL COLARGS LPAREN arguments=argument* RPAREN RPAREN EOL
     { mk_step ((generate_id ()), AnchorAST, [], [s], arguments) }
 ;
-
+(* TODO: Rules with args need to be parsed properly *)
 argument:
   | s=SYMBOL                                { s }
   | LPAREN s=SYMBOL RPAREN                  { s } (* Negative ints are parameterized *)

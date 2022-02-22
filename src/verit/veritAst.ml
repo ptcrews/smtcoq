@@ -3,6 +3,10 @@ open SmtAtom
 open SmtForm
 open VeritSyntax
 
+
+
+(* AST: a certificate is a list of steps *)
+
 type typ = 
   | Int
   | Bool
@@ -127,13 +131,16 @@ let mk_step (s : (id * rule * clause * params * args)) : step = s
 let mk_cert (c : step list) : certif = c
 let mk_args (a : id list) : args = a
 
+(* Return the clause corresponding to the id from a certif *)
 let rec get_cl (i : id) (c : certif) : clause option = 
   match c with
   | (i', r, c, p, a) :: t -> if i = i' then Some c else get_cl i t
   | [] -> None
 
 
+
 (* Convert certificates to strings for debugging *)
+
 let string_of_rule (r : rule) : string =
   match r with
   | AssumeAST -> "AssumeAST"
@@ -274,8 +281,10 @@ let rec string_of_certif (c : certif) : string =
   | [] -> ""
 
 
-(* Pass through certificate and store all shared term names in a 
-   hash table *)
+
+(* Pass through certificate, replace named terms with their
+   aliases, and store the alias-term mapping in a hash table *)
+
 let sterms : (string, term) Hashtbl.t = Hashtbl.create 17
 let get_sterm s =
   try Hashtbl.find sterms s
@@ -284,6 +293,12 @@ let get_sterm s =
       ("VeritAST.get_sterm : shared term with name "^s^" not found\n"))
 let add_sterm s t = Hashtbl.add sterms s t
 let clear_sterms () = Hashtbl.clear sterms
+
+(* Get expression modulo aliasing*)
+let rec get_expr = function
+  | STerm t -> get_expr (get_sterm t)
+  | NTerm (_, e) -> e
+  | e -> e
 
 let rec store_shared_terms_t (t : term) : term =
   match t with
@@ -321,14 +336,9 @@ let rec store_shared_terms (c : certif) : certif =
   | [] -> []
 
 
-(* Get expression modulo aliasing*)
-let rec get_expr = function
-  | STerm t -> get_expr (get_sterm t)
-  (*| NTerm (_, e) -> e*)
-  | e -> e
 
+(* Term equality modulo alpha renaming of foralls *)
 
-(* Term equality with alpha renaming of foralls *)
 let type_eq (t1 : typ) (t2 : typ) : bool =
   match t1, t2 with
   | Int, Int -> true
@@ -412,16 +422,17 @@ let rec term_eq (t1 : term) (t2 : term) : bool =
 
 (* Process forall_inst rule by:
    1. Ignoring all alpha renaming sub-proofs 
-   2. Dealing qnt_cnf rule 
-   3. Finding the lemma from the inputs and passing it as argument
+   2. Dealing with the qnt_cnf rule 
+   3. Finding the lemma from the inputs and passing it as a premise
       to forall_inst 
-      Replacing the clause in the forall_inst rule to the instance *)
+      Replacing the clause in the forall_inst rule by its instance *)
+
+(* Returns the id of the assumption in c which is identical to t *)
 let rec find_lemma (t : term) (c : certif) : id =
   match c with
   | (i, r, cl, p, a) :: tl ->
       (match r, cl with
       | AssumeAST, (t' :: _) when term_eq t t' -> i
-      (* | AssumeAST, (t' :: _) -> Printf.printf "t=%s and t' = %s" (string_of_term (get_expr t)) (string_of_term (get_expr t')); find_lemma t tl *)
       | _ -> find_lemma t tl)
   | [] -> raise (Debug ("Can't find the lemma to be instantiated by forall_inst in the certificate"))
 
@@ -443,31 +454,35 @@ let rec remove_res_premise (i : id) (c : certif) : certif =
 let process_fins (c : certif) : certif =
   let rec process_fins_aux (c : certif) (cog : certif) : certif =
     match c with
+    (* Step 1 *)
     | (i1, AnchorAST, c1, p1, a1) :: (i2, ReflAST, c2, p2, a2) ::
       (i3, CongAST, c3, p3, a3)   :: (i4, BindAST, c4, p4, a4) ::
       (i5, Equp2AST, c5, p5, a5)  :: (i6, ThresoAST, c6, p6, a6) :: t ->
         process_fins_aux (remove_res_premise i6 t) cog
+    (* Step 2 *)
     | (_, QcnfAST, c, _, _) :: t ->
         (* Ignoring this rule assuming no transformation is performed, 
            we need to handle this rule for more complex CNF 
            transformations of quantified formulas*)
         process_fins_aux t cog
+    (* Step 3 *)
     | (i, FinsAST, c, p, a) :: tl -> 
         let st = (match (List.hd c) with
         | Or [e; t2] ->
           let t = get_expr e in
             (match t with
             | Not t -> (i, FinsAST, [t2], [(find_lemma t cog)], [])
-            | _ -> Printf.printf "e: %s\nt: %s" (string_of_term e) (string_of_term t);
-            raise (VeritSyntax.Debug ("Expecting argument of forall_inst to be (or (Not lemma) instance) at "
-           ^(string_of_id i))))
+            | _ -> raise (VeritSyntax.Debug 
+                ("Expecting argument of forall_inst to be (or (Not lemma) instance) at "
+                ^(string_of_id i))))
         | _ -> raise (VeritSyntax.Debug 
-          ("Expecting argument of forall_inst to be an or at "
-           ^(string_of_id i)))) in
-        st :: process_fins_aux tl cog
+               ("Expecting argument of forall_inst to be an or at "
+               ^(string_of_id i))))
+        in st :: process_fins_aux tl cog
     | ircpa :: t -> ircpa :: process_fins_aux t cog
     | [] -> []
   in process_fins_aux c c
+
 
 
 (* Remove notnot rule from certificate *)
@@ -480,6 +495,7 @@ let rec remove_notnot (c : certif) : certif =
       | NotnotAST -> remove_notnot (remove_res_premise i t)
       | _ -> (i, r, cl, p, a) :: remove_notnot t)
   | [] -> []
+
 
 
 (* Convert an AST to a list of clauses *)
@@ -672,6 +688,10 @@ let process_rule (r: rule) : VeritSyntax.typ =
   | SubproofAST c -> Hole
 
 
+
+(* Removing occurrences of the cong rule using other rules 
+   including eq_congruent, eq_congruent_pred, reso *)
+
 (* We use eq_congruent_pred to prove cong (in the predicate case). 
    It is an elaborate process, but it saves us the effort of 
    proving a new rule correct. For cong, we have
@@ -765,17 +785,18 @@ let process_cong (c : certif) : certif =
     in process_cong_aux c c
 
 
-(* TODO: Rules with args need to be parsed properly *)
+
 (* Final processing and linking of AST *)
+
 let preprocess_certif (c: certif) : certif =
   let c1 = store_shared_terms c in
-  Printf.printf ("Certif before remove_notnot: %s\n") (string_of_certif c1);
+  (* Printf.printf ("Certif before remove_notnot: %s\n") (string_of_certif c1); *)
   let c2 = remove_notnot c1 in
-  Printf.printf ("Certif before process_fins: %s\n") (string_of_certif c2);
+  (* Printf.printf ("Certif before process_fins: %s\n") (string_of_certif c2); *)
   let c3 = process_fins c2 in
-  Printf.printf ("Certif before process_cong: %s\n") (string_of_certif c3);
+  (* Printf.printf ("Certif before process_cong: %s\n") (string_of_certif c3); *)
   let c4 = process_cong c3 in
-  Printf.printf ("Certif after preprocessing: %s\n") (string_of_certif c4);
+  (* Printf.printf ("Certif after preprocessing: %s\n") (string_of_certif c4); *)
   c4
 
 let rec process_certif (c : certif) : VeritSyntax.id list =
@@ -792,8 +813,10 @@ let rec process_certif (c : certif) : VeritSyntax.id list =
       let t' = process_certif t in
       if List.length t' > 0 then (
         let x = List.hd t' in
-        SmtTrace.link (get_clause_exception ("linking clause "^(string_of_id res)^" in VeritAst.process_certif") res) 
-                      (get_clause_exception ("linking clause "^(string_of_id x)^" in VeritAst.process_certif") x)
+        SmtTrace.link (get_clause_exception ("linking clause "^
+                          (string_of_id res)^" in VeritAst.process_certif") res) 
+                      (get_clause_exception ("linking clause "^
+                          (string_of_id x)^" in VeritAst.process_certif") x)
         ) else ();
       res :: t'
   | [] -> []
