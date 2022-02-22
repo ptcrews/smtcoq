@@ -174,10 +174,6 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 	- `bind`
 5. Correctness proofs of all new rules
 6. Can we skolemize existentials using a transformation for sniper?
-7. Can we add support for datatypes in CVC5? Maybe with datatype proofs?
-8. Abduction
-9. Possible optimization to sniper: define-fun vs quantified assertions - `define-fun` is better because it would avoid quantifiers. Sniper uses quantified assertions (when body of definition is quantifier free and non-recursive)
-Even with recursive functions, `define-fun-rec` is better for the SMT solver cause it could do lazy expansion.
 
 
 Dev Notes
@@ -185,3 +181,20 @@ Dev Notes
 	+ change /src/versions/standard/Makefile.local, /src/versions/standard/_CoqProject 
 	+ then, generate the Coq makefile by running `coq_makefile -f _CoqProject -o Makefile` in /src/versions/standard/
 	+ go back to src, `make clean` `.configure.sh`, and then `make`
+- While debugging, run the coq file using coqc from the command-line as `coqc filename`, that will print the print statements from the OCaml code written as `Printf.printf "some-text".
+- When the tactic complains that `no matching cases were found` for the verit tactic, unfold the verit tactic from:
+	Tactic Notation "verit"           :=
+	  prop2bool;
+	  [ .. | let Hs := get_hyps in
+	         match Hs with
+	         | Some ?Hs =>
+	           prop2bool_hyps Hs;
+	           [ .. | verit_bool_base_auto (Some Hs) ]
+	         | None => verit_bool_base_auto (@None nat)
+	         end; vauto
+	  ].
+to:
+	prop2bool.
+	let Hs := get_hyps in idtac Hs.
+	prop2bool_hyps H.
+	verit_bool_base_auto (Some H).

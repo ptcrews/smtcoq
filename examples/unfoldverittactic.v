@@ -90,23 +90,18 @@ Variable P : Z -> bool.
 Variable a : Z.
 Goal (forall (x : Z), P x) -> P a.
 Proof.
-
+  (* verit. *)
   prop2bool.
   let Hs := get_hyps in idtac Hs.
   prop2bool_hyps H.
   verit_bool_base_auto (Some H).
-
-         match Hs with
-         | Some ?Hs =>
-           prop2bool_hyps Hs;
-           [ .. | verit_bool_base_auto (Some Hs) ]
-         | None => verit_bool_base_auto (@None nat)
-         end; vauto
-  ].
-
-
-
- verit. Qed.
+  (*match Hs with
+  | Some ?Hs =>
+    prop2bool_hyps Hs;
+    [ .. | verit_bool_base_auto (Some Hs) ]
+  | None => verit_bool_base_auto (@None nat)
+  end; vauto*)
+Qed.
 
 (* Some examples of using verit with lemmas. Use <verit H1 .. Hn> to
    temporarily add the lemmas H1 .. Hn to the verit environment.
