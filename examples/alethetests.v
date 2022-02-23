@@ -96,7 +96,7 @@ Proof. verit. Qed.
    temporarily add the lemmas H1 .. Hn to the verit environment.
  *)
 
-Lemma const_fun_is_eq_val_0 :
+(*Lemma const_fun_is_eq_val_0 :
   forall f : Z -> Z,
     (forall a b, f a =? f b) ->
     forall x, f x =? f 0.
@@ -405,4 +405,4 @@ Section CompCert.
     intro H. verit (alloc_not_valid_block, H).
   Qed.
 
-End CompCert.
+End CompCert.*)

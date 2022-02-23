@@ -789,15 +789,15 @@ let process_cong (c : certif) : certif =
 (* Final processing and linking of AST *)
 
 let preprocess_certif (c: certif) : certif =
-  Printf.printf ("Certif before preprocessing: %s\n") (string_of_certif c);
+  (* Printf.printf ("Certif before preprocessing: %s\n") (string_of_certif c); *)
   let c1 = store_shared_terms c in
-  Printf.printf ("Certif after storing shared terms: %s\n") (string_of_certif c1);
+  (* Printf.printf ("Certif after storing shared terms: %s\n") (string_of_certif c1); *)
   let c2 = remove_notnot c1 in
-  Printf.printf ("Certif after remove_notnot: %s\n") (string_of_certif c2);
+  (* Printf.printf ("Certif after remove_notnot: %s\n") (string_of_certif c2); *)
   let c3 = process_fins c2 in
-  Printf.printf ("Certif after process_fins: %s\n") (string_of_certif c3);
+  (* Printf.printf ("Certif after process_fins: %s\n") (string_of_certif c3); *)
   let c4 = process_cong c3 in
-  Printf.printf ("Certif after process_cong: %s\n") (string_of_certif c4);
+  (* Printf.printf ("Certif after process_cong: %s\n") (string_of_certif c4); *)
   c4
 
 let rec process_certif (c : certif) : VeritSyntax.id list =
