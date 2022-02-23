@@ -523,7 +523,7 @@ let mk_clause (id,typ,value,ids_params,args) =
         (match ids_params with
           | [i] -> Other (ImmBuildDef2 (get_clause_exception id i))
           | _ -> assert false)
-      | And | Nor -> 
+      | And | Nor ->
         (match ids_params, value with
           | [i], x::nil -> 
               let c = get_clause_exception id i in
@@ -533,14 +533,14 @@ let mk_clause (id,typ,value,ids_params,args) =
                       | Fapp (For, args) -> (match array_find (Array.map Form.pform args) 
                                                               (Form.pform (Form.neg x)) with
                                             | Some i -> Other (ImmBuildProj (c, i))
-                                            | None -> assert false)
+                                            | None -> raise (Debug ("can't find premise in the or clause at id "^id)))
                       | Fapp (Fand, args) -> (match array_find (Array.map Form.pform args) 
                                                                (Form.pform x) with
                                              | Some i -> Other (ImmBuildProj (c,i))
-                                             | None -> assert false)
-                      | _ -> assert false)
-                | _ -> assert false)
-          | _ -> assert false)
+                                             | None -> raise (Debug ("can't find premise in the and clause at id "^id)))
+                      | _ -> raise (Debug ("expecting clause to be `and` or `or` at id "^id)))
+                | _ -> raise (Debug ("expecting a clause at id "^id)))
+          | _ -> raise (Debug ("expecting a single parameter and a unary clause at id "^id)))
       | Nimp1 ->
         (match ids_params with
           | [i] -> Other (ImmBuildProj (get_clause_exception id i,0))

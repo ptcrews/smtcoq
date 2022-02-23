@@ -103,6 +103,8 @@ verit/veritLexer.ml
 verit/veritLexer.mli
 verit/verit.ml
 verit/verit.mli
+verit/cvc5.ml
+verit/cvc5.mli
 verit/veritSyntax.ml
 verit/veritSyntax.mli
 

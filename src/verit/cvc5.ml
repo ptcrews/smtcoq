@@ -177,7 +177,7 @@ let call_cvc5 _ rt ro ra_quant rf_quant first lsmt =
   let logfilename = Filename.chop_extension filename ^ ".vtlog" in
   let wname, woc = Filename.open_temp_file "warnings_cvc5" ".log" in
   close_out woc;
-  let command = "cvc5 --dump-proofs --proof-prune-input --proof-format-mode=alethe --simplification=none --dag-thres=0 --lang=smt2 --proof-granularity=dsl-rewrite " ^ filename " > " ^ logfilename ^ " 2> " ^ wname in
+  let command = "cvc5 --dump-proofs --proof-prune-input --proof-format-mode=alethe --simplification=none --dag-thres=0 --lang=smt2 --proof-granularity=dsl-rewrite " ^ filename ^ " | tail -n +2 > " ^ logfilename ^ " 2> " ^ wname in
   Format.eprintf "%s@." command;
   let t0 = Sys.time () in
   let exit_code = Sys.command command in
