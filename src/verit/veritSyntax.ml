@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                                                        *)
 (*     SMTCoq                                                             *)
-(*     Copyright (C) 2011 - 2021                                          *)
+(*     Copyright (C) 2011 - 2022                                          *)
 (*                                                                        *)
 (*     See file "AUTHORS" for the list of authors                         *)
 (*                                                                        *)
@@ -311,20 +311,11 @@ let mkCongrPred p =
       | _ -> raise (Debug "VeritSyntax.mkCongr formula case: no conclusion in congruence")
   else raise (Debug "VeritSyntax.mkCongr: the first premise is neither an equality nor an iff")*)
 
-(* Return true if typ is Cong and value is a singleton clause of an equality (function case), 
-   else return false *)
-let isIffCongFunc typ value =
-  (match typ with
-   | Cong -> (match value with
-             | l::_ -> if is_eq l then true else false
-             | _ -> false)
-   | _ -> false)
-
 
 (* Linear arithmetic *)
 
 let mkMicromega cl =
-  let _tbl, _f, cert = Lia.build_lia_certif cl in
+  let cert = Lia.build_lia_certif cl in
   let c =
     match cert with
     | None -> raise (Debug "VeritSyntax.mkMicromega: micromega can't solve this")
@@ -332,7 +323,7 @@ let mkMicromega cl =
   Other (LiaMicromega (cl,c))
 
 
-let mkSplArith orig cl =
+(*let mkSplArith orig cl =
   let res =
     match cl with
     | res::nil -> res
@@ -342,19 +333,19 @@ let mkSplArith orig cl =
       match orig.value with
       | Some [orig'] -> orig'
       | _ -> raise (Debug "VeritSyntax.mkSplArith: wrong number of literals in the premise clause") in
-    let _tbl, _f, cert = Lia.build_lia_certif [Form.neg orig';res] in
+    let cert = Lia.build_lia_certif [Form.neg orig';res] in
     let c =
       match cert with
       | None -> raise (Debug "VeritSyntax.mkSplArith: micromega can't solve this")
       | Some c -> c in
     Other (SplArith (orig,res,c))
   with
-  | _ -> Other (ImmFlatten (orig, res))
+  | _ -> Other (ImmFlatten (orig, res))*)
 
 
 (* Elimination of operators *)
 
-let mkDistinctElim old value =
+(*let mkDistinctElim old value =
   (*let (x, y) = get_iff value in*)
   (* compare l1 and l2 pairwise, and return the first element 
      of l2 which isn't equal to the pairwise element in l1 *)
@@ -365,7 +356,7 @@ let mkDistinctElim old value =
   let l1 = match old.value with
     | Some l -> l
     | None -> assert false in
-  Other (SplDistinctElim (old,find_res l1 value))
+  Other (SplDistinctElim (old,find_res l1 value))*)
 
 
 (* Clause difference (wrt to their sets of literals) *)
@@ -643,8 +634,7 @@ let mk_clause (id,typ,value,ids_params,args) =
       | Same ->
         (match ids_params with
          | [i] -> Same (get_clause_exception id i)
-         | _ -> raise (Debug ("VeritSyntax.ml: unexpected form of same,
-                        might be caused by bind subproof\nID: "^id)))
+         | _ -> raise (Debug ("VeritSyntax.ml: unexpected form of same, might be caused by bind subproof\nID: "^id)))
       (* Not implemented *)
       | Bind -> raise (Debug ("VeritSyntax.ml: rule bind not implemented yet\nID"^id))
       | Qcnf -> raise (Debug ("VeritSyntax.ml: rule qnt_cnf not implemented yet\nID"^id))
@@ -661,7 +651,7 @@ let mk_clause (id,typ,value,ids_params,args) =
 let mk_clause cl =
   try mk_clause cl
   with Failure f ->
-    Structures.error ("SMTCoq was not able to check the certificate \
+    CoqInterface.error ("SMTCoq was not able to check the certificate \
                        for the following reason.\n"^f)
 
 let apply_dec f (decl, a) = decl, f a

@@ -2,7 +2,7 @@
 (**************************************************************************)
 (*                                                                        *)
 (*     SMTCoq                                                             *)
-(*     Copyright (C) 2011 - 2021                                          *)
+(*     Copyright (C) 2011 - 2022                                          *)
 (*                                                                        *)
 (*     See file "AUTHORS" for the list of authors                         *)
 (*                                                                        *)
@@ -10,16 +10,11 @@
 (*                                                                        *)
 (**************************************************************************)
 
-
-  open SmtBtype
-  open SmtAtom
-  open SmtForm
   open VeritSyntax
   open VeritAst
 
-  exception InvalidProofStepNo
 
-  let symbol_to_id s = 
+  (*let symbol_to_id s = 
     (* f transforms string "tn" to int n *)
     let f = (fun s -> let l = (String.length s) - 1 in
                       int_of_string (String.sub s 1 l)) in
@@ -34,9 +29,6 @@
   let atsymbol_to_id s = 
     let l = (String.length s) - 3 in
     int_of_string (String.sub s 3 l)
-    
-  (* Counter for any cong rules encountered *)
-  let congCtr = ref max_int
 
   let parse_bv s =
     let l = ref [] in
@@ -46,7 +38,7 @@
       | '1' -> l := true :: !l
       | _ -> assert false
     done;
-    !l
+    !l*)
 
 %}
 

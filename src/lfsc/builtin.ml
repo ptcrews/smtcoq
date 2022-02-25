@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                                                        *)
 (*     SMTCoq                                                             *)
-(*     Copyright (C) 2011 - 2021                                          *)
+(*     Copyright (C) 2011 - 2022                                          *)
 (*                                                                        *)
 (*     See file "AUTHORS" for the list of authors                         *)
 (*                                                                        *)
@@ -616,7 +616,7 @@ let cong s1 s2 a1 b1 a2 b2 u1 u2 =
 
 module MInt = Map.Make (struct
     type t = int
-    let compare = Pervasives.compare
+    let compare = Stdlib.compare
   end)
 
 module STerm = Set.Make (Term)

@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                                                        *)
 (*     SMTCoq                                                             *)
-(*     Copyright (C) 2011 - 2021                                          *)
+(*     Copyright (C) 2011 - 2022                                          *)
 (*                                                                        *)
 (*     See file "AUTHORS" for the list of authors                         *)
 (*                                                                        *)
@@ -186,11 +186,11 @@ type 'hform rule =
     *)
   
   (* Linear arithmetic *)
-  | LiaMicromega of 'hform list * Structures.Micromega_plugin_Certificate.Mc.zArithProof list
+  | LiaMicromega of 'hform list * CoqInterface.Micromega_plugin_Certificate.Mc.zArithProof list
   | LiaDiseq of 'hform
   
   (* Arithmetic simplifications *)
-  | SplArith of 'hform clause * 'hform * Structures.Micromega_plugin_Certificate.Mc.zArithProof list
+  | SplArith of 'hform clause * 'hform * CoqInterface.Micromega_plugin_Certificate.Mc.zArithProof list
 
   (* Elimination of operators *)
   | SplDistinctElim of 'hform clause * 'hform

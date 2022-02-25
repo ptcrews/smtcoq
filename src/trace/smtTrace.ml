@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                                                        *)
 (*     SMTCoq                                                             *)
-(*     Copyright (C) 2011 - 2021                                          *)
+(*     Copyright (C) 2011 - 2022                                          *)
 (*                                                                        *)
 (*     See file "AUTHORS" for the list of authors                         *)
 (*                                                                        *)
@@ -159,7 +159,7 @@ let order_roots init_index first =
                   r := n
     | _ -> failwith "root value has unexpected form" end
   done;
-  let _, lr = List.sort (fun (i1, _) (i2, _) -> Pervasives.compare i1 i2) !acc
+  let _, lr = List.sort (fun (i1, _) (i2, _) -> Stdlib.compare i1 i2) !acc
              |> List.split in
   let link_to c1 c2 =
     let curr_id = c2.id -1 in
@@ -387,7 +387,7 @@ let to_coq to_lit interp (cstep,
 	          l := tl
 	        | _ -> assert false
 	      done;
-	      mklApp cRes [|mkInt (get_pos c); Structures.mkArray (Lazy.force cint, args)|]
+	      mklApp cRes [|mkInt (get_pos c); CoqTerms.mkArray (Lazy.force cint, args)|]
     | Other other ->
 	      begin match other with
               | Weaken (c',l') ->
@@ -443,14 +443,14 @@ let to_coq to_lit interp (cstep,
                 mklApp cIffCong [|out_c c; prems; out_f f|]
 	            | LiaMicromega (cl,d) ->
                 let cl' = List.fold_right (fun f l -> mklApp ccons [|Lazy.force cint; out_f f; l|]) cl (mklApp cnil [|Lazy.force cint|]) in
-                let c' = List.fold_right (fun f l -> mklApp ccons [|Lazy.force Structures.micromega_coq_proofTerm; Structures.micromega_dump_proof_term f; l|]) d 
-                                         (mklApp cnil [|Lazy.force Structures.micromega_coq_proofTerm|]) in
+                let c' = List.fold_right (fun f l -> mklApp ccons [|Lazy.force CoqTerms.micromega_coq_proofTerm; CoqInterface.micromega_dump_proof_term f; l|]) d 
+                                         (mklApp cnil [|Lazy.force CoqTerms.micromega_coq_proofTerm|]) in
                 mklApp cLiaMicromega [|out_c c; cl'; c'|]
               | LiaDiseq l -> mklApp cLiaDiseq [|out_c c; out_f l|]
               | SplArith (orig,res,l) ->
                 let res' = out_f res in
-                let l' = List.fold_right (fun f l -> mklApp ccons [|Lazy.force Structures.micromega_coq_proofTerm; Structures.micromega_dump_proof_term f; l|]) l 
-                                         (mklApp cnil [|Lazy.force Structures.micromega_coq_proofTerm|]) in
+                let l' = List.fold_right (fun f l -> mklApp ccons [|Lazy.force CoqTerms.micromega_coq_proofTerm; CoqInterface.micromega_dump_proof_term f; l|]) l 
+                                         (mklApp cnil [|Lazy.force CoqTerms.micromega_coq_proofTerm|]) in
                 mklApp cSplArith [|out_c c; out_c orig; res'; l'|]
 	            | SplDistinctElim (c',f) -> mklApp cSplDistinctElim [|out_c c;out_c c'; out_f f|]
               | BBVar res -> mklApp cBBVar [|out_c c; out_f res|]
@@ -490,10 +490,10 @@ let to_coq to_lit interp (cstep,
               | Ext (res) -> mklApp cExt [|out_c c; out_f res|]
               | Hole (prem_id, concl) ->
                 let prem = List.map (fun cl -> match cl.value with Some l -> l | None -> assert false) prem_id in
-                let ass_name = Structures.mkId ("ass"^(string_of_int (Hashtbl.hash concl))) in
+                let ass_name = CoqInterface.mkId ("ass"^(string_of_int (Hashtbl.hash concl))) in
                 let ass_ty = interp (prem, concl) in
                 cuts := (ass_name, ass_ty)::!cuts;
-                let ass_var = Structures.mkVar ass_name in
+                let ass_var = CoqInterface.mkVar ass_name in
                 let prem_id' = List.fold_right (fun c l -> mklApp ccons [|Lazy.force cint; out_c c; l|]) prem_id (mklApp cnil [|Lazy.force cint|]) in
                 let prem' = List.fold_right (fun cl l -> mklApp ccons [|Lazy.force cState_C_t; out_cl cl; l|]) prem (mklApp cnil [|Lazy.force cState_C_t|]) in
                 let concl' = out_cl concl in
@@ -503,21 +503,21 @@ let to_coq to_lit interp (cstep,
                                       | Some find -> find cl
                                       | None -> assert false in
                 let concl' = out_cl [concl] in
-                let app_name = Structures.mkId ("app" ^ (string_of_int (Hashtbl.hash concl))) in
-                let app_var = Structures.mkVar app_name in
-                let app_ty = Term.mkArrow clemma (interp ([], [concl])) in
+                let app_name = CoqInterface.mkId ("app" ^ (string_of_int (Hashtbl.hash concl))) in
+                let app_var = CoqInterface.mkVar app_name in
+                let app_ty = CoqInterface.mkArrow clemma (interp ([], [concl])) in
                 cuts := (app_name, app_ty)::!cuts;
                 mklApp cForallInst [|out_c c; clemma; cplemma; concl'; app_var|]
 	      end
     | _ -> assert false in
   let step = Lazy.force cstep in
-  let def_step = mklApp cRes [|mkInt 0; Structures.mkArray (Lazy.force cint, [|mkInt 0|]) |] in
+  let def_step = mklApp cRes [|mkInt 0; CoqTerms.mkArray (Lazy.force cint, [|mkInt 0|]) |] in
   let r = ref confl in
   let nc = ref 0 in
   while not (isRoot !r.kind) do r := prev !r; incr nc done;
   let last_root = !r in
   (* Be careful, step_to_coq makes a side effect on cuts so it needs to be called first *)
-  let res = Structures.mkTrace step_to_coq next carray clist cnil ccons cpair !nc step def_step r in
+  let res = CoqInterface.mkTrace step_to_coq next carray clist cnil ccons cpair !nc step def_step r in
   (res, last_root, !cuts)
 
 

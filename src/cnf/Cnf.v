@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                                                        *)
 (*     SMTCoq                                                             *)
-(*     Copyright (C) 2011 - 2021                                          *)
+(*     Copyright (C) 2011 - 2022                                          *)
 (*                                                                        *)
 (*     See file "AUTHORS" for the list of authors                         *)
 (*                                                                        *)
@@ -23,48 +23,49 @@ Unset Strict Implicit.
 
 Definition or_of_imp args :=
   let last := PArray.length args - 1 in
-  PArray.mapi (fun i l => if i == last then l else Lit.neg l) args.
+  amapi (fun i l => if i == last then l else Lit.neg l) args.
 (* Register or_of_imp as PrimInline. *)
 
 Lemma length_or_of_imp : forall args,
   PArray.length (or_of_imp args) = PArray.length args.
-Proof. intro; unfold or_of_imp; apply length_mapi. Qed.
+Proof. intro; unfold or_of_imp; apply length_amapi. Qed.
 
 Lemma get_or_of_imp : forall args i,
   i < (PArray.length args) - 1 -> (or_of_imp args).[i] = Lit.neg (args.[i]).
 Proof.
   unfold or_of_imp; intros args i H; case_eq (0 < PArray.length args).
-  intro Heq; rewrite get_mapi.
+  intro Heq; rewrite get_amapi.
   replace (i == PArray.length args - 1) with false; auto; symmetry; rewrite eqb_false_spec; intro; subst i; unfold is_true in H; rewrite ltb_spec, (to_Z_sub_1 _ _ Heq) in H; omega.
   rewrite ltb_spec; unfold is_true in H; rewrite ltb_spec, (to_Z_sub_1 _ _ Heq) in H; omega.
   rewrite ltb_negb_geb; case_eq (PArray.length args <= 0); try discriminate; intros Heq _; assert (H1: PArray.length args = 0).
   apply to_Z_inj; rewrite leb_spec in Heq; destruct (to_Z_bounded (PArray.length args)) as [H1 _]; change [|0|] with 0%Z in *; omega.
   rewrite !get_outofbound.
-  rewrite default_mapi, H1; auto.
+  rewrite default_amapi, H1; auto.
   rewrite H1; case_eq (i < 0); auto; intro H2; eelim ltb_0; eassumption.
-  rewrite length_mapi, H1; case_eq (i < 0); auto; intro H2; eelim ltb_0; eassumption.
+  rewrite length_amapi, H1; case_eq (i < 0); auto; intro H2; eelim ltb_0; eassumption.
 Qed.
 
 Lemma get_or_of_imp2 : forall args i, 0 < PArray.length args ->
   i = (PArray.length args) - 1 -> (or_of_imp args).[i] = args.[i].
 Proof.
-  unfold or_of_imp; intros args i Heq Hi; rewrite get_mapi; subst i.
-  rewrite Int63Axioms.eqb_refl; auto.
+  unfold or_of_imp; intros args i Heq Hi; rewrite get_amapi; subst i.
+  rewrite Int63.eqb_refl; auto.
   rewrite ltb_spec, (to_Z_sub_1 _ _ Heq); omega.
 Qed.
 
 Lemma afold_right_impb p a :
   (forall x, p (Lit.neg x) = negb (p x)) ->
   (PArray.length a == 0) = false ->
-  (afold_right bool int true implb p a) =
+  (afold_right bool true implb (amap p a)) =
   List.existsb p (to_list (or_of_imp a)).
 Proof.
   intros Hp Hl.
-  case_eq (afold_right bool int true implb p a); intro Heq; symmetry.
+  case_eq (afold_right bool true implb (amap p a)); intro Heq; symmetry.
   - apply afold_right_implb_true_inv in Heq.
+    rewrite length_amap in Heq.
     destruct Heq as [Heq|[[i [Hi Heq]]|Heq]].
     + rewrite Heq in Hl. discriminate.
-    + rewrite existsb_exists. exists (Lit.neg (a .[ i])). split.
+    + rewrite get_amap in Heq. rewrite existsb_exists. exists (Lit.neg (a .[ i])). split.
       * {
           apply (to_list_In_eq _ i).
           - rewrite length_or_of_imp. apply (ltb_trans _ (PArray.length a - 1)); auto.
@@ -72,6 +73,8 @@ Proof.
           - now rewrite get_or_of_imp.
         }
       * now rewrite Hp, Heq.
+      * apply (ltb_trans _ (PArray.length a - 1)); auto.
+        now apply minus_1_lt.
     + rewrite existsb_exists. exists (a.[(PArray.length a) - 1]). split.
       * {
           apply (to_list_In_eq _ (PArray.length a - 1)).
@@ -85,15 +88,19 @@ Proof.
             clear -H H1. change [|0|] with 0%Z. lia.
         }
       * {
+          specialize (Heq (PArray.length a - 1)); rewrite get_amap in Heq by now apply minus_1_lt.
           apply Heq. now apply minus_1_lt.
         }
   - apply afold_right_implb_false_inv in Heq.
     destruct Heq as [H1 [H2 H3]].
-    case_eq (existsb p (to_list (or_of_imp a))); auto.
+    rewrite length_amap in H1, H3.
+    case_eq (List.existsb p (to_list (or_of_imp a))); auto.
     rewrite existsb_exists. intros [x [H4 H5]].
     apply In_to_list in H4. destruct H4 as [i [H4 ->]].
     case_eq (i < PArray.length a - 1); intro Heq.
-    + assert (H6 := H2 _ Heq). now rewrite (get_or_of_imp Heq), Hp, H6 in H5.
+    + specialize (H2 i). rewrite length_amap in H2. assert (H6 := H2 Heq). rewrite get_amap in H6.
+      now rewrite (get_or_of_imp Heq), Hp, H6 in H5. apply (ltb_trans _ (PArray.length a - 1)); auto.
+      now apply minus_1_lt.
     + assert (H6:i = PArray.length a - 1).
       {
         clear -H4 Heq H1.
@@ -106,6 +113,7 @@ Proof.
         lia.
       }
       rewrite get_or_of_imp2 in H5; auto.
+      rewrite get_amap in H3 by now apply minus_1_lt.
       rewrite H6, H3 in H5. discriminate.
 Qed.
 
@@ -173,17 +181,17 @@ Section CHECKER.
   Definition check_BuildDef l :=
     match get_hash (Lit.blit l) with
     | Fand args => 
-      if Lit.is_pos l then l :: List.map Lit.neg (PArray.to_list args) 
+      if Lit.is_pos l then l :: List.map Lit.neg (to_list args) 
       else C._true
     | For args =>
       if Lit.is_pos l then C._true
-      else l :: PArray.to_list args
+      else l :: to_list args
     | Fimp args =>
       if Lit.is_pos l then C._true
       else if PArray.length args == 0 then C._true
       else
         let args := or_of_imp args in
-        l :: PArray.to_list args
+        l :: to_list args
     | Fxor a b =>
       if Lit.is_pos l then l::a::Lit.neg b::nil 
       else l::a::b::nil
@@ -213,15 +221,15 @@ Section CHECKER.
       match get_hash (Lit.blit l) with
       | Fand args => 
         if Lit.is_pos l then C._true
-        else List.map Lit.neg (PArray.to_list args) 
+        else List.map Lit.neg (to_list args) 
       | For args =>
-        if Lit.is_pos l then PArray.to_list args
+        if Lit.is_pos l then to_list args
         else C._true
       | Fimp args =>
         if PArray.length args == 0 then C._true else
         if Lit.is_pos l then 
           let args := or_of_imp args in
-          PArray.to_list args
+          to_list args
         else C._true
       | Fxor a b =>
         if Lit.is_pos l then a::b::nil
@@ -347,7 +355,7 @@ Section CHECKER.
     match get_hash (Lit.blit l) with
     | Fiff a b => 
         match get_hash (Lit.blit a), get_hash (Lit.blit b) with
-        | Fnot2 1 x, _ => if x == b then (l::nil) else C._true
+        | Fnot2 i x, _ => if (x == b) && (i == 1) then (l::nil) else C._true
         | Ffalse, Ftrue => if (negb (Lit.is_pos a) && (Lit.is_pos b)) then (l::nil) else C._true
         | Ftrue, Ffalse => if (negb (Lit.is_pos a) && (Lit.is_pos b)) then (l::nil) else C._true
         | _, _ => C._true
@@ -369,34 +377,34 @@ Section CHECKER.
         match get_hash (Lit.blit x), get_hash (Lit.blit y) with
         (* and true ... true <-> true *)
         | Fand xs, Ftrue =>
-          if PArray.forallb (fun x => eqb x true) 
-                            (PArray.map (fun x => Lit.is_pos x && match get_hash (Lit.blit x) with
+          if aforallbi (fun _ x => eqb x true) 
+                            (amap (fun x => Lit.is_pos x && match get_hash (Lit.blit x) with
                                                   | Ftrue => true
                                                   | _ => false
                                                   end) xs) then
           l::nil else C._true
         (* and x_1 ... x_n <-> and x_1 ... x_n', where all true in x_i are removed *)
-        | Fand xs, Fand ys => if ((PArray.existsb (fun x => Lit.is_pos x && match get_hash (Lit.blit x) with
+        | Fand xs, Fand ys => if ((aexistsbi (fun _ x => Lit.is_pos x && match get_hash (Lit.blit x) with
                                                             | Ftrue => true
                                                             | _ => false
                                                             end) xs) &&
-                                 negb (PArray.existsb (fun x => Lit.is_pos x && match get_hash (Lit.blit x) with
+                                 negb (aexistsbi (fun _ x => Lit.is_pos x && match get_hash (Lit.blit x) with
                                                             | Ftrue => true
                                                             | _ => false
                                                             end) ys)) ||
         (* and x_1 ... x_n <-> and x_1 ... x_n', where all duplicates are removed *)
-                                 ((PArray.existsbi (fun i x => (PArray.existsbi (fun j y => (negb (i == j)) && (x == y)) xs)) xs) && 
-                                 negb (PArray.existsbi (fun i x => (PArray.existsbi (fun j y => (negb (i == j)) && (x == y)) ys)) ys)) then
+                                 ((aexistsbi (fun i x => (aexistsbi (fun j y => (negb (i == j)) && (x == y)) xs)) xs) && 
+                                 negb (aexistsbi (fun i x => (aexistsbi (fun j y => (negb (i == j)) && (x == y)) ys)) ys)) then
                                     l::nil else C._true
         (* and x_1 ... false ... x_n <-> false *)
-        | Fand xs, Ffalse => if (PArray.existsb (fun x => Lit.is_pos x && match get_hash (Lit.blit x) with
+        | Fand xs, Ffalse => if (aexistsbi (fun _ x => Lit.is_pos x && match get_hash (Lit.blit x) with
                                                           | Ffalse => true
                                                           | _ => false
                                                           end) 
                                         xs) ||
         (* and x_1 ... x_i ... (not x_i) ... x_n <-> false *)
-                                (PArray.existsb (fun x => Lit.is_pos x && 
-                                  (PArray.existsb (fun y => negb (Lit.is_pos y) && (Lit.blit x == Lit.blit y)) xs)) xs) then
+                                (aexistsbi (fun _ x => Lit.is_pos x && 
+                                  (aexistsbi (fun _ y => negb (Lit.is_pos y) && (Lit.blit x == Lit.blit y)) xs)) xs) then
                              l::nil else C._true
         | _, _ => C._true
         end
@@ -418,34 +426,34 @@ Section CHECKER.
           match get_hash (Lit.blit x), get_hash (Lit.blit y) with
           (* or false ... false <-> false *)
           | For xs, Ffalse =>
-            if PArray.forallb (fun x => eqb x true) 
-                              (PArray.map (fun x => Lit.is_pos x && match get_hash (Lit.blit x) with
+            if aforallbi (fun _ x => eqb x true) 
+                              (amap (fun x => Lit.is_pos x && match get_hash (Lit.blit x) with
                                                     | Ffalse => true
                                                     | _ => false
                                                     end) xs) then
             l::nil else C._true
           (* or x_1 ... x_n <-> or x_1 ... x_n', where all false in x_i are removed *)
-          | For xs, For ys => if ((PArray.existsb (fun x => Lit.is_pos x && match get_hash (Lit.blit x) with
+          | For xs, For ys => if ((aexistsbi (fun _ x => Lit.is_pos x && match get_hash (Lit.blit x) with
                                                               | Ffalse => true
                                                               | _ => false
                                                               end) xs) &&
-                                   negb (PArray.existsb (fun x => Lit.is_pos x && match get_hash (Lit.blit x) with
+                                   negb (aexistsbi (fun _ x => Lit.is_pos x && match get_hash (Lit.blit x) with
                                                               | Ffalse => true
                                                               | _ => false
                                                               end) ys)) ||
           (* or x_1 ... x_n <-> or x_1 ... x_n', where all duplicates are removed *)
-                                   ((PArray.existsbi (fun i x => (PArray.existsbi (fun j y => (negb (i == j)) && (x == y)) xs)) xs) && 
-                                   negb (PArray.existsbi (fun i x => (PArray.existsbi (fun j y => (negb (i == j)) && (x == y)) ys)) ys)) then
+                                   ((aexistsbi (fun i x => (aexistsbi (fun j y => (negb (i == j)) && (x == y)) xs)) xs) && 
+                                   negb (aexistsbi (fun i x => (aexistsbi (fun j y => (negb (i == j)) && (x == y)) ys)) ys)) then
                                       l::nil else C._true
           (* or x_1 ... true ... x_n <-> true *)
-          | For xs, Ftrue => if (PArray.existsb (fun x => Lit.is_pos x && match get_hash (Lit.blit x) with
+          | For xs, Ftrue => if (aexistsbi (fun _ x => Lit.is_pos x && match get_hash (Lit.blit x) with
                                                             | Ftrue => true
                                                             | _ => false
                                                             end)
                                           xs) ||
           (* or x_1 ... x_i ... (not x_i) ... x_n <-> true *)
-                                  (PArray.existsb (fun x => Lit.is_pos x && 
-                                    (PArray.existsb (fun y => negb (Lit.is_pos y) && (Lit.blit x == Lit.blit y)) xs)) xs) then
+                                  (aexistsbi (fun _ x => Lit.is_pos x && 
+                                    (aexistsbi (fun _ y => negb (Lit.is_pos y) && (Lit.blit x == Lit.blit y)) xs)) xs) then
                                l::nil else C._true
           | _, _ => C._true
           end
@@ -453,30 +461,6 @@ Section CHECKER.
       | _ => C._true
       end.
 
-Fixpoint list_eqb l1 l2 : bool :=
-  if Nat.eqb (List.length l1) (List.length l2) then
-    match l1, l2 with
-    | h1 :: t1, h2 :: t2 => (h1 == h2) && list_eqb t1 t2
-    | _, _ => false
-    end
-  else false.
-
-  Definition form_eqb (x y : form) : bool := 
-    match x, y with
-    | Fatom x, Fatom y => x == y
-    | Ftrue, Ftrue | Ffalse, Ffalse => true
-    | Fnot2 m x, Fnot2 n y => (x == y) && 
-                             (((is_even m) && (is_even n)) || 
-                             (negb (is_even m) && negb (is_even n)))
-    | Fand xs, Fand ys => PArray.eqb (Int63Native.eqb) xs ys
-    | For xs, For ys => PArray.eqb (Int63Native.eqb) xs ys
-    | Fimp xs, Fimp ys => PArray.eqb (Int63Native.eqb) xs ys
-    | Fxor x1 x2, Fxor y1 y2 => (x1 == y1) && (x2 == y2)
-    | Fiff x1 x2, Fiff y1 y2 => (x1 == y1) && (x2 == y2)
-    | Fite x1 x2 x3, Fite y1 y2 y3 => (x1 == y1) && (x2 == y2) && (x3 == y3)
-    | FbbT x1 x2, FbbT y1 y2 => (x1 == y1) && (list_eqb x2 y2)
-    | _, _ => false
-    end.
 
     (* implies_simplify     : {iff (not x -> not y) (y -> x)}
                               {iff (false -> x) true}
@@ -501,11 +485,14 @@ Fixpoint list_eqb l1 l2 : bool :=
               let yh := get_hash (Lit.blit y) in
               (* More general cases first *)
               (* iff (x -> x) true *)
-              if (x0 == x1) && (form_eqb yh Ftrue) then l::nil 
+              if (x0 == x1) && 
+                 (match yh with | Ftrue => true | _ => false end) then l::nil 
               (* iff (true -> x) x *)
-              else if (x1 == y) && (form_eqb x0h Ftrue) then l::nil
+              else if (x1 == y) && 
+                (match x0h with | Ftrue => true | _ => false end) then l::nil
               (* iff (x -> false) (not x) *)
-              else if (y == Lit.neg x0) && (form_eqb x1h Ffalse) then l::nil
+              else if (y == Lit.neg x0) && 
+                (match x1h with | Ffalse => true | _ => false end) then l::nil
               (* iff (x -> not x) (not x) *)
               else if (x1 == Lit.neg x0) && (x1 == y) then l::nil
               (* iff (not x -> x) x *)
@@ -561,13 +548,17 @@ Fixpoint list_eqb l1 l2 : bool :=
             let yh := get_hash (Lit.blit y) in
             (* More general cases first *)
             (* iff (iff true x) x *)
-            if (x2 == y) && (form_eqb x1h Ftrue) then l::nil 
+            if (x2 == y) && 
+              (match x1h with | Ftrue => true | _ => false end) then l::nil 
             (* iff (iff x true) x *)
-            else if (x1 == y) && (form_eqb x2h Ftrue) then l::nil
+            else if (x1 == y) && 
+              (match x2h with | Ftrue => true | _ => false end) then l::nil
             (* iff (iff false x) (not x) *)
-            else if (y == Lit.neg x2) && (form_eqb x1h Ffalse) then l::nil
+            else if (y == Lit.neg x2) && 
+              (match x1h with | Ffalse => true | _ => false end) then l::nil
             (* iff (iff x false) (not x) *)
-            else if (y == Lit.neg x1) && (form_eqb x2h Ffalse) then l::nil
+            else if (y == Lit.neg x1) && 
+              (match x2h with | Ffalse => true | _ => false end) then l::nil
             (* More specific cases next *)
             else 
               match x1h, x2h, yh with
@@ -929,12 +920,6 @@ Fixpoint list_eqb l1 l2 : bool :=
       | _ => C._true
       end.*)
 
-    
-    (* ident        :       {x -> x} *)
-    Definition check_Ident pos :=
-      match S.get s pos with
-      | x => x
-      end.
 
   (** The correctness proofs *)
 
@@ -1022,12 +1007,12 @@ Fixpoint list_eqb l1 l2 : bool :=
    case_eq (i < PArray.length a);intros Hlt;auto using C.interp_true;simpl.
    - rewrite Lit.interp_nlit;unfold Var.interp;rewrite rho_interp, orb_false_r, H.
      simpl;rewrite afold_left_and.
-     case_eq (forallb (Lit.interp rho) (to_list a));trivial.
+     case_eq (List.forallb (Lit.interp rho) (to_list a));trivial.
      rewrite forallb_forall;intros Heq;rewrite Heq;trivial.
      apply to_list_In; auto.
    - rewrite Lit.interp_lit;unfold Var.interp;rewrite rho_interp, orb_false_r, H.
      simpl;rewrite afold_left_or.
-     unfold C.interp;case_eq (existsb (Lit.interp rho) (to_list a));trivial.
+     unfold C.interp;case_eq (List.existsb (Lit.interp rho) (to_list a));trivial.
      rewrite <-not_true_iff_false, existsb_exists, Lit.interp_neg.
      case_eq (Lit.interp rho (a .[ i]));trivial.
      intros Heq Hex;elim Hex;exists (a.[i]);split;trivial.
@@ -1051,7 +1036,7 @@ Fixpoint list_eqb l1 l2 : bool :=
                  by (intro H; apply Hl; now apply to_Z_inj).
                destruct (to_Z_bounded (PArray.length a)) as [H1 _].
                lia.
-             + now rewrite Int63Properties.eqb_spec in Heq.
+             + now rewrite Int63.eqb_spec in Heq.
          }
        * now rewrite orb_true_r.
      + rewrite orb_false_r.
@@ -1116,10 +1101,6 @@ Fixpoint list_eqb l1 l2 : bool :=
     admit.
   Admitted.
 
-  Lemma valid_check_Ident : forall pos, C.valid rho (check_Ident pos).
-  Proof.
-      admit.
-  Admitted.
 
   Hypothesis Hs : S.valid rho s.
 
@@ -1178,7 +1159,7 @@ Fixpoint list_eqb l1 l2 : bool :=
                                                         existsb_exists;case_eq (Lit.interp rho (a .[ i]));trivial;
          intros Heq2 Hex;elim Hex.
      exists (a.[i]);split;trivial.
-     assert (H1: 0 < PArray.length a) by (apply (leb_ltb_trans _ i _); auto; apply leb_0); rewrite Int63Properties.eqb_spec in Heq'; rewrite <- (get_or_of_imp2 H1 Heq'); apply to_list_In; rewrite length_or_of_imp; auto.
+     assert (H1: 0 < PArray.length a) by (apply (leb_ltb_trans _ i _); auto; apply leb_0); rewrite Int63.eqb_spec in Heq'; rewrite <- (get_or_of_imp2 H1 Heq'); apply to_list_In; rewrite length_or_of_imp; auto.
      exists (Lit.neg (a.[i]));rewrite Lit.interp_neg, Heq2;split;trivial.
      assert (H1: i < PArray.length a - 1 = true) by (rewrite ltb_spec, (to_Z_sub_1 _ _ Hlt); rewrite eqb_false_spec in Heq'; assert (H1: [|i|] <> ([|PArray.length a|] - 1)%Z) by (intro H1; apply Heq', to_Z_inj; rewrite (to_Z_sub_1 _ _ Hlt); auto); rewrite ltb_spec in Hlt; omega); rewrite <- (get_or_of_imp H1); apply to_list_In; rewrite length_or_of_imp; auto.
   Qed.

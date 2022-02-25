@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                                                        *)
 (*     SMTCoq                                                             *)
-(*     Copyright (C) 2011 - 2021                                          *)
+(*     Copyright (C) 2011 - 2022                                          *)
 (*                                                                        *)
 (*     See file "AUTHORS" for the list of authors                         *)
 (*                                                                        *)
@@ -11,7 +11,7 @@
 
 
 (* [Require Import SMTCoq.SMTCoq.] loads the SMTCoq library.
-   If you are using native-coq instead of Coq 8.9, replace it with:
+   If you are using native-coq instead of Coq 8.10, replace it with:
      Require Import SMTCoq.
    *)
 

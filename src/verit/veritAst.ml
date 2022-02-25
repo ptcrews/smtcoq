@@ -129,7 +129,7 @@ and certif = step list
 let mk_cl (ts : term list) : clause = ts
 let mk_step (s : (id * rule * clause * params * args)) : step = s
 let mk_cert (c : step list) : certif = c
-let mk_args (a : id list) : args = a
+(*let mk_args (a : id list) : args = a*)
 
 (* Return the clause corresponding to the id from a certif *)
 let rec get_cl (i : id) (c : certif) : clause option = 
@@ -504,6 +504,7 @@ let process_typ (t : typ) : SmtBtype.btype =
   match t with
   | Int -> TZ
   | Bool -> Tbool
+  | Unintr _ -> assert false (* needs to be updated *)
 
 let rec process_vars (vs : (string * typ) list) : (string * SmtBtype.btype) list = 
   match vs with
@@ -779,7 +780,7 @@ let process_cong (c : certif) : certif =
                   (i, r, c, p, a) :: process_cong_aux t cog
               | _ -> assert false)
         | _ -> (* This is necessary to add the shared terms to the hash tables *)
-               let c' = process_cl c in
+               let _ = process_cl c in
                (i, r, c, p, a) :: process_cong_aux t cog)
     | [] -> []
     in process_cong_aux c c

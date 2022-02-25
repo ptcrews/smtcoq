@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                                                        *)
 (*     SMTCoq                                                             *)
-(*     Copyright (C) 2011 - 2021                                          *)
+(*     Copyright (C) 2011 - 2022                                          *)
 (*                                                                        *)
 (*     See file "AUTHORS" for the list of authors                         *)
 (*                                                                        *)
@@ -48,31 +48,31 @@ val alloc : 'a SmtCertif.clause -> int
 val naive_alloc : 'a SmtCertif.clause -> int
 val build_certif : 'a SmtCertif.clause -> 'b SmtCertif.clause -> int
 val to_coq :
-  ('a -> Structures.constr) ->
-  ('a list list * 'a list -> Structures.types) ->
-  Structures.constr Lazy.t * Structures.constr Lazy.t * Structures.constr Lazy.t *
-  Structures.constr Lazy.t * Structures.constr Lazy.t * Structures.constr Lazy.t *
-  Structures.constr Lazy.t * Structures.constr Lazy.t * Structures.constr Lazy.t *
-  Structures.constr Lazy.t * Structures.constr Lazy.t * Structures.constr Lazy.t *
-  Structures.constr Lazy.t * Structures.constr Lazy.t * Structures.constr Lazy.t *
-  Structures.constr Lazy.t * Structures.constr Lazy.t * Structures.constr Lazy.t *
-  Structures.constr Lazy.t * Structures.constr Lazy.t * Structures.constr Lazy.t *
-  Structures.constr Lazy.t * Structures.constr Lazy.t * Structures.constr Lazy.t *
-  Structures.constr Lazy.t * Structures.constr Lazy.t * Structures.constr Lazy.t *
-  Structures.constr Lazy.t * Structures.constr Lazy.t * Structures.constr Lazy.t *
-  Structures.constr Lazy.t * Structures.constr Lazy.t * Structures.constr Lazy.t *
-  Structures.constr Lazy.t * Structures.constr Lazy.t * Structures.constr Lazy.t *
-  Structures.constr Lazy.t * Structures.constr Lazy.t * Structures.constr Lazy.t *
-  Structures.constr Lazy.t * Structures.constr Lazy.t * Structures.constr Lazy.t *
-  Structures.constr Lazy.t * Structures.constr Lazy.t * Structures.constr Lazy.t *
-  Structures.constr Lazy.t * Structures.constr Lazy.t * Structures.constr Lazy.t *
-  Structures.constr Lazy.t * Structures.constr Lazy.t * Structures.constr Lazy.t *
-  Structures.constr Lazy.t * Structures.constr Lazy.t * Structures.constr Lazy.t *
-  Structures.constr Lazy.t * Structures.constr Lazy.t * Structures.constr Lazy.t ->
+  ('a -> CoqInterface.constr) ->
+  ('a list list * 'a list -> CoqInterface.types) ->
+  CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t *
+  CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t *
+  CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t *
+  CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t *
+  CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t *
+  CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t *
+  CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t *
+  CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t *
+  CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t *
+  CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t *
+  CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t *
+  CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t *
+  CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t *
+  CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t *
+  CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t *
+  CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t *
+  CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t *
+  CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t *
+  CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t * CoqInterface.constr Lazy.t ->
   'a SmtCertif.clause ->
-  ('a SmtCertif.clause -> Structures.types * Structures.constr) option ->
-  Structures.constr * 'a SmtCertif.clause *
-    (Structures.id * Structures.types) list
+  ('a SmtCertif.clause -> CoqInterface.types * CoqInterface.constr) option ->
+  CoqInterface.constr * 'a SmtCertif.clause *
+    (CoqInterface.id * CoqInterface.types) list
 
 
 module MakeOpt :

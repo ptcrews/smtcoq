@@ -94,12 +94,12 @@ let import_trace ra_quant rf_quant filename first lsmt =
          occur !confl;
          (alloc !cfirst, !confl)
     with
-    | VeritSyntax.Debug s -> Structures.error ("Cvc5.import_trace (VeritSyntax.Debug)\nPosition: "^(print_position lexbuf)
+    | VeritSyntax.Debug s -> CoqInterface.error ("Cvc5.import_trace (VeritSyntax.Debug)\nPosition: "^(print_position lexbuf)
         ^"\nMessage: "^s^"\nCertificate:\n"^(VeritAst.string_of_certif (cert'))^"\nHash Table:\n"^(VeritSyntax.clauses_to_string))
-    | Failure f -> Structures.error ("Cvc5.import_trace (Failure)\nPosition: "^(print_position lexbuf)^"\nMessage: "^f)
-    | _ -> Structures.error ("Cvc5.import_trace\nPosition: "^(print_position lexbuf))
+    | Failure f -> CoqInterface.error ("Cvc5.import_trace (Failure)\nPosition: "^(print_position lexbuf)^"\nMessage: "^f)
+    | _ -> CoqInterface.error ("Cvc5.import_trace\nPosition: "^(print_position lexbuf))
   with
-  | VeritParser.Error -> Structures.error ("Cvc5.import_trace (VeritParser.Error)\nPosition: "^(print_position lexbuf))
+  | VeritParser.Error -> CoqInterface.error ("Cvc5.import_trace (VeritParser.Error)\nPosition: "^(print_position lexbuf))
 
 
 let clear_all () =
@@ -194,25 +194,25 @@ let call_cvc5 _ rt ro ra_quant rf_quant first lsmt =
         if l = "warning : proof_done: status is still open" then
           raise Unknown
         else if l = "Invalid memory reference" then
-          Structures.warning "cvc5-warning" ("cvc5 outputted the warning: " ^ l)
+          CoqInterface.warning "cvc5-warning" ("cvc5 outputted the warning: " ^ l)
         else if n >= 7 && String.sub l 0 7 = "warning" then
-          Structures.warning "cvc5-warning" ("cvc5 outputted the warning: " ^ (String.sub l 7 (n-7)))
+          CoqInterface.warning "cvc5-warning" ("cvc5 outputted the warning: " ^ (String.sub l 7 (n-7)))
         else if n >= 8 && String.sub l 0 8 = "error : " then
-          Structures.error ("cvc5 failed with the error: " ^ (String.sub l 8 (n-8)))
+          CoqInterface.error ("cvc5 failed with the error: " ^ (String.sub l 8 (n-8)))
         else
-          Structures.error ("cvc5 failed with the error: " ^ l)
+          CoqInterface.error ("cvc5 failed with the error: " ^ l)
       done
     with End_of_file -> () in
 
   try
-    if exit_code <> 0 then Structures.warning "cvc5-non-zero-exit-code" ("Cvc5.call_cvc5: command " ^ command ^ " exited with code " ^ string_of_int exit_code);
+    if exit_code <> 0 then CoqInterface.warning "cvc5-non-zero-exit-code" ("Cvc5.call_cvc5: command " ^ command ^ " exited with code " ^ string_of_int exit_code);
     raise_warnings_errors ();
     let res = import_trace ra_quant rf_quant logfilename (Some first) lsmt in
     close_in win; Sys.remove wname; res
   with x -> close_in win; Sys.remove wname;
             match x with
-            | Unknown -> Structures.error "cvc5 returns 'unknown'"
-            | VeritSyntax.Sat -> Structures.error "cvc5 found a counter-example"
+            | Unknown -> CoqInterface.error "cvc5 returns 'unknown'"
+            | VeritSyntax.Sat -> CoqInterface.error "cvc5 found a counter-example"
             | _ -> raise x
 
 let cvc5_logic =

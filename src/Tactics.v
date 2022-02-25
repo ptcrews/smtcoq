@@ -1,7 +1,7 @@
 (**************************************************************************)
 (*                                                                        *)
 (*     SMTCoq                                                             *)
-(*     Copyright (C) 2011 - 2021                                          *)
+(*     Copyright (C) 2011 - 2022                                          *)
 (*                                                                        *)
 (*     See file "AUTHORS" for the list of authors                         *)
 (*                                                                        *)
@@ -69,8 +69,8 @@ Ltac get_hyps :=
 
 (** Tactics in bool *)
 
-Tactic Notation "verit_bool_base_auto" constr(h) := verit_bool_base h; auto with typeclass_instances.
-Tactic Notation "verit_bool_no_check_base_auto" constr(h) := verit_bool_no_check_base h; auto with typeclass_instances.
+Tactic Notation "verit_bool_base_auto" constr(h) := verit_bool_base h; try (exact _).
+Tactic Notation "verit_bool_no_check_base_auto" constr(h) := verit_bool_no_check_base h; try (exact _).
 
 Tactic Notation "cvc5_bool_base_auto" constr(h) := cvc5_bool_base h; auto with typeclass_instances.
 Tactic Notation "cvc5_bool_no_check_base_auto" constr(h) := cvc5_bool_no_check_base h; auto with typeclass_instances.
