@@ -23,7 +23,7 @@ Unset Strict Implicit.
 
 Definition or_of_imp args :=
   let last := PArray.length args - 1 in
-  amapi (fun i l => if i == last then l else Lit.neg l) args.
+  amapi (fun i l => if i =? last then l else Lit.neg l) args.
 (* Register or_of_imp as PrimInline. *)
 
 Lemma length_or_of_imp : forall args,
@@ -31,21 +31,21 @@ Lemma length_or_of_imp : forall args,
 Proof. intro; unfold or_of_imp; apply length_amapi. Qed.
 
 Lemma get_or_of_imp : forall args i,
-  i < (PArray.length args) - 1 -> (or_of_imp args).[i] = Lit.neg (args.[i]).
+  i <? (PArray.length args) - 1 -> (or_of_imp args).[i] = Lit.neg (args.[i]).
 Proof.
-  unfold or_of_imp; intros args i H; case_eq (0 < PArray.length args).
+  unfold or_of_imp; intros args i H; case_eq (0 <? PArray.length args).
   intro Heq; rewrite get_amapi.
-  replace (i == PArray.length args - 1) with false; auto; symmetry; rewrite eqb_false_spec; intro; subst i; unfold is_true in H; rewrite ltb_spec, (to_Z_sub_1 _ _ Heq) in H; lia.
+  replace (i =? PArray.length args - 1) with false; auto; symmetry; rewrite eqb_false_spec; intro; subst i; unfold is_true in H; rewrite ltb_spec, (to_Z_sub_1 _ _ Heq) in H; lia.
   rewrite ltb_spec; unfold is_true in H; rewrite ltb_spec, (to_Z_sub_1 _ _ Heq) in H; lia.
-  rewrite ltb_negb_geb; case_eq (PArray.length args <= 0); try discriminate; intros Heq _; assert (H1: PArray.length args = 0).
+  rewrite ltb_negb_geb; case_eq (PArray.length args <=? 0); try discriminate; intros Heq _; assert (H1: PArray.length args = 0).
   apply to_Z_inj; rewrite leb_spec in Heq; destruct (to_Z_bounded (PArray.length args)) as [H1 _]; change [|0|] with 0%Z in *; lia.
   rewrite !get_outofbound.
   rewrite default_amapi, H1; auto.
-  rewrite H1; case_eq (i < 0); auto; intro H2; eelim ltb_0; eassumption.
-  rewrite length_amapi, H1; case_eq (i < 0); auto; intro H2; eelim ltb_0; eassumption.
+  rewrite H1; case_eq (i <? 0); auto; intro H2; eelim ltb_0; eassumption.
+  rewrite length_amapi, H1; case_eq (i <? 0); auto; intro H2; eelim ltb_0; eassumption.
 Qed.
 
-Lemma get_or_of_imp2 : forall args i, 0 < PArray.length args ->
+Lemma get_or_of_imp2 : forall args i, 0 <? PArray.length args ->
   i = (PArray.length args) - 1 -> (or_of_imp args).[i] = args.[i].
 Proof.
   unfold or_of_imp; intros args i Heq Hi; rewrite get_amapi; subst i.
@@ -55,7 +55,7 @@ Qed.
 
 Lemma afold_right_impb p a :
   (forall x, p (Lit.neg x) = negb (p x)) ->
-  (PArray.length a == 0) = false ->
+  (PArray.length a =? 0) = false ->
   (afold_right bool true implb (amap p a)) =
   List.existsb p (to_list (or_of_imp a)).
 Proof.
@@ -97,7 +97,7 @@ Proof.
     case_eq (List.existsb p (to_list (or_of_imp a))); auto.
     rewrite existsb_exists. intros [x [H4 H5]].
     apply In_to_list in H4. destruct H4 as [i [H4 ->]].
-    case_eq (i < PArray.length a - 1); intro Heq.
+    case_eq (i <? PArray.length a - 1); intro Heq.
     + specialize (H2 i). rewrite length_amap in H2. assert (H6 := H2 Heq). rewrite get_amap in H6.
       now rewrite (get_or_of_imp Heq), Hp, H6 in H5. apply (ltb_trans _ (PArray.length a - 1)); auto.
       now apply minus_1_lt.
@@ -108,7 +108,7 @@ Proof.
         apply to_Z_inj. rewrite (to_Z_sub_1 _ 0); auto.
         rewrite ltb_spec in H4; auto.
         rewrite ltb_negb_geb in Heq.
-        case_eq (PArray.length a - 1 <= i); intro H2; rewrite H2 in Heq; try discriminate.
+        case_eq (PArray.length a - 1 <=? i); intro H2; rewrite H2 in Heq; try discriminate.
         clear Heq. rewrite leb_spec in H2. rewrite (to_Z_sub_1 _ 0) in H2; auto.
         lia.
       }
@@ -141,7 +141,7 @@ Section CHECKER.
     else
       l :: Lit.neg l :: nil.
     (*match get_hash (Lit.blit l) with
-      | Fnot2 i x => (*if (i == 1) then*) l :: x :: nil
+      | Fnot2 i x => (*if (i =? 1) then*) l :: x :: nil
                      (*else (Lit.neg l) :: (Fnot2 (i-1) x) :: nil*)
       | _ => C._true
       end.*)
@@ -152,7 +152,7 @@ Section CHECKER.
   Definition check_Tautology pos l :=
     match S.get s pos, get_hash (Lit.blit l) with
     | xs, Ttrue => if (existsb (fun x => Lit.is_pos x && 
-               (existsb (fun y => negb (Lit.is_pos y) && (x == y)) xs)) 
+               (existsb (fun y => negb (Lit.is_pos y) && (x =? y)) xs)) 
                xs) then
       l::nil else C._true
     end.
@@ -163,7 +163,7 @@ Section CHECKER.
   Definition check_Contraction pos ys :=
     match S.get s pos with
     | xs => (* Check whether each element in xs only occurs once in ys *)
-        if (List.forallb (fun x => Nat.eqb (List.length (List.filter (fun y => y == x) ys)) 1) xs) then
+        if (List.forallb (fun x => Nat.eqb (List.length (List.filter (fun y => y =? x) ys)) 1) xs) then
         ys else C._true
     end.
 
@@ -188,7 +188,7 @@ Section CHECKER.
       else l :: to_list args
     | Fimp args =>
       if Lit.is_pos l then C._true
-      else if PArray.length args == 0 then C._true
+      else if PArray.length args =? 0 then C._true
       else
         let args := or_of_imp args in
         l :: to_list args
@@ -226,7 +226,7 @@ Section CHECKER.
         if Lit.is_pos l then to_list args
         else C._true
       | Fimp args =>
-        if PArray.length args == 0 then C._true else
+        if PArray.length args =? 0 then C._true else
         if Lit.is_pos l then 
           let args := or_of_imp args in
           to_list args
@@ -304,15 +304,15 @@ Section CHECKER.
     let x := Lit.blit l in
     match get_hash x with
     | For args =>
-      if i < PArray.length args then Lit.lit x::Lit.neg (args.[i])::nil
+      if i <? PArray.length args then Lit.lit x::Lit.neg (args.[i])::nil
       else C._true
     | Fand args =>
-      if i < PArray.length args then Lit.nlit x::(args.[i])::nil
+      if i <? PArray.length args then Lit.nlit x::(args.[i])::nil
       else C._true
     | Fimp args =>
       let len := PArray.length args in
-      if i < len then
-        if i == len - 1 then Lit.lit x::Lit.neg (args.[i])::nil
+      if i <? len then
+        if i =? len - 1 then Lit.lit x::Lit.neg (args.[i])::nil
         else Lit.lit x::(args.[i])::nil
       else C._true
     | _ => C._true
@@ -330,15 +330,15 @@ Section CHECKER.
       let x := Lit.blit l in
       match get_hash x with
       | For args =>
-        if (i < PArray.length args) && negb (Lit.is_pos l) then Lit.neg (args.[i])::nil
+        if (i <? PArray.length args) && negb (Lit.is_pos l) then Lit.neg (args.[i])::nil
         else C._true
       | Fand args =>
-        if (i < PArray.length args) && (Lit.is_pos l) then (args.[i])::nil
+        if (i <? PArray.length args) && (Lit.is_pos l) then (args.[i])::nil
         else C._true
       | Fimp args =>
         let len := PArray.length args in
-        if (i < len) && negb (Lit.is_pos l) then
-          if i == len - 1 then Lit.neg (args.[i])::nil
+        if (i <? len) && negb (Lit.is_pos l) then
+          if i =? len - 1 then Lit.neg (args.[i])::nil
           else (args.[i])::nil
         else C._true
       | _ => C._true
@@ -355,7 +355,7 @@ Section CHECKER.
     match get_hash (Lit.blit l) with
     | Fiff a b => 
         match get_hash (Lit.blit a), get_hash (Lit.blit b) with
-        | Fnot2 i x, _ => if (x == b) && (i == 1) then (l::nil) else C._true
+        | Fnot2 i x, _ => if (x =? b) && (i =? 1) then (l::nil) else C._true
         | Ffalse, Ftrue => if (negb (Lit.is_pos a) && (Lit.is_pos b)) then (l::nil) else C._true
         | Ftrue, Ffalse => if (negb (Lit.is_pos a) && (Lit.is_pos b)) then (l::nil) else C._true
         | _, _ => C._true
@@ -393,8 +393,8 @@ Section CHECKER.
                                                             | _ => false
                                                             end) ys)) ||
         (* and x_1 ... x_n <-> and x_1 ... x_n', where all duplicates are removed *)
-                                 ((aexistsbi (fun i x => (aexistsbi (fun j y => (negb (i == j)) && (x == y)) xs)) xs) && 
-                                 negb (aexistsbi (fun i x => (aexistsbi (fun j y => (negb (i == j)) && (x == y)) ys)) ys)) then
+                                 ((aexistsbi (fun i x => (aexistsbi (fun j y => (negb (i =? j)) && (x =? y)) xs)) xs) && 
+                                 negb (aexistsbi (fun i x => (aexistsbi (fun j y => (negb (i =? j)) && (x =? y)) ys)) ys)) then
                                     l::nil else C._true
         (* and x_1 ... false ... x_n <-> false *)
         | Fand xs, Ffalse => if (aexistsbi (fun _ x => Lit.is_pos x && match get_hash (Lit.blit x) with
@@ -404,7 +404,7 @@ Section CHECKER.
                                         xs) ||
         (* and x_1 ... x_i ... (not x_i) ... x_n <-> false *)
                                 (aexistsbi (fun _ x => Lit.is_pos x && 
-                                  (aexistsbi (fun _ y => negb (Lit.is_pos y) && (Lit.blit x == Lit.blit y)) xs)) xs) then
+                                  (aexistsbi (fun _ y => negb (Lit.is_pos y) && (Lit.blit x =? Lit.blit y)) xs)) xs) then
                              l::nil else C._true
         | _, _ => C._true
         end
@@ -442,8 +442,8 @@ Section CHECKER.
                                                               | _ => false
                                                               end) ys)) ||
           (* or x_1 ... x_n <-> or x_1 ... x_n', where all duplicates are removed *)
-                                   ((aexistsbi (fun i x => (aexistsbi (fun j y => (negb (i == j)) && (x == y)) xs)) xs) && 
-                                   negb (aexistsbi (fun i x => (aexistsbi (fun j y => (negb (i == j)) && (x == y)) ys)) ys)) then
+                                   ((aexistsbi (fun i x => (aexistsbi (fun j y => (negb (i =? j)) && (x =? y)) xs)) xs) && 
+                                   negb (aexistsbi (fun i x => (aexistsbi (fun j y => (negb (i =? j)) && (x =? y)) ys)) ys)) then
                                       l::nil else C._true
           (* or x_1 ... true ... x_n <-> true *)
           | For xs, Ftrue => if (aexistsbi (fun _ x => Lit.is_pos x && match get_hash (Lit.blit x) with
@@ -453,7 +453,7 @@ Section CHECKER.
                                           xs) ||
           (* or x_1 ... x_i ... (not x_i) ... x_n <-> true *)
                                   (aexistsbi (fun _ x => Lit.is_pos x && 
-                                    (aexistsbi (fun _ y => negb (Lit.is_pos y) && (Lit.blit x == Lit.blit y)) xs)) xs) then
+                                    (aexistsbi (fun _ y => negb (Lit.is_pos y) && (Lit.blit x =? Lit.blit y)) xs)) xs) then
                                l::nil else C._true
           | _, _ => C._true
           end
@@ -477,7 +477,7 @@ Section CHECKER.
       | Fiff x y => 
           match get_hash (Lit.blit x) with
           | Fimp xs => 
-            if PArray.length xs == 2 then
+            if PArray.length xs =? 2 then
               let x0 := xs.[0] in
               let x1 := xs.[1] in
               let x0h := get_hash (Lit.blit x0) in
@@ -485,18 +485,18 @@ Section CHECKER.
               let yh := get_hash (Lit.blit y) in
               (* More general cases first *)
               (* iff (x -> x) true *)
-              if (x0 == x1) && 
+              if (x0 =? x1) && 
                  (match yh with | Ftrue => true | _ => false end) then l::nil 
               (* iff (true -> x) x *)
-              else if (x1 == y) && 
+              else if (x1 =? y) && 
                 (match x0h with | Ftrue => true | _ => false end) then l::nil
               (* iff (x -> false) (not x) *)
-              else if (y == Lit.neg x0) && 
+              else if (y =? Lit.neg x0) && 
                 (match x1h with | Ffalse => true | _ => false end) then l::nil
               (* iff (x -> not x) (not x) *)
-              else if (x1 == Lit.neg x0) && (x1 == y) then l::nil
+              else if (x1 =? Lit.neg x0) && (x1 =? y) then l::nil
               (* iff (not x -> x) x *)
-              else if (x0 == Lit.neg x1) && (x1 == y) then l::nil
+              else if (x0 =? Lit.neg x1) && (x1 =? y) then l::nil
               (* More specific cases next *)
               else 
                 match x0h, x1h, yh with
@@ -505,20 +505,20 @@ Section CHECKER.
                 (* iff (x -> true) true *)
                 | _, Ftrue, Ftrue => l::nil
                 (* iff (not x -> not y) (y -> x) *)
-                | x0h, x1h, Fimp ys => 
-                  if PArray.length ys == 2 then
+                | _, _, Fimp ys => 
+                  if PArray.length ys =? 2 then
                     let y0 := ys.[0] in
                     let y1 := ys.[1] in
-                    if (x0 == Lit.neg y1) && (x1 == Lit.neg y0) then l::nil else C._true
+                    if (x0 =? Lit.neg y1) && (x1 =? Lit.neg y0) then l::nil else C._true
                   else C._true
                 (*iff ((x -> y) -> y) (or x y)*)
-                | Fimp x0s, x1h, For ys =>
-                  if (PArray.length x0s == 2) && (PArray.length ys == 2) then
+                | Fimp x0s, _, For ys =>
+                  if (PArray.length x0s =? 2) && (PArray.length ys =? 2) then
                     let x00 := x0s.[0] in
                     let x01 := x0s.[1] in
                     let y0 := ys.[0] in
                     let y1 := ys.[1] in
-                    if (x00 == y0) && (x01 == x1) && (x1 == y1) then l::nil else C._true
+                    if (x00 =? y0) && (x01 =? x1) && (x1 =? y1) then l::nil else C._true
                   else C._true
                 | _, _, _ => C._true
                 end
@@ -548,26 +548,26 @@ Section CHECKER.
             let yh := get_hash (Lit.blit y) in
             (* More general cases first *)
             (* iff (iff true x) x *)
-            if (x2 == y) && 
+            if (x2 =? y) && 
               (match x1h with | Ftrue => true | _ => false end) then l::nil 
             (* iff (iff x true) x *)
-            else if (x1 == y) && 
+            else if (x1 =? y) && 
               (match x2h with | Ftrue => true | _ => false end) then l::nil
             (* iff (iff false x) (not x) *)
-            else if (y == Lit.neg x2) && 
+            else if (y =? Lit.neg x2) && 
               (match x1h with | Ffalse => true | _ => false end) then l::nil
             (* iff (iff x false) (not x) *)
-            else if (y == Lit.neg x1) && 
+            else if (y =? Lit.neg x1) && 
               (match x2h with | Ffalse => true | _ => false end) then l::nil
             (* More specific cases next *)
             else 
               match x1h, x2h, yh with
               (* iff (iff x x) true *)
-              | _, _, Ftrue => if (x1 == x2) then l::nil else C._true
+              | _, _, Ftrue => if (x1 =? x2) then l::nil else C._true
               (* iff (iff x (not x)) false *)
-              | _, _, Ffalse => if (x2 == Lit.neg x1) then l::nil else
-                                if (x1 == Lit.neg x2) then l::nil else C._true
-              | _, _, Fiff y1 y2 => if (x1 == Lit.neg y1) && (x2 == Lit.neg y2) then l::nil 
+              | _, _, Ffalse => if (x2 =? Lit.neg x1) then l::nil else
+                                if (x1 =? Lit.neg x2) then l::nil else C._true
+              | _, _, Fiff y1 y2 => if (x1 =? Lit.neg y1) && (x2 =? Lit.neg y2) then l::nil 
                                     else C._true
               | _, _, _ => C._true
               end
@@ -591,37 +591,37 @@ Section CHECKER.
           match get_hash (Lit.blit x), get_hash (Lit.blit y) with
           (* iff (not (x -> y)) (and x (not y)) *)
           | Fimp xs, Fand ys => 
-              if (PArray.length xs == 2) && (PArray.length ys == 2) 
+              if (PArray.length xs =? 2) && (PArray.length ys =? 2) 
               && negb (Lit.is_pos x) && (Lit.is_pos y) then
                 let x0 := xs.[0] in
                 let x1 := xs.[1] in
                 let y0 := ys.[0] in
                 let y1 := ys.[1] in
-                if (x0 == y0) && (y1 == Lit.neg x1) then l::nil else C._true 
+                if (x0 =? y0) && (y1 =? Lit.neg x1) then l::nil else C._true 
               else C._true
           (* iff (not (or x y)) (and (not x) (not y)) *)
           | For xs, Fand ys =>
-              if (PArray.length xs == 2) && (PArray.length ys == 2) 
+              if (PArray.length xs =? 2) && (PArray.length ys =? 2) 
               && negb (Lit.is_pos x) && (Lit.is_pos y) then
                 let x0 := xs.[0] in
                 let x1 := xs.[1] in
                 let y0 := ys.[0] in
                 let y1 := ys.[1] in
-                if (y0 == Lit.neg x0) && (y1 == Lit.neg x1) then l::nil else C._true 
+                if (y0 =? Lit.neg x0) && (y1 =? Lit.neg x1) then l::nil else C._true 
               else C._true
           (* iff (not (and x y)) (or (not x) (not y)) *)
           | Fand xs, For ys =>
-              if (PArray.length xs == 2) && (PArray.length ys == 2) 
+              if (PArray.length xs =? 2) && (PArray.length ys =? 2) 
               && negb (Lit.is_pos x) && (Lit.is_pos y) then
                 let x0 := xs.[0] in
                 let x1 := xs.[1] in
                 let y0 := ys.[0] in
                 let y1 := ys.[1] in
-                if (y0 == Lit.neg x0) && (y1 == Lit.neg x1) then l::nil else C._true 
+                if (y0 =? Lit.neg x0) && (y1 =? Lit.neg x1) then l::nil else C._true 
               else C._true
           (* iff (x -> (y -> z)) ((and x y) -> z) *)
           | Fimp xs, Fimp ys =>
-              if (PArray.length xs == 2) && (PArray.length ys == 2) 
+              if (PArray.length xs =? 2) && (PArray.length ys =? 2) 
               && (Lit.is_pos x) && (Lit.is_pos y) then
                 let x0 := xs.[0] in
                 let x1 := xs.[1] in
@@ -629,13 +629,13 @@ Section CHECKER.
                 let y1 := ys.[1] in
                 match get_hash (Lit.blit x1), get_hash (Lit.blit y0) with
                 | Fimp x1s, Fand y0s => 
-                    if (PArray.length x1s == 2) && (PArray.length y0s == 2) 
+                    if (PArray.length x1s =? 2) && (PArray.length y0s =? 2) 
                     && (Lit.is_pos x1) && (Lit.is_pos y0) then
                       let x10 := xs.[0] in
                       let x11 := xs.[1] in
                       let y00 := ys.[0] in
                       let y01 := ys.[1] in
-                      if (x0 == y00) && (x10 == y00) && (x11 == y1) then l::nil 
+                      if (x0 =? y00) && (x10 =? y00) && (x11 =? y1) then l::nil 
                       else C._true
                     else C._true
                 | _, _ => C._true
@@ -643,7 +643,7 @@ Section CHECKER.
               else C._true
           (* iff ((x -> y) -> y) (or x y) *)
           | Fimp xs, For ys => 
-              if (PArray.length xs == 2) && (PArray.length ys == 2) 
+              if (PArray.length xs =? 2) && (PArray.length ys =? 2) 
               && (Lit.is_pos x) && (Lit.is_pos y) then
                 let x0 := xs.[0] in
                 let x1 := xs.[1] in
@@ -651,10 +651,10 @@ Section CHECKER.
                 let y1 := ys.[1] in
                 match get_hash (Lit.blit x0) with
                 | Fimp x0s => 
-                    if (PArray.length x0s == 2) && (Lit.is_pos x0) then
+                    if (PArray.length x0s =? 2) && (Lit.is_pos x0) then
                       let x00 := xs.[0] in
                       let x01 := xs.[1] in
-                      if (x00 == y0) && (x01 == x1) && (x1 == y1) then l::nil 
+                      if (x00 =? y0) && (x01 =? x1) && (x1 =? y1) then l::nil 
                       else C._true 
                     else C._true
                 | _ => C._true
@@ -663,7 +663,7 @@ Section CHECKER.
           (* iff (and (x -> y) x) (and x y) *)
           (* iff (and x (x -> y)) (and x y) *)
           | Fand xs, Fand ys => 
-              if (PArray.length xs == 2) && (PArray.length ys == 2) 
+              if (PArray.length xs =? 2) && (PArray.length ys =? 2) 
               && (Lit.is_pos x) && (Lit.is_pos y) then
                 let x0 := xs.[0] in
                 let x1 := xs.[1] in
@@ -671,17 +671,17 @@ Section CHECKER.
                 let y1 := ys.[1] in
                 match get_hash (Lit.blit x0), get_hash (Lit.blit x1) with
                 | Fimp x0s, _ =>
-                    if (PArray.length x0s == 2) && (Lit.is_pos x0) then
+                    if (PArray.length x0s =? 2) && (Lit.is_pos x0) then
                       let x00 := xs.[0] in
                       let x01 := xs.[1] in
-                      if (x00 == y0) && (x01 == y1) && (x1 == y0) then l::nil 
+                      if (x00 =? y0) && (x01 =? y1) && (x1 =? y0) then l::nil 
                       else C._true 
                     else C._true
                 | _, Fimp x1s =>
-                    if (PArray.length x1s == 2) && (Lit.is_pos x1) then
+                    if (PArray.length x1s =? 2) && (Lit.is_pos x1) then
                       let x10 := xs.[0] in
                       let x11 := xs.[1] in
-                      if (x0 == x10) && (x10 == y0) && (x11 == y1) then l::nil 
+                      if (x0 =? x10) && (x10 =? y0) && (x11 =? y1) then l::nil 
                       else C._true 
                     else C._true
                 | _, _ => C._true
@@ -704,18 +704,18 @@ Section CHECKER.
             match get_hash (Lit.blit x), get_hash (Lit.blit y) with
             (* iff (xor x y) (or (and (not x) y) (and x (not y))) *)
             | Fxor x0 x1, For ys =>
-                if (PArray.length ys == 2)then
+                if (PArray.length ys =? 2)then
                   let y0 := ys.[0] in
                   let y1 := ys.[1] in
                   match get_hash (Lit.blit y0), get_hash (Lit.blit y1) with
                     | Fand y0s, Fand y1s => 
-                        if (PArray.length y0s == 2) && (Lit.is_pos y0) && 
-                           (PArray.length y1s == 2) && (Lit.is_pos y1) then
+                        if (PArray.length y0s =? 2) && (Lit.is_pos y0) && 
+                           (PArray.length y1s =? 2) && (Lit.is_pos y1) then
                           let y00 := y0s.[0] in
                           let y01 := y0s.[1] in
                           let y10 := y1s.[0] in
                           let y11 := y1s.[1] in
-                          if (x0 == y10) && (y00 == Lit.neg x0) && (x1 == y01) && (y11 == Lit.neg x1) then
+                          if (x0 =? y10) && (y00 =? Lit.neg x0) && (x1 =? y01) && (y11 =? Lit.neg x1) then
                           l::nil else C._true
                         else C._true
                     | _, _ => C._true
@@ -723,18 +723,18 @@ Section CHECKER.
                 else C._true
             (* iff (iff x y) (and (x -> y) (y -> x))) *)
             | Fiff x0 x1, Fand ys =>
-                if (PArray.length ys == 2)then
+                if (PArray.length ys =? 2)then
                   let y0 := ys.[0] in
                   let y1 := ys.[1] in
                   match get_hash (Lit.blit y0), get_hash (Lit.blit y1) with
                     | Fimp y0s, Fimp y1s => 
-                        if (PArray.length y0s == 2) && (Lit.is_pos y0) && 
-                           (PArray.length y1s == 2) && (Lit.is_pos y1) then
+                        if (PArray.length y0s =? 2) && (Lit.is_pos y0) && 
+                           (PArray.length y1s =? 2) && (Lit.is_pos y1) then
                           let y00 := y0s.[0] in
                           let y01 := y0s.[1] in
                           let y10 := y1s.[0] in
                           let y11 := y1s.[1] in
-                          if (x0 == y00) && (x0 == y11) && (x1 == y01) && (x1 == y10) then
+                          if (x0 =? y00) && (x0 =? y11) && (x1 =? y01) && (x1 =? y10) then
                           l::nil else C._true
                         else C._true
                     | _, _ => C._true
@@ -742,18 +742,18 @@ Section CHECKER.
                 else C._true
             (* iff (ite f x y) (and (f -> x) ((not f) -> (not y)))) *)
             | Fite f x0 x1, Fand ys =>
-                if (PArray.length ys == 2)then
+                if (PArray.length ys =? 2)then
                   let y0 := ys.[0] in
                   let y1 := ys.[1] in
                   match get_hash (Lit.blit y0), get_hash (Lit.blit y1) with
                     | Fimp y0s, Fimp y1s => 
-                        if (PArray.length y0s == 2) && (Lit.is_pos y0) && 
-                           (PArray.length y1s == 2) && (Lit.is_pos y1) then
+                        if (PArray.length y0s =? 2) && (Lit.is_pos y0) && 
+                           (PArray.length y1s =? 2) && (Lit.is_pos y1) then
                           let y00 := y0s.[0] in
                           let y01 := y0s.[1] in
                           let y10 := y1s.[0] in
                           let y11 := y1s.[1] in
-                          if (f == y00) && (y10 == Lit.neg f) && (x0 == y01) && (y11 == Lit.neg x1) then
+                          if (f =? y00) && (y10 =? Lit.neg f) && (x0 =? y01) && (y11 =? Lit.neg x1) then
                           l::nil else C._true
                         else C._true
                     | _, _ => C._true
@@ -786,59 +786,59 @@ Section CHECKER.
           match get_hash (Lit.blit x) with
           | Fite xf x1 x2 => 
             (* iff (ite f x x) x *)
-            if (x1 == x2) && (x1 == y) then l::nil else
+            if (x1 =? x2) && (x1 =? y) then l::nil else
             match get_hash (Lit.blit xf), get_hash (Lit.blit x1), get_hash (Lit.blit x2), get_hash (Lit.blit y) with
               (* iff (ite f (ite f x y) z) (ite f x z) *)
               | _, Fite x1f x11 x12, _, Fite yf y1 y2 => 
-                if (Lit.is_pos x1) && (Lit.is_pos y) && (xf == x1f) && (xf == yf) && (x11 == y1) && (x2 == y2) then 
+                if (Lit.is_pos x1) && (Lit.is_pos y) && (xf =? x1f) && (xf =? yf) && (x11 =? y1) && (x2 =? y2) then 
                 l::nil else C._true
               (* iff (ite f x (ite f y z)) (ite f x z) *)
               | _, _, Fite x2f x21 x22, Fite yf y1 y2 =>
-                if (Lit.is_pos x2) && (Lit.is_pos y) && (xf == x2f) && (xf == yf) && (x1 == y1) && (x22 == y2) then 
+                if (Lit.is_pos x2) && (Lit.is_pos y) && (xf =? x2f) && (xf =? yf) && (x1 =? y1) && (x22 =? y2) then 
                 l::nil else C._true
               (* iff (ite (not f) x y) (ite f y x) *)
               | _, _, _, Fite yf y1 y2 =>
-                if (Lit.is_pos y) && (xf == Lit.neg yf) && (x1 == y2) && (x2 == y1) then l::nil else C._true
+                if (Lit.is_pos y) && (xf =? Lit.neg yf) && (x1 =? y2) && (x2 =? y1) then l::nil else C._true
               (* iff (ite f true x) (or f x) *)
               | _, Ftrue, _, For ys =>
-                if (Lit.is_pos y) && (PArray.length ys == 2)then
+                if (Lit.is_pos y) && (PArray.length ys =? 2)then
                   let y0 := ys.[0] in
                   let y1 := ys.[1] in
-                  if (xf == y0) && (x2 == y1) then l::nil else C._true
+                  if (xf =? y0) && (x2 =? y1) then l::nil else C._true
                 else C._true
               (* iff (ite f x false) (and f x) *)
               | _, _, Ffalse, Fand ys =>
-                if (Lit.is_pos y) && (PArray.length ys == 2)then
+                if (Lit.is_pos y) && (PArray.length ys =? 2)then
                   let y0 := ys.[0] in
                   let y1 := ys.[1] in
-                  if (xf == y0) && (x1 == y1) then l::nil else C._true
+                  if (xf =? y0) && (x1 =? y1) then l::nil else C._true
                 else C._true
               (* iff (ite f false x) (and (not f) x) *)
               | _, Ffalse, _, Fand ys =>
-                if (Lit.is_pos y) && (PArray.length ys == 2)then
+                if (Lit.is_pos y) && (PArray.length ys =? 2)then
                   let y0 := ys.[0] in
                   let y1 := ys.[1] in
-                  if (y0 == Lit.neg xf) && (x2 == y1) then l::nil else C._true
+                  if (y0 =? Lit.neg xf) && (x2 =? y1) then l::nil else C._true
                 else C._true
               (* iff (ite f x true) (or (not f) x) *)
               | _, _, Ftrue, For ys =>
-                if (Lit.is_pos y) && (PArray.length ys == 2)then
+                if (Lit.is_pos y) && (PArray.length ys =? 2)then
                   let y0 := ys.[0] in
                   let y1 := ys.[1] in
-                  if (y0 == Lit.neg xf) && (x1 == y1) then l::nil else C._true
+                  if (y0 =? Lit.neg xf) && (x1 =? y1) then l::nil else C._true
                 else C._true
               (* iff (ite true x y) x *)
               | Ftrue, _, _, _ =>
-                if (x1 == y) then l::nil else C._true
+                if (x1 =? y) then l::nil else C._true
               (* iff (ite false x y) y) *)
               | Ffalse, _, _, _ =>
-                if (x2 == y) then l::nil else C._true
+                if (x2 =? y) then l::nil else C._true
               (* iff (ite f true false) f *)
               | _, Ftrue, Ffalse, _ => 
-                if (xf == y) then l::nil else C._true
+                if (xf =? y) then l::nil else C._true
               (* iff (ite f false true) (not f) *)
               | _, Ffalse, Ftrue, _ => 
-                if (y == Lit.neg xf) then l::nil else C._true
+                if (y =? Lit.neg xf) then l::nil else C._true
               | _, _, _, _ => C._true
             end
           | _ => C._true
@@ -915,7 +915,7 @@ Section CHECKER.
       match get_hash (Lit.blit l) with
       | Fiff x y => 
         if (Lit.is_pos x) && (Lit.is_pos y) then
-          if (acSimp x) == y then l else C._true
+          if (acSimp x) =? y then l else C._true
         else C._true
       | _ => C._true
       end.*)
@@ -985,7 +985,7 @@ Section CHECKER.
             tauto_check).
    - rewrite afold_left_and, C.Cinterp_neg;apply orb_negb_r.
    - rewrite afold_left_or, orb_comm;apply orb_negb_r.
-   - case_eq (PArray.length a == 0); auto using C.interp_true.
+   - case_eq (PArray.length a =? 0); auto using C.interp_true.
      intro Hl; simpl.
      unfold Lit.interp at 1;rewrite Heq;unfold Var.interp; rewrite rho_interp, H;simpl.
      rewrite (afold_right_impb (Lit.interp_neg _) Hl), orb_comm;try apply orb_negb_r.
@@ -1004,7 +1004,7 @@ Section CHECKER.
   Proof.
    unfold check_BuildProj,C.valid;intros l i.
    case_eq (t_form.[Lit.blit l]);intros;auto using C.interp_true;
-   case_eq (i < PArray.length a);intros Hlt;auto using C.interp_true;simpl.
+   case_eq (i <? PArray.length a);intros Hlt;auto using C.interp_true;simpl.
    - rewrite Lit.interp_nlit;unfold Var.interp;rewrite rho_interp, orb_false_r, H.
      simpl;rewrite afold_left_and.
      case_eq (List.forallb (Lit.interp rho) (to_list a));trivial.
@@ -1017,9 +1017,9 @@ Section CHECKER.
      case_eq (Lit.interp rho (a .[ i]));trivial.
      intros Heq Hex;elim Hex;exists (a.[i]);split;trivial.
      apply to_list_In; auto.
-   - assert (Hl : (PArray.length a == 0) = false)
+   - assert (Hl : (PArray.length a =? 0) = false)
        by (rewrite eqb_false_spec; intro H1; rewrite H1 in Hlt; now elim (ltb_0 i)).
-     case_eq (i == PArray.length a - 1);intros Heq;simpl;
+     case_eq (i =? PArray.length a - 1);intros Heq;simpl;
        rewrite Lit.interp_lit;unfold Var.interp;rewrite rho_interp, H;simpl.
      + rewrite Lit.interp_neg, orb_false_r.
        rewrite (afold_right_impb (Lit.interp_neg _) Hl).
@@ -1116,9 +1116,9 @@ Section CHECKER.
    tauto_check.
    - rewrite afold_left_and, C.Cinterp_neg, orb_false_r;trivial.
    - rewrite afold_left_or, orb_false_r;trivial.
-   - case_eq (PArray.length a == 0); auto using C.interp_true.
+   - case_eq (PArray.length a =? 0); auto using C.interp_true.
      intro Hl. now rewrite orb_false_r, (afold_right_impb (Lit.interp_neg _) Hl).
-   - case_eq (PArray.length a == 0); auto using C.interp_true.
+   - case_eq (PArray.length a =? 0); auto using C.interp_true.
   Qed.
 
   Lemma valid_check_ImmBuildDef2 : forall cid, C.valid rho (check_ImmBuildDef2 cid).
@@ -1139,7 +1139,7 @@ Section CHECKER.
    destruct (S.get s cid) as [ | l [ | _l _c]];auto using C.interp_true.
    simpl;unfold Lit.interp, Var.interp; rewrite !rho_interp;
      destruct (t_form.[Lit.blit l]);auto using C.interp_true;
-       case_eq (i < PArray.length a); intros Hlt;auto using C.interp_true;
+       case_eq (i <? PArray.length a); intros Hlt;auto using C.interp_true;
        case_eq (Lit.is_pos l);intros Heq;auto using C.interp_true;simpl;
        rewrite !orb_false_r.  
    - rewrite afold_left_and.
@@ -1151,17 +1151,17 @@ Section CHECKER.
      intros Heq' Hex;elim Hex;exists (a.[i]);split;trivial.
      apply to_list_In; auto.
    - rewrite negb_true_iff, <-not_true_iff_false.
-     assert (Hl:(PArray.length a == 0) = false)
+     assert (Hl:(PArray.length a =? 0) = false)
        by (rewrite eqb_false_spec; intro H; rewrite H in Hlt; now apply (ltb_0 i)).
      rewrite (afold_right_impb (Lit.interp_neg _) Hl).
-     case_eq (i == PArray.length a - 1);intros Heq';simpl;
+     case_eq (i =? PArray.length a - 1);intros Heq';simpl;
        unfold C.interp;simpl;try rewrite Lit.interp_neg;rewrite orb_false_r,
                                                         existsb_exists;case_eq (Lit.interp rho (a .[ i]));trivial;
          intros Heq2 Hex;elim Hex.
      exists (a.[i]);split;trivial.
-     assert (H1: 0 < PArray.length a) by (apply (leb_ltb_trans _ i _); auto; apply leb_0); rewrite Int63.eqb_spec in Heq'; rewrite <- (get_or_of_imp2 H1 Heq'); apply to_list_In; rewrite length_or_of_imp; auto.
+     assert (H1: 0 <? PArray.length a) by (apply (leb_ltb_trans _ i _); auto; apply leb_0); rewrite Int63.eqb_spec in Heq'; rewrite <- (get_or_of_imp2 H1 Heq'); apply to_list_In; rewrite length_or_of_imp; auto.
      exists (Lit.neg (a.[i]));rewrite Lit.interp_neg, Heq2;split;trivial.
-     assert (H1: i < PArray.length a - 1 = true) by (rewrite ltb_spec, (to_Z_sub_1 _ _ Hlt); rewrite eqb_false_spec in Heq'; assert (H1: [|i|] <> ([|PArray.length a|] - 1)%Z) by (intro H1; apply Heq', to_Z_inj; rewrite (to_Z_sub_1 _ _ Hlt); auto); rewrite ltb_spec in Hlt; lia); rewrite <- (get_or_of_imp H1); apply to_list_In; rewrite length_or_of_imp; auto.
+     assert (H1: i <? PArray.length a - 1 = true) by (rewrite ltb_spec, (to_Z_sub_1 _ _ Hlt); rewrite eqb_false_spec in Heq'; assert (H1: [|i|] <> ([|PArray.length a|] - 1)%Z) by (intro H1; apply Heq', to_Z_inj; rewrite (to_Z_sub_1 _ _ Hlt); auto); rewrite ltb_spec in Hlt; lia); rewrite <- (get_or_of_imp H1); apply to_list_In; rewrite length_or_of_imp; auto.
   Qed.
 
 End CHECKER.

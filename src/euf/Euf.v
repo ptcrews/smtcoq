@@ -47,23 +47,23 @@ Section certif.
     | nil =>
       let xres := Lit.blit res in
       get_eq xres (fun t1' t2' =>
-         if ((t1 == t1') && (t2 == t2')) ||
-            ((t1 == t2') && (t2 == t1')) then
+         if ((t1 =? t1') && (t2 =? t2')) ||
+            ((t1 =? t2') && (t2 =? t1')) then
             Lit.lit xres :: clause
          else C._true)
     | leq::eqs =>
       let xeq := Lit.blit leq in
       get_eq xeq (fun t t' =>
-          if t2 == t' then
+          if t2 =? t' then
             check_trans_aux t1 t eqs res (Lit.nlit xeq :: clause)
           else
-            if t2 == t then
+            if t2 =? t then
               check_trans_aux t1 t' eqs res (Lit.nlit xeq :: clause)
             else
-              if t1 == t' then
+              if t1 =? t' then
                 check_trans_aux t t2 eqs res (Lit.nlit xeq :: clause)
               else
-                if t1 == t then
+                if t1 =? t then
                   check_trans_aux t' t2 eqs res (Lit.nlit xeq :: clause)
                 else C._true)
     end.
@@ -73,7 +73,7 @@ Section certif.
     | nil =>
       let xres := Lit.blit res in
         get_eq xres (fun t1 t2 =>
-         if t1 == t2 then Lit.lit xres :: nil else C._true)
+         if t1 =? t2 then Lit.lit xres :: nil else C._true)
     | leq :: eqs =>
       let xeq := Lit.blit leq in
       get_eq xeq
@@ -89,12 +89,12 @@ Section certif.
     | nil, nil, nil => c
     | eq::eqs, t1::l, t2::r =>
       match eq with
-      | None => if t1 == t2 then build_congr eqs l r c else C._true
+      | None => if t1 =? t2 then build_congr eqs l r c else C._true
       | Some leq =>
         let xeq := Lit.blit leq in
         get_eq xeq (fun t1' t2' =>
-          if ((t1 == t1') && (t2 == t2')) ||
-             ((t1 == t2') && (t2 == t1')) then
+          if ((t1 =? t1') && (t2 =? t2')) ||
+             ((t1 =? t2') && (t2 =? t1')) then
             build_congr eqs l r (Lit.nlit xeq :: c)
           else C._true)
       end
@@ -115,7 +115,7 @@ Section certif.
            build_congr eqs (a::nil) (b::nil) (Lit.lit xeq :: nil)
         else C._true
       | Atom.Aapp f1 args1, Atom.Aapp f2 args2 =>
-        if f1 == f2 then build_congr eqs args1 args2 (Lit.lit xeq :: nil)
+        if f1 =? f2 then build_congr eqs args1 args2 (Lit.lit xeq :: nil)
         else C._true
       | _, _ => C._true
       end).
@@ -137,7 +137,7 @@ Section certif.
           (a::nil) (b::nil) (Lit.nlit xPA :: Lit.lit xPB :: nil)
         else C._true
       | Atom.Aapp p a, Atom.Aapp p' b =>
-        if p == p' then
+        if p =? p' then
           build_congr eqs a b (Lit.nlit xPA :: Lit.lit xPB :: nil)
         else C._true
       | _, _ => C._true
@@ -151,10 +151,10 @@ Section certif.
     Definition check_ifftrans_aux (l1:option (int * int)) (l2:_lit) :=
       if Lit.is_pos l2 then 
         match get_form (Lit.blit l2), l1 with
-        | Fiff a b, Some (c1, c2) => if a == c1 then Some (b, c2) else
-                        if a == c2 then Some (b, c1) else
-                          if b == c1 then Some (a, c2) else
-                            if b == c2 then Some (a, c1) else
+        | Fiff a b, Some (c1, c2) => if a =? c1 then Some (b, c2) else
+                        if a =? c2 then Some (b, c1) else
+                          if b =? c1 then Some (a, c2) else
+                            if b =? c2 then Some (a, c1) else
                               None
         | _, _ => None
         end
@@ -171,7 +171,7 @@ Section certif.
         match get_form (Lit.blit l) with
           | Fiff l1 l2 => match List.fold_left check_ifftrans_aux 
                                 prems (Some (l1,l2)) with
-                          | Some (a, b) => if a == b then l::nil 
+                          | Some (a, b) => if a =? b then l::nil 
                                            else C._true
                           | None => C._true 
                           end
@@ -193,9 +193,9 @@ Section certif.
             (match get_form (Lit.blit psh) with
             | Fatom a => match get_atom a with
                          | Atom.Abop (Atom.BO_eq _) psh1 psh2 => 
-                            if ((psh1 == c1h) && (psh2 == c2h)) || ((psh1 == c2h) && (psh2 == c1h)) then
+                            if ((psh1 =? c1h) && (psh2 =? c2h)) || ((psh1 =? c2h) && (psh2 =? c1h)) then
                               check_iffcong_aux_atom pstl c1tl c2tl
-                            else if (c1h == c2h) then 
+                            else if (c1h =? c2h) then 
                               check_iffcong_aux_atom ps c1tl c2tl
                             else false
                          | _ => false
@@ -203,7 +203,7 @@ Section certif.
             | _ => false
             end)
           else false
-      | nil, c1h::c1tl, c2h::c2tl => if (c1h == c2h) then check_iffcong_aux_atom ps c1tl c2tl else false
+      | nil, c1h::c1tl, c2h::c2tl => if (c1h =? c2h) then check_iffcong_aux_atom ps c1tl c2tl else false
       | _, _, _ => false
       end.
           
@@ -214,15 +214,15 @@ Section certif.
           (* All premises are positive equalities *)
           if Lit.is_pos psh then
             match get_form (Lit.blit psh) with
-            | Fiff psh1 psh2 => if ((psh1 == c1h) && (psh2 == c2h)) || ((psh1 == c2h) && (psh2 == c1h)) then
+            | Fiff psh1 psh2 => if ((psh1 =? c1h) && (psh2 =? c2h)) || ((psh1 =? c2h) && (psh2 =? c1h)) then
                                   check_iffcong_aux_form pstl c1tl c2tl
-                                else if (c1h == c2h) then
+                                else if (c1h =? c2h) then
                                   check_iffcong_aux_form ps c1tl c2tl
                                 else false
             | _ => false
             end
           else false
-      | nil, c1h::c1tl, c2h::c2tl => if (c1h == c2h) then check_iffcong_aux_form nil c1tl c2tl else false
+      | nil, c1h::c1tl, c2h::c2tl => if (c1h =? c2h) then check_iffcong_aux_form nil c1tl c2tl else false
       | _, _, _ => false
       end.
 
@@ -252,7 +252,7 @@ Section certif.
                                   else C._true
                                 else C._true
                               | Atom.Aapp p a, Atom.Aapp p' b =>
-                                if p == p' then
+                                if p =? p' then
                                   if (check_iffcong_aux_atom prems a b) then l::nil else C._true
                                 else C._true
                               | _, _ => C._true
@@ -312,15 +312,15 @@ Section certif.
                   | Atom.Abop (Atom.BO_eq _) a b => 
                       match get_form (Lit.blit y) with
                       (* iff (x = x) true *)
-                      | Ftrue => if (a == b) then l::nil else C._true
+                      | Ftrue => if (a =? b) then l::nil else C._true
                       (* iff (x = y) false, if x and y are different numeric constants *)
                       | Ffalse => if Lit.is_pos x then 
                                   (* Do I need to unhash a and b, and check that they are either
                                     UO_xO, UO_xI, UO_Zpos, UO_Zneg, CO_xH, or CO_Z0? *)
-                                    if negb (a == b) then l::nil else C._true
+                                    if negb (a =? b) then l::nil else C._true
                                   (* iff (not (x = x)) false, if x is a numeric constant *)
                                   else
-                                    if (a == b) then l::nil else C._true
+                                    if (a =? b) then l::nil else C._true
                       | _ => C._true
                       end
                   | _ => C._true
@@ -414,7 +414,7 @@ Section certif.
       destruct b;trivial with smtcoq_euf.
       generalize wt_t_atom;unfold Atom.wt;unfold is_true;
        rewrite Misc.aforallbi_spec;intros.
-      assert (i < length t_atom).
+      assert (i <? length t_atom).
         apply PArray.get_not_default_lt.
         rewrite H0, def_t_atom;discriminate.
       apply H1 in H2;clear H1;rewrite H0 in H2;simpl in H2.
@@ -676,10 +676,10 @@ Section certif.
       rewrite !wf_interp_form, H, H0;simpl.
       generalize wt_t_atom;unfold Atom.wt;unfold is_true;
        rewrite Misc.aforallbi_spec;intros.
-      assert (i < length t_atom).
+      assert (i <? length t_atom).
         apply PArray.get_not_default_lt.
         rewrite H1, def_t_atom;discriminate.
-      assert (i0 < length t_atom).
+      assert (i0 <? length t_atom).
         apply PArray.get_not_default_lt.
         rewrite H2, def_t_atom;discriminate.
       apply H4 in H5;apply H4 in H6;clear H4.
@@ -697,10 +697,10 @@ Section certif.
       rewrite !wf_interp_form, H, H0;simpl.
       generalize wt_t_atom;unfold Atom.wt;unfold is_true;
        rewrite Misc.aforallbi_spec;intros.
-      assert (i < length t_atom).
+      assert (i <? length t_atom).
         apply PArray.get_not_default_lt.
         rewrite H1, def_t_atom. discriminate.
-      assert (i0 < length t_atom).
+      assert (i0 <? length t_atom).
         apply PArray.get_not_default_lt.
         rewrite H2, def_t_atom;discriminate.
       apply H4 in H5;apply H4 in H6;clear H4.
@@ -719,10 +719,10 @@ Section certif.
       rewrite !wf_interp_form, H, H0;simpl.
       generalize wt_t_atom;unfold Atom.wt;unfold is_true;
        rewrite Misc.aforallbi_spec;intros.
-      assert (i < length t_atom).
+      assert (i <? length t_atom).
         apply PArray.get_not_default_lt.
         rewrite H1, def_t_atom;discriminate.
-      assert (i0 < length t_atom).
+      assert (i0 <? length t_atom).
         apply PArray.get_not_default_lt.
         rewrite H2, def_t_atom;discriminate.
       apply H4 in H5;apply H4 in H6;clear H4.

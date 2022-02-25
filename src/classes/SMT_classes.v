@@ -98,7 +98,7 @@ Class OrdType T := {
   lt_not_eq : forall x y : T, lt x y -> x <> y
 }.
 
-Hint Resolve lt_not_eq lt_trans.
+#[export] Hint Resolve lt_not_eq lt_trans : typeclass_ordtype.
 
 
 Global Instance StrictOrder_OrdType T `(OrdType T) :
