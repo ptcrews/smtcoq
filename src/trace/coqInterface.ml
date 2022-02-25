@@ -152,8 +152,6 @@ type constr_expr = Constrexpr.constr_expr
 let error s = CErrors.user_err (Pp.str s)
 let warning n s = CWarnings.create ~name:n ~category:"SMTCoq plugin" Pp.str s
 
-let extern_constr c = Constrextern.extern_constr true Environ.empty_env Evd.empty (EConstr.of_constr c)
-
 let destruct_rel_decl r = Context.Rel.Declaration.get_name r,
                           Context.Rel.Declaration.get_type r
 
@@ -164,7 +162,7 @@ let ppconstr_lsimpleconstr = Ppconstr.lsimpleconstr
 
 let constrextern_extern_constr c =
   let env = Global.env () in
-  Constrextern.extern_constr false env (Evd.from_env env) (EConstr.of_constr c)
+  Constrextern.extern_constr ~inctx:false env (Evd.from_env env) (EConstr.of_constr c)
 
 let get_rel_dec_name = function
   | Context.Rel.Declaration.LocalAssum (n, _) | Context.Rel.Declaration.LocalDef (n, _, _) ->

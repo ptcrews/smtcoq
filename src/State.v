@@ -10,7 +10,7 @@
 (**************************************************************************)
 
 
-Require Import List Bool Int63 Psatz Ring63 PArray Omega Misc Ring.
+Require Import List Bool Int63 Psatz Ring63 PArray Misc Ring.
 
 (* Require Import AxiomesInt. *)
 
@@ -244,7 +244,7 @@ Proof.
   rewrite <- eqb_spec;trivial.
   rewrite <- not_true_iff_false in H, H0.
   unfold is_true in *;rewrite ltb_spec in H |- *;rewrite eqb_spec in H0.
-  assert ([|x|] <> [|y|]) by (intros Heq;apply H0, to_Z_inj;trivial);omega.
+  assert ([|x|] <> [|y|]) by (intros Heq;apply H0, to_Z_inj;trivial);lia.
 Qed.
 
 
@@ -368,7 +368,7 @@ Module C.
       intros rho resolve_correct Hc1;simpl in Hc1.
       induction c2;simpl;try discriminate.
       generalize (compare_spec' l1 a);destruct (l1 ?= a);intros;subst;simpl.
-      simpl in Hc1;destruct (Lit.interp rho a);simpl in *;auto.
+      simpl in Hc1;destruct (Lit.interp rho l1);simpl in *;auto.
       generalize (Lit.lxor_neg l1 a);destruct (l1 lxor a == 1);intros.
       rewrite or_correct.
       rewrite H1, Lit.interp_neg in Hc1;trivial;destruct (Lit.interp rho a).
@@ -684,8 +684,8 @@ Module S.
     rewrite foldi_lt_r.
     apply C.resolve_correct; [ apply Hv | ring_simplify (i + 1 - 1); exact Hc ].
     rewrite ltb_spec, to_Z_add_1_wB, to_Z_1.
-    rewrite leb_spec, to_Z_1 in Hi1; generalize (to_Z_bounded i); omega.
-    rewrite ltb_spec in Hi2; generalize (to_Z_bounded (length r)); omega.
+    rewrite leb_spec, to_Z_1 in Hi1; generalize (to_Z_bounded i); lia.
+    rewrite ltb_spec in Hi2; generalize (to_Z_bounded (length r)); lia.
  Qed.
 
   (* Weakening *)

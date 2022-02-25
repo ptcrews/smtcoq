@@ -120,7 +120,7 @@ Module Form.
             t_b.[i <- interp_aux (get t_b) (t_form.[i])]) 0 (length t_form)
         (make (length t_form) true).
 
-      Fixpoint lt_form i h {struct h} :=
+      Definition lt_form i h :=
         match h with
         | Fatom _ | Ftrue | Ffalse => true
         | Fnot2 _ l => Lit.blit l < i
