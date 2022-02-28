@@ -76,10 +76,13 @@
 %token LAGE LIAGE LATA LADE DIVSIMP PRODSIMP 
 %token UMINUSSIMP MINUSSIMP SUMSIMP COMPSIMP LARWEQ
 %token FINS BIND QCNF
-%token BVAND BVOR BVXOR BVADD BVMUL BVULT BVSLT BVULE 
-%token BVSLE BVCONC BVEXTR BVZEXT BVSEXT BVNOT BVNEG
-%token BVSHL BVSHR
-%token <string> BITV
+%token SYMM REORD ALLSIMP 
+(*%token BBVA BBCONST BBEQ BBDIS BBOP BBNOT BBNEG BBADD
+%token BBMUL BBULT BBSLT BBCONC BBEXTR BBZEXT BBSEXT
+%token BBSHL BBSHR BVAND BVOR BVXOR BVADD BVMUL BVULT 
+%token BVSLT BVULE BVSLE BVCONC BVEXTR BVZEXT BVSEXT
+%token BVNOT BVNEG BVSHL BVSHR
+%token <string> BITV*)
 
 %start proof
 %type <VeritAst.certif> proof
@@ -272,6 +275,9 @@ rulename:
   | BIND                                    { BindAST }
   | FINS                                    { FinsAST }
   | QCNF                                    { QcnfAST }
+  | SYMM                                    { SameAST }
+  | REORD                                   { SameAST }
+  | ALLSIMP                                 { AllsimpAST }
 (*function_def:
   | SYMBOL LPAREN sorted_var* RPAREN sort term { "" }
 ;

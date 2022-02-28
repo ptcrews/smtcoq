@@ -112,6 +112,7 @@ type rule =
   | FinsAST
   | QcnfAST
   | AnchorAST
+  | AllsimpAST
   | SameAST
   | SubproofAST of certif
 and step = id * rule * clause * params * args

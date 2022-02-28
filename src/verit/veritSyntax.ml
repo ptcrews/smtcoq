@@ -99,20 +99,21 @@ type typ =
   | Bind (* New *)
   | Fins
   | Qcnf (* New *)
+  | Allsimp (* New(cvc5) *)
   | Same
   | Hole
 
+
 (* Given an array and an element, find the index of the first occurrence of the 
    element in the array. *)
-let rec list_find l x i = 
-  match l with
-  | h::t when h == x -> Some i
-  | h::t -> list_find t x (i+1)
-  | [] ->  None
-
-let array_find a x =
-  let l = Array.to_list a in 
-  list_find l x 0
+let array_find_opt a x =
+  let n = Array.length a in
+  let rec loop i =  
+    if i = n then None
+    else
+      if a.(i) = x then Some i
+      else loop (i + 1)
+  in loop 0
 
 
 (* About equality *)
@@ -480,11 +481,11 @@ let mk_clause (id,typ,value,ids_params,args) =
         (match value with
           | l::x::nil -> 
               (match Form.pform l with
-              | Fapp (For, args) -> (match array_find (Array.map Form.pform args) 
+              | Fapp (For, args) -> (match array_find_opt (Array.map Form.pform args) 
                                                       (Form.pform (Form.neg x)) with
                                     | Some i -> Other (BuildProj (l,i))
                                     | None -> assert false)
-              | Fapp (Fand, args) -> (match array_find (Array.map Form.pform args) 
+              | Fapp (Fand, args) -> (match array_find_opt (Array.map Form.pform args) 
                                                        (Form.pform x) with
                                     | Some i -> Other (BuildProj (l,i))
                                     | None -> assert false)
@@ -521,11 +522,11 @@ let mk_clause (id,typ,value,ids_params,args) =
                 (match c.value with
                 | Some (l::nil) ->
                     (match Form.pform l with
-                      | Fapp (For, args) -> (match array_find (Array.map Form.pform args) 
+                      | Fapp (For, args) -> (match array_find_opt (Array.map Form.pform args) 
                                                               (Form.pform (Form.neg x)) with
                                             | Some i -> Other (ImmBuildProj (c, i))
                                             | None -> raise (Debug ("can't find premise in the or clause at id "^id)))
-                      | Fapp (Fand, args) -> (match array_find (Array.map Form.pform args) 
+                      | Fapp (Fand, args) -> (match array_find_opt (Array.map Form.pform args) 
                                                                (Form.pform x) with
                                              | Some i -> Other (ImmBuildProj (c,i))
                                              | None -> raise (Debug ("can't find premise in the and clause at id "^id)))
@@ -576,6 +577,9 @@ let mk_clause (id,typ,value,ids_params,args) =
         (match value with
           | l::_ -> Other (EqSimplify l)
           | _ -> assert false)
+      (* From cvc5 *)
+      | Allsimp ->
+        Other (SmtCertif.Hole (List.map (get_clause_exception id) ids_params, value))
       (* Equality *)
       | Eqre -> mkTrans value
       | Eqtr -> mkTrans value

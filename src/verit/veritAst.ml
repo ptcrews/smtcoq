@@ -121,6 +121,7 @@ type rule =
   | FinsAST
   | QcnfAST
   | AnchorAST
+  | AllsimpAST
   | SameAST
   | SubproofAST of certif
 and step = id * rule * clause * params * args
@@ -131,12 +132,31 @@ let mk_step (s : (id * rule * clause * params * args)) : step = s
 let mk_cert (c : step list) : certif = c
 (*let mk_args (a : id list) : args = a*)
 
+
+(* We will use an option type that can pass a string to print in 
+   the none case *)
+(*type 'a optstring =
+  | Some of 'a
+  | None of string
+
+let bind o f s =
+  match o with
+  | Some x -> f x
+  | None s' -> None (s^s')
+
+let ( >>= ) o f s = bind o f s
+
+(* Return the clause corresponding to the id from a certif *)
+let rec get_cl (i : id) (c : certif) : clause optstring = 
+  match c with
+  | (i', r, c, p, a) :: t -> if i = i' then Some c else get_cl i t
+  | [] -> None ("|get_cl: couldn't find "^i^"|")*)
+
 (* Return the clause corresponding to the id from a certif *)
 let rec get_cl (i : id) (c : certif) : clause option = 
   match c with
   | (i', r, c, p, a) :: t -> if i = i' then Some c else get_cl i t
   | [] -> None
-
 
 
 (* Convert certificates to strings for debugging *)
@@ -221,6 +241,7 @@ let string_of_rule (r : rule) : string =
   | BindAST -> "BindAST"
   | FinsAST -> "FinsAST"
   | QcnfAST -> "QcnfAST"
+  | AllsimpAST -> "AllsimpAST"
   | SameAST -> "SameAST"
   | AnchorAST -> "AnchorAST"
   | SubproofAST _ -> "SubproofAST"
@@ -684,6 +705,7 @@ let process_rule (r: rule) : VeritSyntax.typ =
   | BindAST -> Bind
   | FinsAST -> Fins
   | QcnfAST -> Qcnf
+  | AllsimpAST -> Allsimp
   | SameAST -> Same
   | AnchorAST -> Hole
   | SubproofAST c -> Hole
@@ -786,19 +808,37 @@ let process_cong (c : certif) : certif =
     in process_cong_aux c c
 
 
+(* Figure out the argument for the and rule *)
+(*let list_find_index l x : int =
+  let rec aux i l = 
+    match l with
+    | h :: t -> if h = x then i else aux (i+1) t
+    | [] -> raise Not_found
+  in aux 0 l
+
+let rec process_and (c: certif) (cog: certif) : certif =
+  match c with
+  | (i, AndAST, cl, p, a) :: tl ->
+      let p = List.map (get_cl p cog) in
+      (match (List.hd p), (List.hd cl) with
+      | And ts, x -> list_find_index ts x
+      | _, _ -> raise (VeritSyntax.Debug ("Expecting premise to be an `and` at id"^i)))
+  | ircpa :: tl -> ircpa :: (process_and tl cog)
+  | [] -> []*)
+
 
 (* Final processing and linking of AST *)
 
 let preprocess_certif (c: certif) : certif =
-  (* Printf.printf ("Certif before preprocessing: %s\n") (string_of_certif c); *)
+  Printf.printf ("Certif before preprocessing: %s\n") (string_of_certif c);
   let c1 = store_shared_terms c in
-  (* Printf.printf ("Certif after storing shared terms: %s\n") (string_of_certif c1); *)
+  Printf.printf ("Certif after storing shared terms: %s\n") (string_of_certif c1);
   let c2 = remove_notnot c1 in
-  (* Printf.printf ("Certif after remove_notnot: %s\n") (string_of_certif c2); *)
+  Printf.printf ("Certif after remove_notnot: %s\n") (string_of_certif c2);
   let c3 = process_fins c2 in
-  (* Printf.printf ("Certif after process_fins: %s\n") (string_of_certif c3); *)
+  Printf.printf ("Certif after process_fins: %s\n") (string_of_certif c3);
   let c4 = process_cong c3 in
-  (* Printf.printf ("Certif after process_cong: %s\n") (string_of_certif c4); *)
+  Printf.printf ("Certif after process_cong: %s\n") (string_of_certif c4);
   c4
 
 let rec process_certif (c : certif) : VeritSyntax.id list =

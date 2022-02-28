@@ -91,6 +91,11 @@
         "not_ite1", NITE1;
         "not_ite2", NITE2;
 
+      (* cvc5 rules *)
+        "symm", SYMM;
+        "reordering", REORD;
+        "all_simplify", ALLSIMP;
+
       (* Simplifications on Boolean operators rules *)
         "connective_def", CONNDEF;
         "and_simplify", ANDSIMP;
@@ -143,7 +148,7 @@
         "bbzextend", BBZEXT;
         "bbsextend", BBSEXT;
         "bbshl", BBSHL;
-        "bbshr", BBSHR;*)
+        "bbshr", BBSHR;
         "bvand", BVAND;
         "bvor", BVOR;
         "bvxor", BVXOR;
@@ -160,7 +165,7 @@
         "concat", BVCONC;
         "extract", BVEXTR;
         "zero_extend", BVZEXT;
-        "sign_extend", BVSEXT;
+        "sign_extend", BVSEXT;*)
       ]
 }
 
@@ -249,5 +254,5 @@ rule token = parse
                                   ISYMBOL i }
   | (int as i)                  { try INT (int_of_string i) with 
                                   _ -> BIGINT (Big_int.big_int_of_string i) }
-  | bitvector as bv             { BITV bv }
+(*  | bitvector as bv             { BITV bv }*)
   | eof                         { EOF }

@@ -93,6 +93,7 @@ type typ =
   | Bind (* New *)
   | Fins
   | Qcnf (* New *)
+  | Allsimp (* New(cvc5) *)
   | Same (* Internal *)
   | Hole
 
