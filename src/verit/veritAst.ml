@@ -134,8 +134,8 @@ let mk_cert (c : step list) : certif = c
 
 
 (* We will use an option type that can pass a string to print in 
-   the none case *)
-(*type 'a optstring =
+   the none case
+type 'a optstring =
   | Some of 'a
   | None of string
 
@@ -760,7 +760,7 @@ let process_cong (c : certif) : certif =
                 (* get premises and convert from clauses to formulas *)
                 let prems = List.map (fun x -> (match (get_cl x cog) with
                 | Some x -> Not (List.hd x)
-                | None -> assert false)) p in
+                | None -> raise (Debug ("Can't fetch premises to congr at id "^i)))) p in
                 (* congruence over functions *)
                 if is_eq l then
                   let new_id = VeritSyntax.generate_id () in
@@ -809,22 +809,27 @@ let process_cong (c : certif) : certif =
 
 
 (* Figure out the argument for the and rule *)
-(*let list_find_index l x : int =
+let list_find_index l x : int =
   let rec aux i l = 
     match l with
     | h :: t -> if h = x then i else aux (i+1) t
     | [] -> raise Not_found
   in aux 0 l
 
-let rec process_and (c: certif) (cog: certif) : certif =
-  match c with
-  | (i, AndAST, cl, p, a) :: tl ->
-      let p = List.map (get_cl p cog) in
-      (match (List.hd p), (List.hd cl) with
-      | And ts, x -> list_find_index ts x
-      | _, _ -> raise (VeritSyntax.Debug ("Expecting premise to be an `and` at id"^i)))
-  | ircpa :: tl -> ircpa :: (process_and tl cog)
-  | [] -> []*)
+let process_and (c: certif): certif =
+  let rec aux (c: certif) (cog: certif) : certif =
+    match c with
+    | (i, AndAST, cl, p, a) :: tl ->
+        let p' = List.map (fun x -> match get_cl x cog with
+                          | Some x' -> List.hd x'
+                          | None -> raise (Debug ("Can't fetch premises to congr at id "^i))) p in
+        (match (List.hd p'), (List.hd cl) with
+        | And ts, x -> let i' = list_find_index ts x in
+                       (i, AndAST, cl, p, [(string_of_int i')]) :: aux tl cog
+        | _, _ -> raise (Debug ("Expecting premise to be an `and` at id"^i)))
+    | ircpa :: tl -> ircpa :: (aux tl cog)
+    | [] -> []
+  in aux c c
 
 
 (* Final processing and linking of AST *)
@@ -839,7 +844,9 @@ let preprocess_certif (c: certif) : certif =
   Printf.printf ("Certif after process_fins: %s\n") (string_of_certif c3);
   let c4 = process_cong c3 in
   Printf.printf ("Certif after process_cong: %s\n") (string_of_certif c4);
-  c4
+  let c5 = process_and c4 in
+  Printf.printf ("Certif after process_and: %s\n") (string_of_certif c5);
+  c5
 
 let rec process_certif (c : certif) : VeritSyntax.id list =
   match c with
