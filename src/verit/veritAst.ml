@@ -397,9 +397,9 @@ let rec term_eq_alpha (subs : (string * string) list) (t1 : term) (t2 : term) : 
   | Gt (t11, t12), Gt (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
   | Geq (t11, t12), Geq (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
   | UMinus t1', UMinus t2' -> term_eq_alpha subs t1' t2'
-  | Plus (t11, t12), Lt (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
-  | Minus (t11, t12), Lt (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
-  | Mult (t11, t12), Lt (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
+  | Plus (t11, t12), Plus (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
+  | Minus (t11, t12), Minus (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
+  | Mult (t11, t12), Mult (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
   | _ -> false
 
 let rec term_eq (t1 : term) (t2 : term) : bool =
@@ -435,9 +435,9 @@ let rec term_eq (t1 : term) (t2 : term) : bool =
   | Gt (t11, t12), Gt (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
   | Geq (t11, t12), Geq (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
   | UMinus t1', UMinus t2' -> term_eq t1' t2'
-  | Plus (t11, t12), Lt (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
-  | Minus (t11, t12), Lt (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
-  | Mult (t11, t12), Lt (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
+  | Plus (t11, t12), Plus (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
+  | Minus (t11, t12), Minus (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
+  | Mult (t11, t12), Minus (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
   | _ -> false
 
 
@@ -809,24 +809,44 @@ let process_cong (c : certif) : certif =
 
 
 (* Figure out the argument for the and rule *)
-let list_find_index l x : int =
+let list_find_index l x eq : int =
   let rec aux i l = 
     match l with
-    | h :: t -> if h = x then i else aux (i+1) t
-    | [] -> raise Not_found
+    | h :: t -> if eq h x then i else aux (i+1) t
+    | [] -> raise (Debug "list_find_index failed!")
   in aux 0 l
 
-let process_and (c: certif): certif =
+let process_proj (c: certif): certif =
   let rec aux (c: certif) (cog: certif) : certif =
     match c with
     | (i, AndAST, cl, p, a) :: tl ->
         let p' = List.map (fun x -> match get_cl x cog with
-                          | Some x' -> List.hd x'
-                          | None -> raise (Debug ("Can't fetch premises to congr at id "^i))) p in
-        (match (List.hd p'), (List.hd cl) with
-        | And ts, x -> let i' = list_find_index ts x in
+                           | Some x' -> List.hd x'
+                           | None -> raise (Debug ("Can't fetch premises to `and` at id "^i))) 
+                 p in
+        (match (get_expr (List.hd p')), (get_expr (List.hd cl)) with
+        | And ts, x -> let i' = list_find_index ts x term_eq in
                        (i, AndAST, cl, p, [(string_of_int i')]) :: aux tl cog
-        | _, _ -> raise (Debug ("Expecting premise to be an `and` at id"^i)))
+        | _, _ -> raise (Debug ("Expecting premise to be an `and` at id "^i)))
+    | (i, NorAST, cl, p, a) :: tl ->
+        let p' = List.map (fun x -> match get_cl x cog with
+                           | Some x' -> List.hd x'
+                           | None -> raise (Debug ("Can't fetch premises to `and` at id "^i)))
+                 p in
+        (match (get_expr (List.hd p')), (get_expr (List.hd cl)) with
+        | Not (Or ts), Not x -> let i' = list_find_index ts x term_eq in
+                       (i, AndAST, cl, p, [(string_of_int i')]) :: aux tl cog
+        | _, _ -> raise (Debug ("Expecting premise to be a `not (or)` at id "^i)))
+    | (i, OrnAST, cl, p, a) :: tl ->
+        (match get_expr (List.nth cl 0), get_expr (List.nth cl 1) with
+        | Or ts, Not x -> let i' = list_find_index ts x term_eq in
+                       (i, AndAST, cl, p, [(string_of_int i')]) :: aux tl cog
+        | _, _ -> raise (Debug ("Expecting clause with `or` and `not` at id "^i)))
+    | (i, AndpAST, cl, p, a) :: tl ->
+        (match get_expr (List.nth cl 0), get_expr (List.nth cl 1) with
+        | Not (And ts), x -> let i' = list_find_index ts x term_eq in
+                       (i, AndAST, cl, p, [(string_of_int i')]) :: aux tl cog
+        |  _, _ -> raise (Debug ("Expecting clause with `not (and)` and projection at id "^i)))
     | ircpa :: tl -> ircpa :: (aux tl cog)
     | [] -> []
   in aux c c
@@ -844,8 +864,8 @@ let preprocess_certif (c: certif) : certif =
   Printf.printf ("Certif after process_fins: %s\n") (string_of_certif c3);
   let c4 = process_cong c3 in
   Printf.printf ("Certif after process_cong: %s\n") (string_of_certif c4);
-  let c5 = process_and c4 in
-  Printf.printf ("Certif after process_and: %s\n") (string_of_certif c5);
+  let c5 = process_proj c4 in
+  Printf.printf ("Certif after process_proj: %s\n") (string_of_certif c5);
   c5
 
 let rec process_certif (c : certif) : VeritSyntax.id list =

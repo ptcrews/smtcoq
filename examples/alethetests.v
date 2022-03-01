@@ -34,7 +34,7 @@ Local Open Scope farray_scope.
 Local Open Scope int31_scope.
 Local Open Scope array_scope.
 
-Lemma ex1: negb (true && (negb true)).
+(*Lemma ex1: negb (true && (negb true)).
 Proof.
   verit_bool.
 Qed.
@@ -46,27 +46,27 @@ Qed.
 
 Lemma ex3: forall p, negb (p && (negb p)).
 Proof.
-  verit_bool.
+  cvc5_bool.
 Qed.
 
 Lemma ex4: forall a b c, ((a || b || c) && ((negb a) || (negb b) || (negb c)) && ((negb a) || b) && ((negb b) || c) && ((negb c) || a)) = false.
 Proof.
-  verit_bool.
+  cvc5_bool.
 Qed.
 
 Lemma ex5: forall p, p || (negb p).
 Proof.
-  verit_bool.
-Qed.
+  cvc5_bool.
+Qed.*)
 
 
 Local Open Scope Z_scope.
 
-Goal forall (a b : Z) (P : Z -> bool) (f : Z -> Z),
+(*Goal forall (a b : Z) (P : Z -> bool) (f : Z -> Z),
   (negb (Z.eqb (f a) b)) || (negb (P (f a))) || (P b).
 Proof.
   verit_bool.
-Qed.
+Qed.*)
 
 (* Issue with LIA?
 Goal forall b1 b2 x1 x2,
@@ -87,10 +87,10 @@ Proof.
   verit.
 Qed.
 
-Variable P : Z -> bool.
+(*Variable P : Z -> bool.
 Variable a : Z.
 Goal (forall (x : Z), P x) -> P a.
-Proof. verit. Qed.
+Proof. verit. Qed.*)
 
 (* Some examples of using verit with lemmas. Use <verit H1 .. Hn> to
    temporarily add the lemmas H1 .. Hn to the verit environment.

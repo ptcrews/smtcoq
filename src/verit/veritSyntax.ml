@@ -104,18 +104,6 @@ type typ =
   | Hole
 
 
-(* Given an array and an element, find the index of the first occurrence of the 
-   element in the array. *)
-let array_find_opt a x =
-  let n = Array.length a in
-  let rec loop i =  
-    if i = n then None
-    else
-      if a.(i) = x then Some i
-      else loop (i + 1)
-  in loop 0
-
-
 (* About equality *)
 
 let get_eq l =
@@ -478,19 +466,9 @@ let mk_clause (id,typ,value,ids_params,args) =
           | l::_ -> Other (BuildDef2 l)
           | _ -> assert false)
       | Orn | Andp ->
-        (match value with
-          | l::x::nil -> 
-              (match Form.pform l with
-              | Fapp (For, args) -> (match array_find_opt (Array.map Form.pform args) 
-                                                      (Form.pform (Form.neg x)) with
-                                    | Some i -> Other (BuildProj (l,i))
-                                    | None -> assert false)
-              | Fapp (Fand, args) -> (match array_find_opt (Array.map Form.pform args) 
-                                                       (Form.pform x) with
-                                    | Some i -> Other (BuildProj (l,i))
-                                    | None -> assert false)
-              | _ -> assert false)
-          | _ -> assert false)
+        (match value, args with
+        | l::_, [p] -> Other (BuildProj (l,(int_of_string p)))
+        | _, _ -> assert false)
       | Impn1 ->
         (match value with
           | l::_ -> Other (BuildProj (l,0))
