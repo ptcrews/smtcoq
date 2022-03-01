@@ -34,7 +34,7 @@ Local Open Scope farray_scope.
 Local Open Scope int31_scope.
 Local Open Scope array_scope.
 
-Lemma ex3: forall p, negb (p && (negb p)).
+Lemma ex2: true || false.
 Proof.
-  cvc5_bool.
+  cvc5.
 Qed.

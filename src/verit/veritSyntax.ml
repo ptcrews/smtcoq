@@ -543,7 +543,7 @@ let mk_clause (id,typ,value,ids_params,args) =
           | _ -> assert false)
       (* From cvc5 *)
       | Allsimp ->
-        Other (SmtCertif.Hole (List.map (get_clause_exception id) ids_params, value))
+        Other (SmtCertif.Hole ([], value))
       (* Equality *)
       | Eqre -> mkTrans value
       | Eqtr -> mkTrans value
