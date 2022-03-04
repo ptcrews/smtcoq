@@ -70,8 +70,16 @@ let import_trace ra_quant rf_quant filename first lsmt =
       let first_num = List.hd cert_proc in
       let confl_num = List.nth cert_proc ((List.length cert_proc) - 1) in
          close_in chan;
-         let cfirst = ref (VeritSyntax.get_clause_exception "import_trace.cfirst" first_num) in
-         let confl = ref (VeritSyntax.get_clause_exception "import_trace.confl" confl_num) in
+         let cfirstcl =
+          try VeritSyntax.get_clause first_num with
+            | VeritSyntax.Debug s -> raise (VeritSyntax.Debug 
+                ("| Cvc5.import_trace: fetching first certif step |"^s)) in
+         let conflcl =
+          try VeritSyntax.get_clause confl_num with
+            | VeritSyntax.Debug s -> raise (VeritSyntax.Debug
+                ("| Cvc5.import_trace: fetching last certif step |"^s)) in
+         let cfirst = ref cfirstcl in
+         let confl = ref conflcl in
          let re_hash = Form.hash_hform (Atom.hash_hatom ra_quant) rf_quant in
          begin match first with
          | None -> ()

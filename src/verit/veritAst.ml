@@ -311,13 +311,17 @@ let get_sterm s =
   try Hashtbl.find sterms s
   with 
   | Not_found -> raise (Debug 
-      ("VeritAST.get_sterm : shared term with name "^s^" not found\n"))
+      ("| get_sterm : can't find "^s^" |"))
 let add_sterm s t = Hashtbl.add sterms s t
 let clear_sterms () = Hashtbl.clear sterms
 
 (* Get expression modulo aliasing*)
 let rec get_expr = function
-  | STerm t -> get_expr (get_sterm t)
+  | STerm t -> 
+      let t' = try get_sterm t with
+               | Debug s -> 
+                raise (Debug ("| get_expr: can't find sterm |")) in
+      get_expr t'
   | NTerm (_, e) -> e
   | e -> e
 
@@ -384,7 +388,7 @@ let rec term_eq_alpha (subs : (string * string) list) (t1 : term) (t2 : term) : 
   | Xor ts1, Xor ts2 -> check_arg_lists ts1 ts2
   | Ite ts1, Ite ts2 -> check_arg_lists ts1 ts2
   | Forall (xs, t1'), Forall (ys, t2') ->
-      raise (Debug ("checking equality of forall term nested inside another forall term"))
+      raise (Debug ("| term_eq_alpha: checking equality of forall inside forall |"))
   | Eq (t11, t12), Eq (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
   | App (f1, t1'), App (f2, t2') -> f1 = f2 && check_arg_lists t1' t2'
   | Var x, Var y -> x = y || 
@@ -437,7 +441,7 @@ let rec term_eq (t1 : term) (t2 : term) : bool =
   | UMinus t1', UMinus t2' -> term_eq t1' t2'
   | Plus (t11, t12), Plus (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
   | Minus (t11, t12), Minus (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
-  | Mult (t11, t12), Minus (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
+  | Mult (t11, t12), Mult (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
   | _ -> false
 
 
@@ -455,7 +459,7 @@ let rec find_lemma (t : term) (c : certif) : id =
       (match r, cl with
       | AssumeAST, (t' :: _) when term_eq t t' -> i
       | _ -> find_lemma t tl)
-  | [] -> raise (Debug ("Can't find the lemma to be instantiated by forall_inst in the certificate"))
+  | [] -> raise (Debug ("| find_lemma: can't find lemma to be instantiated by forall_inst |"))
 
 (* Remove all occurrences of element from list *)
 let rec remove x l =
@@ -492,13 +496,17 @@ let process_fins (c : certif) : certif =
         | Or [e; t2] ->
           let t = get_expr e in
             (match t with
-            | Not t -> (i, FinsAST, [t2], [(find_lemma t cog)], [])
-            | _ -> raise (VeritSyntax.Debug 
-                ("Expecting argument of forall_inst to be (or (Not lemma) instance) at "
-                ^(string_of_id i))))
-        | _ -> raise (VeritSyntax.Debug 
-               ("Expecting argument of forall_inst to be an or at "
-               ^(string_of_id i))))
+            | Not t -> 
+                let lem = try find_lemma t cog with 
+                  | Debug s -> raise 
+                    (Debug ("| process_fins: failing at id "^i^" |"^s)) in
+                (i, FinsAST, [t2], [lem], [])
+            | _ -> raise (Debug 
+                ("| process_fins: arg of forall_inst expected to be (or (Not lemma) instance) at "
+                 ^i^" |")))
+        | _ -> raise (Debug 
+               ("| process_fins: arg of forall_inst expected to be an `or` at "
+                ^i^" |")))
         in st :: process_fins_aux tl cog
     | ircpa :: t -> ircpa :: process_fins_aux t cog
     | [] -> []
@@ -591,9 +599,10 @@ and process_term_aux (t : term) : bool * SmtAtom.Form.atom_form_lit (*option*) =
          or it has to be fetched first from the sterms hashtable, processed,
          stored in the solver hashtable and then returned *)
       (try get_solver s with
-       | VeritSyntax.Debug _ -> let t' = (try get_sterm s with
-                                | Not_found -> raise (VeritSyntax.Debug ("Can't find "^s^" in sterms\n")))
-                      in let t'' = process_term_aux t' in
+       | Debug _ -> let t' = (try get_sterm s with
+                              | Debug d -> raise (Debug 
+                                ("| process_term_aux: can't find "^s^" |"^d))) in
+                    let t'' = process_term_aux t' in
                               add_solver s t''; t'')
   | NTerm (s, t) -> let t' = process_term_aux t in
                     add_solver s t'; t'
@@ -760,7 +769,7 @@ let process_cong (c : certif) : certif =
                 (* get premises and convert from clauses to formulas *)
                 let prems = List.map (fun x -> (match (get_cl x cog) with
                 | Some x -> Not (List.hd x)
-                | None -> raise (Debug ("Can't fetch premises to congr at id "^i)))) p in
+                | None -> raise (Debug ("| process_cong: can't fetch premises to congr at id "^i)))) p in
                 (* congruence over functions *)
                 if is_eq l then
                   let new_id = VeritSyntax.generate_id () in
@@ -769,7 +778,7 @@ let process_cong (c : certif) : certif =
                   let new_cl = mk_cl (prems @ c) in
                   (* then, resolve out all the premises from the CNF so only 
                    the conclusion is left *)
-                  (VeritSyntax.string_of_id new_id, EqcoAST, new_cl, [], []) ::
+                  (new_id, EqcoAST, new_cl, [], []) ::
                   (i, ResoAST, c, new_id :: p, a) :: process_cong_aux t cog
                 (* congruence over predicates*)
                 (*else if is_iff l then
@@ -808,12 +817,20 @@ let process_cong (c : certif) : certif =
     in process_cong_aux c c
 
 
-(* Figure out the argument for the and rule *)
+(* SMTCoq requires projection rules `and`, `not_or`, `or_neg`, `and_pos`
+   to specify an integer argument specifying the term to project.
+   Alethe doesn't specify the projection for these rules. This 
+   transformation searches the clause for the projection and adds
+   it as an argument *)
+
+(* list_find_index l x eq returns the index of the 
+   first occurrence of item x in list l, using eq for 
+   item equality checking *)
 let list_find_index l x eq : int =
   let rec aux i l = 
     match l with
     | h :: t -> if eq h x then i else aux (i+1) t
-    | [] -> raise (Debug "list_find_index failed!")
+    | [] -> raise (Debug "| list_find_index: failed |")
   in aux 0 l
 
 let process_proj (c: certif): certif =
@@ -822,31 +839,47 @@ let process_proj (c: certif): certif =
     | (i, AndAST, cl, p, a) :: tl ->
         let p' = List.map (fun x -> match get_cl x cog with
                            | Some x' -> List.hd x'
-                           | None -> raise (Debug ("Can't fetch premises to `and` at id "^i))) 
+                           | None -> raise (Debug ("Can't fetch premises to `and` at id "
+                                            ^i^" |"))) 
                  p in
         (match (get_expr (List.hd p')), (get_expr (List.hd cl)) with
-        | And ts, x -> let i' = list_find_index ts x term_eq in
-                       (i, AndAST, cl, p, [(string_of_int i')]) :: aux tl cog
-        | _, _ -> raise (Debug ("Expecting premise to be an `and` at id "^i)))
+        | And ts, x ->
+            let i' = try list_find_index ts x term_eq with
+                     | Debug s -> raise (Debug ("| process_proj: fails at id "
+                        ^i^" |"^s)) in
+              (i, AndAST, cl, p, [(string_of_int i')]) :: aux tl cog
+        | _, _ -> raise (Debug ("| process_proj: expecting premise to be an `and` at id "
+                         ^i^" |")))
     | (i, NorAST, cl, p, a) :: tl ->
         let p' = List.map (fun x -> match get_cl x cog with
                            | Some x' -> List.hd x'
-                           | None -> raise (Debug ("Can't fetch premises to `and` at id "^i)))
+                           | None -> raise (Debug 
+                              ("| process_proj: can't fetch premises to `and` at id "
+                              ^i^" |")))
                  p in
         (match (get_expr (List.hd p')), (get_expr (List.hd cl)) with
-        | Not (Or ts), Not x -> let i' = list_find_index ts x term_eq in
-                       (i, AndAST, cl, p, [(string_of_int i')]) :: aux tl cog
-        | _, _ -> raise (Debug ("Expecting premise to be a `not (or)` at id "^i)))
+        | Not (Or ts), Not x -> 
+            let i' = try list_find_index ts x term_eq with
+                     | Debug s -> raise (Debug ("| process_proj: fails at id "^i^" |"^s)) in
+              (i, AndAST, cl, p, [(string_of_int i')]) :: aux tl cog
+        | _, _ -> raise (Debug ("| process_proj: expecting premise to be a `not (or)` at id "
+                  ^i^" |")))
     | (i, OrnAST, cl, p, a) :: tl ->
         (match get_expr (List.nth cl 0), get_expr (List.nth cl 1) with
-        | Or ts, Not x -> let i' = list_find_index ts x term_eq in
-                       (i, AndAST, cl, p, [(string_of_int i')]) :: aux tl cog
-        | _, _ -> raise (Debug ("Expecting clause with `or` and `not` at id "^i)))
+        | Or ts, Not x -> 
+            let i' = try list_find_index ts x term_eq with
+                     | Debug s -> raise (Debug ("| process_proj: fails at id "^i^" |"^s)) in
+              (i, AndAST, cl, p, [(string_of_int i')]) :: aux tl cog
+        | _, _ -> raise (Debug 
+                  ("| process_proj: expecting clause with `or` and `not` at id "^i^" |")))
     | (i, AndpAST, cl, p, a) :: tl ->
         (match get_expr (List.nth cl 0), get_expr (List.nth cl 1) with
-        | Not (And ts), x -> let i' = list_find_index ts x term_eq in
-                       (i, AndAST, cl, p, [(string_of_int i')]) :: aux tl cog
-        |  _, _ -> raise (Debug ("Expecting clause with `not (and)` and projection at id "^i)))
+        | Not (And ts), x ->
+            let i' = try list_find_index ts x term_eq with
+                     | Debug s -> raise (Debug ("| process_proj: fails at id "^i^" |"^s)) in
+              (i, AndAST, cl, p, [(string_of_int i')]) :: aux tl cog
+        |  _, _ -> raise (Debug ("| process_proj: expecting clause with `not (and)` and projection at id "
+                   ^i^" |")))
     | ircpa :: tl -> ircpa :: (aux tl cog)
     | [] -> []
   in aux c c
@@ -855,25 +888,30 @@ let process_proj (c: certif): certif =
 (* Final processing and linking of AST *)
 
 let preprocess_certif (c: certif) : certif =
-  Printf.printf ("Certif before preprocessing: %s\n") (string_of_certif c);
-  let c1 = store_shared_terms c in
-  Printf.printf ("Certif after storing shared terms: %s\n") (string_of_certif c1);
+  (* Printf.printf ("Certif before preprocessing: %s\n") (string_of_certif c); *)
+  try 
+  (let c1 = store_shared_terms c in
+  (* Printf.printf ("Certif after storing shared terms: %s\n") (string_of_certif c1); *)
   let c2 = remove_notnot c1 in
-  Printf.printf ("Certif after remove_notnot: %s\n") (string_of_certif c2);
+  (* Printf.printf ("Certif after remove_notnot: %s\n") (string_of_certif c2); *)
   let c3 = process_fins c2 in
-  Printf.printf ("Certif after process_fins: %s\n") (string_of_certif c3);
+  (* Printf.printf ("Certif after process_fins: %s\n") (string_of_certif c3); *)
   let c4 = process_cong c3 in
-  Printf.printf ("Certif after process_cong: %s\n") (string_of_certif c4);
+  (* Printf.printf ("Certif after process_cong: %s\n") (string_of_certif c4); *)
   let c5 = process_proj c4 in
-  Printf.printf ("Certif after process_proj: %s\n") (string_of_certif c5);
-  c5
+  (* Printf.printf ("Certif after process_proj: %s\n") (string_of_certif c5); *)
+  c5) with
+  | Debug s -> raise (Debug ("| VeritAst.preprocess_certif: failed to preprocess |"^s))
 
 let rec process_certif (c : certif) : VeritSyntax.id list =
   match c with
   | (i, r, c, p, a) :: t ->
       let i' = VeritSyntax.id_of_string i in
       let r' = process_rule r in
-      let c' = process_cl c in
+      let c' = try process_cl c with
+               | Debug s -> raise (Debug 
+                  ("| VeritAst.process_certif: can't process clause at id "
+                  ^i^" |")) in
       let p' = List.map (VeritSyntax.id_of_string) p in
       let a' = List.map (VeritSyntax.id_of_string) a in
       (* Must do this in this order to avoid side effects *)
@@ -882,10 +920,8 @@ let rec process_certif (c : certif) : VeritSyntax.id list =
       let t' = process_certif t in
       if List.length t' > 0 then (
         let x = List.hd t' in
-        SmtTrace.link (get_clause_exception ("linking clause "^
-                          (string_of_id res)^" in VeritAst.process_certif") res) 
-                      (get_clause_exception ("linking clause "^
-                          (string_of_id x)^" in VeritAst.process_certif") x)
+        try SmtTrace.link (get_clause res) (get_clause x) with
+        | Debug s -> raise (Debug ("| VeritAst.process_certif: linking clauses |"^s))
         ) else ();
       res :: t'
   | [] -> []

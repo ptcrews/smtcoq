@@ -106,8 +106,7 @@ val string_of_id : id -> string
 val generate_id : unit -> id
 val generate_ids : int -> id list
 
-val get_clause : id -> (SmtAtom.Form.t SmtCertif.clause) option
-val get_clause_exception : string -> id -> SmtAtom.Form.t SmtCertif.clause
+val get_clause : id -> SmtAtom.Form.t SmtCertif.clause
 val add_clause : id -> SmtAtom.Form.t SmtCertif.clause -> unit
 val clauses_to_string : string
 

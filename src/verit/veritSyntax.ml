@@ -111,13 +111,13 @@ let get_eq l =
   | Fatom ha ->
      (match Atom.atom ha with
       | Abop (BO_eq _,a,b) -> (a,b)
-      | _ -> raise (Debug "VeritSyntax.get_eq: equality was expected"))
-  | _ -> raise (Debug "VeritSyntax.get_eq: equality was expected")
+      | _ -> raise (Debug "| get_eq: equality expected |"))
+  | _ -> raise (Debug "| get_eq: atomic equality expected| ")
 
 let get_at l =
   match Form.pform l with
   | Fatom ha -> ha
-  | _ -> raise (Debug "VeritSyntax.get_at: atom was expected")
+  | _ -> raise (Debug "| get_at: atom expected |")
 
 let is_eq l =
   match Form.pform l with
@@ -137,8 +137,8 @@ let get_iff l =
   | Fapp (Fiff, args) -> 
       if (Array.length args == 2) then
         (args.(0), args.(1))
-      else raise (Debug "VeritSyntax.get_iff: two arguments were expected")
-  | _ -> raise (Debug "VeritSyntax.get_iff: iff was expected")
+      else raise (Debug "| get_iff: 2 arguments to iff expected |")
+  | _ -> raise (Debug "| get_iff: iff expected |")
 
 (* Transitivity *)
 (* list_find_remove p l finds the first element x in l, such that p(x) holds and returns (x, l') where l' is l without x *)
@@ -166,11 +166,13 @@ let mkTrans p =
   let (concl,prem) = List.partition Form.is_pos p in
   match concl with
   |[c] ->
-    let a,b = get_eq c in
-    let prem_val = List.map (fun l -> (l,get_eq l)) prem in
+    let a,b = try get_eq c with
+              | Debug s -> raise (Debug ("| mkTrans: can't fetch conclusion |"^s)) in
+    let prem_val = try List.map (fun l -> (l,get_eq l)) prem with
+                      | Debug s -> raise (Debug ("| mkTrans: can't fetch premise |"^s)) in
     let cert = (process_trans a b prem_val []) in
     Other (EqTr (c,cert))
-  |_ -> raise (Debug "VeritSyntax.mkTrans: no conclusion or more than one conclusion in transitivity")
+  |_ -> raise (Debug "| mkTrans: 0 or more than 1 conclusions |")
 
 
 (* Congruence *)
@@ -186,7 +188,7 @@ let rec process_congr a_args b_args prem res =
                                  prem in
      process_congr a_args b_args prem ((Some l)::res)
   | [],[] -> List.rev res
-  | _ -> raise (Debug "VeritSyntax.process_congr: incorrect number of arguments in function application")
+  | _ -> raise (Debug "| process_congr: wrong no. of args to function application |")
 
 (* Using this for congruence over connectives
 let rec process_congr_form a_args b_args prem res =
@@ -201,8 +203,10 @@ let rec process_congr_form a_args b_args prem res =
   | _ -> raise (Debug "VeritSyntax.process_congr_form: incorrect number of arguments in function appliction")*)
 
 let mkCongr_aux c prem = 
-  let a,b = get_eq c in
-    let prem_val = List.map (fun l -> (l,get_eq l)) prem in
+  let a,b = try get_eq c with
+            | Debug s -> raise (Debug ("| mkCongr_aux: can't fetch conclusion |"^s)) in
+  let prem_val = try List.map (fun l -> (l,get_eq l)) prem with
+                    | Debug s -> raise (Debug ("| mkCongr_aux: can't fetch premise |"^s)) in
     (match Atom.atom a, Atom.atom b with
      | Abop(aop,a1,a2), Abop(bop,b1,b2) when (aop = bop) ->
         let a_args = [a1;a2] in
@@ -218,14 +222,14 @@ let mkCongr_aux c prem =
         if indexed_op_index a_f = indexed_op_index b_f then
           let cert = process_congr (Array.to_list a_args) (Array.to_list b_args) prem_val [] in
           Other (EqCgr (c,cert))
-        else raise (Debug "VeritSyntax.mkCongr: left function is different from right function")
-     | _, _ -> raise (Debug "VeritSyntax.mkCongr: atoms are not applications"))
+        else raise (Debug "| mkCongr_aux: functions don't match |")
+     | _, _ -> raise (Debug "| mkCongr_aux: atoms aren't applications |"))
 
 let mkCongr p =
   let (concl,prem) = List.partition Form.is_pos p in
   match concl with
   |[c] -> mkCongr_aux c prem
-  |_ -> raise (Debug "VeritSyntax.mkCongr: no conclusion or more than one conclusion in congruence")
+  |_ -> raise (Debug "| mkCongr: 0 or more than 1 conclusions |")
 
 let mkCongrPred p =
   (*if (is_eq (List.hd p)) then*)
@@ -235,7 +239,8 @@ let mkCongrPred p =
     |[c] ->
       (match prem_P with
        |[p_p] ->
-         let prem_val = List.map (fun l -> (l,get_eq l)) prem in
+         let prem_val = try List.map (fun l -> (l,get_eq l)) prem with
+                        | Debug s -> raise (Debug ("| mkCongrPred: can't fetch premise |"^s)) in
          (match Atom.atom (get_at c), Atom.atom (get_at p_p) with
           | Abop(aop,a1,a2), Abop(bop,b1,b2) when (aop = bop) ->
              let a_args = [a1;a2] in
@@ -246,10 +251,10 @@ let mkCongrPred p =
              if indexed_op_index a_f = indexed_op_index b_f then
                let cert = process_congr (Array.to_list a_args) (Array.to_list b_args) prem_val [] in
                Other (EqCgrP (p_p,c,cert))
-             else raise (Debug "VeritSyntax.mkCongrPred: unmatching predicates")
-          | _ -> raise (Debug "VeritSyntax.mkCongrPred : not pred app"))
-       |_ ->  raise (Debug "VeritSyntax.mkCongr: no or more than one predicate app premise in congruence"))  
-    | _ -> raise (Debug "VeritSyntax.mkCongr: no conclusion in congruence")
+             else raise (Debug "| mkCongrPred: unmatching predicates |")
+          | _ -> raise (Debug "| mkCongrPred : not pred app |"))
+       |_ ->  raise (Debug "| mkCongrPred: 0 or more than 1 predicate app premise |"))  
+    | _ -> raise (Debug "| mkCongrPred: 0 conclusions |")
   (*else if (is_iff (List.hd p)) then
     let l = List.length p in
     let concl = [List.nth p (l-1)] in
@@ -307,7 +312,7 @@ let mkMicromega cl =
   let cert = Lia.build_lia_certif cl in
   let c =
     match cert with
-    | None -> raise (Debug "VeritSyntax.mkMicromega: micromega can't solve this")
+    | None -> raise (Debug "| mkMicromega: micromega can't solve this |")
     | Some c -> c in
   Other (LiaMicromega (cl,c))
 
@@ -383,15 +388,11 @@ let rec generate_ids (x : int) : id list =
   | n -> (generate_id ()) :: generate_ids (n-1)
 
 let clauses : (id, Form.t clause) Hashtbl.t = Hashtbl.create 17
-let get_clause id =
-  try Some (Hashtbl.find clauses id) with 
-  | Not_found -> None
+let get_clause id = 
+  try (Hashtbl.find clauses id) with
+  | Not_found -> raise (Debug ("| get_clause: clause number "^id^"not found |"))
 let add_clause id cl = Hashtbl.add clauses id cl
 let clear_clauses () = Hashtbl.clear clauses
-let get_clause_exception s id =
-  match get_clause id with
-  | Some c -> c
-  | None -> raise (Debug ("VeritSyntax.get_clause : clause number "^id^" not found called from loc "^s))
 let clauses_to_string : string =
   Hashtbl.fold (fun x y z -> z^x^": "^(SmtCertif.to_string y.kind)^"\n") 
   clauses ""
@@ -410,7 +411,9 @@ let clear_ref () = Hashtbl.clear ref_cl
 let rec fins_lemma ids_params =
   match ids_params with
     [] -> raise Not_found
-  | h :: t -> let cl_target = repr (get_clause_exception "fins_lemma" h) in
+  | h :: t -> let cl = try get_clause h with
+                       | Debug s -> raise (Debug ("| fins_lemma: can't get clause |"^s)) in
+              let cl_target = repr cl in
               match cl_target.kind with
                 Other (Forall_inst (lemma, _)) -> lemma
               | _ -> fins_lemma t
@@ -419,7 +422,7 @@ let rec fins_lemma ids_params =
    a is the first occurrence of c in the list of clauses represented by l
    b is l without a *)
 let find_remove_lemma lemma ids_params =
-  let eq_lemma h = eq_clause lemma (get_clause_exception "find_remove_lemma" h) in
+  let eq_lemma h = eq_clause lemma (get_clause h) in
   list_find_remove eq_lemma ids_params
 
 (* Removes the lemma in a list of ids containing an instance of this lemma *)
@@ -437,7 +440,8 @@ let to_add = ref []
 
 let mk_clause (id,typ,value,ids_params,args) =
   let kind =
-    match typ with
+    try 
+    (match typ with
       (* Roots *)
       | Assume -> Root
       (* Cnf conversion *)
@@ -450,12 +454,12 @@ let mk_clause (id,typ,value,ids_params,args) =
       | Taut -> 
         (match ids_params with
           | [i] -> (match value with
-                    | l :: nil -> Other (Tautology ((get_clause_exception id i), l))
+                    | l :: nil -> Other (Tautology ((get_clause i), l))
                     | _ -> assert false)
           | _ -> assert false)
       | Cont ->
         (match ids_params with
-          | [i] -> Other (Contraction ((get_clause_exception id i), value))
+          | [i] -> Other (Contraction ((get_clause i), value))
           | _ -> assert false)
       | Andn | Orp | Impp | Xorp1 | Xorn1 | Equp1 | Equn1 | Itep1 | Iten1 ->
         (match value with
@@ -479,31 +483,31 @@ let mk_clause (id,typ,value,ids_params,args) =
           | _ -> assert false)
       | Nand | Imp | Xor1 | Nxor1 | Equ2 | Nequ2 | Ite1 | Nite1 ->
         (match ids_params with
-          | [i] -> Other (ImmBuildDef (get_clause_exception id i))
+          | [i] -> Other (ImmBuildDef (get_clause i))
           | _ -> assert false)
       | Or ->
          (match ids_params with
             | [id_target] ->
-               let cl_target = get_clause_exception id id_target in
+               let cl_target = get_clause id_target in
                begin match cl_target.kind with
                  | Other (Forall_inst _) -> Same cl_target
                  | _ -> Other (ImmBuildDef cl_target) end
             | _ -> assert false)
       | Xor2 | Nxor2 | Equ1 | Nequ1 | Ite2 | Nite2 ->
         (match ids_params with
-          | [i] -> Other (ImmBuildDef2 (get_clause_exception id i))
+          | [i] -> Other (ImmBuildDef2 (get_clause i))
           | _ -> assert false)
       | And | Nor ->
         (match ids_params, args with
-          | [i], [p] -> Other (ImmBuildProj ((get_clause_exception id i),(int_of_string p)))
+          | [i], [p] -> Other (ImmBuildProj ((get_clause i),(int_of_string p)))
           | _, _ -> assert false)
       | Nimp1 ->
         (match ids_params with
-          | [i] -> Other (ImmBuildProj (get_clause_exception id i,0))
+          | [i] -> Other (ImmBuildProj (get_clause i,0))
           | _ -> assert false)
       | Nimp2 ->
         (match ids_params with
-          | [i] -> Other (ImmBuildProj (get_clause_exception id i,1))
+          | [i] -> Other (ImmBuildProj (get_clause i,1))
           | _ -> assert false)
       | Notsimp ->
         (match value with
@@ -549,11 +553,11 @@ let mk_clause (id,typ,value,ids_params,args) =
       | Eqtr -> mkTrans value
       | Eqco -> mkCongr value
       | Eqcp -> mkCongrPred value
-      | Trans -> let prems = List.map (get_clause_exception id) ids_params in
+      | Trans -> let prems = List.map get_clause ids_params in
         (match value with
           | l::_ -> Other (IffTrans (prems, l))
           | _ -> assert false)
-      | Cong -> let prems = List.map (get_clause_exception id) ids_params in
+      | Cong -> let prems = List.map get_clause ids_params in
           (match value with
             | l::_ -> Other (IffCong (prems, l))
             | _ -> assert false)
@@ -570,44 +574,45 @@ let mk_clause (id,typ,value,ids_params,args) =
       | Divsimp | Prodsimp | Uminussimp | Minussimp 
       | Sumsimp | Compsimp -> mkMicromega value
       (* Holes in proofs *)
-      | Hole -> Other (SmtCertif.Hole (List.map (get_clause_exception id) ids_params, value))
+      | Hole -> Other (SmtCertif.Hole (List.map get_clause ids_params, value))
       (* Resolution *)
       | Threso -> 
         let ids_params = merge (List.rev ids_params) in
          (match ids_params with
             | cl1::cl2::q ->
-               let res = {rc1 = get_clause_exception id cl1;
-                          rc2 = get_clause_exception id cl2;
-                          rtail = List.map (get_clause_exception id) q} in
+               let res = {rc1 = get_clause cl1;
+                          rc2 = get_clause cl2;
+                          rtail = List.map get_clause q} in
                Res res
-            | [fins_id] -> Same (get_clause_exception id fins_id)
+            | [fins_id] -> Same (get_clause fins_id)
             | [] -> assert false)
       | Reso ->
          let ids_params = merge ids_params in
          (match ids_params with
             | cl1::cl2::q ->
-               let res = {rc1 = get_clause_exception id cl1;
-                          rc2 = get_clause_exception id cl2;
-                          rtail = List.map (get_clause_exception id) q} in
+               let res = {rc1 = get_clause cl1;
+                          rc2 = get_clause cl2;
+                          rtail = List.map get_clause q} in
                Res res
-            | [fins_id] -> Same (get_clause_exception id fins_id)
+            | [fins_id] -> Same (get_clause fins_id)
             | [] -> assert false)
       (* Quantifiers *)
       | Fins ->
         (match value, ids_params with
          | [inst], [ref_th] ->
-            let cl_th = get_clause_exception id ref_th in
+            let cl_th = get_clause ref_th in
             Other (Forall_inst (repr cl_th, inst))
-         | _ -> raise (Debug ("VeritSyntax.ml: unexpected form of forall_inst\nID: "^id)))
+         | _ -> raise (Debug ("| mk_clause: unexpected form of forall_inst |")))
       | Same ->
         (match ids_params with
-         | [i] -> Same (get_clause_exception id i)
-         | _ -> raise (Debug ("VeritSyntax.ml: unexpected form of same, might be caused by bind subproof\nID: "^id)))
+         | [i] -> Same (get_clause i)
+         | _ -> raise (Debug ("| mk_clause: unexpected form of Same, might be caused by bind subproof |")))
       (* Not implemented *)
-      | Bind -> raise (Debug ("VeritSyntax.ml: rule bind not implemented yet\nID"^id))
-      | Qcnf -> raise (Debug ("VeritSyntax.ml: rule qnt_cnf not implemented yet\nID"^id))
-      | Refl -> raise (Debug ("VeritSyntax.ml: rule refl not implemented yet\nID: "^id))
-      | Acsimp -> raise (Debug ("VeritSyntax.ml: rule acsimp not implemented yet\nID: "^id))
+      | Bind -> raise (Debug ("| mk_clause: unimplemented rule bind |"))
+      | Qcnf -> raise (Debug ("| mk_clause: unimplemented rule qnt_cnf |"))
+      | Refl -> raise (Debug ("| mk_clause: unimplemented rule refl |"))
+      | Acsimp -> raise (Debug ("| mk_clause: unimplemented rule acsimp |")))
+      with | Debug s -> raise (Debug ("| VeritSyntax.mk_clause: failing at id "^id^" |"^s))
   in
   let cl =
     (* TODO: change this into flatten when necessary *)
