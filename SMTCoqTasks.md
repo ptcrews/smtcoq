@@ -2,6 +2,9 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 - [x] Update the Ocamlyacc parser to a Menhir parser
 - [x] Remove the LFSC parser and temporarily remove the `cvc4` tactic
 - [x] Update the parser to parse Alethe instead of veriT 2016 proofs. Remove rules that Alethe doesn't support
+- [x] Currently, we're assuming an ordering on the step numbers - we assume they are `t1,...,tn` and we don't account for sub-proofs, which would be `ti.tj`. Eventually update this to take any series of step numbers and convert them internally to an order we care about
+- [x] Support cvc4 v1.8
+- [x] Add an AST layer so we go parser -> AST -> AST transformations -> SMTCoq terms
 - [ ] Add Propositional logic + EUF rules
 	- [x] `trans` rule, `cong` rule predicate case
 	- [x] Simplification rules: `not_simplify`, `and_simplify`, `or_simplify`, `implies_simplify`, `equiv_simplify`, `ite_simplify`, `connective_def`, `bool_simplify`, `eq_simplify`
@@ -33,7 +36,6 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 	- [ ] The simp rules are not recursively applied yet. Counterexamples show it isn't applied recursively by veriT. The goal is to have VeriT apply them recursively so change the checker when the implementation is fixed.
 	- [ ] Find certificates to test the implementation of these rules: `tautology`, `contraction`, `implies_simplify`, `equiv_simplify`, `ite_simplify`, `connective_def`, `bool_simplify`, `connective_def`, `eq_simplify`, `and_pos`, `or_neg`, `not_or`, `eq_congruent_pred`
 	- [ ] Possibly simplify the SMTCoq checker by:
-		- [ ] Combine `NotNot` with `BuildDef`
 		- [ ] Combine `AndSimp`, `NotSimp`, `OrSimp`, `ImpSimp`, `EquivSimp`, `IteSimp`, (maybe?) `BoolSimp` and `ConnDef`
 - [ ] Add quantifier rules
 	- [x] What support for quantifiers does SMTCoq currently have?
@@ -48,26 +50,30 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 	`forall Q1..Qn.H1 -> ... -> Hn -> G`?
 		- [ ] Read quantifier subsection of logic section of Software foundations.
 	- [ ] Read spec of all quantifier rules
-	- [x] Make a feature request to the veriT group to remove alpha renaming of proofs with quantifiers. This request was denied because it is complicated
-	to do from veriT's point of view.
-	- [ ] With the current Alethe proofs, parse subproofs and parse `bind` as a no-op and for all resolutions, remove the `bind`
-	`equiv_pos2` premises.
-- [ ] Add support for subproofs (reuse or redo?)
-	- [ ] Refl rule
-- [ ] Set up testing of benchmarks
-	- [x] Generate proofs for all benchmarks.
-	- [ ] Generate proofs with sharing for all benchmarks.
-	- [x] Generate `verit_proof_parser` vernac for generic proof file
-		- [ ] Can we generalize this? We will need to use programming in Coq.
-	- [ ] Search tests to answer the following.
-		- [ ] How many proofs contain subproofs? How many are quantifier-free?
-		- [ ] How many proofs contain subproofs that are simply alpha-renamings?
-- [ ] Add Arithmetic rules
+	- [x] Make a feature request to the veriT group to remove alpha renaming of proofs with quantifiers. This request was denied because it is complicated to do from veriT's point of view.
+	- [x] With the current Alethe proofs, parse subproofs and parse `bind` as a no-op and for all resolutions, remove the `bind` `equiv_pos2` premises. Do this via an AST transformation
+- [ ] Add support for subproofs using Chantal's flattening method. Do this via an AST transformation
+- [x] Add Arithmetic rules
 	- [x] Implement `lia_generic`, `la_tautology`, `la_disequality` as they were by the old parser
 	- [x] Arith simplify rules: `div_simplify`, `prod_simplify`, `unary_minus_simplify`, `minus_simplify`
 	- [x] `la_rw_eq` rule
-	- [ ] Modify parser for `la_generic` which now takes arguments
-	- [ ] Test
+	- [x] Modify parser for `la_generic` which now takes arguments
+	- [x] Test
+- [ ] Support abduction
+	- [ ] Create a `cvc4_abduct` tactic that will return 5 abducts if the solver returns `sat`
+- [ ] Support cvc5
+	- [x] Add cvc5 tactic
+	- [ ] Support `forall_inst` from cvc5
+	- [ ] Figure out spec of `all_simplify` and support it
+- [ ] Set up testing of benchmarks
+	- [x] Generate proofs for all benchmarks.
+	- [x] Generate proofs with sharing for all benchmarks.
+	- [x] Generate `verit_proof_parser` vernac for generic proof file
+		- [ ] Can we generalize this? We will need to use programming in Coq. `verit_checker` is
+		an easier way to do this but it doesn't currently support proofs with quantifiers, so no dice.
+	- [x] Search tests to answer the following.
+		- [x] How many proofs contain subproofs? How many are quantifier-free?
+		- [x] How many proofs contain subproofs that are simply alpha-renamings?
 - [ ] Add Bit-vector rules
 	- [x] How does a regular LFSC proof look vs a veriT proof?
 	- [x] How does an LFSC BV proof look?
@@ -81,8 +87,6 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 - [ ] Add Array rules
 	- [ ] Extend Alethe with Array proof rules
 	- [ ] Add rules to SMTCoq
-- [ ] Currently, support for CVC4/5 is turned off. Once it produces Alethe proofs, add support for CVC5.
-- [ ] Currently, we're assuming an ordering on the step numbers - we assume they are `t1,...,tn` and we don't account for sub-proofs, which would be `ti.tj`. Eventually update this to take any series of step numbers and convert them internally to an order we care about
 - [ ] Correctness proofs
     - [ ] `trans`, `cong` rules
     - [ ] Simplification rules: `not_simplify`, `and_simplify`, `or_simplify`, `implies_simplify`, `equiv_simplify`, `ite_simplify`, `connective_def`, `bool_simplify`, `eq_simplify`
