@@ -149,6 +149,10 @@ let assume s f =
     (sprintf "(assert %s)" f)
     read_success
 
+let get_abduct s f =
+  send_command  s
+    (sprintf  "(get-abduct A (not %s))" f)
+    read_response
 
 let check_sat s =
   send_command s "(check-sat)" read_check_result

@@ -346,6 +346,50 @@ let string_logic ro f =
 
 
 
+let call_cvc4_abduct env rt ro ra rf root _ =
+    let open Smtlib2_solver in
+    let fl = snd root in
+  
+    let cvc4 = create [|
+        "cvc4";
+        "--lang"; "smt2";
+        "--proof"; "--produce-abducts";
+        "--simplification=none"; "--fewer-preprocessing-holes";
+        "--no-bv-eq"; "--no-bv-ineq"; "--no-bv-algebraic" |] in
+  
+    set_option cvc4 "print-success" true;
+    set_option cvc4 "produce-assignments" true;
+    set_option cvc4 "produce-proofs" true;
+    set_logic cvc4 (string_logic ro fl);
+  
+    List.iter (fun (i,t) ->
+      let s = "Tindex_"^(string_of_int i) in
+      SmtMaps.add_btype s (SmtBtype.Tindex t);
+      declare_sort cvc4 s 0;
+    ) (SmtBtype.to_list rt);
+    
+    List.iter (fun (i,cod,dom,op) ->
+      let s = "op_"^(string_of_int i) in
+      SmtMaps.add_fun s op;
+      let args =
+        Array.fold_right
+          (fun t acc -> asprintf "%a" SmtBtype.to_smt t :: acc) cod [] in
+      let ret = asprintf "%a" SmtBtype.to_smt dom in
+      declare_fun cvc4 s args ret
+    ) (Op.to_list ro);
+
+    let proof =
+      let abduct = get_abduct cvc4 (asprintf "%a" (Form.to_smt ~debug:false) fl) in
+      CoqInterface.error 
+        ("CVC4 returned SAT. The following would help it prove the goal:\n\n" ^
+          SmtCommands.model_string  env rt ro ra rf abduct)
+    in
+  
+    quit cvc4;
+    proof
+
+
+
 let call_cvc4 env rt ro ra rf root _ =
   let open Smtlib2_solver in
   let fl = snd root in
@@ -390,72 +434,17 @@ let call_cvc4 env rt ro ra rf root _ =
         | No_proof -> CoqInterface.error "CVC4 did not generate a proof"
         | Failure s -> CoqInterface.error ("Importing of proof failed: " ^ s)
       end
-    | Sat ->
-      let smodel = get_model cvc4 in
+    | Sat -> call_cvc4_abduct env rt ro ra rf root []
+      (*let smodel = get_model cvc4 in
       CoqInterface.error
         ("CVC4 returned sat. Here is the model:\n\n" ^
-         SmtCommands.model_string env rt ro ra rf smodel)
+         SmtCommands.model_string env rt ro ra rf smodel)*)
         (* (asprintf "CVC4 returned sat. Here is the model:\n%a" SExpr.print smodel) *)
   in
 
   quit cvc4;
   proof
 
-
-  let call_cvc4_abduct env rt ro ra rf root _ =
-    let open Smtlib2_solver in
-    let fl = snd root in
-  
-    let cvc4 = create [|
-        "cvc4";
-        "--lang"; "smt2";
-        "--proof"; "--produce-abducts";
-        "--simplification=none"; "--fewer-preprocessing-holes";
-        "--no-bv-eq"; "--no-bv-ineq"; "--no-bv-algebraic" |] in
-  
-    set_option cvc4 "print-success" true;
-    set_option cvc4 "produce-assignments" true;
-    set_option cvc4 "produce-proofs" true;
-    set_logic cvc4 (string_logic ro fl);
-  
-    List.iter (fun (i,t) ->
-      let s = "Tindex_"^(string_of_int i) in
-      SmtMaps.add_btype s (SmtBtype.Tindex t);
-      declare_sort cvc4 s 0;
-    ) (SmtBtype.to_list rt);
-    
-    List.iter (fun (i,cod,dom,op) ->
-      let s = "op_"^(string_of_int i) in
-      SmtMaps.add_fun s op;
-      let args =
-        Array.fold_right
-          (fun t acc -> asprintf "%a" SmtBtype.to_smt t :: acc) cod [] in
-      let ret = asprintf "%a" SmtBtype.to_smt dom in
-      declare_fun cvc4 s args ret
-    ) (Op.to_list ro);
-  
-    assume cvc4 (asprintf "%a" (Form.to_smt ~debug:false) fl);
-  
-    let proof =
-      match check_sat cvc4 with
-      | Unsat ->
-        begin
-          try get_proof cvc4 (import_trace (Some root) lfsc_parse_one)
-          with
-          | Ast.CVC4Sat -> CoqInterface.error "CVC4 returned SAT"
-          | No_proof -> CoqInterface.error "CVC4 did not generate a proof"
-          | Failure s -> CoqInterface.error ("Importing of proof failed: " ^ s)
-        end
-      | Sat ->
-        let smodel = get_model cvc4 in
-        CoqInterface.error
-          ("CVC4 returned sat. Here is the model:\n\n" ^
-           SmtCommands.model_string env rt ro ra rf smodel)
-          (* (asprintf "CVC4 returned sat. Here is the model:\n%a" SExpr.print smodel) *)
-    in
-  
-    quit cvc4;
-    proof
 
 
 let export out_channel rt ro l =

@@ -976,6 +976,9 @@ let model env rt ro ra rf = function
   | List (Atom "model" :: l) ->
      List.fold_left (fun acc m -> match model_item env rt ro ra rf m with Fun m -> m::acc | Sort -> acc) [] l
      |> List.sort (fun ((_ ,i1), _) ((_, i2), _) -> i2 - i1)
+  | List l ->
+     List.fold_left (fun acc m -> match model_item env rt ro ra rf m with Fun m -> m::acc | Sort -> acc) [] l
+     |> List.sort (fun ((_ ,i1), _) ((_, i2), _) -> i2 - i1)
   | _ -> CoqInterface.error ("No model")
 
 
