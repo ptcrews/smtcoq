@@ -902,7 +902,7 @@ let rec smt2_sexpr_to_coq_string env t_i ra rf =
   | List [Atom "-"; s] ->
     sprintf "(- %s)"
       (smt2_sexpr_to_coq_string env t_i ra rf s)
-  | List [Atom (("+"|"-"|"*"|"/"|"or"|"and"|"=") as op); s1; s2] ->
+  | List [Atom (("+"|"-"|"*"|"/"|"or"|"and"|"="|"<"|">"|"<="|">=") as op); s1; s2] ->
     sprintf "%s %s %s"
       (smt2_sexpr_to_coq_string env t_i ra rf s1)
       (op_to_coq_string op)
@@ -953,15 +953,6 @@ type model =
 let model_item env rt ro ra rf =
   let t_i = make_t_i rt in
   function
-  (* Abduct, not sure about this
-  | List [Atom "define-fun"; Atom "A"; List []; _; expr] ->
-    Fun (("A", 1),
-          smt2_sexpr_to_coq_string env t_i ra rf expr)
-  | List [Atom "define-fun"; Atom "A"; List l; _; expr] ->
-     Fun (("A",1),
-           lambda_to_coq_string l
-             (smt2_sexpr_to_coq_string env t_i ra rf expr))*)
-  
   | List [Atom "define-fun"; Atom n; List []; _; expr] ->
      Fun (smt2_id_to_coq_string env t_i ra rf n,
            smt2_sexpr_to_coq_string env t_i ra rf expr)
@@ -982,7 +973,7 @@ let model_item env rt ro ra rf =
      CoqInterface.error ("Could not reconstruct model")
 
 (* Ignore the "model" string at the beginning of the Sexpr, 
-   then convert the Sexpr to `model list`,
+   then convert the Sexpr to type `model list`,
    then convert from `model list` to `((string * int) * string) list`,
    ignoring `Sort`s *)
 let model env rt ro ra rf = function
@@ -994,8 +985,18 @@ let model env rt ro ra rf = function
      |> List.sort (fun ((_ ,i1), _) ((_, i2), _) -> i2 - i1)
   | _ -> CoqInterface.error ("No model")
 
-(* Take a model represented as an Sexpr.t and print it *)
+(* Take a model represented as an SExpr.t and return the
+   string to print *)
 let model_string env rt ro ra rf s =
   String.concat "\n"
     (List.map (fun ((x, _) ,v) -> Format.sprintf "%s := %s" x v)
        (model env rt ro ra rf s))
+
+(* Take the result of an abduct query represented as an SExpr.t
+   and return the string to print *)
+let abduct_string env rt ro ra rf =
+  let t_i = make_t_i rt in
+  function
+  | List [Atom "define-fun"; Atom "A"; List []; _; expr] ->
+      smt2_sexpr_to_coq_string env t_i ra rf expr
+  | _ -> CoqInterface.error ("Could not reconstruct abduct")

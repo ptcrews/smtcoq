@@ -379,13 +379,12 @@ let call_cvc5_abduct env rt ro ra rf root _ =
       let abduct4 = get_abduct_next cvc5 in
       let abduct5 = get_abduct_next cvc5 in
         CoqInterface.error 
-        ("cvc5 returned SAT. One of the following formulas would help it prove the goal:\n\n" ^
-          SExpr.to_string abduct1 ^"\n"^
-          SExpr.to_string abduct2 ^"\n"^
-          SExpr.to_string abduct3 ^"\n"^
-          SExpr.to_string abduct4 ^"\n"^
-          SExpr.to_string abduct5 ^"\n"
-          (*SmtCommands.model_string  env rt ro ra rf abduct*))
+        ("cvc5 returned SAT. One of the following hypotheses would help it prove the goal:\n\n" ^
+          SmtCommands.abduct_string env rt ro ra rf abduct1 ^"\n"^
+          SmtCommands.abduct_string env rt ro ra rf abduct2 ^"\n"^
+          SmtCommands.abduct_string env rt ro ra rf abduct3 ^"\n"^
+          SmtCommands.abduct_string env rt ro ra rf abduct4 ^"\n"^
+          SmtCommands.abduct_string env rt ro ra rf abduct5 ^"\n")
     in
   
     quit cvc5;
@@ -441,7 +440,8 @@ let call_cvc4 env rt ro ra rf root _ =
         | Failure s -> CoqInterface.error ("Importing of proof failed: " ^ s)
       end
     | Sat -> call_cvc5_abduct env rt ro ra rf root []
-      (*let smodel = get_model cvc4 in
+      (* To get countermodel instead of abduct:
+      let smodel = get_model cvc4 in
       CoqInterface.error
         ("CVC4 returned sat. Here is the model:\n\n" ^
          SmtCommands.model_string env rt ro ra rf smodel)

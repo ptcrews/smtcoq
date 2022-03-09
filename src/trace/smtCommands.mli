@@ -60,4 +60,6 @@ val tactic :
   CoqInterface.constr list ->
   CoqInterface.constr_expr list -> CoqInterface.tactic
 
+val abduct_string : Environ.env -> SmtBtype.reify_tbl -> 'a -> 'b -> 'c -> SExpr.t -> string
+
 val model_string : Environ.env -> SmtBtype.reify_tbl -> 'a -> 'b -> 'c -> SExpr.t -> string
