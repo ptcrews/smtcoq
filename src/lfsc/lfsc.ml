@@ -348,7 +348,7 @@ let string_logic ro f =
 
 let call_cvc5_abduct env rt ro ra rf root _ =
     let open Smtlib2_solver in
-    let fl = snd root in
+    let fl = Form.neg (snd root) in
   
     let cvc5 = create [| "cvc5"; "--produce-abducts"; "--incremental"|] in
   
@@ -409,12 +409,14 @@ let call_cvc4 env rt ro ra rf root _ =
   set_option cvc4 "produce-proofs" true;
   set_logic cvc4 (string_logic ro fl);
 
+  (* Declare sorts *)
   List.iter (fun (i,t) ->
     let s = "Tindex_"^(string_of_int i) in
     SmtMaps.add_btype s (SmtBtype.Tindex t);
     declare_sort cvc4 s 0;
   ) (SmtBtype.to_list rt);
   
+  (* Declare functions and variables *)
   List.iter (fun (i,cod,dom,op) ->
     let s = "op_"^(string_of_int i) in
     SmtMaps.add_fun s op;
@@ -425,6 +427,7 @@ let call_cvc4 env rt ro ra rf root _ =
     declare_fun cvc4 s args ret
   ) (Op.to_list ro);
 
+  (* Assert negation of goal *)
   assume cvc4 (asprintf "%a" (Form.to_smt ~debug:false) fl);
 
   let proof =

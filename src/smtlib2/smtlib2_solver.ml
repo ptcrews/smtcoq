@@ -151,7 +151,7 @@ let assume s f =
 
 let get_abduct s f =
   send_command  s
-    (sprintf  "(get-abduct A (not %s))" f)
+    (sprintf  "(get-abduct A %s)" f)
     read_response
 
 let get_abduct_next s =
