@@ -30,6 +30,8 @@ val assume : t -> string -> unit
 
 val get_abduct : t -> string -> SExpr.t
 
+val get_abduct_next : t -> SExpr.t
+
 val check_sat : t -> result
 
 val get_proof : t -> (Lexing.lexbuf -> 'a) -> 'a

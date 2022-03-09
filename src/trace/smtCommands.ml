@@ -949,9 +949,19 @@ type model =
   | Fun of ((string * int) * string)
   | Sort
 
+(* Convert from Sexpr.t to `model list` *)
 let model_item env rt ro ra rf =
   let t_i = make_t_i rt in
   function
+  (* Abduct, not sure about this
+  | List [Atom "define-fun"; Atom "A"; List []; _; expr] ->
+    Fun (("A", 1),
+          smt2_sexpr_to_coq_string env t_i ra rf expr)
+  | List [Atom "define-fun"; Atom "A"; List l; _; expr] ->
+     Fun (("A",1),
+           lambda_to_coq_string l
+             (smt2_sexpr_to_coq_string env t_i ra rf expr))*)
+  
   | List [Atom "define-fun"; Atom n; List []; _; expr] ->
      Fun (smt2_id_to_coq_string env t_i ra rf n,
            smt2_sexpr_to_coq_string env t_i ra rf expr)
@@ -971,7 +981,10 @@ let model_item env rt ro ra rf =
       * close_out out; *)
      CoqInterface.error ("Could not reconstruct model")
 
-
+(* Ignore the "model" string at the beginning of the Sexpr, 
+   then convert the Sexpr to `model list`,
+   then convert from `model list` to `((string * int) * string) list`,
+   ignoring `Sort`s *)
 let model env rt ro ra rf = function
   | List (Atom "model" :: l) ->
      List.fold_left (fun acc m -> match model_item env rt ro ra rf m with Fun m -> m::acc | Sort -> acc) [] l
@@ -981,7 +994,7 @@ let model env rt ro ra rf = function
      |> List.sort (fun ((_ ,i1), _) ((_, i2), _) -> i2 - i1)
   | _ -> CoqInterface.error ("No model")
 
-
+(* Take a model represented as an Sexpr.t and print it *)
 let model_string env rt ro ra rf s =
   String.concat "\n"
     (List.map (fun ((x, _) ,v) -> Format.sprintf "%s := %s" x v)

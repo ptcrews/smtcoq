@@ -346,26 +346,20 @@ let string_logic ro f =
 
 
 
-let call_cvc4_abduct env rt ro ra rf root _ =
+let call_cvc5_abduct env rt ro ra rf root _ =
     let open Smtlib2_solver in
     let fl = snd root in
   
-    let cvc4 = create [|
-        "cvc4";
-        "--lang"; "smt2";
-        "--proof"; "--produce-abducts";
-        "--simplification=none"; "--fewer-preprocessing-holes";
-        "--no-bv-eq"; "--no-bv-ineq"; "--no-bv-algebraic" |] in
+    let cvc5 = create [| "cvc5"; "--produce-abducts"; "--incremental"|] in
   
-    set_option cvc4 "print-success" true;
-    set_option cvc4 "produce-assignments" true;
-    set_option cvc4 "produce-proofs" true;
-    set_logic cvc4 (string_logic ro fl);
+    set_option cvc5 "print-success" true;
+    set_option cvc5 "produce-assignments" true;
+    set_logic cvc5 (string_logic ro fl);
   
     List.iter (fun (i,t) ->
       let s = "Tindex_"^(string_of_int i) in
       SmtMaps.add_btype s (SmtBtype.Tindex t);
-      declare_sort cvc4 s 0;
+      declare_sort cvc5 s 0;
     ) (SmtBtype.to_list rt);
     
     List.iter (fun (i,cod,dom,op) ->
@@ -375,17 +369,26 @@ let call_cvc4_abduct env rt ro ra rf root _ =
         Array.fold_right
           (fun t acc -> asprintf "%a" SmtBtype.to_smt t :: acc) cod [] in
       let ret = asprintf "%a" SmtBtype.to_smt dom in
-      declare_fun cvc4 s args ret
+      declare_fun cvc5 s args ret
     ) (Op.to_list ro);
 
     let proof =
-      let abduct = get_abduct cvc4 (asprintf "%a" (Form.to_smt ~debug:false) fl) in
-      CoqInterface.error 
-        ("CVC4 returned SAT. The following would help it prove the goal:\n\n" ^
-          SmtCommands.model_string  env rt ro ra rf abduct)
+      let abduct1 = get_abduct cvc5 (asprintf "%a" (Form.to_smt ~debug:false) fl) in
+      let abduct2 = get_abduct_next cvc5 in
+      let abduct3 = get_abduct_next cvc5 in
+      let abduct4 = get_abduct_next cvc5 in
+      let abduct5 = get_abduct_next cvc5 in
+        CoqInterface.error 
+        ("cvc5 returned SAT. One of the following formulas would help it prove the goal:\n\n" ^
+          SExpr.to_string abduct1 ^"\n"^
+          SExpr.to_string abduct2 ^"\n"^
+          SExpr.to_string abduct3 ^"\n"^
+          SExpr.to_string abduct4 ^"\n"^
+          SExpr.to_string abduct5 ^"\n"
+          (*SmtCommands.model_string  env rt ro ra rf abduct*))
     in
   
-    quit cvc4;
+    quit cvc5;
     proof
 
 
@@ -434,12 +437,12 @@ let call_cvc4 env rt ro ra rf root _ =
         | No_proof -> CoqInterface.error "CVC4 did not generate a proof"
         | Failure s -> CoqInterface.error ("Importing of proof failed: " ^ s)
       end
-    | Sat -> call_cvc4_abduct env rt ro ra rf root []
+    | Sat -> call_cvc5_abduct env rt ro ra rf root []
       (*let smodel = get_model cvc4 in
       CoqInterface.error
         ("CVC4 returned sat. Here is the model:\n\n" ^
-         SmtCommands.model_string env rt ro ra rf smodel)*)
-        (* (asprintf "CVC4 returned sat. Here is the model:\n%a" SExpr.print smodel) *)
+         SmtCommands.model_string env rt ro ra rf smodel)
+        (* (asprintf "CVC4 returned sat. Here is the model:\n%a" SExpr.print smodel) *)*)
   in
 
   quit cvc4;

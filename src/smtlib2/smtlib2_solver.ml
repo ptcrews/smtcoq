@@ -154,6 +154,9 @@ let get_abduct s f =
     (sprintf  "(get-abduct A (not %s))" f)
     read_response
 
+let get_abduct_next s =
+  send_command s "(get-abduct-next)" read_response
+
 let check_sat s =
   send_command s "(check-sat)" read_check_result
 
