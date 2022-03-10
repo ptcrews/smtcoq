@@ -34,7 +34,45 @@ Local Open Scope farray_scope.
 Local Open Scope int31_scope.
 Local Open Scope array_scope.
 
+Lemma ex1: negb (true && (negb true)).
+Proof.
+  cvc5_bool.
+Qed.
+
 Lemma ex2: true || false.
 Proof.
-  cvc5.
+  cvc5_bool.
+Qed.
+
+Lemma ex3: forall p, negb (p && (negb p)).
+Proof.
+  cvc5_bool.
+Qed.
+
+Lemma ex4: forall a b c, ((a || b || c) && ((negb a) || (negb b) || (negb c)) && ((negb a) || b) && ((negb b) || c) && ((negb c) || a)) = false.
+Proof.
+  cvc5_bool.
+Qed.
+
+Lemma ex5: forall p, p || (negb p).
+Proof.
+  cvc5_bool.
+Qed.
+
+
+Local Open Scope Z_scope.
+
+(* Subproofs
+Lemma ex6: forall (a b : Z) (P : Z -> bool) (f : Z -> Z),
+  (negb (Z.eqb (f a) b)) || (negb (P (f a))) || (P b).
+Proof.
+  cvc5_bool.
+Qed.*)
+
+Lemma ex7: forall
+    (x y: Z)
+    (f: Z -> Z),
+    x = y + 1 -> f y = f (x - 1).
+Proof.
+  cvc5_bool.
 Qed.

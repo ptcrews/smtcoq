@@ -60,11 +60,15 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 	- [x] Modify parser for `la_generic` which now takes arguments
 	- [x] Test
 - [ ] Support abduction
-	- [ ] Create a `cvc4_abduct` tactic that will return 5 abducts if the solver returns `sat`
+	- [x] Create a `cvc4_abduct` tactic that will return 5 abducts if the solver returns `sat`
+	- [ ] Add an integer parameter to `cvc4_abduct` specifying the number of abducts
+	- [ ] Add some parameter to be able to take grammar restrictions.
+	- [ ] Change the output of `cvc4_abduct` to an idtac when sat, right now its an error.
 - [ ] Support cvc5
 	- [x] Add cvc5 tactic
 	- [ ] Support `forall_inst` from cvc5
 	- [ ] Figure out spec of `all_simplify` and support it
+	- [ ] cvc5 returns [false] in some certificates and [] in others. We can't handle [false].
 - [ ] Set up testing of benchmarks
 	- [x] Generate proofs for all benchmarks.
 	- [x] Generate proofs with sharing for all benchmarks.
