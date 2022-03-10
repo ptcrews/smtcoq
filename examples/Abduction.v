@@ -34,37 +34,59 @@ Local Open Scope int63_scope.
 Local Open Scope Z_scope.
 
 (* #1 From paper *)
-Goal forall (x y z : Z), y >= 0 -> x + y + z >= 0.
-Proof.
-  cvc4.
-  (* smt.
-     CVC4 returned sat. Here is the model:
-     x := 0
-     y := 0
-     z := -1 *)
+Goal forall (x y z : Z), y >= 0  ->  x + y + z >= 0.
+Proof. 
+  (*cvc4_abduct.*)
+  (* cvc5 returned SAT. The goal is invalid, but one of the
+     following hypotheses would allow cvc5 to prove the goal:
+      z + x = y
+      z + x = 0
+      z + x = 1
+      y <= z + x
+      0 <= z + x *)
 Admitted.
 (* With abduct *)
-(*Goal forall (x y z : Z), y >= 0 -> x + z >= 0 -> x + y + z >= 0.
+Goal forall (x y z : Z), y >= 0 -> x + z >= 0 -> x + y + z >= 0.
 Proof.
-  smt.
+  verit.
 Qed.
 
 (* #2 Commutativity *)
 Variable f : Z -> Z -> Z.
 Goal forall (x y : Z), (f x y) >= 0 -> (f y x) >= 0.
 Proof.
-  (* smt.
-     CVC4 returned sat. Here is the model:
-     x := 2
-     y := 1
-     f := fun BOUND_VARIABLE_298 BOUND_VARIABLE_299 => 
-          if BOUND_VARIABLE_298 = 2 then 
-            if BOUND_VARIABLE_299 = 1 then 0 else -1 
-          else -1 *)
+  (* cvc4_abduct. *)
+  (* cvc5 returned SAT. The goal is invalid, but one of the
+     following hypotheses would allow cvc5 to prove the goal:
+      x = y
+      (f y x) = 0
+      (f y x) = 1
+      0 <= (f y x)
+      1 <= (f y x) *)
 Admitted.
 (* With abduct *)
 Goal forall (x y : Z), (f x y) >= 0 -> (f x y = f y x)
       -> (f y x) >= 0.
 Proof.
-  smt.
-Qed.*)
+  verit.
+Qed.
+
+
+(* Possible usage *)
+Variables (x y z : Z).
+Theorem commf : forall x y, f x y = f y x.
+Admitted.
+Variable H : f x y >= 0.
+Goal f y x >= 0.
+Proof.
+  (* cvc4_abduct H. *)
+  (* cvc5 returned SAT. The goal is invalid, but one of the
+     following hypotheses would allow cvc5 to prove the goal:
+      x = y
+      (f y x) = 0
+      (f y x) = 1
+      0 <= (f y x)
+      1 <= (f y x) *)
+  assert (f x y = f y x). { apply commf. }
+  verit H.
+Qed.

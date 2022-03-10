@@ -346,7 +346,7 @@ let string_logic ro f =
 
 
 
-let call_cvc5_abduct env rt ro ra rf root _ =
+let call_cvc5_abduct env rt ro ra rf root lsmt =
     let open Smtlib2_solver in
     let fl = Form.neg (snd root) in
   
@@ -371,6 +371,8 @@ let call_cvc5_abduct env rt ro ra rf root _ =
       let ret = asprintf "%a" SmtBtype.to_smt dom in
       declare_fun cvc5 s args ret
     ) (Op.to_list ro);
+    (* Expecting List.hd lsmt to be the negation of the goal *)
+    List.iter (fun x -> assume cvc5 (asprintf "%a" (Form.to_smt ~debug:false) x)) (List.tl lsmt);
 
     let proof =
       let abduct1 = get_abduct cvc5 (asprintf "%a" (Form.to_smt ~debug:false) fl) in
@@ -378,8 +380,8 @@ let call_cvc5_abduct env rt ro ra rf root _ =
       let abduct3 = get_abduct_next cvc5 in
       let abduct4 = get_abduct_next cvc5 in
       let abduct5 = get_abduct_next cvc5 in
-        CoqInterface.error 
-        ("cvc5 returned SAT. One of the following hypotheses would help it prove the goal:\n\n" ^
+        CoqInterface.error
+        ("cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:\n\n" ^
           SmtCommands.abduct_string env rt ro ra rf abduct1 ^"\n"^
           SmtCommands.abduct_string env rt ro ra rf abduct2 ^"\n"^
           SmtCommands.abduct_string env rt ro ra rf abduct3 ^"\n"^
@@ -391,8 +393,7 @@ let call_cvc5_abduct env rt ro ra rf root _ =
     proof
 
 
-
-let call_cvc4 env rt ro ra rf root _ =
+let call_cvc4_abduct env rt ro ra rf root lsmt =
   let open Smtlib2_solver in
   let fl = snd root in
 
@@ -426,7 +427,8 @@ let call_cvc4 env rt ro ra rf root _ =
     declare_fun cvc4 s args ret
   ) (Op.to_list ro);
 
-  (* Assert negation of goal *)
+  (* Assert hypotheses and negation of goal *)
+  List.iter (fun x -> assume cvc4 (asprintf "%a" (Form.to_smt ~debug:false) x)) (List.tl lsmt);
   assume cvc4 (asprintf "%a" (Form.to_smt ~debug:false) fl);
 
   let proof =
@@ -439,13 +441,66 @@ let call_cvc4 env rt ro ra rf root _ =
         | No_proof -> CoqInterface.error "CVC4 did not generate a proof"
         | Failure s -> CoqInterface.error ("Importing of proof failed: " ^ s)
       end
-    | Sat -> call_cvc5_abduct env rt ro ra rf root []
-      (* To get countermodel instead of abduct:
+    | Sat -> call_cvc5_abduct env rt ro ra rf root lsmt
+  in
+
+  quit cvc4;
+  proof
+
+
+let call_cvc4 env rt ro ra rf root lsmt =
+  let open Smtlib2_solver in
+  let fl = snd root in
+
+  let cvc4 = create [|
+      "cvc4";
+      "--lang"; "smt2";
+      "--proof";
+      "--simplification=none"; "--fewer-preprocessing-holes";
+      "--no-bv-eq"; "--no-bv-ineq"; "--no-bv-algebraic" |] in
+
+  set_option cvc4 "print-success" true;
+  set_option cvc4 "produce-assignments" true;
+  set_option cvc4 "produce-proofs" true;
+  set_logic cvc4 (string_logic ro fl);
+
+  (* Declare sorts *)
+  List.iter (fun (i,t) ->
+    let s = "Tindex_"^(string_of_int i) in
+    SmtMaps.add_btype s (SmtBtype.Tindex t);
+    declare_sort cvc4 s 0;
+  ) (SmtBtype.to_list rt);
+  
+  (* Declare functions and variables *)
+  List.iter (fun (i,cod,dom,op) ->
+    let s = "op_"^(string_of_int i) in
+    SmtMaps.add_fun s op;
+    let args =
+      Array.fold_right
+        (fun t acc -> asprintf "%a" SmtBtype.to_smt t :: acc) cod [] in
+    let ret = asprintf "%a" SmtBtype.to_smt dom in
+    declare_fun cvc4 s args ret
+  ) (Op.to_list ro);
+
+  (* Assert hypotheses and negation of goal *)
+  List.iter (fun x -> assume cvc4 (asprintf "%a" (Form.to_smt ~debug:false) x)) (List.tl lsmt);
+  assume cvc4 (asprintf "%a" (Form.to_smt ~debug:false) fl);
+
+  let proof =
+    match check_sat cvc4 with
+    | Unsat ->
+      begin
+        try get_proof cvc4 (import_trace (Some root) lfsc_parse_one)
+        with
+        | Ast.CVC4Sat -> CoqInterface.error "CVC4 returned SAT"
+        | No_proof -> CoqInterface.error "CVC4 did not generate a proof"
+        | Failure s -> CoqInterface.error ("Importing of proof failed: " ^ s)
+      end
+    | Sat -> 
       let smodel = get_model cvc4 in
       CoqInterface.error
         ("CVC4 returned sat. Here is the model:\n\n" ^
          SmtCommands.model_string env rt ro ra rf smodel)
-        (* (asprintf "CVC4 returned sat. Here is the model:\n%a" SExpr.print smodel) *)*)
   in
 
   quit cvc4;
@@ -536,7 +591,17 @@ let cvc4_logic =
   SL.of_list [LUF; LLia; LBitvectors; LArrays]
 
 
-let tactic_gen vm_cast =
+let tactic_gen_abduct vm_cast lcpl lcepl =
+  (* Transform the tuple of lemmas given by the user into a list *)
+  let lcpl =
+    let lcpl = EConstr.Unsafe.to_constr lcpl in
+    let lcpl = CoqTerms.option_of_constr_option lcpl in
+    match lcpl with
+      | Some lcpl -> CoqTerms.list_of_constr_tuple lcpl
+      | None -> []
+  in
+
+  (* Core tactic *)
   clear_all ();
   let rt = SmtBtype.create () in
   let ro = Op.create () in
@@ -544,9 +609,30 @@ let tactic_gen vm_cast =
   let rf = Tosmtcoq.rf in
   let ra' = Tosmtcoq.ra in
   let rf' = Tosmtcoq.rf in
-  SmtCommands.tactic call_cvc4 cvc4_logic rt ro ra rf ra' rf' vm_cast [] []
+  SmtCommands.tactic call_cvc4_abduct cvc4_logic rt ro ra rf ra' rf' vm_cast lcpl lcepl
+
+let tactic_gen vm_cast lcpl lcepl =
+  (* Transform the tuple of lemmas given by the user into a list *)
+  let lcpl =
+    let lcpl = EConstr.Unsafe.to_constr lcpl in
+    let lcpl = CoqTerms.option_of_constr_option lcpl in
+    match lcpl with
+      | Some lcpl -> CoqTerms.list_of_constr_tuple lcpl
+      | None -> []
+  in
+
+  (* Core tactic *)
+  clear_all ();
+  let rt = SmtBtype.create () in
+  let ro = Op.create () in
+  let ra = Tosmtcoq.ra in
+  let rf = Tosmtcoq.rf in
+  let ra' = Tosmtcoq.ra in
+  let rf' = Tosmtcoq.rf in
+  SmtCommands.tactic call_cvc4 cvc4_logic rt ro ra rf ra' rf' vm_cast lcpl lcepl
   (* (\* Currently, quantifiers are not handled by the cvc4 tactic: we pass
    *    the same ra and rf twice to have everything reifed *\)
    * SmtCommands.tactic call_cvc4 cvc4_logic rt ro ra rf ra rf vm_cast [] [] *)
-let tactic () = tactic_gen vm_cast_true
-let tactic_no_check () = tactic_gen (fun _ -> vm_cast_true_no_check)
+let tactic = tactic_gen vm_cast_true
+let tactic_no_check = tactic_gen (fun _ -> vm_cast_true_no_check)
+let tactic_abduct = tactic_gen_abduct vm_cast_true
