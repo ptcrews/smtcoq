@@ -97,17 +97,23 @@ proof:
 line:
   | LPAREN ASSUME s=SYMBOL t=term RPAREN EOL
     { mk_step (s, AssumeAST, mk_cl [t], [], []) }
-  | LPAREN STEP s=SYMBOL c=clause COLRULE r=rulename RPAREN EOL
-    { mk_step (s, r, c, [], []) }
-  | LPAREN STEP s=SYMBOL c=clause COLRULE r=rulename COLPREMISES LPAREN prems=SYMBOL+ RPAREN RPAREN EOL
-    { mk_step (s, r, c, prems, []) }
-  | LPAREN STEP s=SYMBOL c=clause COLRULE r=rulename COLPREMISES LPAREN prems=SYMBOL+ RPAREN
-      COLARGS LPAREN arguments=argument* RPAREN RPAREN EOL
-    { mk_step (s, r, c, prems, arguments) }
-  | LPAREN STEP s=SYMBOL c=clause COLRULE r=rulename COLARGS LPAREN arguments=argument* RPAREN RPAREN EOL
-    { mk_step (s, r, c, [], arguments) }
-  | LPAREN ANCHOR COLSTEP s=SYMBOL COLARGS LPAREN arguments=argument* RPAREN RPAREN EOL
-    { mk_step ((generate_id ()), AnchorAST, [], [s], arguments) }
+  | LPAREN STEP s=SYMBOL c=clause COLRULE r=rulename p=premises? a=arguments? RPAREN EOL
+    { match p, a with
+      | None, None -> mk_step (s, r, c, [], [])
+      | Some prems, None -> mk_step (s, r, c, prems, []) 
+      | None, Some args -> mk_step (s, r, c, [], args) 
+      | Some prems, Some args -> mk_step (s, r, c, prems, args) }
+  | LPAREN ANCHOR COLSTEP s=SYMBOL a=arguments? RPAREN EOL
+    { let id = generate_id () in
+      match a with
+      | Some args -> mk_step (id, AnchorAST, [], [s], args)
+      | None -> mk_step (id, AnchorAST, [], [s], []) }
+;
+premises:
+  | COLPREMISES LPAREN prems=SYMBOL+ RPAREN { prems }
+;
+arguments:
+  | COLARGS LPAREN args=argument+ RPAREN { args }
 ;
 (* TODO: Rules with args need to be parsed properly *)
 argument:

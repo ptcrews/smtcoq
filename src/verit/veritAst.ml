@@ -885,6 +885,13 @@ let process_proj (c: certif): certif =
   in aux c c
 
 
+(* Flatten subproofs *)
+(* let process_subproof (c : certif) : certif =
+match c with
+| (i, r, cl, p, a) :: tl -> c
+| [] -> [] *)
+
+
 (* Final processing and linking of AST *)
 
 let preprocess_certif (c: certif) : certif =
