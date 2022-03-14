@@ -123,7 +123,8 @@ subproofline:
   | LPAREN ANCHOR COLSTEP s=SYMBOL arguments RPAREN EOL
     sl=subproofline
     { mk_step ((generate_id ()), AnchorAST, [], [s], []) :: sl }
-  | LPAREN STEP s=SYMBOL c=clause COLRULE SUBPROOF discharge RPAREN EOL { [] }
+  | LPAREN STEP s=SYMBOL c=clause COLRULE SUBPROOF discharge RPAREN EOL
+    { mk_step(s, DischargeAST, c, [], []) :: [] }
   | sp=subproof
     sl=subproofline { sp :: sl }
 ;

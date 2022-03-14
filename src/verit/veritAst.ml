@@ -123,6 +123,7 @@ type rule =
   | AnchorAST
   | AllsimpAST
   | SameAST
+  | DischargeAST
   | SubproofAST of certif
 and step = id * rule * clause * params * args
 and certif = step list
@@ -253,6 +254,7 @@ and string_of_rule (r : rule) : string =
   | AllsimpAST -> "AllsimpAST"
   | SameAST -> "SameAST"
   | AnchorAST -> "AnchorAST"
+  | DischargeAST -> "DischargeAST"
   | SubproofAST c -> "SubproofAST\n\t"^(string_of_certif c)^"\t"
 and string_of_typ (t : typ) : string =
   match t with
@@ -711,6 +713,7 @@ let process_rule (r: rule) : VeritSyntax.typ =
   | AllsimpAST -> Allsimp
   | SameAST -> Same
   | AnchorAST -> Hole
+  | DischargeAST -> Hole
   | SubproofAST c -> Hole
 
 
