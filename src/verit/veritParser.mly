@@ -108,14 +108,30 @@ line:
   | s=subproof { s }
 ;
 
+subproofline:
+  | LPAREN ASSUME s=SYMBOL t=term RPAREN EOL
+    sl=subproofline
+    { mk_step (s, AssumeAST, mk_cl [t], [], []) :: sl }
+  | LPAREN STEP s=SYMBOL c=clause COLRULE r=rulename p=premises? a=arguments? RPAREN EOL
+    sl=subproofline
+    { let st = (match p, a with
+        | None, None -> mk_step (s, r, c, [], [])
+        | Some prems, None -> mk_step (s, r, c, prems, []) 
+        | None, Some args -> mk_step (s, r, c, [], args) 
+        | Some prems, Some args -> mk_step (s, r, c, prems, args)) in
+      st :: sl }
+  | LPAREN ANCHOR COLSTEP s=SYMBOL arguments RPAREN EOL
+    sl=subproofline
+    { mk_step ((generate_id ()), AnchorAST, [], [s], []) :: sl }
+  | LPAREN STEP s=SYMBOL c=clause COLRULE SUBPROOF discharge RPAREN EOL { [] }
+  | sp=subproof
+    sl=subproofline { sp :: sl }
+;
+
 subproof:
-  | LPAREN ANCHOR COLSTEP s1=SYMBOL RPAREN EOL 
-    l=line*
-    //l1=line l2=line
-    LPAREN STEP s2=SYMBOL c=clause COLRULE SUBPROOF discharge RPAREN EOL
-    {
-      let cert = l1::l2::[] in
-      mk_step (s2, SubproofAST cert, [], [], []) }
+  | LPAREN ANCHOR COLSTEP s=SYMBOL RPAREN EOL 
+    l=subproofline
+    { mk_step (s, SubproofAST l, [], [], []) }
 ;
 
 premises:
@@ -126,9 +142,9 @@ arguments:
   | COLARGS LPAREN args=argument+ RPAREN { args }
 ;
 
-  discharge:
-    | COLDISCHARGE LPAREN hyps=SYMBOL+ RPAREN { hyps }
-  ;
+discharge:
+  | COLDISCHARGE LPAREN hyps=SYMBOL+ RPAREN { hyps }
+;
 
 (* TODO: Rules with args need to be parsed properly *)
 argument:
