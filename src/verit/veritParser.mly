@@ -57,7 +57,7 @@
 %token <Big_int.big_int> BIGINT
 
 %token LPAREN RPAREN EOF EOL COLON BANG COLEQ
-%token COLRULE COLSTEP COLARGS COLPREMISES
+%token COLRULE COLSTEP COLARGS COLPREMISES COLDISCHARGE
 %token ASSUME STEP ANCHOR DEFINEFUN CL ASTOK CHOICE
 %token LET FORALL EXISTS MATCH TINT TBOOL NAMED
 
@@ -75,8 +75,8 @@
 %token EQ LT LEQ GT GEQ PLUS MINUS MULT
 %token LAGE LIAGE LATA LADE DIVSIMP PRODSIMP 
 %token UMINUSSIMP MINUSSIMP SUMSIMP COMPSIMP LARWEQ
-%token FINS BIND QCNF
-%token SYMM REORD ALLSIMP 
+%token FINS BIND QCNF SUBPROOF
+%token SYMM REORD ALLSIMP
 (*%token BBVA BBCONST BBEQ BBDIS BBOP BBNOT BBNEG BBADD
 %token BBMUL BBULT BBSLT BBCONC BBEXTR BBZEXT BBSEXT
 %token BBSHL BBSHR BVAND BVOR BVXOR BVADD BVMUL BVULT 
@@ -87,7 +87,7 @@
 %start proof
 %type <VeritAst.certif> proof
 
-%type <VeritAst.step> line
+//%type <VeritAst.step> line
 %%
 
 proof:
@@ -103,18 +103,33 @@ line:
       | Some prems, None -> mk_step (s, r, c, prems, []) 
       | None, Some args -> mk_step (s, r, c, [], args) 
       | Some prems, Some args -> mk_step (s, r, c, prems, args) }
-  | LPAREN ANCHOR COLSTEP s=SYMBOL a=arguments? RPAREN EOL
-    { let id = generate_id () in
-      match a with
-      | Some args -> mk_step (id, AnchorAST, [], [s], args)
-      | None -> mk_step (id, AnchorAST, [], [s], []) }
+  | LPAREN ANCHOR COLSTEP s=SYMBOL arguments RPAREN EOL
+    { mk_step ((generate_id ()), AnchorAST, [], [s], []) }
+  | s=subproof { s }
 ;
+
+subproof:
+  | LPAREN ANCHOR COLSTEP s1=SYMBOL RPAREN EOL 
+    l=line*
+    //l1=line l2=line
+    LPAREN STEP s2=SYMBOL c=clause COLRULE SUBPROOF discharge RPAREN EOL
+    {
+      let cert = l1::l2::[] in
+      mk_step (s2, SubproofAST cert, [], [], []) }
+;
+
 premises:
   | COLPREMISES LPAREN prems=SYMBOL+ RPAREN { prems }
 ;
+
 arguments:
   | COLARGS LPAREN args=argument+ RPAREN { args }
 ;
+
+  discharge:
+    | COLDISCHARGE LPAREN hyps=SYMBOL+ RPAREN { hyps }
+  ;
+
 (* TODO: Rules with args need to be parsed properly *)
 argument:
   | s=SYMBOL                                { s }

@@ -161,7 +161,16 @@ let rec get_cl (i : id) (c : certif) : clause option =
 
 (* Convert certificates to strings for debugging *)
 
-let string_of_rule (r : rule) : string =
+let rec string_of_certif (c : certif) : string = 
+  match c with
+  | (i, r, c, p, a) :: t -> 
+      let r' = string_of_rule r in
+      let c' = string_of_clause c in
+      let p' = List.fold_left concat_sp "" p in
+      let a' = List.fold_left concat_sp "" a in
+      "("^i^", "^r'^", "^c'^", ["^p'^"], ["^a'^"])\n"^(string_of_certif t)
+  | [] -> ""
+and string_of_rule (r : rule) : string =
   match r with
   | AssumeAST -> "AssumeAST"
   | TrueAST -> "TrueAST"
@@ -244,17 +253,14 @@ let string_of_rule (r : rule) : string =
   | AllsimpAST -> "AllsimpAST"
   | SameAST -> "SameAST"
   | AnchorAST -> "AnchorAST"
-  | SubproofAST _ -> "SubproofAST"
-
-let string_of_typ (t : typ) : string =
+  | SubproofAST c -> "SubproofAST\n\t"^(string_of_certif c)^"\t"
+and string_of_typ (t : typ) : string =
   match t with
   | Int -> "Int"
   | Bool -> "Bool"
   | Unintr s -> "(Unintr "^s^")"
-
-let concat_sp x y = x^" "^y
-
-let rec string_of_term (t : term) : string = 
+and concat_sp x y = x^" "^y
+and string_of_term (t : term) : string = 
   match t with
   | True -> "true"
   | False -> "false"
@@ -286,21 +292,9 @@ let rec string_of_term (t : term) : string =
   | Plus (t1, t2) -> (string_of_term t1)^" + "^(string_of_term t2)
   | Minus (t1, t2) -> (string_of_term t1)^" - "^(string_of_term t2)
   | Mult (t1, t2) -> (string_of_term t1)^" * "^(string_of_term t2)
-
-let string_of_clause (c : clause) =
+and string_of_clause (c : clause) =
   let args = List.fold_left concat_sp "" (List.map string_of_term c) in
   "(cl "^args^")"
-
-let rec string_of_certif (c : certif) : string = 
-  match c with
-  | (i, r, c, p, a) :: t -> 
-      let r' = string_of_rule r in
-      let c' = string_of_clause c in
-      let p' = List.fold_left concat_sp "" p in
-      let a' = List.fold_left concat_sp "" a in
-      "("^i^", "^r'^", "^c'^", ["^p'^"], ["^a'^"])\n"^(string_of_certif t)
-  | [] -> ""
-
 
 
 (* Pass through certificate, replace named terms with their
@@ -895,18 +889,18 @@ match c with
 (* Final processing and linking of AST *)
 
 let preprocess_certif (c: certif) : certif =
-  (* Printf.printf ("Certif before preprocessing: %s\n") (string_of_certif c); *)
+  Printf.printf ("Certif before preprocessing: %s\n") (string_of_certif c);
   try 
   (let c1 = store_shared_terms c in
-  (* Printf.printf ("Certif after storing shared terms: %s\n") (string_of_certif c1); *)
+  Printf.printf ("Certif after storing shared terms: %s\n") (string_of_certif c1);
   let c2 = remove_notnot c1 in
-  (* Printf.printf ("Certif after remove_notnot: %s\n") (string_of_certif c2); *)
+  Printf.printf ("Certif after remove_notnot: %s\n") (string_of_certif c2);
   let c3 = process_fins c2 in
-  (* Printf.printf ("Certif after process_fins: %s\n") (string_of_certif c3); *)
+  Printf.printf ("Certif after process_fins: %s\n") (string_of_certif c3);
   let c4 = process_cong c3 in
-  (* Printf.printf ("Certif after process_cong: %s\n") (string_of_certif c4); *)
+  Printf.printf ("Certif after process_cong: %s\n") (string_of_certif c4);
   let c5 = process_proj c4 in
-  (* Printf.printf ("Certif after process_proj: %s\n") (string_of_certif c5); *)
+  Printf.printf ("Certif after process_proj: %s\n") (string_of_certif c5);
   c5) with
   | Debug s -> raise (Debug ("| VeritAst.preprocess_certif: failed to preprocess |"^s))
 

@@ -131,6 +131,10 @@
         "comp_simplify", COMPSIMP;
         "la_rw_eq", LARWEQ;
 
+      (* Subproofs *)
+        "subproof", SUBPROOF;
+      
+
       (* Bit-vector Rules *)
         (*"bbvar", BBVA;
         "bbconst", BBCONST;
@@ -218,6 +222,7 @@ rule token = parse
   | ":step"                     { COLSTEP }
   | ":args"                     { COLARGS }
   | ":premises"                 { COLPREMISES }
+  | ":discharge"                { COLDISCHARGE }
   | ":named"                    { NAMED }
   | "assume"                    { ASSUME }
   | "step"                      { STEP }
