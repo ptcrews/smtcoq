@@ -883,9 +883,13 @@ let process_proj (c: certif): certif =
 
 
 (* Flatten subproofs *)
-(* let process_subproof (c : certif) : certif =
+(* let rec process_subproof (c : certif) : certif =
 match c with
-| (i, r, cl, p, a) :: tl -> c
+| (i, SubproofAST cert, cl, p, a) :: tl ->
+    (match List.hd (List.rev cert) with
+    | (i', DischargeAST, (Not h) :: g :: [], p', a') -> c
+    | _ -> raise (Debug ("| process_subproof: expecting a discharge step at id "^i^" |")))
+| (i, r, cl, p, a) :: tl -> (i, r, cl, p, a) :: process_subproof tl
 | [] -> [] *)
 
 
