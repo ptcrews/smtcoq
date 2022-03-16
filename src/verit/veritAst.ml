@@ -898,7 +898,7 @@ let rec subst_ids (c : certif) (subst : (id * id) list) : certif =
   | h :: t -> subst_ids (subst_id c h) t
   | [] -> c
 
-let rec process_subproof_aux (i : id) (hd_id : id) (h : term) (g : term) (subp : certif) (c : certif) : certif =
+let process_subproof_aux (i : id) (hd_id : id) (h : term) (g : term) (subp : certif) (c : certif) : certif =
   match c with
   | (i', ResoAST, cl', p', a') :: tl when (List.exists (fun x -> x = i) p') ->
     let res1 = match List.hd (List.rev subp) with
