@@ -883,14 +883,57 @@ let process_proj (c: certif): certif =
 
 
 (* Flatten subproofs *)
-(* let rec process_subproof (c : certif) : certif =
-match c with
-| (i, SubproofAST cert, cl, p, a) :: tl ->
-    (match List.hd (List.rev cert) with
-    | (i', DischargeAST, (Not h) :: g :: [], p', a') -> c
-    | _ -> raise (Debug ("| process_subproof: expecting a discharge step at id "^i^" |")))
-| (i, r, cl, p, a) :: tl -> (i, r, cl, p, a) :: process_subproof tl
-| [] -> [] *)
+(* TODO: Don't forget to flatten subproofs within subproofs!!! *)
+
+(* Function that takes a certif, a list of id pairs, and 
+   performs id substitution in the certif *)
+let rec subst_id (c : certif) (subst : id * id) : certif =
+  match c, subst with
+  | (i1, r, cl, p, a) :: tl, (i2, i3) ->
+      if i1 = i2 then (i3, r, cl, p, a) :: subst_id tl subst
+      else (i1, r, cl, p, a) :: subst_id tl subst
+  | [], _ -> []
+let rec subst_ids (c : certif) (subst : (id * id) list) : certif =
+  match subst with
+  | h :: t -> subst_ids (subst_id c h) t
+  | [] -> c
+
+let rec process_subproof_aux (i : id) (hd_id : id) (h : term) (g : term) (subp : certif) (c : certif) : certif =
+  match c with
+  | (i', ResoAST, cl', p', a') :: tl when (List.exists (fun x -> x = i) p') ->
+    let res1 = match List.hd (List.rev subp) with
+               | (i, _, _, _, _) -> i in
+    let res2 = generate_id () in
+      (i', ResoAST, (And (h :: (Not g) :: [])) :: [], p', a') ::
+      ((generate_id ()), AndAST, h :: [], [i'], []) ::
+      (subp @ tl @ 
+       [(res2, AndAST, Not g :: [], [i'], []);
+        ((generate_id ()), ResoAST, [], [res1;res2], [])]) 
+  | x -> x
+
+let rec process_subproof (c : certif) : certif =
+  match c with
+  | (i, SubproofAST cert, cl, p, a) :: tl ->
+      (match List.hd (List.rev cert) with
+      | (i', DischargeAST, (Not h) :: g :: [], p', a') ->
+        (* Remove first and last element of sub-proof certificate *)
+        let certtl = List.tl cert in
+        let subp = List.rev (List.tl (List.rev certtl)) in
+        (* The assumption of the subproof will be derived in a new rule,
+           we need to replace all calls to it with calls to the replaced
+           rule *)
+        let hd_id = match (List.hd cert) with
+                   | (i, _, _, _, _) -> i in
+        let new_id = generate_id () in
+        let subp' = subst_ids subp ((hd_id, new_id) :: []) in
+        (* (h ^ ~g) v ~h v g *)
+        let t' = (And (h :: Not g :: [])) :: Not h :: g :: [] in
+        (i', AndnAST, Or t' :: [], [], []) ::
+        ((generate_id ()), OrAST, t', [i'], []) ::
+        (process_subproof (process_subproof_aux i' new_id h g subp' tl))
+      | _ -> raise (Debug ("| process_subproof: expecting a discharge step at id "^i^" |")))
+  | (i, r, cl, p, a) :: tl -> (i, r, cl, p, a) :: process_subproof tl
+  | [] -> []
 
 
 (* Final processing and linking of AST *)
