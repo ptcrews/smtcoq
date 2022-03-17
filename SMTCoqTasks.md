@@ -108,16 +108,28 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 	- [ ] Process cong rule by adding two steps
 	- [ ] Add transformation for subproof flattening
 	- [ ] Add transformation for accommodating quantifier instantiation rules
-- [ ] For quantified formulas
-	- [ ] grep Sledgehammer benchmarks for `forall_inst` and see if new veriT changes instances so they are different from the quantified lemma or not. 
+- [x] For quantified formulas
+	- [x] grep Sledgehammer benchmarks for `forall_inst` and see if new veriT changes instances so they are different from the quantified lemma or not. 
 - [ ] Implement abduction
+	- [x] Find the smallest example from benchmarks
+	- [x] Create small examples that manually illustrate the usage of abduction
+	- [ ] Add an integer argument to the abduction tactic
+- [ ] Set up tests with SMTCoq.
+	- [ ] Generate a coq file that checks each file in the Sledgehammer benchmarks
+	  as follows. (Quantifier files might not work :( )
+	  	Section Filename.
+  			Verit_Checker "Filename.smt2" "Filename.smt_inproofnew".
+		End Filename.
+	- [ ] Run tests in smtcoq/unit-tests/Tests_verit_tactics.v
+- [ ] Read Chantal's ITP paper.
+	- [ ] Can we skolemize existentials using a transformation for sniper?
+- [ ] Presentation
 	- [ ] Finish grocking paper
-	- [ ] Find the smallest example from benchmarks .
-	- [ ] Create small examples that manually illustrate the usage of abduction
-- [ ] Set up a script to run SMTCoq tests on the new parser. 
-	- [ ] For quantified formulas, it should call `Parse_verit_certif` on the SMT files and the veriT proof files, and check that `euf_checker` returns true.
-	- [ ] For quantifier-free formulas, it should see that `Parse_verit smtfile prooffile` returns true.
-
+		- [ ] Applications?
+		- [ ] Benchmarking via removing hypotheses in benchmarks?
+		- [ ] Look at sets of Coq benchmarks
+	- [ ] Start building a presentation
+	- [ ] Formalize/summarize transformations to alethe proofs
 
 - Problem with `not_not`:
   Proofs currently using the `not_not` rule fail on the `th_resolution` 
@@ -145,43 +157,6 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
   negations. So `1` above cant be guaranteed to produce `x` instead of 
   `~~x` unless all the rules that do this are changed (and there are 
   quite a few, for ex `equiv_pos2`).VC4 does not yet produce proof certificates for that
-
-1. Now that proofs with `not_not` work, set up tests with SMTCoq.
-	- Generate a coq file that checks each file in the Sledgehammer benchmarks
-	  as follows. 
-	  	Section Filename.
-  			Verit_Checker "Filename.smt2" "Filename.smt_inproofnew".
-		End Filename.
-	- Run tests in smtcoq/unit-tests/Tests_verit_tactics.v
-2. Add support for `forall_inst`. Parse all of the `bind` sub-proof + `equiv_pos2` and `th_res` as `qnt_tidy` was being parsed; parse `forall_inst` as it was being parsed. 
-3. Add support for subproofs. 
-	- For subproofs of type 2, involving contexts how do we implement contexts? `refl` will be easy to implement once we have contexts.
-	- For subproofs of type 1, proving H -> G, there are 3 possible implementations.
-		(a) Inline subproofs, as was being done with LFSC. This might be possible since the result of all subproofs are converted using `or` and then used in a `resolution`.
-		LFSC:
-		 Q -> []
-		---------
-		   ~Q		Q v C
-		   --------------
-		         C
-				...
-			-----------
-				[]
-		Flattened version:
-		 Q
-		...
-		----
-		 []
-		(b) Proving sub-lemmas in Coq using `assert H. {proof of H}` within a proof.
-		Since SMTCoq doesn't create an interactive proof in Coq, these must be self-contained. However, in Alethe sub-proofs can access steps from outside
-		the sub-proof (unlike old veriT proofs).
-		(c) Have SMTCoq natively support subproofs. Here a subproof state will have to be appended to the regular proof state.
-4. How to implement other quantifier rules?
-	- `qnt_cnf`
-	- `one_point`
-	- `bind`
-5. Correctness proofs of all new rules
-6. Can we skolemize existentials using a transformation for sniper?
 
 
 Dev Notes
