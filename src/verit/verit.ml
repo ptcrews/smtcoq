@@ -102,12 +102,13 @@ let import_trace ra_quant rf_quant filename first lsmt =
          occur !confl;
          (alloc !cfirst, !confl)
     with
-    | VeritSyntax.Debug s -> CoqInterface.error ("Verit.import_trace (VeritSyntax.Debug)\nPosition: "^(print_position lexbuf)
-        ^"\nMessage: "^s^"\nCertificate:\n"^(VeritAst.string_of_certif (cert'))^"\nHash Table:\n"^(VeritSyntax.clauses_to_string))
-    | Failure f -> CoqInterface.error ("Verit.import_trace (Failure)\nPosition: "^(print_position lexbuf)^"\nMessage: "^f)
-    | _ -> CoqInterface.error ("Verit.import_trace\nPosition: "^(print_position lexbuf))
+    | VeritSyntax.Debug s -> CoqInterface.error ("Verit.import_trace: processing certificate \nError: VeritSyntax.Debug\nMessage: "^s^
+      "\nPosition: "^(print_position lexbuf)^"\nCertificate:\n"^(VeritAst.string_of_certif (cert'))^"\nHash Table:\n"^(VeritSyntax.clauses_to_string))
+    | Failure f -> CoqInterface.error ("Verit.import_trace: processing certificate \nError: Failure\nMessage: "^f^"\nPosition: "^(print_position lexbuf))
+    | x -> CoqInterface.error ("Verit.import_trace: processing certificate \nError: "^(Printexc.to_string x)^"\nPosition: "^(print_position lexbuf))
   with
-  | VeritParser.Error -> CoqInterface.error ("Verit.import_trace (VeritParser.Error)\nPosition: "^(print_position lexbuf))
+  | VeritParser.Error -> CoqInterface.error ("Verit.import_trace: preprocessing certificate \nError: VeritParser.Error\nPosition: "^(print_position lexbuf))
+  | x -> CoqInterface.error ("Verit.import_trace: preprocessing certificate \n\nError: "^(Printexc.to_string x)^"\nPosition: "^(print_position lexbuf))
 
 
 let clear_all () =
