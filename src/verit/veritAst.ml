@@ -264,36 +264,36 @@ and string_of_typ (t : typ) : string =
 and concat_sp x y = x^" "^y
 and string_of_term (t : term) : string = 
   match t with
-  | True -> "true"
-  | False -> "false"
-  | Not t -> "not ("^(string_of_term t)^")"
+  | True -> "(true)"
+  | False -> "(false)"
+  | Not t -> "(not "^(string_of_term t)^")"
   | And ts -> let args = List.fold_left concat_sp "" (List.map string_of_term ts) in
-      "and ("^args^")"
+      "(and "^args^")"
   | Or ts -> let args = List.fold_left concat_sp "" (List.map string_of_term ts) in
-      "or ("^args^")"
+      "(or "^args^")"
   | Imp ts -> let args = List.fold_left concat_sp "" (List.map string_of_term ts) in
-      "imp ("^args^")"
+      "(imp "^args^")"
   | Xor ts -> let args = List.fold_left concat_sp "" (List.map string_of_term ts) in
-      "xor ("^args^")"
+      "(xor "^args^")"
   | Ite ts -> let args = List.fold_left concat_sp "" (List.map string_of_term ts) in
-      "ite ("^args^")"
+      "(ite "^args^")"
   | Forall (xs, t) -> let args = List.fold_left concat_sp "" (List.map (fun (s,t) -> "(s : "^(string_of_typ t)^")") xs) in
-      "forall ("^args^"), "^(string_of_term t)
-  | Eq (t1, t2) -> (string_of_term t1)^" = "^(string_of_term t2)
+      "(forall "^args^", "^(string_of_term t)^")"
+  | Eq (t1, t2) -> "("^(string_of_term t1)^" = "^(string_of_term t2)^")"
   | App (f, ts) -> let args = List.fold_left concat_sp "" (List.map string_of_term ts) in
-                                f^" ("^args^")"
+                                "("^f^" ("^args^"))"
   | Var v -> v
   | STerm s -> s
   | NTerm (s, t) -> "("^(string_of_term t)^" :named "^s^")"
   | Int i -> string_of_int i
-  | Lt (t1, t2) -> (string_of_term t1)^" < "^(string_of_term t2)
-  | Leq (t1, t2) -> (string_of_term t1)^" <= "^(string_of_term t2)
-  | Gt (t1, t2) -> (string_of_term t1)^" > "^(string_of_term t2)
-  | Geq (t1, t2) -> (string_of_term t1)^" >= "^(string_of_term t2)
-  | UMinus t -> "-"^(string_of_term t)
-  | Plus (t1, t2) -> (string_of_term t1)^" + "^(string_of_term t2)
-  | Minus (t1, t2) -> (string_of_term t1)^" - "^(string_of_term t2)
-  | Mult (t1, t2) -> (string_of_term t1)^" * "^(string_of_term t2)
+  | Lt (t1, t2) -> "("^(string_of_term t1)^" < "^(string_of_term t2)^")"
+  | Leq (t1, t2) -> "("^(string_of_term t1)^" <= "^(string_of_term t2)^")"
+  | Gt (t1, t2) -> "("^(string_of_term t1)^" > "^(string_of_term t2)^")"
+  | Geq (t1, t2) -> "("^(string_of_term t1)^" >= "^(string_of_term t2)^")"
+  | UMinus t -> "("^"-"^(string_of_term t)^")"
+  | Plus (t1, t2) -> "("^(string_of_term t1)^" + "^(string_of_term t2)^")"
+  | Minus (t1, t2) -> "("^(string_of_term t1)^" - "^(string_of_term t2)^")"
+  | Mult (t1, t2) -> "("^(string_of_term t1)^" * "^(string_of_term t2)^")"
 and string_of_clause (c : clause) =
   let args = List.fold_left concat_sp "" (List.map (fun x -> "("^string_of_term x^")") c) in
   "(cl "^args^")"
@@ -953,10 +953,10 @@ let preprocess_certif (c: certif) : certif =
   Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c3);
   let c4 = process_cong c3 in
   Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c4);
-  let c5 = process_proj c4 in
-  Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c5);
-  let c6 = process_subproof c5 in
-  Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c6);
+  let c5 = process_subproof c4 in
+  Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c5);
+  let c6 = process_proj c5 in
+  Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c6);
   c6) with
   | Debug s -> raise (Debug ("| VeritAst.preprocess_certif: failed to preprocess |"^s))
 
