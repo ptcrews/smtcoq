@@ -14,7 +14,7 @@
    If you are using native-coq instead of Coq 8.9, replace it with:
      Require Import SMTCoq.
    *)
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/src" as SMTCoq.
+Add Rec LoadPath "/home/arjun/Desktop/smtcoq-veritAst/smtcoq/src" as SMTCoq.
 
 Require Import SMTCoq.SMTCoq.
 Require Import Bool.
@@ -35,5 +35,5 @@ Local Open Scope int31_scope.
 Local Open Scope array_scope.
 
 Section Subproof.
-Verit_Checker "../examples/subproof.smt2" "../examples/subproof.vtlog".
+  Verit_Checker "../examples/subproof.smt2" "../examples/subproof.vtlog".
 End Subproof.
