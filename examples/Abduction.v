@@ -37,6 +37,7 @@ Local Open Scope Z_scope.
 Goal forall (x y z : Z), y >= 0  ->  x + y + z >= 0.
 Proof. 
   (*cvc4_abduct.*)
+  (*intros. assert (0 <= z + x). { admit. } smt (H, H0). *)
   (* cvc5 returned SAT. The goal is invalid, but one of the
      following hypotheses would allow cvc5 to prove the goal:
       z + x = y
@@ -55,7 +56,7 @@ Qed.
 Variable f : Z -> Z -> Z.
 Goal forall (x y : Z), (f x y) >= 0 -> (f y x) >= 0.
 Proof.
-  (* cvc4_abduct. *)
+   cvc4_abduct.
   (* cvc5 returned SAT. The goal is invalid, but one of the
      following hypotheses would allow cvc5 to prove the goal:
       x = y

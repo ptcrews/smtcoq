@@ -119,6 +119,6 @@ END
 
 TACTIC EXTEND Tactic_cvc4
 | [ "cvc4_bool_base" constr(lpl) ] -> { Lfsc.tactic lpl (get_lemmas ()) }
-| [ "cvc4_bool_abduct_base" constr(lpl) ] -> { Lfsc.tactic_abduct lpl (get_lemmas ()) }
+| [ "cvc4_bool_abduct_base" int(i) constr(lpl) ] -> { Lfsc.tactic_abduct i lpl (get_lemmas ()) }
 | [ "cvc4_bool_no_check_base" constr(lpl) ] -> { Lfsc.tactic_no_check lpl (get_lemmas ()) }
 END

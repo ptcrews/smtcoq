@@ -664,9 +664,9 @@ let get_arguments concl =
   | _ -> failwith ("Verit.tactic: can only deal with equality over bool")
 
 
-let make_proof call_solver env rt ro ra_quant rf_quant l ls_smtc =
+let make_proof call_solver i env rt ro ra_quant rf_quant l ls_smtc =
   let root = SmtTrace.mkRootV [l] in
-  call_solver env rt ro ra_quant rf_quant (root,l) ls_smtc
+  call_solver i env rt ro ra_quant rf_quant (root,l) ls_smtc
 (* TODO: not generic anymore, the "lemma" part is currently specific to veriT *)
 
 (* <of_coq_lemma> reifies the given coq lemma, so we can then easily print it in a
@@ -725,7 +725,7 @@ let of_coq_lemma rt ro ra_quant rf_quant env sigma solver_logic clemma =
           | Some core_smt -> Some (Form.get rf_quant (Fapp (Fforall forall_args, [|core_smt|])))
           | None -> None)
 
-let core_tactic call_solver solver_logic rt ro ra rf ra_quant rf_quant vm_cast lcpl lcepl env sigma concl =
+let core_tactic call_solver i solver_logic rt ro ra rf ra_quant rf_quant vm_cast lcpl lcepl env sigma concl =
   let a, b = get_arguments concl in
 
   let tlcepl = List.map (CoqInterface.interp_constr env sigma) lcepl in
@@ -768,7 +768,7 @@ let core_tactic call_solver solver_logic rt ro ra rf ra_quant rf_quant vm_cast l
       let _ = Form.of_coq (Atom.of_coq ~eqsym:true rt ro ra_quant solver_logic env sigma) rf_quant a in
       let nl = if (CoqInterface.eq_constr b (Lazy.force ctrue)) then Form.neg l else l in
       let lsmt = Form.flatten rf nl :: lsmt in
-      let max_id_confl = make_proof call_solver env rt ro ra_quant rf_quant nl lsmt in
+      let max_id_confl = make_proof call_solver i env rt ro ra_quant rf_quant nl lsmt in
       build_body rt ro ra rf (Form.to_coq l) b max_id_confl (vm_cast env) (Some find_lemma)
     ) else (
       let l1 = Form.of_coq (Atom.of_coq rt ro ra solver_logic env sigma) rf a in
@@ -778,7 +778,7 @@ let core_tactic call_solver solver_logic rt ro ra rf ra_quant rf_quant vm_cast l
       let l = Form.get rf (Fapp(Fiff,[|l1;l2|])) in
       let nl = Form.neg l in
       let lsmt = Form.flatten rf nl :: lsmt in
-      let max_id_confl = make_proof call_solver env rt ro ra_quant rf_quant nl lsmt in
+      let max_id_confl = make_proof call_solver i env rt ro ra_quant rf_quant nl lsmt in
       build_body_eq rt ro ra rf (Form.to_coq l1) (Form.to_coq l2)
         (Form.to_coq nl) max_id_confl (vm_cast env) (Some find_lemma) ) in
 
@@ -794,10 +794,10 @@ let core_tactic call_solver solver_logic rt ro ra rf ra_quant rf_quant vm_cast l
        (CoqInterface.vm_cast_no_check body_cast))
 
 
-let tactic call_solver solver_logic rt ro ra rf ra_quant rf_quant vm_cast lcpl lcepl =
+let tactic call_solver i solver_logic rt ro ra rf ra_quant rf_quant vm_cast lcpl lcepl =
   CoqInterface.tclTHEN
     Tactics.intros
-    (CoqInterface.mk_tactic (core_tactic call_solver solver_logic rt ro ra rf ra_quant rf_quant vm_cast lcpl lcepl))
+    (CoqInterface.mk_tactic (core_tactic call_solver i solver_logic rt ro ra rf ra_quant rf_quant vm_cast lcpl lcepl))
 
 
 (**********************************************)

@@ -42,14 +42,14 @@ val checker :
   unit
 
 val tactic :
-  (Environ.env ->
+  (int -> Environ.env ->
    SmtBtype.reify_tbl ->
    SmtAtom.Op.reify_tbl ->
    SmtAtom.Atom.reify_tbl ->
    SmtAtom.Form.reify ->
    (SmtAtom.Form.t SmtCertif.clause * SmtAtom.Form.t) ->
    SmtAtom.Form.t list -> int * SmtAtom.Form.t SmtCertif.clause) ->
-  SmtMisc.logic ->
+  int -> SmtMisc.logic ->
   SmtBtype.reify_tbl ->
   SmtAtom.Op.reify_tbl ->
   SmtAtom.Atom.reify_tbl ->

@@ -75,7 +75,7 @@ Tactic Notation "verit_bool_no_check_base_auto" constr(h) := verit_bool_no_check
 Tactic Notation "cvc4_bool_base_auto" constr(h) := cvc4_bool_base h; try (exact _).
 Tactic Notation "cvc4_bool_no_check_base_auto" constr(h) := cvc4_bool_no_check_base h; try (exact _).
 
-Tactic Notation "cvc4_bool_abduct_base_auto" constr(h) := cvc4_bool_abduct_base h; try (exact _).
+Tactic Notation "cvc4_bool_abduct_base_auto" integer(i) constr(h) := (cvc4_bool_abduct_base i h); try (exact _).
 
 Tactic Notation "verit_bool_abduct" constr(h) :=
   let Hs := get_hyps in
@@ -171,26 +171,26 @@ Tactic Notation "verit_no_check"           :=
          end; vauto
   ].
 
-Tactic Notation "cvc4_abduct" constr(h) :=
+Tactic Notation "cvc4_abduct" integer(i) constr(h) :=
   intros; prop2bool;
   [ .. | prop2bool_hyps h;
          [ .. | let Hs := get_hyps in
                 lazymatch Hs with
                 | Some ?Hs =>
                   prop2bool_hyps Hs;
-                  [ .. | cvc4_bool_abduct_base_auto (Some (h, Hs)) ]
-                | None => cvc4_bool_abduct_base_auto (Some h)
+                  [ .. | cvc4_bool_abduct_base_auto i (Some (h, Hs)) ]
+                | None => cvc4_bool_abduct_base_auto i (Some h)
                 end; vauto
          ]
   ].
-Tactic Notation "cvc4_abduct"           :=
+Tactic Notation "cvc4_abduct" integer(i)           :=
   intros; prop2bool;
   [ .. | let Hs := get_hyps in
          lazymatch Hs with
          | Some ?Hs =>
            prop2bool_hyps Hs;
-           [ .. | cvc4_bool_abduct_base_auto (Some Hs) ]
-         | None => cvc4_bool_abduct_base_auto (@None nat)
+           [ .. | cvc4_bool_abduct_base_auto i (Some Hs) ]
+         | None => cvc4_bool_abduct_base_auto i (@None nat)
          end; vauto
   ].
 
