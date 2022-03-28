@@ -34,36 +34,41 @@ Local Open Scope int63_scope.
 Local Open Scope Z_scope.
 
 (* #1 From paper *)
-Goal forall (x y z : Z), y >= 0  ->  x + y + z >= 0.
+Goal forall (x y z : Z), 0 <= y ->  0 <= x + y + z.
 Proof. 
   (*cvc4_abduct.*)
   (*intros. assert (0 <= z + x). { admit. } smt (H, H0). *)
   (* cvc5 returned SAT. The goal is invalid, but one of the
      following hypotheses would allow cvc5 to prove the goal:
       z + x = y
-      z + x = 0
-      z + x = 1
+      x + y + z = 0
+      1 <= z + x
+      0 <= z + x
       y <= z + x
-      0 <= z + x *)
+      z + x = 1
+      z + x = 0 *)
 Admitted.
 (* With abduct *)
-Goal forall (x y z : Z), y >= 0 -> x + z >= 0 -> x + y + z >= 0.
+Goal forall (x y z : Z), 0 <= y -> 0 <= x + z -> 0 <= x + y + z.
 Proof.
   verit.
 Qed.
 
 (* #2 Commutativity *)
+Section Comm.
 Variable f : Z -> Z -> Z.
 Goal forall (x y : Z), (f x y) >= 0 -> (f y x) >= 0.
 Proof.
-   cvc4_abduct.
+   (*cvc4_abduct.*)
   (* cvc5 returned SAT. The goal is invalid, but one of the
      following hypotheses would allow cvc5 to prove the goal:
       x = y
-      (f y x) = 0
-      (f y x) = 1
+      (f y x) = 1 + 1
+      (f x y) = (f y x)
+      1 <= (f y x)
       0 <= (f y x)
-      1 <= (f y x) *)
+      (f y x) = 1
+      (f y x) = 0 *)
 Admitted.
 (* With abduct *)
 Goal forall (x y : Z), (f x y) >= 0 -> (f x y = f y x)
@@ -80,14 +85,70 @@ Admitted.
 Variable H : f x y >= 0.
 Goal f y x >= 0.
 Proof.
-  (* cvc4_abduct H. *)
+  (*cvc4_abduct H.*)
   (* cvc5 returned SAT. The goal is invalid, but one of the
      following hypotheses would allow cvc5 to prove the goal:
       x = y
-      (f y x) = 0
-      (f y x) = 1
+      (f y x) = 1 + 1
+      (f x y) = (f y x)
+      1 <= (f y x)
       0 <= (f y x)
-      1 <= (f y x) *)
+      (f y x) = 1
+      (f y x) = 0 *)
   assert (f x y = f y x). { apply commf. }
   verit H.
 Qed.
+
+(*Takes too long
+Goal forall (x y : Z), (f x y) + 2 - y >= 0 -> 
+  (f y x)  + 2 - y >= 0.
+Proof.
+  cvc4_abduct.
+
+Goal forall (x y : Z), (f x y) + 2*x - y >= 0 -> 
+  (f y x)  + 2*x - y >= 0.
+Proof.
+  cvc4_abduct.*)
+
+End Comm.
+
+(* Trans *)
+Goal forall (x y z : Z), x <= y -> x <= z.
+Proof.
+  (*cvc4_abduct.*)
+  (* cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+      z = x
+      y + 1 <= z
+      y + 1 = z
+      x + 1 = z
+      y <= z
+      x <= z
+      z = y *)
+Admitted.
+
+Goal forall (a b c d : Z), a <= c -> a + b <= c + d.
+Proof.
+  (*cvc4_abduct.*)
+  (* cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+      d = b
+      d + c = b + a
+      d + a = b + c
+      1 + 1 + b = d
+      b + 1 <= d
+      b + 1 = d
+      b <= d *)
+Admitted.
+
+Goal forall (a b c d : bool), (implb a b) && (implb c d) 
+  -> (*a && c ->*) b && d.
+Proof. 
+  (*cvc4_abduct.*)
+  (* cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+      a && c
+      b && d && a
+      b && c && a
+      c && d && a
+      b && d
+      b && c
+      a && d*)
+Admitted.

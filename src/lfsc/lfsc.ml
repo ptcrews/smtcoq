@@ -381,7 +381,7 @@ let call_cvc5_abduct i env rt ro ra rf root lsmt =
         (if n > 0 then
           (SmtCommands.abduct_string env rt ro ra rf (get_abduct_next cvc5)) :: produce_abducts (n-1) 
         else []) in
-      let abducts = produce_abducts (i - 1) in
+      let abducts = List.rev (produce_abducts (i - 1)) in
         CoqInterface.error
         ("cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:\n\n" ^
           abduct1^"\n"^(String.concat "\n" abducts))
