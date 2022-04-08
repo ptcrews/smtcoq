@@ -52,7 +52,7 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 	- [ ] Read spec of all quantifier rules
 	- [x] Make a feature request to the veriT group to remove alpha renaming of proofs with quantifiers. This request was denied because it is complicated to do from veriT's point of view.
 	- [x] With the current Alethe proofs, parse subproofs and parse `bind` as a no-op and for all resolutions, remove the `bind` `equiv_pos2` premises. Do this via an AST transformation
-- [ ] Add support for subproofs using Chantal's flattening method. Do this via an AST transformation
+- [x] Add support for subproofs using Chantal's flattening method. Do this via an AST transformation
 - [x] Add Arithmetic rules
 	- [x] Implement `lia_generic`, `la_tautology`, `la_disequality` as they were by the old parser
 	- [x] Arith simplify rules: `div_simplify`, `prod_simplify`, `unary_minus_simplify`, `minus_simplify`
@@ -105,9 +105,9 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 - [x] Add an AST to SMTCoq and parse SMT proofs into the AST format, and then define a function that translte the AST to `mk_clause` that was previously being done with the parser.
 	- [x] Add better error handling so we can figure out which line has an error.
 	- [x] Add transformation for notnot elimination
-	- [ ] Process cong rule by adding two steps
-	- [ ] Add transformation for subproof flattening
-	- [ ] Add transformation for accommodating quantifier instantiation rules
+	- [x] Process cong rule by adding two steps
+	- [x] Add transformation for subproof flattening
+	- [x] Add transformation for accommodating quantifier instantiation rules
 - [x] For quantified formulas
 	- [x] grep Sledgehammer benchmarks for `forall_inst` and see if new veriT changes instances so they are different from the quantified lemma or not. 
 - [ ] Implement abduction
@@ -123,13 +123,14 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 	- [ ] Run tests in smtcoq/unit-tests/Tests_verit_tactics.v
 - [ ] Read Chantal's ITP paper.
 	- [ ] Can we skolemize existentials using a transformation for sniper?
-- [ ] Presentation
+- [x] Presentation
 	- [ ] Finish grocking paper
 		- [ ] Applications?
-		- [ ] Benchmarking via removing hypotheses in benchmarks?
-		- [ ] Look at sets of Coq benchmarks
-	- [ ] Start building a presentation
-	- [ ] Formalize/summarize transformations to alethe proofs
+		- [x] Benchmarking via removing hypotheses in benchmarks?
+		- [x] Look at sets of Coq benchmarks
+	- [x] Start building a presentation
+	- [x] Read comp reports
+	- [x] Formalize/summarize transformations to alethe proofs
 
 - Problem with `not_not`:
   Proofs currently using the `not_not` rule fail on the `th_resolution` 

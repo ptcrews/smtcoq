@@ -33,7 +33,7 @@ Local Open Scope farray_scope.
 (*Local Open Scope int63_scope.*)
 Local Open Scope int31_scope.
 Local Open Scope array_scope.
-
+Local Open Scope int63_scope.
 Section Subproof.
-Verit_Checker "../examples/subproof.smt2" "../examples/subproof.vtlog".
+  Verit_Checker "../examples/subproof.smt2" "../examples/subproof.vtlog".
 End Subproof.

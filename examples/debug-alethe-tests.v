@@ -666,3 +666,73 @@ Variable P : Z -> bool.
 Variable a : Z.
 Goal (forall (x : Z), P x) -> P a.
 Proof. verit. Qed.
+
+Section Subproof1.
+  Parse_certif_verit t_i1 t_func1 t_atom1 t_form1 root1 used_roots1 trace1 
+  "../examples/subproof.smt2" 
+  "../examples/subproof.vtlog".
+  Print trace1.
+  Definition nclauses1 := Eval vm_compute in (match trace1 with Certif a _ _ => a end).
+(* Size of state *)
+  Definition c1 := Eval vm_compute in (match trace1 with Certif _ a _ => a end). (* Certificate *)
+  Definition conf1 := Eval vm_compute in (match trace1 with Certif _ _ a => a end). (* Look here in the state for the empty clause*)
+  Print c1. Print conf1.
+
+  Eval vm_compute in List.length (fst c1).
+  (* 7 steps in the certificate *)
+
+  (* Sanity check that atoms and formulas are well-typed. Must return true *)
+  Eval vm_compute in (Form.check_form t_form1 && Atom.check_atom t_atom1 && Atom.wt t_i1 t_func1 t_atom1).
+
+  (* States from c1 *)
+
+  (* Start state *)
+  Definition s0_1 := Eval vm_compute in (add_roots (S.make nclauses1) root1 used_roots1).
+  Print s0_1. Print t_form1. Print t_atom1. Print t_func1.
+  (* s0_1 = ({| 0 -> (8 :: nil), 1 -> (5 :: nil) |}, 
+    0 :: nil, 3) : PArray.Map.t C.t * C.t * int *)
+
+  (* BuildDef 2 12 *)
+  Definition s1_1 := Eval vm_compute in (step_checker s0_1 (List.nth 0 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
+  Print s1_1. Print t_form1.
+  (* s1_1 = ({| 0 -> (8 :: nil),  1 -> (5 :: nil), 2 -> (0 :: nil) |}, 
+    0 :: nil, 3) : PArray.Map.t C.t * C.t * int *)
+
+  (* ImmBuildDef 2 2 *)
+  Definition s2_1 := Eval vm_compute in (step_checker s1_1 (List.nth 1 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
+  Print s2_1.
+  (* s2_1 = ({| 0 -> ( :: nil), 1 -> ( :: nil) |}, 
+    0 :: nil, 3) : PArray.Map.t C.t * C.t * int *)
+
+  (* Res 1 ({| 0 -> 2, 1 -> 0, 2 -> 1 |}) *)
+  Definition s3_1 := Eval vm_compute in (step_checker s2_1 (List.nth 2 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
+  Print s3_1.
+  (* s3_1 = ({| 0 -> ( :: nil), 1 -> ( :: nil), 2 -> ( :: nil) |}, 
+    0 :: nil, 3) : PArray.Map.t C.t * C.t * int *)
+
+  (* ImmBuildProj 0 1 0 *)
+  Definition s4_1 := Eval vm_compute in (step_checker s3_1 (List.nth 3 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
+  Print s4_1.
+  (* s4_1 = ({| 0 -> ( :: nil), 1 -> ( :: nil), 2 -> ( :: nil), 3 -> ( :: nil) |}, 
+    0 :: nil, 3) : PArray.Map.t C.t * C.t * int *)
+
+  (* ImmBuildProj 0 0 0 *)
+  Definition s5_1 := Eval vm_compute in (step_checker s4_1 (List.nth 4 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
+  Print s5_1.
+  (* s5_1 = ({| 0 -> ( :: nil), 1 -> ( :: nil), 2 -> ( :: nil), 3 -> ( :: nil) |}, 
+    0 :: nil, 3) : PArray.Map.t C.t * C.t * int *)
+
+  (* ImmBuildProj 1 1 1 *)
+  Definition s6_1 := Eval vm_compute in (step_checker s5_1 (List.nth 5 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
+  Print s6_1.
+  (* s6_1 = ({| 0 -> ( :: nil), 1 -> ( :: nil), 2 -> ( :: nil), 3 -> ( :: nil) |}
+    0 :: nil, 3) : PArray.Map.t C.t * C.t * int *)
+
+  (* Res 1 ({| 0 -> 0, 1 -> 1 |}) *)
+  Definition s7_1 := Eval vm_compute in (step_checker s6_1 (List.nth 6 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
+  Print s7_1.
+  (* s7_1 = ({| 0 -> ( :: nil), 1 -> ( :: nil), 2 -> ( :: nil), 3 -> ( :: nil) |},
+    0 :: nil, 3) : PArray.Map.t C.t * C.t * int *)
+Section Subproof.
+Verit_Checker "../examples/subproof.smt2" "../examples/subproof.vtlog".
+End Subproof.
