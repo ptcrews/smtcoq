@@ -903,6 +903,7 @@ let rec subst_ids (c : certif) (subst : (id * id) list) : certif =
 
 let process_subproof_aux (i : id) (new_id : id) (h : term) (g : term) (subp : certif) (c : certif) : certif =
   match c with
+  (* Find the first resolution with premise i *)
   | (i', ResoAST, cl', p', a') :: tl when (List.exists (fun x -> x = i) p') ->
     let res1 = match List.hd (List.rev subp) with
                | (i, _, _, _, _) -> i in
@@ -931,9 +932,7 @@ let rec process_subproof (c : certif) : certif =
           let subp' = subst_ids subp ((hd_id, new_id) :: []) in
           (* Replace the discharge step proving (~h v g) by a tautological proof of (h ^ ~g) v ~h v g *)
           let t' = (And (h :: Not g :: [])) :: Not h :: g :: [] in
-          let new_id2 = generate_id () in
-          (new_id2, AndnAST, Or t' :: [], [], []) ::
-          (i', OrAST, t', [new_id2], []) ::
+          (i', AndnAST, Or t' :: [], [], []) ::
           (process_subproof (process_subproof_aux i' new_id h g subp' tl))
       | _ -> raise (Debug ("| process_subproof: expecting the last step of the certificate to be a discharge step at id "^i^" |")))
   | h :: tl -> h :: process_subproof tl
