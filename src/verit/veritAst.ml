@@ -133,6 +133,9 @@ let mk_step (s : (id * rule * clause * params * args)) : step = s
 let mk_cert (c : step list) : certif = c
 (*let mk_args (a : id list) : args = a*)
 
+let get_id (s : step) : id =
+  match s with
+  | (i, _, _, _, _) -> i
 
 (* We will use an option type that can pass a string to print in 
    the none case
@@ -883,7 +886,27 @@ let process_proj (c: certif): certif =
 
 
 (* Flatten subproofs *)
+(* TODO: Add projection arguments in the flattening, so the projections transformation
+   can be done before this one *)
 (* TODO: Don't forget to flatten subproofs within subproofs!!! *)
+(*
+  Pi_1                                         Pi_1
+...                                     ...
+--------                                -----------------and_neg
+| [H]  |                                [(H ^ ~G), ~H, G]               --(2)
+| Pi_2 |                                ...       
+|  G   |                                Pi_3'
+--------               ----->           ...        
+ [~H, G] --(1)                          H ^ ~G                          --(3)
+...                                     --------and
+  Pi_3                                      H --(4)         H ^ ~G      --(3)      
+...                                        Pi_2             ------and        
+   []                                       G                 ~G        --(5)
+                                            --------------------
+                                                     []                 --(6)               
+Pi_3' replaces every step in P_3 that directly or indirectly uses (1), so that the result 
+naturally produces the original result v (H ^ ~G) 
+*)
 
 (* Function that takes a certif, a list of id pairs, and 
    performs id substitution in the certif *)
@@ -901,42 +924,103 @@ let rec subst_ids (c : certif) (subst : (id * id) list) : certif =
   | h :: t -> subst_ids (subst_id c h) t
   | [] -> c
 
-let process_subproof_aux (i : id) (new_id : id) (h : term) (g : term) (subp : certif) (c : certif) : certif =
-  match c with
-  (* Find the first resolution with premise i *)
-  | (i', ResoAST, cl', p', a') :: tl when (List.exists (fun x -> x = i) p') ->
-    let res1 = match List.hd (List.rev subp) with
-               | (i, _, _, _, _) -> i in
-    let res2 = generate_id () in
-      (i', ResoAST, (And (h :: (Not g) :: [])) :: [], p', a') ::
-      (new_id, AndAST, h :: [], [i'], []) ::
-      (subp @ tl @ 
-       [(res2, AndAST, Not g :: [], [i'], []);
-        ((generate_id ()), ResoAST, [], [res1;res2], [])]) 
-  | x -> x
+(* cids stores a list of ids l with id i, if all of l are chained to i *)
+let cids : (id, id list) Hashtbl.t = Hashtbl.create 17
+let get_cids i =
+  try Hashtbl.find cids i
+  with | Not_found -> []
+let add_cid (i : id) (ci : id) = Hashtbl.add cids i (ci :: (get_cids i))
+let clear_cids () = Hashtbl.clear cids
+
+(* Replace every derivation R, to derive (h ^ ~g) v R if it 
+  (in)directly uses andn_id as a premise *)
+let extend_cl_aux (r : rule) (p : params) (pi3 : certif) : term * term list =
+  match r, (get_cl (List.hd p) pi3) with
+  | NandAST, Some (Not (And xs) :: []) -> (And xs, (List.map (fun x -> Not x) xs))
+  | OrAST, Some ((Or xs) :: []) -> (Not (Or xs), xs)
+  | ImpAST, Some ((Imp xs) :: []) -> (Not (Imp xs), [Not (List.nth xs 0); List.nth xs 1])
+  | Xor1AST, Some ((Xor xs) :: []) -> (Not (Xor xs), xs)
+  | Nxor1AST, Some ((Not (Xor xs)) :: []) -> (Xor xs, [List.nth xs 0; Not (List.nth xs 1)])
+  | Ite1AST, Some ((Ite xs) :: []) -> (Not (Ite xs), [List.nth xs 0; List.nth xs 1])
+  | Nite1AST, Some ((Not (Ite xs)) :: []) -> (Ite xs, [List.nth xs 0; Not (List.nth xs 2)])
+  | Xor2AST, Some ((Xor xs) :: []) -> (Not (Xor xs), (List.map (fun x -> Not x) xs))
+  | Nxor2AST, Some ((Not (Xor xs)) :: []) -> (Xor xs, [Not (List.nth xs 0); Not (List.nth xs 1)])
+  | Ite2AST, Some ((Ite xs) :: []) -> (Not (Ite xs), [Not (List.nth xs 0); List.nth xs 1])
+  | Nite2AST, Some ((Not (Ite xs)) :: []) -> (Ite xs, [Not (List.nth xs 0); Not (List.nth xs 1)])
+  | Equ1AST, Some ((Eq (x, y)) :: []) -> (Not (Eq (x, y)), [Not x; y])
+  | Nequ1AST, Some ((Not (Eq (x, y))) :: []) -> (Eq (x, y), [x;y])
+  | Equ2AST, Some ((Eq (x, y)) :: []) -> (Not (Eq (x, y)), [x; Not y])
+  | Nequ2AST, Some ((Not (Eq (x, y))) :: []) -> (Eq (x, y), [x; Not y])
+  | r, Some t -> raise (Debug ("| extend_cl_aux: unexpected rule "^(string_of_rule r)^"to extend_cl, or premise "^(string_of_clause t)^" to the rule at id "^(List.hd p)^" |"))
+  | r, None -> raise (Debug ("| extend_cl_aux: rule "^(string_of_rule r)^" has no premise"^" |")) 
+let rec extend_cl (andn_id : id) (h : term) (g : term) (pi3 : certif) (pi3og : certif): certif =
+  match pi3 with
+  | (i, ResoAST, cl, p, a) :: tl when
+      (* Resolution that directly uses andn_id *)
+      (List.mem andn_id p)
+              ||
+      (* Resolution that indirectly uses andn_id *)
+      (List.exists (fun x -> List.mem x (get_cids andn_id)) p) ->
+        add_cid andn_id i;
+        (i, ResoAST, ((And [h; Not g])) :: cl, p, a) :: extend_cl andn_id h g tl pi3og
+  (* Change Builddef/Builddef2 rules that use andn_id. For example, not_and:                                                  ----------------and_neg
+   ~(x ^ y) --(andn_id)  --->    ~(x ^ y), (h ^ ~g)      (x ^ y), ~x, ~y  --(1)
+  ----------not_and            ---------------------------------------res
+    ~x, ~y                                    ~x, ~y, (h ^ ~g)  --(2)
+  *)
+  | (i, r, cl, p, a) :: tl when
+      (match r with
+       | NandAST | OrAST | ImpAST | Xor1AST | Nxor1AST | Ite1AST | Nite1AST | Xor2AST
+       | Nxor2AST | Ite2AST | Nite2AST | Equ1AST | Nequ1AST | Equ2AST | Nequ2AST -> true
+       | _ -> false)
+              &&
+      (* Not_and that directly uses andn_id *)
+      ((List.mem andn_id p)
+              ||
+      (* Not_and that indirectly uses andn_id *)
+      (List.exists (fun x -> List.mem x (get_cids andn_id)) p)) ->
+        add_cid andn_id i;
+        let taut1, taut2 = extend_cl_aux r p pi3og in
+        let taut_id = generate_id () in
+        (taut_id, AndnAST, taut1 :: taut2, [], []) :: (* (1) *)
+        (i, ResoAST, taut2, taut_id :: p, []) :: (* (2) *)
+        extend_cl andn_id h g tl pi3og
+  | hd :: tl -> hd :: (extend_cl andn_id h g tl pi3og)
+  | [] -> []
+
+let process_subproof_aux (andn_id : id) (new_h_id : id) (g_id : id) (pi2 : certif ) (pi3 : certif) (h : term) (g : term) : certif =
+  let and_id = get_id (List.hd (List.rev pi3)) in
+  let notg_id = generate_id () in
+  (* Replace the discharge step proving (~h v g) by a tautological proof of (h ^ ~g) v ~h v g *)
+  let t' = (And (h :: Not g :: [])) :: Not h :: g :: [] in
+  let pi3' = extend_cl andn_id h g pi3 ((andn_id, AndnAST, t', [], []) :: pi3) in
+  ((andn_id, AndnAST, t', [], []) ::                              (* (2) *)
+    pi3') @
+  ((new_h_id, AndAST, h :: [], [and_id], ["0"]) ::                (* (4) *)
+    pi2) @
+  ((notg_id, AndAST, Not g :: [], [and_id], ["1"]) ::             (* (5) *)
+   (generate_id (), ResoAST, [], [g_id; notg_id], []) :: [])      (* (6) *)
 
 let rec process_subproof (c : certif) : certif =
   match c with
-  | (i, SubproofAST cert, cl, p, a) :: tl ->
+  | (i, SubproofAST cert, cl, p, a) :: pi3 ->
       (match List.hd (List.rev cert) with
-      | (i', DischargeAST, (Not h) :: g :: [], p', a') ->
+      | (andn_id, DischargeAST, (Not h) :: g :: [], p', a') ->
           (* Remove first and last element of sub-proof certificate *)
           let certtl = List.tl cert in
-          let subp = List.rev (List.tl (List.rev certtl)) in
+          let rev_certtl = List.rev certtl in
+          let g_id = get_id (List.hd (List.tl rev_certtl)) in
+          let subp = List.rev (List.tl rev_certtl) in
           (* The assumption of the subproof will be derived in a new rule,
              we need to replace all calls to it with calls to the replaced
              rule *)
-          let hd_id = match (List.hd cert) with
-                     | (i, _, _, _, _) -> i in
-          let new_id = generate_id () in
-          let subp' = subst_ids subp ((hd_id, new_id) :: []) in
-          (* Replace the discharge step proving (~h v g) by a tautological proof of (h ^ ~g) v ~h v g *)
-          let t' = (And (h :: Not g :: [])) :: Not h :: g :: [] in
-          (i', AndnAST, Or t' :: [], [], []) ::
-          (process_subproof (process_subproof_aux i' new_id h g subp' tl))
+          let new_h_id = generate_id () in
+          let h_id = get_id (List.hd cert) in
+          let pi2 = subst_ids subp ((h_id, new_h_id) :: []) in
+          process_subproof_aux andn_id new_h_id g_id pi2 pi3 h g
       | _ -> raise (Debug ("| process_subproof: expecting the last step of the certificate to be a discharge step at id "^i^" |")))
   | h :: tl -> h :: process_subproof tl
-  | [] -> []
+  | [] -> clear_cids (); []
 
 
 (* Final processing and linking of AST *)
@@ -946,14 +1030,14 @@ let preprocess_certif (c: certif) : certif =
   try 
   (let c1 = store_shared_terms c in
   Printf.printf ("Certif after storing shared terms: \n%s\n") (string_of_certif c1);
-  let c2 = remove_notnot c1 in
-  Printf.printf ("Certif after remove_notnot: \n%s\n") (string_of_certif c2);
-  let c3 = process_fins c2 in
-  Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c3);
-  let c4 = process_cong c3 in
-  Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c4);
-  let c5 = process_subproof c4 in
-  Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c5);
+  let c2 = process_fins c1 in
+  Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2);
+  let c3 = process_subproof c2 in
+  Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c3);
+  let c4 = remove_notnot c3 in
+  Printf.printf ("Certif after remove_notnot: \n%s\n") (string_of_certif c4);
+  let c5 = process_cong c4 in
+  Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c5);
   let c6 = process_proj c5 in
   Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c6);
   c6) with

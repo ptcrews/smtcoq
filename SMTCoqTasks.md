@@ -5,8 +5,12 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 - [x] Currently, we're assuming an ordering on the step numbers - we assume they are `t1,...,tn` and we don't account for sub-proofs, which would be `ti.tj`. Eventually update this to take any series of step numbers and convert them internally to an order we care about
 - [x] Support cvc4 v1.8
 - [x] Add an AST layer so we go parser -> AST -> AST transformations -> SMTCoq terms
+	- [x] Add better error handling so we can figure out which line has an error.
+- [x] Separate all Alethe rules into categories, and mark the rules which are already implemented.
+- [x] Add better error handling so we can figure out which line has an error.
 - [ ] Add Propositional logic + EUF rules
 	- [x] `trans` rule, `cong` rule predicate case
+	- [x] Process cong rule by adding two steps
 	- [x] Simplification rules: `not_simplify`, `and_simplify`, `or_simplify`, `implies_simplify`, `equiv_simplify`, `ite_simplify`, `connective_def`, `bool_simplify`, `eq_simplify`
 		- [x] Fix `and_simplify` and `or_simplify` rules by fixing parsing of variables
 	- [x] `not_not` , `tautology`, `contraction` rules
@@ -24,10 +28,11 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 		can be resolved with others. However, in resolution, when the clauses being resolved have a common literal, that literal is taken out of consideration for being a pivot, and 
 		this makes an invalid resolution.
 		- [x] Take an Alethe proof with `not_not` and translate it into a proof without `not_not`.
-	- [x] `distinct_elim` rule, which is pretty similar to `SplDistinctElim`
+	- [ ] `distinct_elim` rule, which is pretty similar to `SplDistinctElim`
 		  Exception: `distinct` is a function over terms, and formulas in SMT, but in Coq it is only defined over terms
 			- [ ] Implement the formula version of `distinct` in SMTCoq
 			- [ ] Add the formula cases for `distinct_elim`
+	- [ ] `refl` rule which does the same thing as `eq_reflexive` unless used modulo context substitutions. We handle the latter case that we care about (`bind` in `forall_inst`)
 	- [ ] Simplification rules: `ac_simp`
 		- [x] Define array append
 		- [ ] BLOCKED: Need a way to re-hash unhashed formulas
@@ -35,53 +40,32 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 		- [ ] Check the rule checker in Bruno's Alethe checker
 	- [ ] The simp rules are not recursively applied yet. Counterexamples show it isn't applied recursively by veriT. The goal is to have VeriT apply them recursively so change the checker when the implementation is fixed.
 	- [ ] Find certificates to test the implementation of these rules: `tautology`, `contraction`, `implies_simplify`, `equiv_simplify`, `ite_simplify`, `connective_def`, `bool_simplify`, `connective_def`, `eq_simplify`, `and_pos`, `or_neg`, `not_or`, `eq_congruent_pred`
-	- [ ] Possibly simplify the SMTCoq checker by:
-		- [ ] Combine `AndSimp`, `NotSimp`, `OrSimp`, `ImpSimp`, `EquivSimp`, `IteSimp`, (maybe?) `BoolSimp` and `ConnDef`
-- [ ] Add quantifier rules
-	- [x] What support for quantifiers does SMTCoq currently have?
-	- [x] Add parser for quantified terms
-	- [x] Find the goal in SMTCoq that leads to the basic quantifers example, and check if its as expected.
-	- [x] Currently VeriT is called with term sharing turned off, need to be able to deal with shared terms
-	- [x] Run the example proof through the old SMTCoq to find examples of Chantal's explanation.
-	- [x] Compare the old and new SMTCoq proofs for the example and see what else needs to be done to support the new infrastructure (is `tmp_qnt_tidy` analogous to `qnt_cnf`?)
-		- [x] New format uses subproofs. Understand why, and move up implementation of subproofs in the priority list.
-	- [x] Read the skolemization section in the book
-	- [ ] Why is it more complicated in Coq to prove `(forall Q1.H1) -> ... -> (forall Qn.Hn) -> G` as opposed to 
-	`forall Q1..Qn.H1 -> ... -> Hn -> G`?
-		- [ ] Read quantifier subsection of logic section of Software foundations.
-	- [ ] Read spec of all quantifier rules
-	- [x] Make a feature request to the veriT group to remove alpha renaming of proofs with quantifiers. This request was denied because it is complicated to do from veriT's point of view.
-	- [x] With the current Alethe proofs, parse subproofs and parse `bind` as a no-op and for all resolutions, remove the `bind` `equiv_pos2` premises. Do this via an AST transformation
-- [x] Add support for subproofs using Chantal's flattening method. Do this via an AST transformation
+	- [ ] Correctness proofs
+		- [ ] Many of the `_simplify` rules have admitted proofs. Either prove them correct or
+			  encode them in terms of existing rules.
+			- [ ] DistElim (src/spl/Operators.v)
+			- [ ] NotNot (src/cnf/Cnf.v: remove the rule in the back-end since we're removing it at the AST level)
+			- [ ] Tautology (src/cnf/Cnf.v)
+				- [ ] change the checker - remem- [x] Add an AST to SMTCoq and parse SMT proofs into the AST format, and then define a function that translte the AST to `mk_clause` that was previously being done with the parser.
+			- [ ] OrSimplify (src/cnf/Cnf.v)
+			- [ ] ImpliesSimplify (src/cnf/Cnf.v)
+			- [ ] EquivSimplify (src/cnf/Cnf.v)
+			- [ ] BoolSimplify (src/cnf/Cnf.v)
+			- [ ] ConnDef (src/cnf/Cnf.v)
+			- [ ] IteSimplify (src/cnf/Cnf.v)
+			- [ ] IffTrans (src/cnf/Euf.v)
+			- [ ] IffCong (src/cnf/Euf.v)
+			- [ ] EqSimplify (src/cnf/Euf.v)
 - [x] Add Arithmetic rules
 	- [x] Implement `lia_generic`, `la_tautology`, `la_disequality` as they were by the old parser
 	- [x] Arith simplify rules: `div_simplify`, `prod_simplify`, `unary_minus_simplify`, `minus_simplify`
 	- [x] `la_rw_eq` rule
 	- [x] Modify parser for `la_generic` which now takes arguments
 	- [x] Test
-- [ ] Support abduction
-	- [x] Create a `cvc4_abduct` tactic that will return 5 abducts if the solver returns `sat`
-	- [ ] Add an integer parameter to `cvc4_abduct` specifying the number of abducts
-	- [ ] Add some parameter to be able to take grammar restrictions.
-	- [ ] Change the output of `cvc4_abduct` to an idtac when sat, right now its an error.
-- [ ] Support cvc5
-	- [x] Add cvc5 tactic
-	- [ ] Support `forall_inst` from cvc5
-	- [ ] Figure out spec of `all_simplify` and support it
-	- [ ] cvc5 returns [false] in some certificates and [] in others. We can't handle [false].
-- [ ] Set up testing of benchmarks
-	- [x] Generate proofs for all benchmarks.
-	- [x] Generate proofs with sharing for all benchmarks.
-	- [x] Generate `verit_proof_parser` vernac for generic proof file
-		- [ ] Can we generalize this? We will need to use programming in Coq. `verit_checker` is
-		an easier way to do this but it doesn't currently support proofs with quantifiers, so no dice.
-	- [x] Search tests to answer the following.
-		- [x] How many proofs contain subproofs? How many are quantifier-free?
-		- [x] How many proofs contain subproofs that are simply alpha-renamings?
 - [ ] Add Bit-vector rules
 	- [x] How does a regular LFSC proof look vs a veriT proof?
 	- [x] How does an LFSC BV proof look?
-	- [x] Revisit the old LFSC proof signature
+	- [x] Revisit the old LFSC proof signature- [x] Separate all Alethe rules into categories, and mark the rules which are already implemented.
 	- [ ] Check out Haniel's Lean signature
 	- [x] How does the LFSC to VeriT translator handle bit-vectors and arrays? Seemingly, the VeriT proof format was extended with BV
 	and array rules and when LFSC proofs used rules in these theories,
@@ -91,46 +75,85 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 - [ ] Add Array rules
 	- [ ] Extend Alethe with Array proof rules
 	- [ ] Add rules to SMTCoq
-- [ ] Correctness proofs
-    - [ ] `trans`, `cong` rules
-    - [ ] Simplification rules: `not_simplify`, `and_simplify`, `or_simplify`, `implies_simplify`, `equiv_simplify`, `ite_simplify`, `connective_def`, `bool_simplify`, `eq_simplify`
-    - [ ] `not_not` , `tautology`, `contraction` rules
-- [ ] Really test SMTCoq
-
-- [x] Check how SMTCoq deals with global and local parameters.
-- [x] Read transformations paper to see if passing of particular hypotheses is allowed by sniper.
-- [x] Send transformations paper to Cesare with answer.
-- [x] Separate all Alethe rules into categories, and mark the rules which are already implemented.
-- [x] Read about the epsilon calculus by reading Jeremy's chapter in the Stanford Encyclopedia.
-- [x] Add an AST to SMTCoq and parse SMT proofs into the AST format, and then define a function that translte the AST to `mk_clause` that was previously being done with the parser.
-	- [x] Add better error handling so we can figure out which line has an error.
-	- [x] Add transformation for notnot elimination
-	- [x] Process cong rule by adding two steps
-	- [x] Add transformation for subproof flattening
-	- [x] Add transformation for accommodating quantifier instantiation rules
-- [x] For quantified formulas
-	- [x] grep Sledgehammer benchmarks for `forall_inst` and see if new veriT changes instances so they are different from the quantified lemma or not. 
-- [ ] Implement abduction
-	- [x] Find the smallest example from benchmarks
-	- [x] Create small examples that manually illustrate the usage of abduction
-	- [ ] Add an integer argument to the abduction tactic
-- [ ] Set up tests with SMTCoq.
-	- [ ] Generate a coq file that checks each file in the Sledgehammer benchmarks
+- [ ] Add quantifier rules
+	- [x] What support for quantifiers does SMTCoq currently have?
+	- [x] Add parser for quantified terms
+	- [x] Find the goal in SMTCoq that leads to the basic quantifers example, and check if its as expected.
+	- [x] Currently VeriT is called with term sharing turned off, need to be able to deal with shared terms
+	- [x] Run the example proof through the old SMTCoq to find examples of Chantal's explanation.
+	- [x] Read the skolemization section in the book
+	- [x] grep Sledgehammer benchmarks for `forall_inst` and see if new veriT changes instances so they are different from the quantified lemma or not.
+	- [x] Make a feature request to the veriT group to remove alpha renaming of proofs with quantifiers. This request was denied because it is complicated to do from veriT's point of view.
+	- [x] With the current Alethe proofs, parse subproofs and parse `bind` as a no-op and for all resolutions, remove the `bind` `equiv_pos2` premises. Do this via an AST transformation
+	- [ ] Why is it more complicated in Coq to prove `(forall Q1.H1) -> ... -> (forall Qn.Hn) -> G` as opposed to 
+	`forall Q1..Qn.H1 -> ... -> Hn -> G`?
+		- [ ] Read quantifier subsection of logic section of Software foundations.
+	- [ ] Read spec of all quantifier rules
+	  - [x] bind: supported with forall_inst by ignoring
+	  - [x] sko_ex: SMTCoq doesn't support existentials
+	  - [x] forall_inst: we have a transformation for this
+	  - [ ] sko_forall
+	  - [ ] qnt_simplify
+	  - [ ] onepoint
+	  - [ ] qnt_join
+	  - [ ] qnt_rm_unused
+- [ ] Add support for subproofs using Chantal's flattening method. Do this via an AST transformation
+	- [x] First approach wasn't general enough. This was embarrassingly discovered at a talk given to Deducteam at the end of my Paris trip.
+	- [ ] Draw out the more general approach
+	- [x] Create a hand-made example for more general approach.
+	- [ ] Implement
+	- [ ] Check with Haniel
+- [ ] Set up testing of benchmarks
+	- [x] Generate proofs for all benchmarks.
+	- [x] Generate proofs with sharing for all benchmarks.
+	- [x] Search tests to answer the following.
+		- [x] How many proofs contain subproofs? How many are quantifier-free?
+		- [x] How many proofs contain subproofs that are simply alpha-renamings?
+	- [x] Generate `verit_proof_parser` vernac for generic proof file
+		- [ ] Can we generalize this? We will need to use programming in Coq. 
+		- [ ] Generate a coq file that checks each file in the Sledgehammer benchmarks
 	  as follows. (Quantifier files might not work :( )
+	  	```
 	  	Section Filename.
   			Verit_Checker "Filename.smt2" "Filename.smt_inproofnew".
 		End Filename.
+		```
 	- [ ] Run tests in smtcoq/unit-tests/Tests_verit_tactics.v
+
+
+- [ ] Support abduction
+	- [x] Create a `cvc5_abduct` tactic that will return 5 abducts if the solver returns `sat`
+	- [x] Add an integer parameter to `cvc4_abduct` specifying the number of abducts
+	- [x] Find the smallest example from benchmarks
+	- [x] Create small examples that manually illustrate the usage of abduction
+	- [x] Do we change the output of `cvc4_abduct` to an idtac when sat? No, right now its an error, and that makes sense, because an idtac would add it to the proof development, and the solver would be called everytime the proof is compiled, which would be unnecessary.
+	- [ ] Add some parameter to be able to take grammar restrictions.
+
+
+- [ ] Support cvc5
+	- [x] Add cvc5 tactic
+	- [ ] Combine it with the veritAst branch
+	- [ ] Support `forall_inst` from cvc5
+	- [ ] Figure out spec of `all_simplify` and support it
+	- [ ] cvc5 returns [false] in some certificates and [] in others. We can't handle [false].
+
+
+The following are ideas and tasks that will move forward my thesis work. 
+- [x] Check how SMTCoq deals with global and local parameters.
+- [x] Read transformations paper to see if passing of particular hypotheses is allowed by sniper.
+- [ ] What's the point of Alethe proofs? What benefit in ability do they provide? Read the related papers.
+	- [x] Read about the epsilon calculus by reading Jeremy's chapter in the Stanford Encyclopedia.
 - [ ] Read Chantal's ITP paper.
 	- [ ] Can we skolemize existentials using a transformation for sniper?
-- [x] Presentation
-	- [ ] Finish grocking paper
-		- [ ] Applications?
-		- [x] Benchmarking via removing hypotheses in benchmarks?
-		- [x] Look at sets of Coq benchmarks
-	- [x] Start building a presentation
-	- [x] Read comp reports
-	- [x] Formalize/summarize transformations to alethe proofs
+- [ ] Grock abduction paper
+- [ ] Abduction integration applications?
+- [ ] Benchmarking via removing hypotheses in benchmarks?
+	- [ ] Look at sets of Coq benchmarks
+- [ ] Abduction might fit nicely into bit-vectors?
+- [ ] Read comp reports
+- [ ] Synthesis readings?
+
+
 
 - Problem with `not_not`:
   Proofs currently using the `not_not` rule fail on the `th_resolution` 

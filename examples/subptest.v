@@ -37,3 +37,7 @@ Local Open Scope int63_scope.
 Section Subproof.
   Verit_Checker "../examples/subproof.smt2" "../examples/subproof.vtlog".
 End Subproof.
+
+Section Subproof2.
+  Verit_Checker "../examples/subproof2.smt2" "../examples/subproof2.vtlog".
+End Subproof2.
