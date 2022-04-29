@@ -46,7 +46,7 @@ SMTCoq currently parses veriT 2016's proof format, and builds OCaml AST's that i
 			- [ ] DistElim (src/spl/Operators.v)
 			- [ ] NotNot (src/cnf/Cnf.v: remove the rule in the back-end since we're removing it at the AST level)
 			- [ ] Tautology (src/cnf/Cnf.v)
-				- [ ] change the checker - remem- [x] Add an AST to SMTCoq and parse SMT proofs into the AST format, and then define a function that translte the AST to `mk_clause` that was previously being done with the parser.
+				- [ ] change the checker - remember that clauses are ordered and that negation of a literal is 2*literal in SMTCoq representation
 			- [ ] OrSimplify (src/cnf/Cnf.v)
 			- [ ] ImpliesSimplify (src/cnf/Cnf.v)
 			- [ ] EquivSimplify (src/cnf/Cnf.v)

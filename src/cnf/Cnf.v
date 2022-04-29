@@ -149,15 +149,21 @@ Section CHECKER.
   
   (*  * tautology        : {(x_1 ... x_i ... (not x_i) ... x_n) --> true)}
      *)
+
+  (* We use the facts that literals in clauses are ordered, and negation of n is n+1 *)
+  Fixpoint check_Tautology_aux l :=
+    match l with
+    | h :: t => if h =? Lit.neg (List.hd 0 t) then true else check_Tautology_aux t
+    | nil => false
+    end.
+  
   Definition check_Tautology pos l :=
     match S.get s pos, get_hash (Lit.blit l) with
-    | xs, Ttrue => if (existsb (fun x => Lit.is_pos x && 
-               (existsb (fun y => negb (Lit.is_pos y) && (x =? y)) xs)) 
-               xs) then
-      l::nil else C._true
+    | xs, Ttrue => if check_Tautology_aux xs then l::nil else C._true
     end.
 
-  (*  * Contractionction      : {(x_1 ... x_n) --> (x_k1 ... x_kn)}, 
+
+  (*  * Contraction      : {(x_1 ... x_n) --> (x_k1 ... x_kn)}, 
           where duplicates are removed and order is preserved 
      *)
   Definition check_Contraction pos ys :=
