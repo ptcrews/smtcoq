@@ -809,7 +809,62 @@ module Atom =
 
     let to_smt ?(debug=false) (fmt:Format.formatter) h = to_smt_named ~debug:debug fmt h
 
-    let to_string t = ""
+    let rec to_string_aux t =
+      match t with
+      | Acop CO_xH -> "1"
+      | Acop CO_Z0 -> "0"
+      | Acop (CO_BV _) -> "BV" 
+      | Auop (UO_xO, a) -> "2*"^(to_string_aux (atom a))
+      | Auop (UO_xI, a) -> "(2*"^(to_string_aux (atom a))^")+1"
+      | Auop (UO_Zpos, a) -> "+"^(to_string_aux (atom a))
+      | Auop (UO_Zneg, a) -> "-"^(to_string_aux (atom a))
+      | Auop (UO_Zopp, a) -> "-"^(to_string_aux (atom a))
+      | Auop (UO_BVbitOf (_, _), a) -> "BV"
+      | Auop (UO_BVnot _, a) -> "BV"
+      | Auop (UO_BVneg _, a) -> "BV"
+      | Auop (UO_BVextr (_, _, _), a) -> "BV"
+      | Auop (UO_BVzextn (_, _), a) -> "BV"
+      | Auop (UO_BVsextn (_, _), a) -> "BV"
+      | Abop (BO_Zplus, a1, a2) -> (to_string_aux (atom a1))^"+"^(to_string_aux (atom a2))
+      | Abop (BO_Zminus, a1, a2) -> (to_string_aux (atom a1))^"-"^(to_string_aux (atom a2))
+      | Abop (BO_Zmult, a1, a2) -> (to_string_aux (atom a1))^"*"^(to_string_aux (atom a2))
+      | Abop (BO_Zlt, a1, a2) -> (to_string_aux (atom a1))^"<"^(to_string_aux (atom a2))
+      | Abop (BO_Zle, a1, a2) -> (to_string_aux (atom a1))^"<="^(to_string_aux (atom a2))
+      | Abop (BO_Zge, a1, a2) -> (to_string_aux (atom a1))^">="^(to_string_aux (atom a2))
+      | Abop (BO_Zgt, a1, a2) -> (to_string_aux (atom a1))^">"^(to_string_aux (atom a2))
+      | Abop (BO_eq _, a1, a2) -> "BV"
+      | Abop (BO_BVand _, a1, a2) -> "BV"
+      | Abop (BO_BVor _, a1, a2) -> "BV"
+      | Abop (BO_BVxor _, a1, a2) -> "BV"
+      | Abop (BO_BVadd _, a1, a2) -> "BV"
+      | Abop (BO_BVmult _, a1, a2) -> "BV"
+      | Abop (BO_BVult _, a1, a2) -> "BV"
+      | Abop (BO_BVslt _, a1, a2) -> "BV"
+      | Abop (BO_BVconcat _, a1, a2) -> "BV"
+      | Abop (BO_BVshl _, a1, a2) -> "BV"
+      | Abop (BO_BVshr _, a1, a2) -> "BV"
+      | Abop (BO_select _, a1, a2) -> "BV"
+      | Abop (BO_diffarray _, a1, a2) -> "BV"
+      | Atop (TO_store _, _, _, _) -> "Array"
+      | Anop _ -> "Anop"
+      | Aapp ((Index i, _), a_arr) -> let a_list = Array.to_list a_arr in
+                                      let str = (match a_list with
+                                                | [] -> ""
+                                                | l -> let a_strlist = List.map (fun x -> to_string_aux (atom x)) a_list in
+                                                        " ["^(String.concat ";" a_strlist)^"]") in
+                                      (string_of_int i)^str
+      | Aapp ((Rel_name s, _), a_arr) -> let a_list = Array.to_list a_arr in
+                                         let str = (match a_list with
+                                                    | [] -> ""
+                                                    | l -> let a_strlist = List.map (fun x -> to_string_aux (atom x)) a_list in
+                                                            String.concat ";" a_strlist) in
+                                         s^" ["^str^"]"
+      (*
+      | Atop top * hatom * hatom * hatom
+      | Anop nop * hatom array
+      | Aapp indexed_op * hatom array *)
+
+    let to_string t = to_string_aux (atom t)
 
     type reify_tbl =
       { mutable count : int;

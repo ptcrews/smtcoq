@@ -341,7 +341,7 @@ Inductive step :=
   | NotSimplify (pos:int) (l:_lit)
   | AndSimplify (pos:int) (l:_lit)
   | OrSimplify (pos:int) (l:_lit)
-  | ImpliesSimplify (pos:int) (l:_lit)
+  | ImpSimplify (pos:int) (l:_lit)
   | EquivSimplify (pos:int) (l:_lit)
   | BoolSimplify (pos:int) (l:_lit)
   | ConnDef (pos:int) (l:_lit)
@@ -409,7 +409,7 @@ Inductive step :=
       | NotSimplify pos l => S.set_clause s pos (check_NotSimplify t_form l)
       | AndSimplify pos l => S.set_clause s pos (check_AndSimplify t_form l)
       | OrSimplify pos l => S.set_clause s pos (check_OrSimplify t_form l)
-      | ImpliesSimplify pos l => S.set_clause s pos (check_ImpliesSimplify t_form l)
+      | ImpSimplify pos l => S.set_clause s pos (check_ImpliesSimplify t_form l)
       | EquivSimplify pos l => S.set_clause s pos (check_EquivSimplify t_form l)
       | BoolSimplify pos l => S.set_clause s pos (check_BoolSimplify t_form l)
       | ConnDef pos l => S.set_clause s pos (check_ConnDef t_form l)
@@ -605,7 +605,7 @@ Inductive step :=
       | NotSimplify pos _
       | AndSimplify pos _
       | OrSimplify pos _
-      | ImpliesSimplify pos _
+      | ImpSimplify pos _
       | EquivSimplify pos _
       | BoolSimplify pos _
       | ConnDef pos _
@@ -677,7 +677,7 @@ Inductive step :=
   | Name_NotSimplify
   | Name_AndSimplify
   | Name_OrSimplify
-  | Name_ImpliesSimplify
+  | Name_ImpSimplify
   | Name_EquivSimplify
   | Name_BoolSimplify
   | Name_ConnDef
@@ -735,7 +735,7 @@ Inductive step :=
     | NotSimplify _ _ => Name_NotSimplify
     | AndSimplify _ _ => Name_AndSimplify
     | OrSimplify _ _ => Name_OrSimplify
-    | ImpliesSimplify _ _ => Name_ImpliesSimplify
+    | ImpSimplify _ _ => Name_ImpSimplify
     | EquivSimplify _ _ => Name_EquivSimplify
     | BoolSimplify _ _ => Name_BoolSimplify
     | ConnDef _ _ => Name_ConnDef
@@ -924,7 +924,7 @@ Register Euf_Checker.Name_ImmBuildProj as SMTCoq.Trace.Euf_Checker.Name_ImmBuild
 Register Euf_Checker.Name_NotSimplify as SMTCoq.Trace.Euf_Checker.Name_NotSimplify.
 Register Euf_Checker.Name_AndSimplify as SMTCoq.Trace.Euf_Checker.Name_AndSimplify.
 Register Euf_Checker.Name_OrSimplify as SMTCoq.Trace.Euf_Checker.Name_OrSimplify.
-Register Euf_Checker.Name_ImpliesSimplify as SMTCoq.Trace.Euf_Checker.Name_ImpliesSimplify.
+Register Euf_Checker.Name_ImpSimplify as SMTCoq.Trace.Euf_Checker.Name_ImpSimplify.
 Register Euf_Checker.Name_EquivSimplify as SMTCoq.Trace.Euf_Checker.Name_EquivSimplify.
 Register Euf_Checker.Name_BoolSimplify as SMTCoq.Trace.Euf_Checker.Name_BoolSimplify.
 Register Euf_Checker.Name_ConnDef as SMTCoq.Trace.Euf_Checker.Name_ConnDef.
@@ -979,7 +979,7 @@ Register Euf_Checker.ImmBuildDef2 as SMTCoq.Trace.Euf_Checker.ImmBuildDef2.
 Register Euf_Checker.NotSimplify as SMTCoq.Trace.Euf_Checker.NotSimplify.
 Register Euf_Checker.AndSimplify as SMTCoq.Trace.Euf_Checker.AndSimplify.
 Register Euf_Checker.OrSimplify as SMTCoq.Trace.Euf_Checker.OrSimplify.
-Register Euf_Checker.ImpliesSimplify as SMTCoq.Trace.Euf_Checker.ImpliesSimplify.
+Register Euf_Checker.ImpSimplify as SMTCoq.Trace.Euf_Checker.ImpSimplify.
 Register Euf_Checker.EquivSimplify as SMTCoq.Trace.Euf_Checker.EquivSimplify.
 Register Euf_Checker.BoolSimplify as SMTCoq.Trace.Euf_Checker.BoolSimplify.
 Register Euf_Checker.ConnDef as SMTCoq.Trace.Euf_Checker.ConnDef.

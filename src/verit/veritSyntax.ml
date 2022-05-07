@@ -438,6 +438,93 @@ let rec merge ids_params =
 
 let to_add = ref []
 
+let typ_to_string (t : typ) : string =
+  match t with
+  | Assume -> "Assume"
+  | True -> "True"
+  | Fals -> "Fals"
+  | Notnot -> "Notnot"
+  | Threso -> "Threso"
+  | Reso -> "Reso"
+  | Taut -> "Taut"
+  | Cont -> "Cont"
+  | Refl -> "Refl"
+  | Trans -> "Trans"
+  | Cong -> "Cong"
+  | Eqre -> "Eqre"
+  | Eqtr -> "Eqtr"
+  | Eqco -> "Eqco"
+  | Eqcp -> "Eqcp"
+  | And -> "And"
+  | Nor -> "Nor"
+  | Or -> "Or"
+  | Nand -> "Nand"
+  | Xor1  -> "Xor1 "
+  | Xor2 -> "Xor2"
+  | Nxor1  -> "Nxor1 "
+  | Nxor2 -> "Nxor2"
+  | Imp -> "Imp"
+  | Nimp1 -> "Nimp1"
+  | Nimp2 -> "Nimp2"
+  | Equ1 -> "Equ1"
+  | Equ2 -> "Equ2"
+  | Nequ1 -> "Nequ1"
+  | Nequ2 -> "Nequ2"
+  | Andp -> "Andp"
+  | Andn -> "Andn"
+  | Orp -> "Orp"
+  | Orn -> "Orn"
+  | Xorp1 -> "Xorp1"
+  | Xorp2 -> "Xorp2"
+  | Xorn1 -> "Xorn1"
+  | Xorn2 -> "Xorn2"
+  | Impp -> "Impp"
+  | Impn1 -> "Impn1"
+  | Impn2 -> "Impn2"
+  | Equp1 -> "Equp1"
+  | Equp2 -> "Equp2"
+  | Equn1 -> "Equn1"
+  | Equn2 -> "Equn2"
+  | Ite1 -> "Ite1"
+  | Ite2 -> "Ite2"
+  | Itep1 -> "Itep1"
+  | Itep2 -> "Itep2"
+  | Iten1 -> "Iten1"
+  | Iten2 -> "Iten2"
+  | Nite1 -> "Nite1"
+  | Nite2 -> "Nite2"
+  | Conndef -> "Conndef"
+  | Andsimp -> "Andsimp"
+  | Orsimp -> "Orsimp"
+  | Notsimp -> "Notsimp"
+  | Impsimp -> "Impsimp"
+  | Eqsimp -> "Eqsimp"
+  | Boolsimp -> "Boolsimp"
+  | Acsimp -> "Acsimp"
+  | Itesimp -> "Itesimp"
+  | Equalsimp -> "Equalsimp"
+  | Distelim -> "Distelim"
+  | Lage -> "Lage"
+  | Liage -> "Liage"
+  | Lata -> "Lata"
+  | Lade -> "Lade"
+  | Divsimp -> "Divsimp"
+  | Prodsimp -> "Prodsimp"
+  | Uminussimp -> "Uminussimp"
+  | Minussimp -> "Minussimp"
+  | Sumsimp -> "Sumsimp"
+  | Compsimp -> "Compsimp"
+  | Larweq -> "Larweq"
+  | Bind -> "Bind"
+  | Fins -> "Fins"
+  | Qcnf -> "Qcnf"
+  | Allsimp -> "Allsimp"
+  | Same -> "Same"
+  | Hole -> "Hole"
+
+let mk_clause_to_string (id,typ,value,ids_params,args) = 
+  "("^id^", "^(typ_to_string typ)^", "^(String.concat " :: " (List.map SmtAtom.Form.to_string value))^", ["^(String.concat ", " ids_params)^"])"
+
 let mk_clause (id,typ,value,ids_params,args) =
   let kind =
     try 
@@ -619,6 +706,7 @@ let mk_clause (id,typ,value,ids_params,args) =
     if SmtTrace.isRoot kind then SmtTrace.mkRootV value
     else SmtTrace.mk_scertif kind (Some value) in
   add_clause id cl;
+  Printf.printf "adding clause %s with kind %s\n" (mk_clause_to_string (id,typ,value,ids_params,args)) (SmtCertif.to_string kind);
   id
 
 let mk_clause cl =

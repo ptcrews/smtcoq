@@ -861,7 +861,7 @@ let process_proj (c: certif): certif =
         | Not (Or ts), Not x -> 
             let i' = try list_find_index ts x term_eq with
                      | Debug s -> raise (Debug ("| process_proj: fails at id "^i^" |"^s)) in
-              (i, AndAST, cl, p, [(string_of_int i')]) :: aux tl cog
+              (i, NorAST, cl, p, [(string_of_int i')]) :: aux tl cog
         | _, _ -> raise (Debug ("| process_proj: expecting premise to be a `not (or)` at id "
                   ^i^" |")))
     | (i, OrnAST, cl, p, a) :: tl ->
@@ -869,7 +869,7 @@ let process_proj (c: certif): certif =
         | Or ts, Not x -> 
             let i' = try list_find_index ts x term_eq with
                      | Debug s -> raise (Debug ("| process_proj: fails at id "^i^" |"^s)) in
-              (i, AndAST, cl, p, [(string_of_int i')]) :: aux tl cog
+              (i, OrnAST, cl, p, [(string_of_int i')]) :: aux tl cog
         | _, _ -> raise (Debug 
                   ("| process_proj: expecting clause with `or` and `not` at id "^i^" |")))
     | (i, AndpAST, cl, p, a) :: tl ->
@@ -877,7 +877,7 @@ let process_proj (c: certif): certif =
         | Not (And ts), x ->
             let i' = try list_find_index ts x term_eq with
                      | Debug s -> raise (Debug ("| process_proj: fails at id "^i^" |"^s)) in
-              (i, AndAST, cl, p, [(string_of_int i')]) :: aux tl cog
+              (i, AndpAST, cl, p, [(string_of_int i')]) :: aux tl cog
         |  _, _ -> raise (Debug ("| process_proj: expecting clause with `not (and)` and projection at id "
                    ^i^" |")))
     | ircpa :: tl -> ircpa :: (aux tl cog)
