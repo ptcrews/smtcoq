@@ -143,7 +143,7 @@ let get_iff l =
 (* Transitivity *)
 (* list_find_remove p l finds the first element x in l, such that p(x) holds and returns (x, l') where l' is l without x *)
 let rec list_find_remove p = function
-    [] -> raise Not_found
+    [] -> raise (Debug "| list_find_remove: can't find element |")
   | h::t -> if p h
             then h, t
             else let (a, rest) = list_find_remove p t in
@@ -158,7 +158,7 @@ let rec process_trans a b prem res =
       (* Search if there is a trivial reflexivity premise *)
       try list_find_remove (fun (l,(a',b')) -> ((Atom.equal a' b) && (Atom.equal b' b))) prem
       (* If not, search for the equality [l:c = c'] s.t. [c = b] or [c' = b] *)
-      with | Not_found -> list_find_remove (fun (l,(a',b')) -> ((Atom.equal a' b) || (Atom.equal b' b))) prem in
+      with | Debug _ -> list_find_remove (fun (l,(a',b')) -> ((Atom.equal a' b) || (Atom.equal b' b))) prem in
     let c = if Atom.equal c b then c' else c in
     process_trans a c prem (l::res)
 
@@ -410,7 +410,7 @@ let clear_ref () = Hashtbl.clear ref_cl
    and return its instance *)
 let rec fins_lemma ids_params =
   match ids_params with
-    [] -> raise Not_found
+    [] -> raise (Debug "| fins_lemma: can't find a fins |")
   | h :: t -> let cl = try get_clause h with
                        | Debug s -> raise (Debug ("| fins_lemma: can't get clause |"^s)) in
               let cl_target = repr cl in
@@ -430,7 +430,7 @@ let rec merge ids_params =
   let rest_opt = try let lemma = fins_lemma ids_params in
                      let _, rest = find_remove_lemma lemma ids_params in
                      Some rest
-                 with Not_found -> None in
+                 with Debug _ -> None in
   match rest_opt with
     None -> ids_params
   | Some r -> merge r
@@ -438,7 +438,7 @@ let rec merge ids_params =
 
 let to_add = ref []
 
-let typ_to_string (t : typ) : string =
+(*let typ_to_string (t : typ) : string =
   match t with
   | Assume -> "Assume"
   | True -> "True"
@@ -523,7 +523,7 @@ let typ_to_string (t : typ) : string =
   | Hole -> "Hole"
 
 let mk_clause_to_string (id,typ,value,ids_params,args) = 
-  "("^id^", "^(typ_to_string typ)^", "^(String.concat " :: " (List.map SmtAtom.Form.to_string value))^", ["^(String.concat ", " ids_params)^"])"
+  "("^id^", "^(typ_to_string typ)^", "^(String.concat " :: " (List.map SmtAtom.Form.to_string value))^", ["^(String.concat ", " ids_params)^"])"*)
 
 let mk_clause (id,typ,value,ids_params,args) =
   let kind =
@@ -640,6 +640,7 @@ let mk_clause (id,typ,value,ids_params,args) =
       | Eqtr -> mkTrans value
       | Eqco -> mkCongr value
       | Eqcp -> mkCongrPred value
+      | Refl -> mkTrans value
       | Trans -> let prems = List.map get_clause ids_params in
         (match value with
           | l::_ -> Other (IffTrans (prems, l))
@@ -697,7 +698,6 @@ let mk_clause (id,typ,value,ids_params,args) =
       (* Not implemented *)
       | Bind -> raise (Debug ("| mk_clause: unimplemented rule bind |"))
       | Qcnf -> raise (Debug ("| mk_clause: unimplemented rule qnt_cnf |"))
-      | Refl -> raise (Debug ("| mk_clause: unimplemented rule refl |"))
       | Acsimp -> raise (Debug ("| mk_clause: unimplemented rule acsimp |")))
       with | Debug s -> raise (Debug ("| VeritSyntax.mk_clause: failing at id "^id^" |"^s))
   in
@@ -706,7 +706,7 @@ let mk_clause (id,typ,value,ids_params,args) =
     if SmtTrace.isRoot kind then SmtTrace.mkRootV value
     else SmtTrace.mk_scertif kind (Some value) in
   add_clause id cl;
-  Printf.printf "adding clause %s with kind %s\n" (mk_clause_to_string (id,typ,value,ids_params,args)) (SmtCertif.to_string kind);
+  (* Printf.printf "adding clause %s with kind %s\n" (mk_clause_to_string (id,typ,value,ids_params,args)) (SmtCertif.to_string kind); *)
   id
 
 let mk_clause cl =

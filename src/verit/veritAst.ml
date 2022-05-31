@@ -898,14 +898,16 @@ let process_proj (c: certif): certif =
 |  G   |                                Pi_3'
 --------               ----->           ...        
  [~H, G] --(1)                          H ^ ~G                          --(3)
-...                                     --------and
+...                                     --------and'
   Pi_3                                      H --(4)         H ^ ~G      --(3)      
-...                                        Pi_2             ------and        
+...                                        Pi_2             ------and'        
    []                                       G                 ~G        --(5)
                                             --------------------
                                                      []                 --(6)               
-Pi_3' replaces every step in P_3 that directly or indirectly uses (1), so that the result 
+Pi_3' replaces every step in Pi_3 that directly or indirectly uses (1), so that the result 
 naturally produces the original result v (H ^ ~G) 
+
+and' is and implemented through andPos and reso
 *)
 
 (* Function that takes a certif, a list of id pairs, and 
@@ -934,23 +936,29 @@ let clear_cids () = Hashtbl.clear cids
 
 (* Replace every derivation R, to derive (h ^ ~g) v R if it 
   (in)directly uses andn_id as a premise *)
-let extend_cl_aux (r : rule) (p : params) (pi3 : certif) : term * term list =
+let extend_cl_aux (r : rule) (p : params) (a : args) (pi3 : certif) : rule * clause =
   match r, (get_cl (List.hd p) pi3) with
-  | NandAST, Some (Not (And xs) :: []) -> (And xs, (List.map (fun x -> Not x) xs))
-  | OrAST, Some ((Or xs) :: []) -> (Not (Or xs), xs)
-  | ImpAST, Some ((Imp xs) :: []) -> (Not (Imp xs), [Not (List.nth xs 0); List.nth xs 1])
-  | Xor1AST, Some ((Xor xs) :: []) -> (Not (Xor xs), xs)
-  | Nxor1AST, Some ((Not (Xor xs)) :: []) -> (Xor xs, [List.nth xs 0; Not (List.nth xs 1)])
-  | Ite1AST, Some ((Ite xs) :: []) -> (Not (Ite xs), [List.nth xs 0; List.nth xs 1])
-  | Nite1AST, Some ((Not (Ite xs)) :: []) -> (Ite xs, [List.nth xs 0; Not (List.nth xs 2)])
-  | Xor2AST, Some ((Xor xs) :: []) -> (Not (Xor xs), (List.map (fun x -> Not x) xs))
-  | Nxor2AST, Some ((Not (Xor xs)) :: []) -> (Xor xs, [Not (List.nth xs 0); Not (List.nth xs 1)])
-  | Ite2AST, Some ((Ite xs) :: []) -> (Not (Ite xs), [Not (List.nth xs 0); List.nth xs 1])
-  | Nite2AST, Some ((Not (Ite xs)) :: []) -> (Ite xs, [Not (List.nth xs 0); Not (List.nth xs 1)])
-  | Equ1AST, Some ((Eq (x, y)) :: []) -> (Not (Eq (x, y)), [Not x; y])
-  | Nequ1AST, Some ((Not (Eq (x, y))) :: []) -> (Eq (x, y), [x;y])
-  | Equ2AST, Some ((Eq (x, y)) :: []) -> (Not (Eq (x, y)), [x; Not y])
-  | Nequ2AST, Some ((Not (Eq (x, y))) :: []) -> (Eq (x, y), [x; Not y])
+  | NandAST, Some [Not (And xs)] -> (AndnAST, And xs :: (List.map (fun x -> Not x) xs))
+  | OrAST, Some [Or xs] -> (OrpAST, Not (Or xs) :: xs)
+  | ImpAST, Some [Imp xs] -> (ImppAST, [Not (Imp xs); Not (List.nth xs 0); List.nth xs 1])
+  | Xor1AST, Some [Xor xs] -> (Xorp1AST, Not (Xor xs) :: xs)
+  | Nxor1AST, Some [Not (Xor xs)] -> (Xorn1AST, [Xor xs; List.nth xs 0; Not (List.nth xs 1)])
+  | Ite1AST, Some [Ite xs] -> (Itep1AST, [Not (Ite xs); List.nth xs 0; List.nth xs 1])
+  | Nite1AST, Some [Not (Ite xs)] -> (Iten1AST, [Ite xs; List.nth xs 0; Not (List.nth xs 2)])
+  | Xor2AST, Some [Xor xs] -> (Xorp2AST, Not (Xor xs) :: (List.map (fun x -> Not x) xs))
+  | Nxor2AST, Some [Not (Xor xs)] -> (Xorn2AST, [Xor xs; Not (List.nth xs 0); Not (List.nth xs 1)])
+  | Ite2AST, Some [Ite xs] -> (Itep2AST, [Not (Ite xs); Not (List.nth xs 0); List.nth xs 1])
+  | Nite2AST, Some [Not (Ite xs)] -> (Iten2AST, [Ite xs; Not (List.nth xs 0); Not (List.nth xs 1)])
+  | Equ1AST, Some [Eq (x, y)] -> (Equp2AST, [Not (Eq (x, y)); Not x; y])
+  | Nequ1AST, Some [Not (Eq (x, y))] -> (Equn2AST, [Eq (x, y); x;y])
+  | Equ2AST, Some [Eq (x, y)] -> (Equp1AST, [Not (Eq (x, y)); x; Not y])
+  | Nequ2AST, Some [Not (Eq (x, y))] -> (Equn1AST, [Eq (x, y); x; Not y])
+  | AndAST, Some [And xs] -> let n = int_of_string (List.hd a) in
+                              (AndpAST, [Not (And xs); List.nth xs n])
+  | NorAST, Some [Not (Or xs)] -> let n = int_of_string (List.hd a) in
+                              (OrnAST, [Or xs; List.nth xs n])
+  | Nimp1AST, Some [Not (Imp xs)] -> (Impn1AST, [Imp xs; List.nth xs 0])
+  | Nimp2AST, Some [Not (Imp xs)] -> (Impn2AST, [Imp xs; Not (List.nth xs 1)])
   | r, Some t -> raise (Debug ("| extend_cl_aux: unexpected rule "^(string_of_rule r)^"to extend_cl, or premise "^(string_of_clause t)^" to the rule at id "^(List.hd p)^" |"))
   | r, None -> raise (Debug ("| extend_cl_aux: rule "^(string_of_rule r)^" has no premise"^" |")) 
 let rec extend_cl (andn_id : id) (h : term) (g : term) (pi3 : certif) (pi3og : certif): certif =
@@ -963,7 +971,8 @@ let rec extend_cl (andn_id : id) (h : term) (g : term) (pi3 : certif) (pi3og : c
       (List.exists (fun x -> List.mem x (get_cids andn_id)) p) ->
         add_cid andn_id i;
         (i, ResoAST, ((And [h; Not g])) :: cl, p, a) :: extend_cl andn_id h g tl pi3og
-  (* Change Builddef/Builddef2 rules that use andn_id. For example, not_and:                                                  ----------------and_neg
+  (* Change ImmBuilddef/ImmBuilddef2/ImmBuildProj rules that use andn_id. For example, not_and:
+                                                         ----------------and_neg
    ~(x ^ y) --(andn_id)  --->    ~(x ^ y), (h ^ ~g)      (x ^ y), ~x, ~y  --(1)
   ----------not_and            ---------------------------------------res
     ~x, ~y                                    ~x, ~y, (h ^ ~g)  --(2)
@@ -971,19 +980,20 @@ let rec extend_cl (andn_id : id) (h : term) (g : term) (pi3 : certif) (pi3og : c
   | (i, r, cl, p, a) :: tl when
       (match r with
        | NandAST | OrAST | ImpAST | Xor1AST | Nxor1AST | Ite1AST | Nite1AST | Xor2AST
-       | Nxor2AST | Ite2AST | Nite2AST | Equ1AST | Nequ1AST | Equ2AST | Nequ2AST -> true
+       | Nxor2AST | Ite2AST | Nite2AST | Equ1AST | Nequ1AST | Equ2AST | Nequ2AST 
+       | AndAST | NorAST | Nimp1AST | Nimp2AST -> true
        | _ -> false)
               &&
-      (* Not_and that directly uses andn_id *)
+      (* ImmBuilddef(2)/ImmBuildProj that directly uses andn_id *)
       ((List.mem andn_id p)
               ||
-      (* Not_and that indirectly uses andn_id *)
+      (* ImmBuilddef(2)/ImmBuildProj that indirectly uses andn_id *)
       (List.exists (fun x -> List.mem x (get_cids andn_id)) p)) ->
         add_cid andn_id i;
-        let taut1, taut2 = extend_cl_aux r p pi3og in
+        let rul, claus = extend_cl_aux r p a pi3og in
         let taut_id = generate_id () in
-        (taut_id, AndnAST, taut1 :: taut2, [], []) :: (* (1) *)
-        (i, ResoAST, taut2, taut_id :: p, []) :: (* (2) *)
+        (taut_id, rul, claus, [], []) ::                    (* (1) *)
+        (i, ResoAST, (List.tl claus), taut_id :: p, []) ::  (* (2) *)
         extend_cl andn_id h g tl pi3og
   | hd :: tl -> hd :: (extend_cl andn_id h g tl pi3og)
   | [] -> []
@@ -1003,7 +1013,8 @@ let process_subproof_aux (andn_id : id) (new_h_id : id) (g_id : id) (pi2 : certi
 
 let rec process_subproof (c : certif) : certif =
   match c with
-  | (i, SubproofAST cert, cl, p, a) :: pi3 ->
+  | (i, SubproofAST cert, cl, p, a) :: pi3' ->
+      let pi3 = process_subproof pi3' in
       (match List.hd (List.rev cert) with
       | (andn_id, DischargeAST, (Not h) :: g :: [], p', a') ->
           (* Remove first and last element of sub-proof certificate *)
@@ -1023,6 +1034,67 @@ let rec process_subproof (c : certif) : certif =
   | [] -> clear_cids (); []
 
 
+(* Process _simplify rules from Alethe 
+   Each rule has multiple variants, all taking the form
+   a <-> b
+   To prove a <-> b:
+   1. Prove ~a v b via subproof discharge
+   2. Prove ~b v a via subproof discharge
+   3. Prove a <-> b v ~a v ~b via equiv_neg1
+   4. Prove a <-> b by resolving 3,2,1
+*)
+let simplify_to_subproof (i: id) (a: term) (b: term) (a2b: certif) (b2a: certif) : certif =
+  (* Step 1. *)
+  let sp1id = generate_id () in
+  let subp1 = (generate_id (), AssumeAST, [a], [], []) ::
+              (a2b @ 
+              [(sp1id, DischargeAST, [Not a; b], [], [])]) in
+  (* Step 2. *)
+  let sp2id = generate_id () in
+  let subp2 = (generate_id (), AssumeAST, [b], [], []) ::
+              (b2a @ 
+              [(sp2id, DischargeAST, [Not b; a], [], [])]) in
+  let eqn1id = generate_id () in
+  (* subp1 @ subp2 @  *)
+  (generate_id (), SubproofAST subp1, [], [], []) ::
+  (generate_id (), SubproofAST subp2, [], [], []) ::
+  (* Step 3. *)
+  ((eqn1id, Equn1AST, [Eq (a, b); Not a; Not b], [], []) ::
+  (* Step 4. *)
+   (i, ResoAST, [Eq (a,b)], [eqn1id; sp1id; sp2id], []) 
+   :: [])
+
+let rec repeat (n : int) (t : 'a) (c : 'a list): 'a list =
+  if (n > 0) then 
+    repeat (n-1) t (t :: c)
+  else c
+let rec repeat_step (n : int) (l : id list) (t : rule * clause * params * args) (c : certif): certif =
+  match n, l, t with
+  | n, i :: tl, (r, cl, p, a) when n > 0 -> repeat_step (n-1) tl t ((i, r, cl, p, a) :: c)
+  | 0, [], _ -> c
+  | _ -> raise (Debug ("| repeat_step: number of ids is different from n |"))
+let rec process_simplify (c : certif) : certif =
+  match c with
+  | (i, AndsimpAST, cl, p, a) :: tl ->
+      (match cl with
+       | Eq (lhs, rhs) :: [] ->
+          (match (lhs, rhs) with
+           | And xs, True when (List.for_all (fun x -> x = True) xs) ->
+             let a2b = [(generate_id (), TrueAST, [True], [], [])] in
+             let n = List.length xs in
+             let n_ids = generate_ids n in
+             let andn_id = generate_id () in
+             let b2a = [andn_id, AndnAST, (lhs :: (repeat n (Not True) [])), [], []] @
+                       (repeat_step n n_ids (TrueAST, [True], [], []) []) @
+                       [generate_id (), ResoAST, [lhs], andn_id :: n_ids, []]
+                         in
+             (simplify_to_subproof i lhs rhs a2b b2a) @ tl
+           | _ -> tl)
+       | _ -> raise (Debug ("| process_simplify: expecting argument of and_simplify to be an equivalence at id "^i^" |")))
+  | h :: tl -> h :: process_simplify tl
+  | nil -> nil
+
+
 (* Final processing and linking of AST *)
 
 let preprocess_certif (c: certif) : certif =
@@ -1032,15 +1104,17 @@ let preprocess_certif (c: certif) : certif =
   Printf.printf ("Certif after storing shared terms: \n%s\n") (string_of_certif c1);
   let c2 = process_fins c1 in
   Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2);
-  let c3 = process_subproof c2 in
-  Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c3);
-  let c4 = remove_notnot c3 in
-  Printf.printf ("Certif after remove_notnot: \n%s\n") (string_of_certif c4);
-  let c5 = process_cong c4 in
-  Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c5);
-  let c6 = process_proj c5 in
-  Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c6);
-  c6) with
+  let c3 = process_simplify c2 in
+  Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c3);
+  let c4 = process_subproof c3 in
+  Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c4);
+  let c5 = remove_notnot c4 in
+  Printf.printf ("Certif after remove_notnot: \n%s\n") (string_of_certif c5);
+  let c6 = process_cong c5 in
+  Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c6);
+  let c7 = process_proj c6 in
+  Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c7);
+  c7) with
   | Debug s -> raise (Debug ("| VeritAst.preprocess_certif: failed to preprocess |"^s))
 
 let rec process_certif (c : certif) : VeritSyntax.id list =
