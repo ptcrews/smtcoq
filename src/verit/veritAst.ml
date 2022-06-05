@@ -516,12 +516,13 @@ let process_fins (c : certif) : certif =
 (* Remove notnot rule from certificate *)
 
 (* Soundly remove all notnot rules from certificate *)
-let rec remove_notnot (c : certif) : certif = 
+(* We assume that a ~~x is stored as just x by process_term *)
+let rec process_notnot (c : certif) : certif = 
   match c with
-  | (i, NotnotAST, cl, p, a) :: tl -> remove_notnot (remove_res_premise i tl)
+  | (i, NotnotAST, cl, p, a) :: tl -> process_notnot (remove_res_premise i tl)
   | (i, NotsimpAST, (Eq (Not (Not x), y) :: []), p, a) :: tl when x = y -> 
-      (i, ReflAST, (Eq (x, x) :: []), [], []) :: remove_notnot tl
-  | h :: tl -> h :: remove_notnot tl
+      (i, ReflAST, (Eq (x, x) :: []), [], []) :: process_notnot tl
+  | h :: tl -> h :: process_notnot tl
   | [] -> []
 
 
@@ -1114,8 +1115,8 @@ let preprocess_certif (c: certif) : certif =
   Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c3);
   let c4 = process_subproof c3 in
   Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c4);
-  let c5 = remove_notnot c4 in
-  Printf.printf ("Certif after remove_notnot: \n%s\n") (string_of_certif c5);
+  let c5 = process_notnot c4 in
+  Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c5);
   let c6 = process_cong c5 in
   Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c6);
   let c7 = process_proj c6 in

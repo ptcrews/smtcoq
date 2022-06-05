@@ -35,14 +35,14 @@ Local Open Scope int31_scope.
 Local Open Scope array_scope.
 Local Open Scope int63_scope.
 
-(* Section AndSimp.
+Section AndSimp.
   Verit_Checker "../examples/andsimp.smt2" "../examples/andsimp.vtlog".
-End AndSimp. *)
+End AndSimp.
 
 Section NotSimp1.
   Verit_Checker "../examples/notsimp1.smt2" "../examples/notsimp1.vtlog".
 End NotSimp1.
 
-(* Section NotSimp2.
+Section NotSimp2.
   Verit_Checker "../examples/notsimp2.smt2" "../examples/notsimp2.vtlog".
-End NotSimp2. *)
+End NotSimp2.
