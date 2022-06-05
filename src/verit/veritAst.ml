@@ -1044,15 +1044,15 @@ let rec process_subproof (c : certif) : certif =
    3. Prove a <-> b v ~a v ~b via equiv_neg1
    4. Prove a <-> b by resolving 3,2,1
 *)
-let simplify_to_subproof (i: id) (a: term) (b: term) (a2b: certif) (b2a: certif) : certif =
+let simplify_to_subproof (i: id) (a2bi: id) (b2ai: id) (a: term) (b: term) (a2b: certif) (b2a: certif) : certif =
   (* Step 1. *)
   let sp1id = generate_id () in
-  let subp1 = (generate_id (), AssumeAST, [a], [], []) ::
+  let subp1 = (a2bi, AssumeAST, [a], [], []) ::
               (a2b @ 
               [(sp1id, DischargeAST, [Not a; b], [], [])]) in
   (* Step 2. *)
   let sp2id = generate_id () in
-  let subp2 = (generate_id (), AssumeAST, [b], [], []) ::
+  let subp2 = (b2ai, AssumeAST, [b], [], []) ::
               (b2a @ 
               [(sp2id, DischargeAST, [Not b; a], [], [])]) in
   let eqn1id = generate_id () in
@@ -1078,7 +1078,7 @@ let rec process_simplify (c : certif) : certif =
   match c with
   | (i, AndsimpAST, cl, p, a) :: tl ->
       (match cl with
-       | Eq (And xs, True) :: [] when (List.for_all (fun x -> x = True) xs) ->
+       | Eq ((And xs as lhs), (True as rhs)) :: [] when (List.for_all (fun x -> x = True) xs) ->
           let a2b = [(generate_id (), TrueAST, [True], [], [])] in
           let n = List.length xs in
           let n_ids = generate_ids n in
@@ -1087,17 +1087,78 @@ let rec process_simplify (c : certif) : certif =
                     (repeat_step n n_ids (TrueAST, [True], [], []) []) @
                     [generate_id (), ResoAST, [And xs], andn_id :: n_ids, []]
                       in
-          (simplify_to_subproof i (And xs) True a2b b2a) @ tl
+          (simplify_to_subproof i (generate_id ()) (generate_id ()) lhs rhs a2b b2a) @ tl
        | Eq _ :: [] -> (i, AndsimpAST, cl, p, a) :: process_simplify tl
        | _ -> raise (Debug ("| process_simplify: expecting argument of and_simplify to be an equivalence at id "^i^" |")))
   | (i, NotsimpAST, cl, p, a) :: tl ->
       (match cl with
-       | Eq (Not False, True) :: [] ->
+       | Eq ((Not False as lhs), (True as rhs)) :: [] ->
           let a2b = [(generate_id (), TrueAST, [True], [], [])] in
           let b2a = [(generate_id (), FalsAST, [Not False], [], [])] in
-          (simplify_to_subproof i (Not False) True a2b b2a) @ tl
+          (simplify_to_subproof i (generate_id ()) (generate_id ()) lhs rhs a2b b2a) @ tl
        | Eq _ :: [] -> (i, NotsimpAST, cl, p, a) :: process_simplify tl
        | _ -> raise (Debug ("| process_simplify: expecting argument of and_simplify to be an equivalence at id "^i^" |")))
+  | (i, BoolsimpAST, cl, p, a) :: tl ->
+      (match cl with
+       | Eq ((Not (Imp [x; y]) as lhs), (And [a; Not b] as rhs)) :: [] when (x = a && y = b) ->
+          let a2bi = generate_id () in
+          let impn1i = generate_id () in
+          let impn2i = generate_id () in
+          let res_1i = generate_id () in
+          let res_2i = generate_id () in
+          let andni = generate_id () in
+          let res_3i = generate_id () in
+          let a2b = [(impn1i, Impn1AST, [Imp [x;y]; x], [], []);
+                     (res_1i, ResoAST, [x], [impn1i;a2bi], []);
+                     (impn2i, Impn2AST, [Imp [x;y]; Not y], [], []);
+                     (res_2i, ResoAST, [Not y], [impn2i;a2bi], []);
+                     (andni, AndnAST, [And [x;Not y]; Not x; Not (Not y)], [], []);
+                     (res_3i, ResoAST, [rhs], [andni;res_1i;res_2i], [])] in
+          let b2ai = generate_id () in
+          let andp_1i = generate_id () in
+          let res_1i = generate_id () in
+          let andp_2i = generate_id () in
+          let res_2i = generate_id () in
+          let imppi = generate_id () in
+          let res_3i = generate_id () in
+          let b2a = [(andp_1i, AndpAST, [Not rhs; x], [], []);
+                     (res_1i, ResoAST, [x], [andp_1i;b2ai], []);
+                     (andp_2i, AndpAST, [Not rhs; Not y], [], []);
+                     (res_2i, ResoAST, [Not y], [andp_2i;b2ai], []);
+                     (imppi, ImppAST, [lhs; Not x; y], [], []);
+                     (res_3i, ResoAST, [lhs], [imppi;res_1i;res_2i], [])] in
+          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ tl
+      | Eq ((Not (Or [x;y]) as lhs), (And [Not a;Not b] as rhs)) :: [] when (x = a && y = b) ->
+         let a2bi = generate_id () in
+         let orn_1i = generate_id () in
+         let res_1i = generate_id () in
+         let orn_2i = generate_id () in
+         let res_2i = generate_id () in
+         let andni = generate_id () in
+         let res_3i = generate_id () in
+         let a2b = [(orn_1i, OrnAST, [Or [x;y]; Not x], [], []);
+                    (res_1i, ResoAST, [Not x], [orn_1i;a2bi], []);
+                    (orn_2i, OrnAST, [Or [x;y]; Not y], [], []);
+                    (res_2i, ResoAST, [Not y], [orn_2i;a2bi], []);
+                    (andni, AndnAST, [rhs; Not x; Not y], [], []);
+                    (res_3i, ResoAST, [rhs], [andni;res_1i;res_2i], [])] in
+         let b2ai = generate_id () in
+         let andp_1i = generate_id () in
+         let res_1i = generate_id () in
+         let andp_2i = generate_id () in
+         let res_2i = generate_id () in
+         let orpi = generate_id () in
+         let res_3i = generate_id () in
+         let b2a = [(andp_1i, AndpAST, [Not rhs; Not x], [], []);
+                    (res_1i, ResoAST, [Not x], [andp_1i;b2ai], []);
+                    (andp_2i, AndpAST, [Not rhs; Not y], [], []);
+                    (res_2i, ResoAST, [Not y], [andp_2i;b2ai], []);
+                    (orpi, OrpAST, [lhs; x; y], [], []);
+                    (res_3i, ResoAST, [lhs], [orpi;res_1i;res_2i], [])] in
+         (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ tl
+      | Eq _ :: [] -> (i, BoolsimpAST, cl, p, a) :: process_simplify tl
+      | _ -> raise (Debug ("| process_simplify: expecting argument of bool_simplify to be an equivalence at id "^i^" |"))
+      )
   | h :: tl -> h :: process_simplify tl
   | nil -> nil
 
