@@ -1,0 +1,5 @@
+(set-logic UFLIA)
+(assert (not false))
+(assert (not true))
+(check-sat)
+(exit)

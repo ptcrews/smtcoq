@@ -518,10 +518,10 @@ let process_fins (c : certif) : certif =
 (* Soundly remove all notnot rules from certificate *)
 let rec remove_notnot (c : certif) : certif = 
   match c with
-  | (i, r, cl, p, a) :: t ->
-      (match r with
-      | NotnotAST -> remove_notnot (remove_res_premise i t)
-      | _ -> (i, r, cl, p, a) :: remove_notnot t)
+  | (i, NotnotAST, cl, p, a) :: tl -> remove_notnot (remove_res_premise i tl)
+  | (i, NotsimpAST, (Eq (Not (Not x), y) :: []), p, a) :: tl when x = y -> 
+      (i, ReflAST, (Eq (x, x) :: []), [], []) :: remove_notnot tl
+  | h :: tl -> h :: remove_notnot tl
   | [] -> []
 
 
@@ -1077,19 +1077,25 @@ let rec process_simplify (c : certif) : certif =
   match c with
   | (i, AndsimpAST, cl, p, a) :: tl ->
       (match cl with
-       | Eq (lhs, rhs) :: [] ->
-          (match (lhs, rhs) with
-           | And xs, True when (List.for_all (fun x -> x = True) xs) ->
-             let a2b = [(generate_id (), TrueAST, [True], [], [])] in
-             let n = List.length xs in
-             let n_ids = generate_ids n in
-             let andn_id = generate_id () in
-             let b2a = [andn_id, AndnAST, (lhs :: (repeat n (Not True) [])), [], []] @
-                       (repeat_step n n_ids (TrueAST, [True], [], []) []) @
-                       [generate_id (), ResoAST, [lhs], andn_id :: n_ids, []]
-                         in
-             (simplify_to_subproof i lhs rhs a2b b2a) @ tl
-           | _ -> tl)
+       | Eq (And xs, True) :: [] when (List.for_all (fun x -> x = True) xs) ->
+          let a2b = [(generate_id (), TrueAST, [True], [], [])] in
+          let n = List.length xs in
+          let n_ids = generate_ids n in
+          let andn_id = generate_id () in
+          let b2a = [andn_id, AndnAST, (And xs :: (repeat n (Not True) [])), [], []] @
+                    (repeat_step n n_ids (TrueAST, [True], [], []) []) @
+                    [generate_id (), ResoAST, [And xs], andn_id :: n_ids, []]
+                      in
+          (simplify_to_subproof i (And xs) True a2b b2a) @ tl
+       | Eq _ :: [] -> (i, AndsimpAST, cl, p, a) :: process_simplify tl
+       | _ -> raise (Debug ("| process_simplify: expecting argument of and_simplify to be an equivalence at id "^i^" |")))
+  | (i, NotsimpAST, cl, p, a) :: tl ->
+      (match cl with
+       | Eq (Not False, True) :: [] ->
+          let a2b = [(generate_id (), TrueAST, [True], [], [])] in
+          let b2a = [(generate_id (), FalsAST, [Not False], [], [])] in
+          (simplify_to_subproof i (Not False) True a2b b2a) @ tl
+       | Eq _ :: [] -> (i, NotsimpAST, cl, p, a) :: process_simplify tl
        | _ -> raise (Debug ("| process_simplify: expecting argument of and_simplify to be an equivalence at id "^i^" |")))
   | h :: tl -> h :: process_simplify tl
   | nil -> nil

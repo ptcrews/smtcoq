@@ -162,7 +162,20 @@ let rec process_trans a b prem res =
     let c = if Atom.equal c b then c' else c in
     process_trans a c prem (l::res)
 
-let mkTrans p =
+let rec process_trans_form a b prem res =
+  if List.length prem = 0 then (
+    assert (Form.equal a b);
+    List.rev res
+  ) else
+    let ((l,(c,c')),prem) =
+      (* Search if there is a trivial reflexivity premise *)
+      try list_find_remove (fun (l,(a',b')) -> ((Form.equal a' b) && (Form.equal b' b))) prem
+      (* If not, search for the equality [l:c = c'] s.t. [c = b] or [c' = b] *)
+      with | Debug _ -> list_find_remove (fun (l,(a',b')) -> ((Form.equal a' b) || (Form.equal b' b))) prem in
+    let c = if Form.equal c b then c' else c in
+    process_trans_form a c prem (l::res)
+
+(* let mkTrans p =
   let (concl,prem) = List.partition Form.is_pos p in
   match concl with
   |[c] ->
@@ -172,8 +185,29 @@ let mkTrans p =
                       | Debug s -> raise (Debug ("| mkTrans: can't fetch premise |"^s)) in
     let cert = (process_trans a b prem_val []) in
     Other (EqTr (c,cert))
-  |_ -> raise (Debug "| mkTrans: 0 or more than 1 conclusions |")
+  |_ -> raise (Debug "| mkTrans: 0 or more than 1 conclusions |") *)
 
+let mkTrans p =
+  let (concl,prem) = List.partition Form.is_pos p in
+  match concl with
+  |[c] ->
+    let cert =
+      (if is_eq c then
+        let a,b = try get_eq c with
+                  | Debug s -> raise (Debug ("| mkTrans: can't fetch conclusion of equality|"^s)) in
+        let prem_val = try List.map (fun l -> (l,get_eq l)) prem with
+                      | Debug s -> raise (Debug ("| mkTrans: can't fetch premise equality|"^s)) in
+        (process_trans a b prem_val [])
+      else if is_iff c then
+        let a,b = try get_iff c with
+                  | Debug s -> raise (Debug ("| mkTrans: can't fetch conclusion of iff|"^s)) in
+        let prem_val = try List.map (fun l -> (l,get_iff l)) prem with
+                      | Debug s -> raise (Debug ("| mkTrans: can't fetch premise iff |"^s)) in         
+        (process_trans_form a b prem_val [])
+      else
+        raise (Debug ("| mkTrans: expecting premises and conclusion to be iff or eq |"))) in
+    Other (EqTr (c,cert))
+  |_ -> raise (Debug "| mkTrans: 0 or more than 1 conclusions |")
 
 (* Congruence *)
 
