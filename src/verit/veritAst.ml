@@ -1076,8 +1076,20 @@ let rec repeat_step (n : int) (l : id list) (t : rule * clause * params * args) 
   | _ -> raise (Debug ("| repeat_step: number of ids is different from n |"))
 let rec process_simplify (c : certif) : certif =
   match c with
+  (* x_1 ^ ... ^ x_n <-> y *)
   | (i, AndsimpAST, cl, p, a) :: tl ->
       (match cl with
+       (* T ^ ... ^ T <-> T *)
+          (* T ^ T <-> T
+             LTR:
+             --true
+             T
+             RTL:
+             -------------and_neg   --asmp  --asmp
+             T ^ T, ~T, ~T          T       T
+             --------------------------------
+                          T ^ T
+          *)
        | Eq ((And xs as lhs), (True as rhs)) :: [] when (List.for_all (fun x -> x = True) xs) ->
           let a2b = [(generate_id (), TrueAST, [True], [], [])] in
           let n = List.length xs in
@@ -1088,18 +1100,341 @@ let rec process_simplify (c : certif) : certif =
                     [generate_id (), ResoAST, [And xs], andn_id :: n_ids, []]
                       in
           (simplify_to_subproof i (generate_id ()) (generate_id ()) lhs rhs a2b b2a) @ tl
+       (* x_1 ^ ... ^ x_n <-> x_1 ^ ... ^ x_n', RHS has all T removed *)
+          (* x ^ y ^ T <-> x ^ y
+             LTR:
+             ---------asmp    ---------asmp
+             x ^ y ^ T        x ^ y ^ T
+             ---------and     ---------and    -------------and_neg
+                 x                y           x ^ y, ~x, ~y
+                -------------------------------------------res
+                                    x ^ y
+             RTL:
+             -----asmp    -----asmp
+             x ^ y        x ^ y
+             -----and     -----and     ---true  ---------------------and_neg
+               x            y           T       x ^ y ^ T, ~x, ~y, ~T
+               ------------------------------------------------------res
+                                    x ^ y ^ T
+          *)
+       (* x_1 ^ ... ^ x_n <-> x_1 ^ ... ^ x_n', RHS has all repeated literals removed *)
+          (* x ^ y ^ x <-> x ^ y
+             LTR:
+             ---------asmp    ---------asmp
+             x ^ y ^ x        x ^ y ^ x
+             ---------and     ---------and    -------------and_neg
+                 x                y           x ^ y, ~x, ~y
+                 ------------------------------------------res
+                                  x ^ y
+             RTL:
+             -----asmp    -----asmp    -----asmp
+             x ^ y        x ^ y        x ^ y
+             -----and     -----and     -----and   ---------------------and_neg
+               x            y            x        x ^ y ^ x, ~x, ~y, ~x
+               --------------------------------------------------------res
+                                      x ^ y ^ x
+          *)
+       (* x_1 ^ ... F ... ^ x_n <-> F *)
+          (* x ^ F <-> F
+             LTR:
+             -----asmp
+             x ^ F
+             -----and
+               F
+             RTL: can't derive x from F without an absurd rule which we don't have.
+             Assume that this equivalence is never used in this direction, ie proofs with the 
+             equivalence always reduce the equivalence to the LTR implication before proceeding.
+          *)
+       (* x_1 ^ ... x_i ... x_j ... ^ x_n <-> F, if x_i = ~x_j *)
+          (* x ^ ~x <-> F
+             LTR:
+             ------ass     ------ass
+             x ^ ~x        x ^ ~x
+             ------and     ------and
+               x             ~x
+               ----------------res
+                      F
+             RTL: can't derive x and ~x from F without an absurd rule which we don't have
+             Assume that this equivalence is never used in this direction, ie proofs with the 
+             equivalence always reduce the equivalence to the LTR implication before proceeding.
+          *)
        | Eq _ :: [] -> (i, AndsimpAST, cl, p, a) :: process_simplify tl
        | _ -> raise (Debug ("| process_simplify: expecting argument of and_simplify to be an equivalence at id "^i^" |")))
+  (* x_1 v ... v x_n <-> y *)
+  | (i, OrsimpAST, cl, p, a) :: tl ->
+      (match cl with
+       (* F v ... v F <-> F *)
+          (* F v F <-> F
+             LTR: 
+             -----asmp  ---false  --------------or_pos
+             F v F      ~F        ~(F v F), F, F
+             -----------------------------------res
+                              F
+             RTL:
+             --asmp   ---------or_neg
+             F        F v F, ~F
+             ------------------res
+                    F v F
+          *)
+       (* x_1 v ... v x_n <-> x_1 v ... x_n', RHS has all F removed *)
+          (* x v y v F <-> x v y
+             TODO: check assumption that resolution doesn't differentiate betwen 
+             x,y and x v y.
+             LTR:
+             ---------asmp  --false
+             x v y v F      ~F
+             -----------------res
+                    x v y
+             -----asmp  --------------or_pos
+             x v y      ~(x v y), x, y
+             -------------------------res   ---------------or_neg   ---------------or_neg
+                        x,y                 (x v y v F), ~x         (x v y v F), ~y
+                        -----------------------------------------------------------res
+                                                  x v y v F
+            TODO: if the above assumption is true, the or step below is spurious
+            RTL:
+            -----asmp
+            x v y
+            -----or   ---------------or_neg   ---------------or_neg
+             x,y      (x v y v x), ~x         (x v y v x), ~y
+             ------------------------------------------------res
+                                x v y v x
+          *)
+       (* x_1 v ... v x_n <-> x_1 v ... x_n', RHS has all repeated literals removed *)
+          (* x v y v x <-> x v y
+             TODO: this whole equivalence might be spurious if SMTCoq doesn't differentiate clauses from ors since
+              it removes duplicate literals in clauses
+             TODO: if the above assumption is true, the or step below is spurious
+             TODO: we use the assumption that SMTCoq automatically removes duplicates from clauses
+             LTR:
+             ---------asmp
+             x v y v x
+             ---------or
+                x,y
+             RTL:
+             -----asmp
+             x v y
+             -----or  ---------------or_neg   ---------------or_neg
+              x,y     (x v y v x), ~x         (x v y v x), ~y
+              -----------------------------------------------res
+                                x v y v x
+          *)
+       (* x_1 v ... T ... x_n <-> T *)
+          (* x v T <-> T
+             LTR:
+             --true
+             T
+             RTL:
+             --asmp   -----------or_neg
+             T        (x v T), ~T
+             --------------------res
+                    x v T
+          *)
+       (* x_1 v ... x_i ... x_j ... x_n <-> T, if x_i = ~x_j *)
+          (* x v ~x <-> T
+             LTR:
+             --true
+             T
+             RTL:
+             --------------or_neg -------------or_neg
+             (x v ~x), ~x         (x v ~x), ~~x
+             ----------------------------------res
+                           x v ~x
+          *)
+       | Eq _ :: [] -> (i, OrsimpAST, cl, p, a) :: process_simplify tl
+       | _ -> raise (Debug ("| process_simplify: expecting argument of or_simplify to be an equivalence at id "^i^" |")))
+  (* ~x <-> y *)
   | (i, NotsimpAST, cl, p, a) :: tl ->
       (match cl with
+       (* ~F <-> T *)
+          (*
+             LTR:
+             --true
+             T
+             RTL:
+             --false
+             ~F
+          *)
        | Eq ((Not False as lhs), (True as rhs)) :: [] ->
           let a2b = [(generate_id (), TrueAST, [True], [], [])] in
           let b2a = [(generate_id (), FalsAST, [Not False], [], [])] in
           (simplify_to_subproof i (generate_id ()) (generate_id ()) lhs rhs a2b b2a) @ tl
+       (* ~T <-> F *)
+          (*
+             LTR:
+             --asmp --true
+             ~T     T
+             --------
+                F
+             RTL: can't derive ~T from F without an absurd rule which we don't have.
+             Assume that this equivalence is never used in this direction, ie proofs with the 
+             equivalence always reduce the equivalence to the LTR implication before proceeding.
+          *)
+       (* ~(~x) <-> x *)
+          (* Nothing to do here, SMTCoq will see it as a refl *)
        | Eq _ :: [] -> (i, NotsimpAST, cl, p, a) :: process_simplify tl
        | _ -> raise (Debug ("| process_simplify: expecting argument of and_simplify to be an equivalence at id "^i^" |")))
+  | (i, ImpsimpAST, cl, p, a) :: tl ->
+      (match cl with
+       (* (~x -> y) <-> (y -> x) *)
+          (*
+             LTR:
+             -------asmp
+             ~x -> y
+             -------imp   ---------imp_neg1   ----------imp_neg2
+             ~~x, ~y      y -> x, y           y -> x, ~x
+             -------------------------------------------res
+                              y -> x
+             RTL:
+             ------asmp
+             y -> x
+             ------imp     ------------imp_neg1  -------------imp_neg2
+             ~y, x         ~x -> ~y, ~x          ~x -> ~y, ~~y
+             -------------------------------------------------res
+                                 ~x -> ~y
+          *)
+       (* (F -> x) <-> T *)
+          (*
+             LTR:
+             --true
+             T
+             RTL:
+             ---------imp_neg1  --false
+             F -> x, F          ~F
+             ---------------------res
+                     F -> x
+          *)
+       (* (x -> T) <-> T *)
+          (*
+             LTR:
+             --true
+             T
+             RTL:
+             --asmp   ----------imp_neg2
+             x        T -> x, ~x
+             -------------------res
+                   T -> x
+          *)
+       (* (T -> x) <-> x *)
+          (*
+             LTR:
+             ------asmp
+             T -> x
+             ------implies
+             ~T, x      T
+             ------------res
+                  x
+             RTL:
+             --asmp -----------imp_neg2
+             x      T -> x, ~x
+             -----------------res
+                  T -> x
+          *)
+       (* (x -> F) <-> ~x *)
+          (*
+             LTR:
+             ------asmp
+             x -> F
+             ------imp  --false
+             ~x, F      ~F
+             -------------res
+                   ~x
+             RTL:
+             --asmp   ---------imp_neg1
+             ~x       x -> F, x
+             ------------------res
+                  x -> F
+          *)
+       (* (x -> x) <-> T *)
+          (*
+             LTR:
+             --true
+             T
+             RTL:
+             ---------imp_neg1  ----------imp_neg1
+             x -> x, x          x -> x, ~x
+             -----------------------------res
+                         x -> x
+          *)
+       (* (~x -> x) <-> x *)
+          (* TODO: check that ~~x is stored as x and duplicates are removed
+             LTR:
+             -------asmp  ------------------imp_pos
+             ~x -> x      ~(~x -> x), ~~x, x
+             -------------------------------res
+                            x
+             RTL:
+             --asmp -----------imp_neg1
+             x      ~x -> x, ~x
+             ------------------res
+                  ~x -> x
+          *)
+       (* (x -> ~x) <-> ~x *)
+          (*
+             LTR:
+             -------asmp  ------------------imp_pos
+             x -> ~x      ~(x -> ~x), ~x, ~x
+             -------------------------------res
+                           ~x
+             RTL:
+             --asmp   ----------imp_neg1
+             ~x       x -> ~x, x
+             -------------------
+                  x -> ~x
+          *)
+       (* ((x -> y) -> y) <-> (x v y) *)
+          (*
+             LTR:
+             -------------asmp
+             (x -> y) -> y
+             -------------imp   ---------or_neg   ---------imp_neg1   ---------or_neg
+             ~(x -> y), y       x v y, ~y         x -> y, x           x v y, ~x
+             ------------------------------------------------------------------res    
+                                            x v y
+
+             RTL:
+             -----asmp  
+             x v y      
+             -----or    ---------------------imp_neg1   ----------------imp_pos   -----------------imp_neg2
+             x, y       (x -> y) -> y, x -> y           ~(x -> y), ~x, y          (x -> y) -> y, ~y       
+             --------------------------------------------------------------------------------------res
+                                                (x -> y) -> y
+          *)
+       | Eq _ :: [] -> (i, ImpsimpAST, cl, p, a) :: process_simplify tl
+       | _ -> raise (Debug ("| process_simplify: expecting argument of implies_simplify to be an equivalence at id "^i^" |")))
+  (* (x <-> y) <-> z *)
+  | (i, EqsimpAST, cl, p, a) :: tl ->
+      (match cl with
+       (* (~x <-> ~y) <-> (x <-> y) *)
+       (* (x <-> x) <-> T *)
+       (* (x <-> ~x) <-> F *)
+       (* (~x <-> x) <-> F *)
+       (* (T <-> x) <-> x *)
+       (* (x <-> T) <-> x *)
+       (* (F <-> x) <-> ~x *)
+       (* (x <-> F) <-> ~x *)
+       | Eq _ :: [] -> (i, EqsimpAST, cl, p, a) :: process_simplify tl
+       | _ -> raise (Debug ("| process_simplify: expecting argument of equiv_simplify to be an equivalence at id "^i^" |")))
+  (* x <-> y *)
   | (i, BoolsimpAST, cl, p, a) :: tl ->
       (match cl with
+       (* ~(x -> y) <-> (x ^ ~y) *)
+          (*
+             LTR:
+             ---------asmp  -----------imp_neg1   ---------asmp   ------------imp_neg2
+             ~(x -> y)      (x -> y), x           ~(x -> y)       (x -> y), ~y
+             --------------------------res        ----------------------------res     ---------------and_neg
+                          x                                     ~y                    x ^ ~y, ~x, ~~y
+                          ---------------------------------------------------------------------------res
+                                                              x ^ ~y
+             RTL:
+             -------asmp  ------------and_pos   ------asmp    -------------and_pos
+             x ^ ~y       ~(x ^ ~y), x          x ^ ~y        ~(x ^ ~y), ~y
+             -------------------------res       ---------------------------res    ----------------imp_pos
+                         x                                   ~y                   ~(x -> y), ~x, y
+                         -------------------------------------------------------------------------res
+                                                          ~(x -> y)
+          *)
        | Eq ((Not (Imp [x; y]) as lhs), (And [a; Not b] as rhs)) :: [] when (x = a && y = b) ->
           let a2bi = generate_id () in
           let impn1i = generate_id () in
@@ -1128,6 +1463,23 @@ let rec process_simplify (c : certif) : certif =
                      (imppi, ImppAST, [lhs; Not x; y], [], []);
                      (res_3i, ResoAST, [lhs], [imppi;res_1i;res_2i], [])] in
           (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ tl
+      (* ~(x v y) <-> (~x ^ ~y) *)
+         (*
+            LTR:
+            --------asmp  ---------or_neg   --------asmp  ---------or_neg
+            ~(x v y)      x v y, ~x         ~(x v y)      x v y, ~y
+            -----------------------res      -----------------------res    -----------------and_neg
+                       ~x                               ~y                ~x ^ ~y, ~~x, ~~y
+                       --------------------------------------------------------------------res
+                                                      ~x ^ ~y
+            RTL:
+            -------asmp   --------------and_pos   -------asmp   --------------and_pos
+            ~x ^ ~y       ~(~x ^ ~y), ~x          ~x ^ ~y       ~(~x ^ ~y), ~y
+            ----------------------------res       ------------------------------res   --------------or_pos
+                        ~x                                      ~y                    ~(x v y), x, y
+                        ----------------------------------------------------------------------------res
+                                                        ~(x v y)
+         *)
       | Eq ((Not (Or [x;y]) as lhs), (And [Not a;Not b] as rhs)) :: [] when (x = a && y = b) ->
          let a2bi = generate_id () in
          let orn_1i = generate_id () in
@@ -1156,8 +1508,35 @@ let rec process_simplify (c : certif) : certif =
                     (orpi, OrpAST, [lhs; x; y], [], []);
                     (res_3i, ResoAST, [lhs], [orpi;res_1i;res_2i], [])] in
          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ tl
+      (* ~(x ^ y) <-> (~x v ~y) *)
+         (*
+            LTR:
+            --------asmp  ---------------and_neg  ------------or_neg  ------------or_neg
+            ~(x ^ y)      (x ^ y), ~x, ~y         ~x v ~y, ~~x        ~x v ~y, ~~y
+            ----------------------------------------------------------------------res
+                                              ~x v ~y
+            RTL:
+            -------asmp   ------------------or_pos    -----------and_pos  -----------and_pos
+            ~x v ~y       ~(~x v ~y), ~x, ~y          ~(x ^ y), x         ~(x ^ y), y
+            -------------------------------------------------------------------------res
+                                             ~(x ^ y)
+         *)
+      (* (x -> (y -> z)) <-> ((x ^ y) -> z) *)
+      (* ((x -> y) -> z) <-> (x v y) *)
+      (* (x ^ (y -> z)) <-> (x ^ y) *)
+      (* ((x -> y) ^ x) <-> (x ^ y) *)
       | Eq _ :: [] -> (i, BoolsimpAST, cl, p, a) :: process_simplify tl
       | _ -> raise (Debug ("| process_simplify: expecting argument of bool_simplify to be an equivalence at id "^i^" |"))
+      )
+  (* x <-> y *)
+  | (i, ConndefAST, cl, p, a) :: tl ->
+      (match cl with
+      (* x xor y <-> (~x ^ y) v (x ^ y) *)
+      (* x <-> y <-> (x -> y) ^ (y -> x) *)
+      (* ite c x y <-> (c -> x) ^ (~c -> y) *)
+      (* forall x_1, ..., x_n. F <-> ~ exists x_1, ..., x_n. ~F *)
+      | Eq _ :: [] -> (i, ConndefAST, cl, p, a) :: process_simplify tl
+      | _ -> raise (Debug ("| process_simplify: expecting argument of connective_def to be an equivalence at id "^i^" |"))
       )
   | h :: tl -> h :: process_simplify tl
   | nil -> nil
