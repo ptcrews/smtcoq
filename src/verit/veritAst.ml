@@ -753,10 +753,10 @@ let process_rule (r: rule) : VeritSyntax.typ =
   cong rule has no args)
 *)
 (*
-  TODO: Predicate case. Issues: Currently all premises are expected to explicit,
+  TODO: Predicate case. Issues: Currently all premises are expected to be explicit,
   but the rule uses implicit premises such as true = true, which need to be 
   inferred and added to the resolutions (for each of these premises a rule of refl
-  must be invoked). Without this, process_congr_form probably fails.
+  must be invoked). Without this, process_congr_form will probably fail.
 *)
 let process_cong (c : certif) : certif = 
   let rec process_cong_aux (c : certif) (cog : certif) : certif = 
@@ -837,7 +837,7 @@ let list_find_index l x eq : int =
 let process_proj (c: certif): certif =
   let rec aux (c: certif) (cog: certif) : certif =
     match c with
-    | (i, AndAST, cl, p, a) :: tl ->
+    | (i, AndAST, cl, p, a) :: tl when a = [] ->
         let p' = List.map (fun x -> match get_cl x cog with
                            | Some x' -> List.hd x'
                            | None -> raise (Debug ("Can't fetch premises to `and` at id "
@@ -851,7 +851,7 @@ let process_proj (c: certif): certif =
               (i, AndAST, cl, p, [(string_of_int i')]) :: aux tl cog
         | _, _ -> raise (Debug ("| process_proj: expecting premise to be an `and` at id "
                          ^i^" |")))
-    | (i, NorAST, cl, p, a) :: tl ->
+    | (i, NorAST, cl, p, a) :: tl when a = [] ->
         let p' = List.map (fun x -> match get_cl x cog with
                            | Some x' -> List.hd x'
                            | None -> raise (Debug 
@@ -865,7 +865,7 @@ let process_proj (c: certif): certif =
               (i, NorAST, cl, p, [(string_of_int i')]) :: aux tl cog
         | _, _ -> raise (Debug ("| process_proj: expecting premise to be a `not (or)` at id "
                   ^i^" |")))
-    | (i, OrnAST, cl, p, a) :: tl ->
+    | (i, OrnAST, cl, p, a) :: tl when a = [] ->
         (match get_expr (List.nth cl 0), get_expr (List.nth cl 1) with
         | Or ts, Not x -> 
             let i' = try list_find_index ts x term_eq with
@@ -873,7 +873,7 @@ let process_proj (c: certif): certif =
               (i, OrnAST, cl, p, [(string_of_int i')]) :: aux tl cog
         | _, _ -> raise (Debug 
                   ("| process_proj: expecting clause with `or` and `not` at id "^i^" |")))
-    | (i, AndpAST, cl, p, a) :: tl ->
+    | (i, AndpAST, cl, p, a) :: tl when a = [] ->
         (match get_expr (List.nth cl 0), get_expr (List.nth cl 1) with
         | Not (And ts), x ->
             let i' = try list_find_index ts x term_eq with
@@ -1064,16 +1064,22 @@ let simplify_to_subproof (i: id) (a2bi: id) (b2ai: id) (a: term) (b: term) (a2b:
   (* Step 4. *)
    (i, ResoAST, [Eq (a,b)], [eqn1id; sp1id; sp2id], []) 
    :: [])
-
+(*let is_neg (t1 : term) (t2 : term) : bool =
+  match t1, t2 with
+  | t, Not t' when t' = t -> true
+  | Not t, t' when t' = t -> true
+  | _ -> false *)
 let rec repeat (n : int) (t : 'a) (c : 'a list): 'a list =
   if (n > 0) then 
     repeat (n-1) t (t :: c)
   else c
-let rec repeat_step (n : int) (l : id list) (t : rule * clause * params * args) (c : certif): certif =
+
+(* Repeat the same step n times (expects a list of n unique ids for each step) *)
+(*let rec repeat_step (n : int) (l : id list) (t : rule * clause * params * args) (c : certif) : certif =
   match n, l, t with
   | n, i :: tl, (r, cl, p, a) when n > 0 -> repeat_step (n-1) tl t ((i, r, cl, p, a) :: c)
   | 0, [], _ -> c
-  | _ -> raise (Debug ("| repeat_step: number of ids is different from n |"))
+  | _ -> raise (Debug ("| repeat_step: number of ids is different from n |"))*)
 let rec process_simplify (c : certif) : certif =
   match c with
   (* x_1 ^ ... ^ x_n <-> y *)
@@ -1093,13 +1099,13 @@ let rec process_simplify (c : certif) : certif =
        | Eq ((And xs as lhs), (True as rhs)) :: [] when (List.for_all (fun x -> x = True) xs) ->
           let a2b = [(generate_id (), TrueAST, [True], [], [])] in
           let n = List.length xs in
-          let n_ids = generate_ids n in
           let andn_id = generate_id () in
-          let b2a = [andn_id, AndnAST, (And xs :: (repeat n (Not True) [])), [], []] @
-                    (repeat_step n n_ids (TrueAST, [True], [], []) []) @
-                    [generate_id (), ResoAST, [And xs], andn_id :: n_ids, []]
+          let b2ai = generate_id () in
+          let n_ids = (repeat n b2ai []) in
+          let b2a = (andn_id, AndnAST, (And xs :: (repeat n (Not True) [])), [], []) ::
+                    (generate_id (), ResoAST, [And xs], andn_id :: n_ids, []) :: []
                       in
-          (simplify_to_subproof i (generate_id ()) (generate_id ()) lhs rhs a2b b2a) @ tl
+          (simplify_to_subproof i (generate_id ()) b2ai lhs rhs a2b b2a) @ tl
        (* x_1 ^ ... ^ x_n <-> x_1 ^ ... ^ x_n', RHS has all T removed *)
           (* x ^ y ^ T <-> x ^ y
              LTR:
@@ -1117,6 +1123,46 @@ let rec process_simplify (c : certif) : certif =
                ------------------------------------------------------res
                                     x ^ y ^ T
           *)
+       | Eq ((And xs as lhs), (And ys as rhs)) :: [] when ((List.exists ((=) True) xs) 
+            && not (List.exists (fun x -> x = True) ys)) ->
+          (* This is similar to repeat_step above but while we create the list of steps, we do many
+             things to ready the proof certificate to avoid repeated work:
+             1. Create certificate
+             2. Create list of new ids for the steps
+             3. Each step is a projection - create the argument number for the
+                projection, and the projected clause 
+             4. Create the negated terms from the clause against which all these 
+                projections will be resolved later in the proof *)
+          let rec repeat_n_proj (ts : term list) (n_rec : int) (n : int) (t : rule * params) 
+                  (l : id list) (c : certif) (projnegl : term list) : 
+                  certif * (id list) * (term list) =
+            (match n_rec, ts, t with
+            | n_rec, True :: tt, (r, p) when n > 0 ->
+                repeat_n_proj tt (n_rec-1) n t l c projnegl
+            | n_rec, th :: tt, (r, p) when n > 0 ->
+              let new_id = generate_id () in 
+                repeat_n_proj tt (n_rec-1) n t (new_id :: l) ((new_id, r, [th], p, [string_of_int (n - n_rec)]) :: c)
+                 (Not th :: projnegl)
+            | 0, [], _ -> (c, l, projnegl)
+            | _ -> raise (Debug ("| repeat_n_proj: number of ids is different from n |"))) in
+          let n1 = List.length xs in
+          let a2bi = generate_id () in
+          let c1, proj_ids1, projnegl1 = repeat_n_proj xs n1 n1 (AndAST, [a2bi]) [] [] [] in
+          let andn_id1 = generate_id () in
+          let a2b = c1 @ 
+                    [(andn_id1, AndnAST, rhs :: projnegl1, [], []);
+                     (generate_id (), ResoAST, rhs :: [], andn_id1 :: proj_ids1, [])] in
+          let n2 = List.length ys in 
+          let b2ai = generate_id () in
+          let c2, proj_ids2, projnegl2 = repeat_n_proj ys n2 n2 (AndAST, [b2ai]) [] [] [] in
+          let andn_id2 = generate_id () in
+          let true_id = generate_id () in
+          let n_del = n1-n2 in
+          let b2a = c2 @
+                    [(true_id, TrueAST, True :: [], [], []);
+                     (andn_id2, AndnAST, lhs :: (projnegl2 @ (repeat n_del (Not True) [])), [], []);
+                     (generate_id (), ResoAST, lhs :: [], andn_id2 :: proj_ids2, [])] in
+                     (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ tl
        (* x_1 ^ ... ^ x_n <-> x_1 ^ ... ^ x_n', RHS has all repeated literals removed *)
           (* x ^ y ^ x <-> x ^ y
              LTR:
@@ -1134,6 +1180,8 @@ let rec process_simplify (c : certif) : certif =
                --------------------------------------------------------res
                                       x ^ y ^ x
           *)
+       (*| Eq ((And xs as lhs), (And ys as rhs)) :: [] when ((List.exists (fun x -> (List.exists (fun y -> y = x) xs)) xs) 
+            && not (List.exists (fun x -> (List.exists (fun y -> y = x) ys)) ys)) -> []
        (* x_1 ^ ... F ... ^ x_n <-> F *)
           (* x ^ F <-> F
              LTR:
@@ -1145,6 +1193,7 @@ let rec process_simplify (c : certif) : certif =
              Assume that this equivalence is never used in this direction, ie proofs with the 
              equivalence always reduce the equivalence to the LTR implication before proceeding.
           *)
+       | Eq ((And xs as lhs), (False as rhs)) :: [] when (List.exists ((=) False) xs) -> []
        (* x_1 ^ ... x_i ... x_j ... ^ x_n <-> F, if x_i = ~x_j *)
           (* x ^ ~x <-> F
              LTR:
@@ -1158,6 +1207,8 @@ let rec process_simplify (c : certif) : certif =
              Assume that this equivalence is never used in this direction, ie proofs with the 
              equivalence always reduce the equivalence to the LTR implication before proceeding.
           *)
+       | Eq ((And xs as lhs), (False as rhs)) :: [] when 
+        (List.exists (fun x -> (List.exists (fun y -> is_neg y x) xs)) xs) -> []*)
        | Eq _ :: [] -> (i, AndsimpAST, cl, p, a) :: process_simplify tl
        | _ -> raise (Debug ("| process_simplify: expecting argument of and_simplify to be an equivalence at id "^i^" |")))
   (* x_1 v ... v x_n <-> y *)
