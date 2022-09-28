@@ -460,20 +460,14 @@ let rec find_lemma (t : term) (c : certif) : id =
       | _ -> find_lemma t tl)
   | [] -> raise (Debug ("| find_lemma: can't find lemma to be instantiated by forall_inst |"))
 
-(* Remove all occurrences of element from list *)
-let rec remove x l =
-  match l with
-  | h :: t -> if h = x then remove x t else h :: (remove x t)
-  | [] -> []
-
+let remove (x : 'a) (l : 'a list) = 
+  List.fold_left (fun acc t -> if x = t then acc else t :: acc) [] l
 (* Remove premise from all resolutions in certif *)
-let rec remove_res_premise (i : id) (c : certif) : certif =
-  match c with
-  | (i', r, c, p, a) :: t -> 
-      (match r with
-      | ResoAST | ThresoAST -> (i', r, c, (remove i p), a) :: (remove_res_premise i t)
-      | _ -> (i', r, c, p, a) :: (remove_res_premise i t))
-  | [] -> []
+  let rec remove_res_premise (i : id) (c : certif) : certif =
+  List.map (fun s -> match s with
+               | (i', r, c, p, a) when (r = ResoAST || r = ThresoAST) ->
+                    (i', r, c, (remove i p), a)
+               | s -> s) c
 
 let process_fins (c : certif) : certif =
   let rec process_fins_aux (c : certif) (cog : certif) : certif =
@@ -525,7 +519,11 @@ let rec process_notnot (c : certif) : certif =
   | h :: tl -> h :: process_notnot tl
   | [] -> []
 
-
+(*let remove_step (p : step -> bool) (c : certif) : certif =
+  List.filter_map (fun s -> if (p s) then None else Some s)
+  1. From c remove all s for which p(s) = true
+  2. From all subsequent resolutions, remove i_s from the params, where i_s is the id of s
+  (using filter_map, the same function should be able to do both the things above.)*)
 
 (* Convert an AST to a list of clauses *)
 
@@ -1064,25 +1062,17 @@ let simplify_to_subproof (i: id) (a2bi: id) (b2ai: id) (a: term) (b: term) (a2b:
   (* Step 4. *)
    (i, ResoAST, [Eq (a,b)], [eqn1id; sp1id; sp2id], []) 
    :: [])
-(*let is_neg (t1 : term) (t2 : term) : bool =
+(* are t1 and t2 negations of each other? *)
+let is_neg (t1 : term) (t2 : term) : bool =
   match t1, t2 with
   | t, Not t' when t' = t -> true
   | Not t, t' when t' = t -> true
-  | _ -> false *)
-let rec repeat (n : int) (t : 'a) (c : 'a list): 'a list =
-  if (n > 0) then 
-    repeat (n-1) t (t :: c)
-  else c
-let rec findi (x : 'a) (l : 'a list) (n : int) : int = 
+  | _ -> false
+(* findi x l 0 finds the index of x in l counting from 0*)
+  let rec findi (x : 'a) (l : 'a list) (n : int) : int = 
   match l with
   | h :: t -> if h = x then n else findi x t (n+1)
   | [] -> raise (Debug ("| findi : element not found |"))
-(* Repeat the same step n times (expects a list of n unique ids for each step) *)
-(*let rec repeat_step (n : int) (l : id list) (t : rule * clause * params * args) (c : certif) : certif =
-  match n, l, t with
-  | n, i :: tl, (r, cl, p, a) when n > 0 -> repeat_step (n-1) tl t ((i, r, cl, p, a) :: c)
-  | 0, [], _ -> c
-  | _ -> raise (Debug ("| repeat_step: number of ids is different from n |"))*)
 let rec process_simplify (c : certif) : certif =
   match c with
   (* x_1 ^ ... ^ x_n <-> y *)
@@ -1101,14 +1091,16 @@ let rec process_simplify (c : certif) : certif =
           *)
        | Eq ((And xs as lhs), (True as rhs)) :: [] when (List.for_all (fun x -> x = True) xs) ->
           let a2b = [(generate_id (), TrueAST, [True], [], [])] in
-          let n = List.length xs in
           let andn_id = generate_id () in
           let b2ai = generate_id () in
-          let n_ids = (repeat n b2ai []) in
-          let b2a = (andn_id, AndnAST, (And xs :: (repeat n (Not True) [])), [], []) ::
-                    (generate_id (), ResoAST, [And xs], andn_id :: n_ids, []) :: []
+          (* We need 2 things repeated n (= lengh xs) times: 
+               1. id of assumption True for resolution
+               2. term ~T for and_neg rule *)
+          let asmp_ids, ntrues = List.fold_left (fun (a,n) _  -> (b2ai :: a, Not True :: n)) ([],[]) xs in
+          let b2a = (andn_id, AndnAST, (lhs :: ntrues), [], []) ::
+                    (generate_id (), ResoAST, [lhs], andn_id :: asmp_ids, []) :: []
                       in
-          (simplify_to_subproof i (generate_id ()) b2ai lhs rhs a2b b2a) @ tl
+          (simplify_to_subproof i (generate_id ()) b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* x_1 ^ ... ^ x_n <-> x_1 ^ ... ^ x_n', RHS has all T removed *)
           (* x ^ y ^ T <-> x ^ y
              LTR:
@@ -1171,7 +1163,7 @@ let rec process_simplify (c : certif) : certif =
                     [(true_id, TrueAST, True :: [], [], []);
                      (andn_id2, AndnAST, lhs :: projnegl2, [], []);
                      (generate_id (), ResoAST, lhs :: [], andn_id2 :: proj_ids2, [])] in
-          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ tl
+          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* x_1 ^ ... ^ x_n <-> x_1 ^ ... ^ x_n', RHS has all repeated literals removed *)
           (* x ^ y ^ x <-> x ^ y
              LTR:
@@ -1227,7 +1219,7 @@ let rec process_simplify (c : certif) : certif =
           let b2a = c2 @
                     [(andn_id2, AndnAST, lhs :: projnegl2, [], []);
                      (generate_id (), ResoAST, lhs :: [], andn_id2 :: proj_ids2, [])] in
-          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ tl
+          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* x_1 ^ ... F ... ^ x_n <-> F *)
           (* x ^ F <-> F
              LTR:
@@ -1238,8 +1230,28 @@ let rec process_simplify (c : certif) : certif =
              RTL: can't derive x from F without an absurd rule which we don't have.
              Assume that this equivalence is never used in this direction, ie proofs with the 
              equivalence always reduce the equivalence to the LTR implication before proceeding.
+
+             In the LTR direction, it would be used as follows:
+               i: [x ^ F <-> F]                 and_simplify
+               ...
+               m: [~(x ^ F <-> F), ~(x ^ F), F] equiv_pos2
+               ...
+               n: [~(x ^ F), F, ...]            reso(i,m)
+             If we encode this equivalence as an LTR implication, then we need to replace the 
+             proof with:
+               n: [~(x ^ F), F]                 and_simplify'
           *)
-       (*| Eq ((And xs as lhs), (False as rhs)) :: [] when (List.exists ((=) False) xs) -> []
+       | Eq ((And xs as lhs), (False as rhs)) :: [] when (List.exists ((=) False) xs) -> 
+          let a2bi = generate_id () in
+          let ind = findi False xs 0 in
+          let subp = [(a2bi, AssumeAST, lhs :: [], [], []);
+                      (generate_id (), AndAST, False :: [], [a2bi], [string_of_int ind]);
+                      (generate_id (), DischargeAST, [Not lhs; rhs], [], [])] in
+          [(i, SubproofAST subp, [], [], [])] @ tl
+          (* TODO:
+             replace the 
+             proof with:
+               n: [~(x ^ F), F]                 and_simplify'*)
        (* x_1 ^ ... x_i ... x_j ... ^ x_n <-> F, if x_i = ~x_j *)
           (* x ^ ~x <-> F
              LTR:
@@ -1254,7 +1266,20 @@ let rec process_simplify (c : certif) : certif =
              equivalence always reduce the equivalence to the LTR implication before proceeding.
           *)
        | Eq ((And xs as lhs), (False as rhs)) :: [] when 
-        (List.exists (fun x -> (List.exists (fun y -> is_neg y x) xs)) xs) -> []*)
+            (List.exists (fun x -> (List.exists (fun y -> is_neg y x) xs)) xs) ->
+          let a2bi = generate_id () in
+          let x = List.find (fun x -> (List.exists (fun y -> y = Not x) xs)) xs in
+          let x_id = string_of_int (findi x xs 0) in
+          let nx_id = string_of_int (findi (Not x) xs 0) in
+          let subp = [(a2bi, AssumeAST, lhs :: [], [], []);
+                      (generate_id (), AndAST, x :: [], [a2bi], [x_id]);
+                      (generate_id (), AndAST, Not x :: [], [a2bi], [nx_id]);
+                      (generate_id (), DischargeAST, [Not lhs; rhs], [], [])] in
+          [(i, SubproofAST subp, [], [], [])]
+          (* TODO:
+             similar to the previous case, replace the 
+             proof with:
+               n: [~(x ^ ~x), F]                 and_simplify'*)
        | Eq _ :: [] -> (i, AndsimpAST, cl, p, a) :: process_simplify tl
        | _ -> raise (Debug ("| process_simplify: expecting argument of and_simplify to be an equivalence at id "^i^" |")))
   (* x_1 v ... v x_n <-> y *)
@@ -1347,7 +1372,7 @@ let rec process_simplify (c : certif) : certif =
              LTR:
              --true
              T
-             RTL:
+             RTL:process_simplify
              --false
              ~F
           *)
