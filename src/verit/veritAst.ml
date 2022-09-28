@@ -1076,7 +1076,7 @@ let rec repeat (n : int) (t : 'a) (c : 'a list): 'a list =
 let rec findi (x : 'a) (l : 'a list) (n : int) : int = 
   match l with
   | h :: t -> if h = x then n else findi x t (n+1)
-  | [] -> raise Debug ("| findi : element not found |")
+  | [] -> raise (Debug ("| findi : element not found |"))
 (* Repeat the same step n times (expects a list of n unique ids for each step) *)
 (*let rec repeat_step (n : int) (l : id list) (t : rule * clause * params * args) (c : certif) : certif =
   match n, l, t with
