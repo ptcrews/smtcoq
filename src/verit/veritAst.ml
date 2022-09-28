@@ -1073,7 +1073,10 @@ let rec repeat (n : int) (t : 'a) (c : 'a list): 'a list =
   if (n > 0) then 
     repeat (n-1) t (t :: c)
   else c
-
+let rec findi (x : 'a) (l : 'a list) (n : int) : int = 
+  match l with
+  | h :: t -> if h = x then n else findi x t (n+1)
+  | [] -> raise Debug ("| findi : element not found |")
 (* Repeat the same step n times (expects a list of n unique ids for each step) *)
 (*let rec repeat_step (n : int) (l : id list) (t : rule * clause * params * args) (c : certif) : certif =
   match n, l, t with
@@ -1125,44 +1128,50 @@ let rec process_simplify (c : certif) : certif =
           *)
        | Eq ((And xs as lhs), (And ys as rhs)) :: [] when ((List.exists ((=) True) xs) 
             && not (List.exists (fun x -> x = True) ys)) ->
-          (* This is similar to repeat_step above but while we create the list of steps, we do many
-             things to ready the proof certificate to avoid repeated work:
-             1. Create certificate
-             2. Create list of new ids for the steps
-             3. Each step is a projection - create the argument number for the
-                projection, and the projected clause 
-             4. Create the negated terms from the clause against which all these 
-                projections will be resolved later in the proof *)
-          let rec repeat_n_proj (ts : term list) (n_rec : int) (n : int) (t : rule * params) 
-                  (l : id list) (c : certif) (projnegl : term list) : 
-                  certif * (id list) * (term list) =
-            (match n_rec, ts, t with
-            | n_rec, True :: tt, (r, p) when n > 0 ->
-                repeat_n_proj tt (n_rec-1) n t l c projnegl
-            | n_rec, th :: tt, (r, p) when n > 0 ->
-              let new_id = generate_id () in 
-                repeat_n_proj tt (n_rec-1) n t (new_id :: l) ((new_id, r, [th], p, [string_of_int (n - n_rec)]) :: c)
-                 (Not th :: projnegl)
-            | 0, [], _ -> (c, l, projnegl)
-            | _ -> raise (Debug ("| repeat_n_proj: number of ids is different from n |"))) in
-          let n1 = List.length xs in
           let a2bi = generate_id () in
-          let c1, proj_ids1, projnegl1 = repeat_n_proj xs n1 n1 (AndAST, [a2bi]) [] [] [] in
+          (* for each y in ys,
+               find index ind of first occurrence of y in xs and return
+                1. (id', AndAST, [y], [a2bi], ind), where id' is a new id
+                2. id'
+                3. ~y *)
+          let c1, proj_ids1, projnegl1 = List.fold_left 
+            (fun (s,i,n) y -> 
+              let ind = findi y xs 0 in
+              let id' = generate_id () in
+              ((id', AndAST, [y], [a2bi], [string_of_int ind]) :: s,
+               id' :: i,
+               Not y :: n))
+              ([],[],[]) ys in
           let andn_id1 = generate_id () in
           let a2b = c1 @ 
                     [(andn_id1, AndnAST, rhs :: projnegl1, [], []);
                      (generate_id (), ResoAST, rhs :: [], andn_id1 :: proj_ids1, [])] in
-          let n2 = List.length ys in 
           let b2ai = generate_id () in
-          let c2, proj_ids2, projnegl2 = repeat_n_proj ys n2 n2 (AndAST, [b2ai]) [] [] [] in
-          let andn_id2 = generate_id () in
           let true_id = generate_id () in
-          let n_del = n1-n2 in
+          (* for each x in xs
+               if x is T, then return 1. true_id 2. ~x, where true_id refers to the id of the derivation of T
+               else
+                find index ind of first occurrence of x in ys and return
+                 1. (id', AndAST, [x], [b2ai], ind), where id' is a new id
+                 2. id'
+                 3. ~x *)
+          let c2, proj_ids2, projnegl2 = List.fold_left 
+            (fun (s,i,n) x ->
+              if x = True then
+                (s, true_id :: i, Not x :: n)
+              else
+                let ind = findi x ys 0 in
+                let id' = generate_id () in
+                ((id', AndAST, [x], [b2ai], [string_of_int ind]) :: s,
+                 id' :: i,
+                 Not x :: n))
+            ([],[],[]) xs in
+          let andn_id2 = generate_id () in
           let b2a = c2 @
                     [(true_id, TrueAST, True :: [], [], []);
-                     (andn_id2, AndnAST, lhs :: (projnegl2 @ (repeat n_del (Not True) [])), [], []);
+                     (andn_id2, AndnAST, lhs :: projnegl2, [], []);
                      (generate_id (), ResoAST, lhs :: [], andn_id2 :: proj_ids2, [])] in
-                     (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ tl
+          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ tl
        (* x_1 ^ ... ^ x_n <-> x_1 ^ ... ^ x_n', RHS has all repeated literals removed *)
           (* x ^ y ^ x <-> x ^ y
              LTR:
@@ -1180,8 +1189,45 @@ let rec process_simplify (c : certif) : certif =
                --------------------------------------------------------res
                                       x ^ y ^ x
           *)
-       (*| Eq ((And xs as lhs), (And ys as rhs)) :: [] when ((List.exists (fun x -> (List.exists (fun y -> y = x) xs)) xs) 
-            && not (List.exists (fun x -> (List.exists (fun y -> y = x) ys)) ys)) -> []
+       | Eq ((And xs as lhs), (And ys as rhs)) :: [] when ((List.exists (fun x -> (List.exists (fun y -> y = x) xs)) xs) 
+            && not (List.exists (fun x -> (List.exists (fun y -> y = x) ys)) ys)) -> 
+          let a2bi = generate_id () in
+          (* for each y in ys,
+               find index ind of first occurrence of y in xs and return
+                1. (id', AndAST, [y], [a2bi], ind), where id' is a new id
+                2. id'
+                3. ~y *)
+          let c1, proj_ids1, projnegl1 = List.fold_left 
+            (fun (s,i,n) y -> 
+              let ind = findi y xs 0 in
+              let id' = generate_id () in
+              ((id', AndAST, [y], [a2bi], [string_of_int ind]) :: s,
+               id' :: i,
+               Not y :: n))
+              ([],[],[]) ys in
+          let andn_id1 = generate_id () in
+          let a2b = c1 @
+                    [(andn_id1, AndnAST, rhs :: projnegl1, [], []);
+                     (generate_id (), ResoAST, rhs :: [], andn_id1 :: proj_ids1, [])] in
+          let b2ai = generate_id () in
+          (* for each x in xs
+               find index ind of first occurrence of x in ys and return
+                1. (id', AndAST, [x], [b2ai], ind), where id' is a new id
+                2. id'
+                3. ~x *)
+          let c2, proj_ids2, projnegl2 = List.fold_left 
+            (fun (s,i,n) x ->
+              let ind = findi x ys 0 in
+              let id' = generate_id () in
+              ((id', AndAST, [x], [b2ai], [string_of_int ind]) :: s,
+                 id' :: i,
+                 Not x :: n))
+            ([],[],[]) xs in
+          let andn_id2 = generate_id () in
+          let b2a = c2 @
+                    [(andn_id2, AndnAST, lhs :: projnegl2, [], []);
+                     (generate_id (), ResoAST, lhs :: [], andn_id2 :: proj_ids2, [])] in
+          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ tl
        (* x_1 ^ ... F ... ^ x_n <-> F *)
           (* x ^ F <-> F
              LTR:
@@ -1193,7 +1239,7 @@ let rec process_simplify (c : certif) : certif =
              Assume that this equivalence is never used in this direction, ie proofs with the 
              equivalence always reduce the equivalence to the LTR implication before proceeding.
           *)
-       | Eq ((And xs as lhs), (False as rhs)) :: [] when (List.exists ((=) False) xs) -> []
+       (*| Eq ((And xs as lhs), (False as rhs)) :: [] when (List.exists ((=) False) xs) -> []
        (* x_1 ^ ... x_i ... x_j ... ^ x_n <-> F, if x_i = ~x_j *)
           (* x ^ ~x <-> F
              LTR:
@@ -1232,8 +1278,7 @@ let rec process_simplify (c : certif) : certif =
              TODO: check assumption that resolution doesn't differentiate betwen 
              x,y and x v y.
              LTR:
-             ---------asmp  --false
-             x v y v F      ~F
+                            
              -----------------res
                     x v y
              -----asmp  --------------or_pos
