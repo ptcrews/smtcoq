@@ -463,7 +463,7 @@ let rec find_lemma (t : term) (c : certif) : id =
 let remove (x : 'a) (l : 'a list) = 
   List.fold_left (fun acc t -> if x = t then acc else t :: acc) [] l
 (* Remove premise from all resolutions in certif *)
-  let rec remove_res_premise (i : id) (c : certif) : certif =
+  let remove_res_premise (i : id) (c : certif) : certif =
   List.map (fun s -> match s with
                | (i', r, c, p, a) when (r = ResoAST || r = ThresoAST) ->
                     (i', r, c, (remove i p), a)
@@ -519,8 +519,24 @@ let rec process_notnot (c : certif) : certif =
   | h :: tl -> h :: process_notnot tl
   | [] -> []
 
-(*let remove_step (p : step -> bool) (c : certif) : certif =
-  List.filter_map (fun s -> if (p s) then None else Some s)
+let rec remove_step (p : step -> bool)  (f : step -> step -> step option) (c : certif) : certif =
+  match c with
+  | s :: cert when p s -> 
+      let cert' = List.filter_map (f s) cert in
+      remove_step p f cert'
+  | s :: cert -> s :: remove_step p f cert
+  | [] -> []
+
+(*let process_notnot' (c : certif) : certif =
+  remove_step (fun s -> match s with
+               | (i, NotnotAST, _, _, _) -> true
+               | _ -> false)
+              (fun (i_n, _, _, _, _) s -> match s with
+              | (i', r, c, p, a) when (r = ResoAST || r = ThresoAST) ->
+                Some (i', r, c, (remove i_n p), a)
+              | s -> Some s)
+              c*)
+  (*List.filter_map (fun s -> if (p s) then None else Some s)
   1. From c remove all s for which p(s) = true
   2. From all subsequent resolutions, remove i_s from the params, where i_s is the id of s
   (using filter_map, the same function should be able to do both the things above.)*)
@@ -1247,7 +1263,16 @@ let rec process_simplify (c : certif) : certif =
           let subp = [(a2bi, AssumeAST, lhs :: [], [], []);
                       (generate_id (), AndAST, False :: [], [a2bi], [string_of_int ind]);
                       (generate_id (), DischargeAST, [Not lhs; rhs], [], [])] in
-          [(i, SubproofAST subp, [], [], [])] @ tl
+          let process_and_simp_F (c : certif) : certif =
+            remove_step (fun s -> match s with
+                         | (i, Equp2AST, [Not (Eq (And xs, False)); Not lhs; rhs], _, _) -> true
+                         | _ -> false)
+              (fun (i_n, _, _, _, _) s -> match s with
+              | (i', r, c, p, a) when (r = ResoAST || r = ThresoAST) ->
+                Some (i', r, c, (remove i_n p), a)
+              | s -> Some s)
+              c in
+          [(i, SubproofAST subp, [], [], [])] @ (process_and_simp_F tl)
           (* TODO:
              replace the 
              proof with:
