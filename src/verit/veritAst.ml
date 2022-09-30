@@ -463,7 +463,7 @@ let rec find_lemma (t : term) (c : certif) : id =
 let remove (x : 'a) (l : 'a list) = 
   List.fold_left (fun acc t -> if x = t then acc else t :: acc) [] l
 (* Remove premise from all resolutions in certif *)
-  let remove_res_premise (i : id) (c : certif) : certif =
+let remove_res_premise (i : id) (c : certif) : certif =
   List.map (fun s -> match s with
                | (i', r, c, p, a) when (r = ResoAST || r = ThresoAST) ->
                     (i', r, c, (remove i p), a)
@@ -519,27 +519,6 @@ let rec process_notnot (c : certif) : certif =
   | h :: tl -> h :: process_notnot tl
   | [] -> []
 
-let rec remove_step (p : step -> bool)  (f : step -> step -> step option) (c : certif) : certif =
-  match c with
-  | s :: cert when p s -> 
-      let cert' = List.filter_map (f s) cert in
-      remove_step p f cert'
-  | s :: cert -> s :: remove_step p f cert
-  | [] -> []
-
-(*let process_notnot' (c : certif) : certif =
-  remove_step (fun s -> match s with
-               | (i, NotnotAST, _, _, _) -> true
-               | _ -> false)
-              (fun (i_n, _, _, _, _) s -> match s with
-              | (i', r, c, p, a) when (r = ResoAST || r = ThresoAST) ->
-                Some (i', r, c, (remove i_n p), a)
-              | s -> Some s)
-              c*)
-  (*List.filter_map (fun s -> if (p s) then None else Some s)
-  1. From c remove all s for which p(s) = true
-  2. From all subsequent resolutions, remove i_s from the params, where i_s is the id of s
-  (using filter_map, the same function should be able to do both the things above.)*)
 
 (* Convert an AST to a list of clauses *)
 
@@ -1078,6 +1057,18 @@ let simplify_to_subproof (i: id) (a2bi: id) (b2ai: id) (a: term) (b: term) (a2b:
   (* Step 4. *)
    (i, ResoAST, [Eq (a,b)], [eqn1id; sp1id; sp2id], []) 
    :: [])
+let simplify_to_subproof_ltr (i: id) (a2bi: id) (a: term) (b: term) (a2b: certif) (tail: certif) : certif =
+  let subp = (a2bi, AssumeAST, [a], [], []) ::
+              (a2b @ 
+              [(i, DischargeAST, [Not a; b], [], [])]) in
+  let rec process_tail (c' : certif) : certif =
+    match c' with
+    | (i, Equp2AST, c, _, _) :: ct when c = [Not (Eq (a,b)); Not a; b] -> 
+       let ct' = remove_res_premise i ct in
+       process_tail ct'
+    | h :: ct -> process_tail ct
+    | [] -> [] in
+  (i, SubproofAST subp, [], [], []) :: (process_tail tail)
 (* are t1 and t2 negations of each other? *)
 let is_neg (t1 : term) (t2 : term) : bool =
   match t1, t2 with
@@ -1089,6 +1080,20 @@ let is_neg (t1 : term) (t2 : term) : bool =
   match l with
   | h :: t -> if h = x then n else findi x t (n+1)
   | [] -> raise (Debug ("| findi : element not found |"))
+(* remove_step p f:
+   remove c, remove all steps s, such that p(s), and
+   transform each step s' after s to f s s'.
+   Passing s to f allows the transformation to be 
+   in terms of the removed step. For example, we want
+   to remove the premise corresponding to the id in s 
+   from all subsequent resolutions. *)
+let rec remove_step (p : step -> bool)  (f : step -> step -> step option) (c : certif) : certif =
+  match c with
+  | s :: cert when p s -> 
+      let cert' = List.filter_map (f s) cert in
+      remove_step p f cert'
+  | s :: cert -> s :: remove_step p f cert
+  | [] -> []
 let rec process_simplify (c : certif) : certif =
   match c with
   (* x_1 ^ ... ^ x_n <-> y *)
@@ -1244,18 +1249,16 @@ let rec process_simplify (c : certif) : certif =
              -----and
                F
              RTL: can't derive x from F without an absurd rule which we don't have.
-             Assume that this equivalence is never used in this direction, ie proofs with the 
-             equivalence always reduce the equivalence to the LTR implication before proceeding.
-
-             In the LTR direction, it would be used as follows:
+             Assume that this equivalence is only used as an LTR rewrite, as follows:
                i: [x ^ F <-> F]                 and_simplify
                ...
                m: [~(x ^ F <-> F), ~(x ^ F), F] equiv_pos2
                ...
                n: [~(x ^ F), F, ...]            reso(i,m)
-             If we encode this equivalence as an LTR implication, then we need to replace the 
-             proof with:
-               n: [~(x ^ F), F]                 and_simplify'
+             We want the encoded proof to be:
+               i: [~(x ^ F), F]                 subproof
+               ... (remove m) ...
+               n: [~(x ^ F), F]                 reso(i)
           *)
        | Eq ((And xs as lhs), (False as rhs)) :: [] when (List.exists ((=) False) xs) -> 
           let a2bi = generate_id () in
@@ -1287,8 +1290,7 @@ let rec process_simplify (c : certif) : certif =
                ----------------res
                       F
              RTL: can't derive x and ~x from F without an absurd rule which we don't have
-             Assume that this equivalence is never used in this direction, ie proofs with the 
-             equivalence always reduce the equivalence to the LTR implication before proceeding.
+             Assume that this equivalence is only used as an LTR rewrite
           *)
        | Eq ((And xs as lhs), (False as rhs)) :: [] when 
             (List.exists (fun x -> (List.exists (fun y -> is_neg y x) xs)) xs) ->
