@@ -1028,6 +1028,25 @@ let rec process_subproof (c : certif) : certif =
   | [] -> clear_cids (); []
 
 
+(* This is a cool function but currently useless since the two places 
+   we can use them (process_notnot and process_simpify_ltr) have many case
+   specific requirements, but in the future, we may be able to generalize 
+   this if we find that it will save some repeated work.contents
+   
+   remove_step p f:
+   remove c, remove all steps s, such that p(s), and
+   transform each step s' after s to f s s'.
+   Passing s to f allows the transformation to be 
+   in terms of the removed step. For example, we want
+   to remove the premise corresponding to the id in s 
+   from all subsequent resolutions.
+   let rec remove_step (p : step -> bool)  (f : step -> step -> step option) (c : certif) : certif =
+   match c with
+   | s :: cert when p s -> 
+       let cert' = List.filter_map (f s) cert in
+       remove_step p f cert'
+   | s :: cert -> s :: remove_step p f cert
+   | [] -> [] *) 
 (* Process _simplify rules from Alethe 
    Each rule has multiple variants, all taking the form
    a <-> b
@@ -1057,6 +1076,17 @@ let simplify_to_subproof (i: id) (a2bi: id) (b2ai: id) (a: term) (b: term) (a2b:
   (* Step 4. *)
    (i, ResoAST, [Eq (a,b)], [eqn1id; sp1id; sp2id], []) 
    :: [])
+(* Process _simplify rules with the assumption that only their LTR 
+   implication is used. Transform a rule of the form:
+               i: [a <-> b]                     _simplify
+               ...
+               m: [~(a <-> b), ~a, b]           equiv_pos2
+               ...
+               n: [~a, b]                       reso(i,m)
+             We want the encoded proof to be:
+               i: [~a, B]                       subproof
+               ... (remove m) ...
+               n: [~a, b]                       reso(i) *)
 let simplify_to_subproof_ltr (i: id) (a2bi: id) (a: term) (b: term) (a2b: certif) (tail: certif) : certif =
   let subp = (a2bi, AssumeAST, [a], [], []) ::
               (a2b @ 
@@ -1080,20 +1110,6 @@ let is_neg (t1 : term) (t2 : term) : bool =
   match l with
   | h :: t -> if h = x then n else findi x t (n+1)
   | [] -> raise (Debug ("| findi : element not found |"))
-(* remove_step p f:
-   remove c, remove all steps s, such that p(s), and
-   transform each step s' after s to f s s'.
-   Passing s to f allows the transformation to be 
-   in terms of the removed step. For example, we want
-   to remove the premise corresponding to the id in s 
-   from all subsequent resolutions. *)
-let rec remove_step (p : step -> bool)  (f : step -> step -> step option) (c : certif) : certif =
-  match c with
-  | s :: cert when p s -> 
-      let cert' = List.filter_map (f s) cert in
-      remove_step p f cert'
-  | s :: cert -> s :: remove_step p f cert
-  | [] -> []
 let rec process_simplify (c : certif) : certif =
   match c with
   (* x_1 ^ ... ^ x_n <-> y *)
@@ -1249,37 +1265,13 @@ let rec process_simplify (c : certif) : certif =
              -----and
                F
              RTL: can't derive x from F without an absurd rule which we don't have.
-             Assume that this equivalence is only used as an LTR rewrite, as follows:
-               i: [x ^ F <-> F]                 and_simplify
-               ...
-               m: [~(x ^ F <-> F), ~(x ^ F), F] equiv_pos2
-               ...
-               n: [~(x ^ F), F, ...]            reso(i,m)
-             We want the encoded proof to be:
-               i: [~(x ^ F), F]                 subproof
-               ... (remove m) ...
-               n: [~(x ^ F), F]                 reso(i)
+             We simplify assuming that this equivalence is only used as an LTR
           *)
        | Eq ((And xs as lhs), (False as rhs)) :: [] when (List.exists ((=) False) xs) -> 
           let a2bi = generate_id () in
           let ind = findi False xs 0 in
-          let subp = [(a2bi, AssumeAST, lhs :: [], [], []);
-                      (generate_id (), AndAST, False :: [], [a2bi], [string_of_int ind]);
-                      (generate_id (), DischargeAST, [Not lhs; rhs], [], [])] in
-          let process_and_simp_F (c : certif) : certif =
-            remove_step (fun s -> match s with
-                         | (i, Equp2AST, [Not (Eq (And xs, False)); Not lhs; rhs], _, _) -> true
-                         | _ -> false)
-              (fun (i_n, _, _, _, _) s -> match s with
-              | (i', r, c, p, a) when (r = ResoAST || r = ThresoAST) ->
-                Some (i', r, c, (remove i_n p), a)
-              | s -> Some s)
-              c in
-          [(i, SubproofAST subp, [], [], [])] @ (process_and_simp_F tl)
-          (* TODO:
-             replace the 
-             proof with:
-               n: [~(x ^ F), F]                 and_simplify'*)
+          let a2b = [(generate_id (), AndAST, False :: [], [a2bi], [string_of_int ind])] in
+          simplify_to_subproof_ltr i a2bi lhs rhs a2b tl
        (* x_1 ^ ... x_i ... x_j ... ^ x_n <-> F, if x_i = ~x_j *)
           (* x ^ ~x <-> F
              LTR:
