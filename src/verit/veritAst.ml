@@ -514,8 +514,8 @@ let process_fins (c : certif) : certif =
 let rec process_notnot (c : certif) : certif = 
   match c with
   | (i, NotnotAST, cl, p, a) :: tl -> process_notnot (remove_res_premise i tl)
-  | (i, NotsimpAST, (Eq (Not (Not x), y) :: []), p, a) :: tl when x = y -> 
-      (i, ReflAST, (Eq (x, x) :: []), [], []) :: process_notnot tl
+  | (i, NotsimpAST, [Eq (Not (Not x), y)], p, a) :: tl when x = y -> 
+      (i, ReflAST, [Eq (x, x)], [], []) :: process_notnot tl
   | h :: tl -> h :: process_notnot tl
   | [] -> []
 
@@ -910,7 +910,7 @@ let rec subst_id (c : certif) (subst : id * id) : certif =
   match c, subst with
   | (i1, r, cl, p, a) :: tl, (i2, i3) ->
       (* Replace premises with their substitution *)
-      let p' = if (List.exists (fun x -> x = i2) p) then
+      let p' = if (List.exists ((=) i2) p) then
         (List.map (fun x -> if x = i2 then i3 else x) p)
       else p in
       (i1, r, cl, p', a) :: subst_id tl subst
@@ -996,21 +996,21 @@ let process_subproof_aux (andn_id : id) (new_h_id : id) (g_id : id) (pi2 : certi
   let and_id = get_id (List.hd (List.rev pi3)) in
   let notg_id = generate_id () in
   (* Replace the discharge step proving (~h v g) by a tautological proof of (h ^ ~g) v ~h v g *)
-  let t' = (And (h :: Not g :: [])) :: Not h :: g :: [] in
+  let t' = [And [h; Not g]; Not h; g] in
   let pi3' = extend_cl andn_id h g pi3 ((andn_id, AndnAST, t', [], []) :: pi3) in
-  ((andn_id, AndnAST, t', [], []) ::                              (* (2) *)
+  ((andn_id, AndnAST, t', [], []) ::                        (* (2) *)
     pi3') @
-  ((new_h_id, AndAST, h :: [], [and_id], ["0"]) ::                (* (4) *)
+  ((new_h_id, AndAST, [h], [and_id], ["0"]) ::              (* (4) *)
     pi2) @
-  ((notg_id, AndAST, Not g :: [], [and_id], ["1"]) ::             (* (5) *)
-   (generate_id (), ResoAST, [], [g_id; notg_id], []) :: [])      (* (6) *)
+  [(notg_id, AndAST, [Not g], [and_id], ["1"]);             (* (5) *)
+   (generate_id (), ResoAST, [], [g_id; notg_id], [])]      (* (6) *)
 
 let rec process_subproof (c : certif) : certif =
   match c with
   | (i, SubproofAST cert, cl, p, a) :: pi3' ->
       let pi3 = process_subproof pi3' in
       (match List.hd (List.rev cert) with
-      | (andn_id, DischargeAST, (Not h) :: g :: [], p', a') ->
+      | (andn_id, DischargeAST, [Not h; g; ], p', a') ->
           (* Remove first and last element of sub-proof certificate *)
           let certtl = List.tl cert in
           let rev_certtl = List.rev certtl in
@@ -1021,7 +1021,7 @@ let rec process_subproof (c : certif) : certif =
              rule *)
           let new_h_id = generate_id () in
           let h_id = get_id (List.hd cert) in
-          let pi2 = subst_ids subp ((h_id, new_h_id) :: []) in
+          let pi2 = subst_ids subp [(h_id, new_h_id)] in
           process_subproof_aux andn_id new_h_id g_id pi2 pi3 h g
       | _ -> raise (Debug ("| process_subproof: expecting the last step of the certificate to be a discharge step at id "^i^" |")))
   | h :: tl -> h :: process_subproof tl
@@ -1046,7 +1046,8 @@ let rec process_subproof (c : certif) : certif =
        let cert' = List.filter_map (f s) cert in
        remove_step p f cert'
    | s :: cert -> s :: remove_step p f cert
-   | [] -> [] *) 
+   | [] -> [] *)
+ 
 (* Process _simplify rules from Alethe 
    Each rule has multiple variants, all taking the form
    a <-> b
@@ -1069,13 +1070,12 @@ let simplify_to_subproof (i: id) (a2bi: id) (b2ai: id) (a: term) (b: term) (a2b:
               [(sp2id, DischargeAST, [Not b; a], [], [])]) in
   let eqn1id = generate_id () in
   (* subp1 @ subp2 @  *)
-  (generate_id (), SubproofAST subp1, [], [], []) ::
-  (generate_id (), SubproofAST subp2, [], [], []) ::
+  [(generate_id (), SubproofAST subp1, [], [], []);
+   (generate_id (), SubproofAST subp2, [], [], []);
   (* Step 3. *)
-  ((eqn1id, Equn1AST, [Eq (a, b); Not a; Not b], [], []) ::
+   (eqn1id, Equn1AST, [Eq (a, b); Not a; Not b], [], []);
   (* Step 4. *)
-   (i, ResoAST, [Eq (a,b)], [eqn1id; sp1id; sp2id], []) 
-   :: [])
+   (i, ResoAST, [Eq (a,b)], [eqn1id; sp1id; sp2id], [])]
 (* Process _simplify rules with the assumption that only their LTR 
    implication is used. Transform a rule of the form:
                i: [a <-> b]                     _simplify
@@ -1106,16 +1106,25 @@ let is_neg (t1 : term) (t2 : term) : bool =
   | Not t, t' when t' = t -> true
   | _ -> false
 (* findi x l 0 finds the index of x in l counting from 0*)
-  let rec findi (x : 'a) (l : 'a list) (n : int) : int = 
+let rec findi (x : 'a) (l : 'a list) (n : int) : int = 
   match l with
   | h :: t -> if h = x then n else findi x t (n+1)
   | [] -> raise (Debug ("| findi : element not found |"))
+(* repeat x n returns list with n x's *)
+let repeat (x : 'a) (n : int) : 'a list =
+  let rec repeat' (x : 'a) (n : int) (acc : 'a list) : 'a list = 
+    match n with
+    | 0 -> acc
+    | n -> repeat' x (n-1) (x :: acc)
+  in
+  repeat' x n []
 let rec process_simplify (c : certif) : certif =
   match c with
   (* x_1 ^ ... ^ x_n <-> y *)
   | (i, AndsimpAST, cl, p, a) :: tl ->
       (match cl with
        (* T ^ ... ^ T <-> T *)
+       | [Eq ((And xs as lhs), (True as rhs))] when (List.for_all ((=) True) xs) ->
           (* T ^ T <-> T
              LTR:
              --true
@@ -1126,19 +1135,20 @@ let rec process_simplify (c : certif) : certif =
              --------------------------------
                           T ^ T
           *)
-       | Eq ((And xs as lhs), (True as rhs)) :: [] when (List.for_all (fun x -> x = True) xs) ->
           let a2b = [(generate_id (), TrueAST, [True], [], [])] in
-          let andn_id = generate_id () in
           let b2ai = generate_id () in
+          let andn_id = generate_id () in
           (* We need 2 things repeated n (= lengh xs) times: 
                1. id of assumption True for resolution
                2. term ~T for and_neg rule *)
           let asmp_ids, ntrues = List.fold_left (fun (a,n) _  -> (b2ai :: a, Not True :: n)) ([],[]) xs in
-          let b2a = (andn_id, AndnAST, (lhs :: ntrues), [], []) ::
-                    (generate_id (), ResoAST, [lhs], andn_id :: asmp_ids, []) :: []
+          let b2a = [(andn_id, AndnAST, (lhs :: ntrues), [], []);
+                     (generate_id (), ResoAST, [lhs], andn_id :: asmp_ids, [])]
                       in
           (simplify_to_subproof i (generate_id ()) b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* x_1 ^ ... ^ x_n <-> x_1 ^ ... ^ x_n', RHS has all T removed *)
+       | [Eq ((And xs as lhs), (And ys as rhs))] when ((List.exists ((=) True) xs) 
+            && not (List.exists ((=) True) ys)) ->
           (* x ^ y ^ T <-> x ^ y
              LTR:
              ---------asmp    ---------asmp
@@ -1155,8 +1165,6 @@ let rec process_simplify (c : certif) : certif =
                ------------------------------------------------------res
                                     x ^ y ^ T
           *)
-       | Eq ((And xs as lhs), (And ys as rhs)) :: [] when ((List.exists ((=) True) xs) 
-            && not (List.exists (fun x -> x = True) ys)) ->
           let a2bi = generate_id () in
           (* for each y in ys,
                find index ind of first occurrence of y in xs and return
@@ -1174,7 +1182,7 @@ let rec process_simplify (c : certif) : certif =
           let andn_id1 = generate_id () in
           let a2b = c1 @ 
                     [(andn_id1, AndnAST, rhs :: projnegl1, [], []);
-                     (generate_id (), ResoAST, rhs :: [], andn_id1 :: proj_ids1, [])] in
+                     (generate_id (), ResoAST, [rhs], andn_id1 :: proj_ids1, [])] in
           let b2ai = generate_id () in
           let true_id = generate_id () in
           (* for each x in xs
@@ -1197,11 +1205,13 @@ let rec process_simplify (c : certif) : certif =
             ([],[],[]) xs in
           let andn_id2 = generate_id () in
           let b2a = c2 @
-                    [(true_id, TrueAST, True :: [], [], []);
+                    [(true_id, TrueAST, [True], [], []);
                      (andn_id2, AndnAST, lhs :: projnegl2, [], []);
-                     (generate_id (), ResoAST, lhs :: [], andn_id2 :: proj_ids2, [])] in
+                     (generate_id (), ResoAST, [lhs], andn_id2 :: proj_ids2, [])] in
           (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* x_1 ^ ... ^ x_n <-> x_1 ^ ... ^ x_n', RHS has all repeated literals removed *)
+       | [Eq ((And xs as lhs), (And ys as rhs))] when ((List.exists (fun x -> (List.exists (fun y -> y = x) xs)) xs)
+          && not (List.exists (fun x -> (List.exists (fun y -> y = x) ys)) ys)) ->
           (* x ^ y ^ x <-> x ^ y
              LTR:
              ---------asmp    ---------asmp
@@ -1218,8 +1228,6 @@ let rec process_simplify (c : certif) : certif =
                --------------------------------------------------------res
                                       x ^ y ^ x
           *)
-       | Eq ((And xs as lhs), (And ys as rhs)) :: [] when ((List.exists (fun x -> (List.exists (fun y -> y = x) xs)) xs) 
-            && not (List.exists (fun x -> (List.exists (fun y -> y = x) ys)) ys)) -> 
           let a2bi = generate_id () in
           (* for each y in ys,
                find index ind of first occurrence of y in xs and return
@@ -1237,7 +1245,7 @@ let rec process_simplify (c : certif) : certif =
           let andn_id1 = generate_id () in
           let a2b = c1 @
                     [(andn_id1, AndnAST, rhs :: projnegl1, [], []);
-                     (generate_id (), ResoAST, rhs :: [], andn_id1 :: proj_ids1, [])] in
+                     (generate_id (), ResoAST, [rhs], andn_id1 :: proj_ids1, [])] in
           let b2ai = generate_id () in
           (* for each x in xs
                find index ind of first occurrence of x in ys and return
@@ -1255,56 +1263,66 @@ let rec process_simplify (c : certif) : certif =
           let andn_id2 = generate_id () in
           let b2a = c2 @
                     [(andn_id2, AndnAST, lhs :: projnegl2, [], []);
-                     (generate_id (), ResoAST, lhs :: [], andn_id2 :: proj_ids2, [])] in
+                     (generate_id (), ResoAST, [lhs], andn_id2 :: proj_ids2, [])] in
           (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* x_1 ^ ... F ... ^ x_n <-> F *)
+       | [Eq ((And xs as lhs), (False as rhs))] when (List.exists ((=) False) xs) ->
           (* x ^ F <-> F
              LTR:
              -----asmp
              x ^ F
-             -----and
-               F
              RTL: can't derive x from F without an absurd rule which we don't have.
              We simplify assuming that this equivalence is only used as an LTR
           *)
-       | Eq ((And xs as lhs), (False as rhs)) :: [] when (List.exists ((=) False) xs) -> 
           let a2bi = generate_id () in
           let ind = findi False xs 0 in
-          let a2b = [(generate_id (), AndAST, False :: [], [a2bi], [string_of_int ind])] in
-          simplify_to_subproof_ltr i a2bi lhs rhs a2b tl
+          let a2b = [(generate_id (), AndAST, [False], [a2bi], [string_of_int ind])] in
+          (match (simplify_to_subproof_ltr i a2bi lhs rhs a2b tl) with
+           | h :: t -> h :: process_simplify t
+           | [] -> [])
        (* x_1 ^ ... x_i ... x_j ... ^ x_n <-> F, if x_i = ~x_j *)
+       | [Eq ((And xs as lhs), (False as rhs))] when 
+            (List.exists (fun x -> (List.exists (fun y -> is_neg y x) xs)) xs) ->
           (* x ^ ~x <-> F
              LTR:
-             ------ass     ------ass
-             x ^ ~x        x ^ ~x
-             ------and     ------and
-               x             ~x
-               ----------------res
-                      F
+                        ------ass
+                        x ^ ~x
+                        ------and ---------imp_neg1
+                          ~x      x -> F, x
+             ------ass  -------------------res
+             x ^ ~x            x -> F
+             ------and         ------imp
+               x                ~x, F
+             -------------------------res
+                          F
              RTL: can't derive x and ~x from F without an absurd rule which we don't have
              Assume that this equivalence is only used as an LTR rewrite
           *)
-       | Eq ((And xs as lhs), (False as rhs)) :: [] when 
-            (List.exists (fun x -> (List.exists (fun y -> is_neg y x) xs)) xs) ->
           let a2bi = generate_id () in
           let x = List.find (fun x -> (List.exists (fun y -> y = Not x) xs)) xs in
           let x_id = string_of_int (findi x xs 0) in
           let nx_id = string_of_int (findi (Not x) xs 0) in
-          let subp = [(a2bi, AssumeAST, lhs :: [], [], []);
-                      (generate_id (), AndAST, x :: [], [a2bi], [x_id]);
-                      (generate_id (), AndAST, Not x :: [], [a2bi], [nx_id]);
-                      (generate_id (), DischargeAST, [Not lhs; rhs], [], [])] in
-          [(i, SubproofAST subp, [], [], [])]
-          (* TODO:
-             similar to the previous case, replace the 
-             proof with:
-               n: [~(x ^ ~x), F]                 and_simplify'*)
-       | Eq _ :: [] -> (i, AndsimpAST, cl, p, a) :: process_simplify tl
+          let and_id1 = generate_id () in
+          let and_id2 = generate_id () in
+          let impn_id = generate_id () in
+          let res_id = generate_id () in
+          let imp_id = generate_id () in
+          let a2b = [(and_id1, AndAST, [x], [a2bi], [x_id]);
+                     (and_id2, AndAST, [Not x], [a2bi], [nx_id]);
+                     (impn_id, Impn1AST, [Imp [x; False]; x], [], []);
+                     (res_id, ResoAST, [Imp [x; False]], [and_id2; impn_id], []);
+                     (imp_id, ImpAST, [Not x; False], [res_id], []);
+                     (generate_id (), ResoAST, [False], [and_id1; imp_id], [])] in
+          (match (simplify_to_subproof_ltr i a2bi lhs rhs a2b tl) with
+           | h :: t -> h :: process_simplify t
+           | [] -> [])
+       | [Eq _] -> (i, AndsimpAST, cl, p, a) :: process_simplify tl
        | _ -> raise (Debug ("| process_simplify: expecting argument of and_simplify to be an equivalence at id "^i^" |")))
   (* x_1 v ... v x_n <-> y *)
   | (i, OrsimpAST, cl, p, a) :: tl ->
       (match cl with
        (* F v ... v F <-> F *)
+       | [Eq ((Or xs as lhs), (False as rhs))] when (List.for_all ((=) False) xs) ->
           (* F v F <-> F
              LTR: 
              -----asmp  ---false  --------------or_pos
@@ -1317,21 +1335,32 @@ let rec process_simplify (c : certif) : certif =
              ------------------res
                     F v F
           *)
+           let a2bi = generate_id () in
+           let f_id = generate_id () in
+           let orp_id = generate_id () in
+           (* We need 2 things repeated around n (= lengh xs) times: 
+                1. id of F rule (f_id) for resolution (n-1 times)
+                2. term F for or_pos rule (n times) *)
+           let f_ids, nfalses = List.fold_left (fun (f,n) _ -> (f_id :: f, False :: n)) ([],[]) xs in
+           let a2b = [(f_id, FalsAST, [Not False], [], []);
+                      (orp_id, OrpAST, (Not lhs) :: nfalses, [],[]);
+                      (generate_id (), ResoAST, [rhs], orp_id :: a2bi :: (List.tl f_ids), [])] in
+           let b2ai = generate_id () in
+           let orn_id = generate_id () in
+           let b2a = [(orn_id, OrnAST, (lhs :: [Not rhs]), [], [string_of_int 0]);
+                      (generate_id (), ResoAST, [lhs], [orn_id; b2ai], [])] in
+           (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* x_1 v ... v x_n <-> x_1 v ... x_n', RHS has all F removed *)
+       | [Eq ((Or xs as lhs), (Or ys as rhs))] when ((List.exists ((=) False) xs) 
+            && not (List.exists ((=) False) ys)) ->
           (* x v y v F <-> x v y
-             TODO: check assumption that resolution doesn't differentiate betwen 
-             x,y and x v y.
              LTR:
-                            
+             ---------asmp
+             x v y v F
+             ---------or    --false
+             x v y v F      ~F             
              -----------------res
                     x v y
-             -----asmp  --------------or_pos
-             x v y      ~(x v y), x, y
-             -------------------------res   ---------------or_neg   ---------------or_neg
-                        x,y                 (x v y v F), ~x         (x v y v F), ~y
-                        -----------------------------------------------------------res
-                                                  x v y v F
-            TODO: if the above assumption is true, the or step below is spurious
             RTL:
             -----asmp
             x v y
@@ -1340,6 +1369,31 @@ let rec process_simplify (c : certif) : certif =
              ------------------------------------------------res
                                 x v y v x
           *)
+           let a2bi = generate_id () in
+           let or_id1 = generate_id () in
+           let f_id = generate_id () in
+           (* number of F in xs *)
+           let f_cnt = List.fold_left (fun n x -> if x = False then n + 1 else n) 0 xs in
+           let a2b = [(or_id1, OrAST, xs, [a2bi], []);
+                      (f_id, FalsAST, [False], [], []);
+                      (generate_id (), ResoAST, [rhs], or_id1 :: (repeat f_id f_cnt), [])] in
+           let b2ai = generate_id () in
+           let or_id2 = generate_id () in
+           (* for each y in ys,
+                find index ind of first occurrence of y in xs and return
+                 1. (id', OrnAST, [lhs; ~y], [], [ind]), where id' is a new id
+                 2. id' *)
+           let c, proj_ids = List.fold_left 
+             (fun (s,i) y -> 
+               let ind = findi y xs 0 in
+               let id' = generate_id () in
+               ((id', OrnAST, [lhs; Not y], [], [string_of_int ind]) :: s,
+                id' :: i))
+             ([],[]) ys in
+           let b2a = c @
+                     [(or_id2, OrAST, ys, [b2ai], []);
+                      (generate_id (), ResoAST, [lhs], or_id2 :: proj_ids, [])] in
+           (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* x_1 v ... v x_n <-> x_1 v ... x_n', RHS has all repeated literals removed *)
           (* x v y v x <-> x v y
              TODO: this whole equivalence might be spurious if SMTCoq doesn't differentiate clauses from ors since
@@ -1363,7 +1417,11 @@ let rec process_simplify (c : certif) : certif =
           (* x v T <-> T
              LTR:
              --true
-             T
+          (*let subp = [(a2bi, AssumeAST, [lhs], [], []);
+                      (generate_id (), AndAST, [x], [a2bi], [x_id]);
+                      (generate_id (), AndAST, [Not x], [a2bi], [nx_id]);
+                      (generate_id (), DischargeAST, [Not lhs; rhs], [], [])] in
+          [(i, SubproofAST subp, [], [], [])]*)
              RTL:
              --asmp   -----------or_neg
              T        (x v T), ~T
@@ -1373,7 +1431,20 @@ let rec process_simplify (c : certif) : certif =
        (* x_1 v ... x_i ... x_j ... x_n <-> T, if x_i = ~x_j *)
           (* x v ~x <-> T
              LTR:
-             --true
+             --true| [Eq ((And xs as lhs), (True as rhs))] when (List.for_all ((=) True) xs) ->
+          let a2b = [(generate_id (), TrueAST, [True], [], [])] in
+          let andn_id = generate_id () in
+          let b2ai = generate_id () in
+          (* We need 2 things repeated n (= lengh xs) times: 
+               1. id of assumption True for resolution
+               2. term ~T for and_neg rule *)
+          let asmp_ids, ntrues = List.fold_left (fun (a,n) _  -> (b2ai :: a, Not True :: n)) ([],[]) xs in
+          let b2a = [(andn_id, AndnAST, (lhs :: ntrues), [], []);
+                     (generate_id (), ResoAST, [lhs], andn_id :: asmp_ids, [])]
+                      in
+          (simplify_to_subproof i (generate_id ()) b2ai lhs rhs a2b b2a) @ process_simplify tl
+             -----and
+               F
              T
              RTL:
              --------------or_neg -------------or_neg
@@ -1381,7 +1452,7 @@ let rec process_simplify (c : certif) : certif =
              ----------------------------------res
                            x v ~x
           *)
-       | Eq _ :: [] -> (i, OrsimpAST, cl, p, a) :: process_simplify tl
+       | [Eq _] -> (i, OrsimpAST, cl, p, a) :: process_simplify tl
        | _ -> raise (Debug ("| process_simplify: expecting argument of or_simplify to be an equivalence at id "^i^" |")))
   (* ~x <-> y *)
   | (i, NotsimpAST, cl, p, a) :: tl ->
@@ -1395,10 +1466,10 @@ let rec process_simplify (c : certif) : certif =
              --false
              ~F
           *)
-       | Eq ((Not False as lhs), (True as rhs)) :: [] ->
+       | [Eq ((Not False as lhs), (True as rhs))] ->
           let a2b = [(generate_id (), TrueAST, [True], [], [])] in
           let b2a = [(generate_id (), FalsAST, [Not False], [], [])] in
-          (simplify_to_subproof i (generate_id ()) (generate_id ()) lhs rhs a2b b2a) @ tl
+          (simplify_to_subproof i (generate_id ()) (generate_id ()) lhs rhs a2b b2a) @ process_simplify tl
        (* ~T <-> F *)
           (*
              LTR:
@@ -1412,7 +1483,7 @@ let rec process_simplify (c : certif) : certif =
           *)
        (* ~(~x) <-> x *)
           (* Nothing to do here, SMTCoq will see it as a refl *)
-       | Eq _ :: [] -> (i, NotsimpAST, cl, p, a) :: process_simplify tl
+       | [Eq _] -> (i, NotsimpAST, cl, p, a) :: process_simplify tl
        | _ -> raise (Debug ("| process_simplify: expecting argument of and_simplify to be an equivalence at id "^i^" |")))
   | (i, ImpsimpAST, cl, p, a) :: tl ->
       (match cl with
@@ -1436,7 +1507,7 @@ let rec process_simplify (c : certif) : certif =
        (* (F -> x) <-> T *)
           (*
              LTR:
-             --true
+             --true[Eq ((Not False as lhs), (True as rhs))]
              T
              RTL:
              ---------imp_neg1  --false
@@ -1460,7 +1531,7 @@ let rec process_simplify (c : certif) : certif =
              LTR:
              ------asmp
              T -> x
-             ------implies
+             ------implies@ tl
              ~T, x      T
              ------------res
                   x
@@ -1471,6 +1542,7 @@ let rec process_simplify (c : certif) : certif =
                   T -> x
           *)
        (* (x -> F) <-> ~x *)
+       | [Eq ((Imp [x;False] as lhs), (Not y as rhs))] when (x = y) ->
           (*
              LTR:
              ------asmp
@@ -1485,6 +1557,17 @@ let rec process_simplify (c : certif) : certif =
              ------------------res
                   x -> F
           *)
+          let a2bi = generate_id () in
+          let imp_id = generate_id () in
+          let f_id = generate_id () in
+          let a2b = [(imp_id, ImpAST, [Not x; False], [a2bi], []);
+                     (f_id, FalsAST, [Not False], [], []);
+                     (generate_id (), ResoAST, [rhs], [imp_id; f_id], [])] in
+          let b2ai = generate_id () in
+          let impn_id = generate_id () in
+          let b2a = [(impn_id, Impn1AST, [lhs; x], [], []);
+                     (generate_id (), ResoAST, [lhs], [b2ai;impn_id], [])] in
+          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* (x -> x) <-> T *)
           (*
              LTR:
@@ -1495,7 +1578,7 @@ let rec process_simplify (c : certif) : certif =
              x -> x, x          x -> x, ~x
              -----------------------------res
                          x -> x
-          *)
+          *)@ tl
        (* (~x -> x) <-> x *)
           (* TODO: check that ~~x is stored as x and duplicates are removed
              LTR:
@@ -1540,7 +1623,7 @@ let rec process_simplify (c : certif) : certif =
              --------------------------------------------------------------------------------------res
                                                 (x -> y) -> y
           *)
-       | Eq _ :: [] -> (i, ImpsimpAST, cl, p, a) :: process_simplify tl
+       | [Eq _] -> (i, ImpsimpAST, cl, p, a) :: process_simplify tl
        | _ -> raise (Debug ("| process_simplify: expecting argument of implies_simplify to be an equivalence at id "^i^" |")))
   (* (x <-> y) <-> z *)
   | (i, EqsimpAST, cl, p, a) :: tl ->
@@ -1553,7 +1636,7 @@ let rec process_simplify (c : certif) : certif =
        (* (x <-> T) <-> x *)
        (* (F <-> x) <-> ~x *)
        (* (x <-> F) <-> ~x *)
-       | Eq _ :: [] -> (i, EqsimpAST, cl, p, a) :: process_simplify tl
+       | [Eq _] -> (i, EqsimpAST, cl, p, a) :: process_simplify tl
        | _ -> raise (Debug ("| process_simplify: expecting argument of equiv_simplify to be an equivalence at id "^i^" |")))
   (* x <-> y *)
   | (i, BoolsimpAST, cl, p, a) :: tl ->
@@ -1575,7 +1658,7 @@ let rec process_simplify (c : certif) : certif =
                          -------------------------------------------------------------------------res
                                                           ~(x -> y)
           *)
-       | Eq ((Not (Imp [x; y]) as lhs), (And [a; Not b] as rhs)) :: [] when (x = a && y = b) ->
+       | [Eq ((Not (Imp [x; y]) as lhs), (And [a; Not b] as rhs))] when (x = a && y = b) ->
           let a2bi = generate_id () in
           let impn1i = generate_id () in
           let impn2i = generate_id () in
@@ -1602,7 +1685,7 @@ let rec process_simplify (c : certif) : certif =
                      (res_2i, ResoAST, [Not y], [andp_2i;b2ai], []);
                      (imppi, ImppAST, [lhs; Not x; y], [], []);
                      (res_3i, ResoAST, [lhs], [imppi;res_1i;res_2i], [])] in
-          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ tl
+          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
       (* ~(x v y) <-> (~x ^ ~y) *)
          (*
             LTR:
@@ -1620,7 +1703,7 @@ let rec process_simplify (c : certif) : certif =
                         ----------------------------------------------------------------------------res
                                                         ~(x v y)
          *)
-      | Eq ((Not (Or [x;y]) as lhs), (And [Not a;Not b] as rhs)) :: [] when (x = a && y = b) ->
+      | [Eq ((Not (Or [x;y]) as lhs), (And [Not a;Not b] as rhs))] when (x = a && y = b) ->
          let a2bi = generate_id () in
          let orn_1i = generate_id () in
          let res_1i = generate_id () in
@@ -1647,7 +1730,7 @@ let rec process_simplify (c : certif) : certif =
                     (res_2i, ResoAST, [Not y], [andp_2i;b2ai], []);
                     (orpi, OrpAST, [lhs; x; y], [], []);
                     (res_3i, ResoAST, [lhs], [orpi;res_1i;res_2i], [])] in
-         (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ tl
+         (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
       (* ~(x ^ y) <-> (~x v ~y) *)
          (*
             LTR:
@@ -1665,7 +1748,7 @@ let rec process_simplify (c : certif) : certif =
       (* ((x -> y) -> z) <-> (x v y) *)
       (* (x ^ (y -> z)) <-> (x ^ y) *)
       (* ((x -> y) ^ x) <-> (x ^ y) *)
-      | Eq _ :: [] -> (i, BoolsimpAST, cl, p, a) :: process_simplify tl
+      | [Eq _] -> (i, BoolsimpAST, cl, p, a) :: process_simplify tl
       | _ -> raise (Debug ("| process_simplify: expecting argument of bool_simplify to be an equivalence at id "^i^" |"))
       )
   (* x <-> y *)
@@ -1675,7 +1758,7 @@ let rec process_simplify (c : certif) : certif =
       (* x <-> y <-> (x -> y) ^ (y -> x) *)
       (* ite c x y <-> (c -> x) ^ (~c -> y) *)
       (* forall x_1, ..., x_n. F <-> ~ exists x_1, ..., x_n. ~F *)
-      | Eq _ :: [] -> (i, ConndefAST, cl, p, a) :: process_simplify tl
+      | [Eq _] -> (i, ConndefAST, cl, p, a) :: process_simplify tl
       | _ -> raise (Debug ("| process_simplify: expecting argument of connective_def to be an equivalence at id "^i^" |"))
       )
   | h :: tl -> h :: process_simplify tl
