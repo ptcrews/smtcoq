@@ -1479,7 +1479,7 @@ let rec process_simplify (c : certif) : certif =
              LTR:
              --true
              T
-             RTL:process_simplify
+             RTL:
              --false
              ~F
           *)
@@ -1488,18 +1488,34 @@ let rec process_simplify (c : certif) : certif =
           let b2a = [(generate_id (), FalsAST, [Not False], [], [])] in
           (simplify_to_subproof i (generate_id ()) (generate_id ()) lhs rhs a2b b2a) @ process_simplify tl
        (* ~T <-> F *)
+       | [Eq ((Not True as lhs), (False as rhs))] ->
           (*
              LTR:
-             --asmp --true
-             ~T     T
-             --------
-                F
+             --asmp ---------imp_neg1
+             ~T     T -> F, T
+             ----------------res
+                  T -> F
+                  -----imp  --true
+                  ~T, F      T    
+                  ------------res
+                        F
              RTL: can't derive ~T from F without an absurd rule which we don't have.
-             Assume that this equivalence is never used in this direction, ie proofs with the 
-             equivalence always reduce the equivalence to the LTR implication before proceeding.
+             Assume that this equivalence is only used as an LTR rewrite
           *)
-       (* ~(~x) <-> x *)
-          (* Nothing to do here, SMTCoq will see it as a refl *)
+          let a2bi = generate_id () in
+          let impn_id = generate_id () in
+          let res_id = generate_id () in
+          let imp_id = generate_id () in
+          let t_id = generate_id () in
+          let a2b = [(impn_id, Impn1AST, [Imp [True; False]; True], [], []);
+                     (res_id, ResoAST, [Imp [True; False]], [a2bi;impn_id], []);
+                     (imp_id, ImpAST, [Not True; False], [res_id], []);
+                     (t_id, TrueAST, [True], [], []);
+                     (generate_id (), ResoAST, [False], [imp_id; t_id], [])] in
+          (match (simplify_to_subproof_ltr i a2bi lhs rhs a2b tl) with
+           | h :: t -> h :: process_simplify t
+           | [] -> [])
+       (* ~(~x) <-> x handled by process_notnot*)
        | [Eq _] -> (i, NotsimpAST, cl, p, a) :: process_simplify tl
        | _ -> raise (Debug ("| process_simplify: expecting argument of and_simplify to be an equivalence at id "^i^" |")))
   | (i, ImpsimpAST, cl, p, a) :: tl ->
