@@ -817,15 +817,15 @@ let process_cong (c : certif) : certif =
    transformation searches the clause for the projection and adds
    it as an argument *)
 
-(* list_find_index l x eq returns the index of the 
-   first occurrence of item x in list l, using eq for 
-   item equality checking *)
-let list_find_index l x eq : int =
-  let rec aux i l = 
+(* findi x l 0 finds the index of x in l counting from 0 
+   Note that it checks for syntactic equality of terms, not modulo
+   alpha renaming *)
+let findi (x : 'a) (l : 'a list) : int = 
+  let rec findi' (x : 'a) (l : 'a list) (n : int) : int = 
     match l with
-    | h :: t -> if eq h x then i else aux (i+1) t
-    | [] -> raise (Debug "| list_find_index: failed |")
-  in aux 0 l
+    | h :: t -> if h = x then n else findi' x t (n+1)
+    | [] -> raise (Debug ("| findi : element not found |")) in
+  findi' x l 0
 
 let process_proj (c: certif): certif =
   let rec aux (c: certif) (cog: certif) : certif =
@@ -838,7 +838,7 @@ let process_proj (c: certif): certif =
                  p in
         (match (get_expr (List.hd p')), (get_expr (List.hd cl)) with
         | And ts, x ->
-            let i' = try list_find_index ts x term_eq with
+            let i' = try findi x ts with
                      | Debug s -> raise (Debug ("| process_proj: fails at id "
                         ^i^" |"^s)) in
               (i, AndAST, cl, p, [(string_of_int i')]) :: aux tl cog
@@ -853,7 +853,7 @@ let process_proj (c: certif): certif =
                  p in
         (match (get_expr (List.hd p')), (get_expr (List.hd cl)) with
         | Not (Or ts), Not x -> 
-            let i' = try list_find_index ts x term_eq with
+            let i' = try findi x ts with
                      | Debug s -> raise (Debug ("| process_proj: fails at id "^i^" |"^s)) in
               (i, NorAST, cl, p, [(string_of_int i')]) :: aux tl cog
         | _, _ -> raise (Debug ("| process_proj: expecting premise to be a `not (or)` at id "
@@ -861,7 +861,7 @@ let process_proj (c: certif): certif =
     | (i, OrnAST, cl, p, a) :: tl when a = [] ->
         (match get_expr (List.nth cl 0), get_expr (List.nth cl 1) with
         | Or ts, Not x -> 
-            let i' = try list_find_index ts x term_eq with
+            let i' = try findi x ts with
                      | Debug s -> raise (Debug ("| process_proj: fails at id "^i^" |"^s)) in
               (i, OrnAST, cl, p, [(string_of_int i')]) :: aux tl cog
         | _, _ -> raise (Debug 
@@ -869,7 +869,7 @@ let process_proj (c: certif): certif =
     | (i, AndpAST, cl, p, a) :: tl when a = [] ->
         (match get_expr (List.nth cl 0), get_expr (List.nth cl 1) with
         | Not (And ts), x ->
-            let i' = try list_find_index ts x term_eq with
+            let i' = try findi x ts with
                      | Debug s -> raise (Debug ("| process_proj: fails at id "^i^" |"^s)) in
               (i, AndpAST, cl, p, [(string_of_int i')]) :: aux tl cog
         |  _, _ -> raise (Debug ("| process_proj: expecting clause with `not (and)` and projection at id "
@@ -1105,11 +1105,6 @@ let is_neg (t1 : term) (t2 : term) : bool =
   | t, Not t' when t' = t -> true
   | Not t, t' when t' = t -> true
   | _ -> false
-(* findi x l 0 finds the index of x in l counting from 0*)
-let rec findi (x : 'a) (l : 'a list) (n : int) : int = 
-  match l with
-  | h :: t -> if h = x then n else findi x t (n+1)
-  | [] -> raise (Debug ("| findi : element not found |"))
 (* repeat x n returns list with n x's *)
 let repeat (x : 'a) (n : int) : 'a list =
   let rec repeat' (x : 'a) (n : int) (acc : 'a list) : 'a list = 
@@ -1173,7 +1168,7 @@ let rec process_simplify (c : certif) : certif =
                 3. ~y *)
           let c1, proj_ids1, projnegl1 = List.fold_left 
             (fun (s,i,n) y -> 
-              let ind = findi y xs 0 in
+              let ind = findi y xs in
               let id' = generate_id () in
               ((id', AndAST, [y], [a2bi], [string_of_int ind]) :: s,
                id' :: i,
@@ -1197,7 +1192,7 @@ let rec process_simplify (c : certif) : certif =
               if x = True then
                 (s, true_id :: i, Not x :: n)
               else
-                let ind = findi x ys 0 in
+                let ind = findi x ys in
                 let id' = generate_id () in
                 ((id', AndAST, [x], [b2ai], [string_of_int ind]) :: s,
                  id' :: i,
@@ -1236,7 +1231,7 @@ let rec process_simplify (c : certif) : certif =
                 3. ~y *)
           let c1, proj_ids1, projnegl1 = List.fold_left 
             (fun (s,i,n) y -> 
-              let ind = findi y xs 0 in
+              let ind = findi y xs in
               let id' = generate_id () in
               ((id', AndAST, [y], [a2bi], [string_of_int ind]) :: s,
                id' :: i,
@@ -1254,7 +1249,7 @@ let rec process_simplify (c : certif) : certif =
                 3. ~x *)
           let c2, proj_ids2, projnegl2 = List.fold_left 
             (fun (s,i,n) x ->
-              let ind = findi x ys 0 in
+              let ind = findi x ys in
               let id' = generate_id () in
               ((id', AndAST, [x], [b2ai], [string_of_int ind]) :: s,
                  id' :: i,
@@ -1275,7 +1270,7 @@ let rec process_simplify (c : certif) : certif =
              We simplify assuming that this equivalence is only used as an LTR
           *)
           let a2bi = generate_id () in
-          let ind = findi False xs 0 in
+          let ind = findi False xs in
           let a2b = [(generate_id (), AndAST, [False], [a2bi], [string_of_int ind])] in
           (match (simplify_to_subproof_ltr i a2bi lhs rhs a2b tl) with
            | h :: t -> h :: process_simplify t
@@ -1300,8 +1295,8 @@ let rec process_simplify (c : certif) : certif =
           *)
           let a2bi = generate_id () in
           let x = List.find (fun x -> (List.exists (fun y -> y = Not x) xs)) xs in
-          let x_id = string_of_int (findi x xs 0) in
-          let nx_id = string_of_int (findi (Not x) xs 0) in
+          let x_id = string_of_int (findi x xs) in
+          let nx_id = string_of_int (findi (Not x) xs) in
           let and_id1 = generate_id () in
           let and_id2 = generate_id () in
           let impn_id = generate_id () in
@@ -1385,7 +1380,7 @@ let rec process_simplify (c : certif) : certif =
                  2. id' *)
            let c, proj_ids = List.fold_left 
              (fun (s,i) y -> 
-               let ind = findi y xs 0 in
+               let ind = findi y xs in
                let id' = generate_id () in
                ((id', OrnAST, [lhs; Not y], [], [string_of_int ind]) :: s,
                 id' :: i))
@@ -1395,11 +1390,11 @@ let rec process_simplify (c : certif) : certif =
                       (generate_id (), ResoAST, [lhs], or_id2 :: proj_ids, [])] in
            (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* x_1 v ... v x_n <-> x_1 v ... x_n', RHS has all repeated literals removed *)
+       | [Eq ((Or xs as lhs), (Or ys as rhs))] when ((List.exists (fun x -> (List.exists (fun y -> y = x) xs)) xs)
+          && not (List.exists (fun x -> (List.exists (fun y -> y = x) ys)) ys)) ->
           (* x v y v x <-> x v y
-             TODO: this whole equivalence might be spurious if SMTCoq doesn't differentiate clauses from ors since
-              it removes duplicate literals in clauses
-             TODO: if the above assumption is true, the or step below is spurious
-             TODO: we use the assumption that SMTCoq automatically removes duplicates from clauses
+             SMTCoq removes duplicates in clauses, but in LTR we don't construct an or in the end, 
+             I think this should be okay. TODO check with Chantal
              LTR:
              ---------asmp
              x v y v x
@@ -1413,45 +1408,67 @@ let rec process_simplify (c : certif) : certif =
               -----------------------------------------------res
                                 x v y v x
           *)
+           let a2bi = generate_id () in
+           let or_id1 = generate_id () in
+           let a2b = [(or_id1, OrAST, xs, [a2bi], [])] in
+           let b2ai = generate_id () in
+           let or_id2 = generate_id () in
+           (* for each y in ys,
+               find index ind of first occurrence of y in xs and return
+                1. (id', OrnAST, [y], [b2ai], [ind]), where id' is a new id
+                2. id' *)
+           let c, proj_ids = List.fold_left 
+            (fun (s,i) y -> 
+              let ind = findi y xs in
+              let id' = generate_id () in
+              ((id', OrnAST, [y], [b2ai], [string_of_int ind]) :: s,
+               id' :: i))
+              ([],[]) ys in
+           let b2a = (or_id2, OrAST, ys, [b2ai], []):: c @
+                     [(generate_id (), ResoAST, [lhs], or_id2 :: proj_ids, [])] in 
+           (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* x_1 v ... T ... x_n <-> T *)
+       | [Eq ((Or xs as lhs), (True as rhs))] when (List.exists ((=) True) xs) ->
           (* x v T <-> T
              LTR:
              --true
-          (*let subp = [(a2bi, AssumeAST, [lhs], [], []);
-                      (generate_id (), AndAST, [x], [a2bi], [x_id]);
-                      (generate_id (), AndAST, [Not x], [a2bi], [nx_id]);
-                      (generate_id (), DischargeAST, [Not lhs; rhs], [], [])] in
-          [(i, SubproofAST subp, [], [], [])]*)
+             T
              RTL:
              --asmp   -----------or_neg
              T        (x v T), ~T
              --------------------res
                     x v T
           *)
+          let a2b = [(generate_id (), TrueAST, [rhs], [], [])] in
+          let orn_id = generate_id () in
+          let b2ai = generate_id () in
+          let orn_a = string_of_int (findi True xs) in
+          let b2a = [(orn_id, OrnAST, [lhs; Not True], [], [orn_a]);
+                     (generate_id (), ResoAST, [lhs], [b2ai; orn_id], [])] in
+          (simplify_to_subproof i (generate_id ()) b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* x_1 v ... x_i ... x_j ... x_n <-> T, if x_i = ~x_j *)
+       | [Eq ((Or xs as lhs), (True as rhs))] when 
+          (List.exists (fun x -> (List.exists (fun y -> is_neg y x) xs)) xs) ->
           (* x v ~x <-> T
              LTR:
-             --true| [Eq ((And xs as lhs), (True as rhs))] when (List.for_all ((=) True) xs) ->
-          let a2b = [(generate_id (), TrueAST, [True], [], [])] in
-          let andn_id = generate_id () in
-          let b2ai = generate_id () in
-          (* We need 2 things repeated n (= lengh xs) times: 
-               1. id of assumption True for resolution
-               2. term ~T for and_neg rule *)
-          let asmp_ids, ntrues = List.fold_left (fun (a,n) _  -> (b2ai :: a, Not True :: n)) ([],[]) xs in
-          let b2a = [(andn_id, AndnAST, (lhs :: ntrues), [], []);
-                     (generate_id (), ResoAST, [lhs], andn_id :: asmp_ids, [])]
-                      in
-          (simplify_to_subproof i (generate_id ()) b2ai lhs rhs a2b b2a) @ process_simplify tl
-             -----and
-               F
-             T
+             --true
+              T
              RTL:
              --------------or_neg -------------or_neg
              (x v ~x), ~x         (x v ~x), ~~x
              ----------------------------------res
                            x v ~x
           *)
+          let a2b = [(generate_id (), TrueAST, [rhs], [], [])] in
+          let orn_id1 = generate_id () in
+          let orn_id2 = generate_id () in
+          let x = List.find (fun x -> (List.exists (fun y -> y = Not x) xs)) xs in
+          let x_id = string_of_int (findi x xs) in
+          let nx_id = string_of_int (findi (Not x) xs) in
+          let b2a = [(orn_id1, OrnAST, [lhs; Not x], [], [x_id]);
+                     (orn_id2, OrnAST, [lhs; x], [], [nx_id]);
+                     (generate_id (), ResoAST, [lhs], [orn_id1; orn_id2], [])] in
+          (simplify_to_subproof i (generate_id ()) (generate_id ()) lhs rhs a2b b2a) @ process_simplify tl
        | [Eq _] -> (i, OrsimpAST, cl, p, a) :: process_simplify tl
        | _ -> raise (Debug ("| process_simplify: expecting argument of or_simplify to be an equivalence at id "^i^" |")))
   (* ~x <-> y *)
@@ -1578,7 +1595,7 @@ let rec process_simplify (c : certif) : certif =
              x -> x, x          x -> x, ~x
              -----------------------------res
                          x -> x
-          *)@ tl
+          *)
        (* (~x -> x) <-> x *)
           (* TODO: check that ~~x is stored as x and duplicates are removed
              LTR:
