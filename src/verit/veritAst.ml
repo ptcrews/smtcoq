@@ -511,6 +511,20 @@ let process_fins (c : certif) : certif =
 
 (* Soundly remove all notnot rules from certificate *)
 (* We assume that a ~~x is stored as just x by process_term *)
+(* So typically, a proof that eliminates ~~ by:
+     ...
+   -------   ---------not_not
+   ~~x v C    ~~~x v x
+  --------------------reso
+         x v C
+  can be replaced by the following, since double negations 
+  are implicitly simplified at the term level
+    ...
+   -------
+    x v C
+  --------reso
+    x v C
+*)
 let rec process_notnot (c : certif) : certif = 
   match c with
   | (i, NotnotAST, cl, p, a) :: tl -> process_notnot (remove_res_premise i tl)
@@ -1521,6 +1535,7 @@ let rec process_simplify (c : certif) : certif =
   | (i, ImpsimpAST, cl, p, a) :: tl ->
       (match cl with
        (* (~x -> y) <-> (y -> x) *)
+       | [Eq ((Imp [Not x; y] as lhs), (Imp [b; a] as rhs))] when (x = a && y = b) ->
           (*
              LTR:
              -------asmp
@@ -1528,7 +1543,7 @@ let rec process_simplify (c : certif) : certif =
              -------imp   ---------imp_neg1   ----------imp_neg2
              ~~x, ~y      y -> x, y           y -> x, ~x
              -------------------------------------------res
-                              y -> x
+                                 y -> x
              RTL:
              ------asmp
              y -> x
@@ -1537,10 +1552,28 @@ let rec process_simplify (c : certif) : certif =
              -------------------------------------------------res
                                  ~x -> ~y
           *)
+          let a2bi = generate_id () in
+          let impi1 = generate_id () in
+          let impn1i1 = generate_id () in
+          let impn2i1 = generate_id () in
+          let a2b = [(impi1, ImpAST, [x; Not y], [a2bi], []);
+                     (impn1i1, Impn1AST, [rhs; y], [], []);
+                     (impn2i1, Impn2AST, [rhs; Not x], [], []);
+                     (generate_id (), ResoAST, [rhs], [impi1; impn1i1; impn2i1], [])] in
+          let b2ai = generate_id () in
+          let impi2 = generate_id () in
+          let impn1i2 = generate_id () in
+          let impn2i2 = generate_id () in
+          let b2a = [(impi2, ImpAST, [Not y; x], [b2ai], []);
+                     (impn1i2, Impn1AST, [lhs; Not x], [], []);
+                     (impn2i2, Impn2AST, [lhs; y], [], []);
+                     (generate_id (), ResoAST, [lhs], [impi2; impn1i2; impn2i2], [])] in
+          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* (F -> x) <-> T *)
+       | [Eq ((Imp [False; x] as lhs), (True as rhs))] ->
           (*
              LTR:
-             --true[Eq ((Not False as lhs), (True as rhs))]
+             --true
              T
              RTL:
              ---------imp_neg1  --false
@@ -1548,34 +1581,60 @@ let rec process_simplify (c : certif) : certif =
              ---------------------res
                      F -> x
           *)
+          let a2b = [(generate_id (), TrueAST, [rhs], [], [])] in
+          let impni = generate_id () in
+          let fi = generate_id () in
+          let b2a = [(impni, Impn1AST, [Imp [False; x]; False], [], []);
+                     (fi, FalsAST, [Not False], [], []);
+                     (generate_id (), ResoAST, [Imp [False; x]], [], [])] in
+          (simplify_to_subproof i (generate_id ()) (generate_id ()) lhs rhs a2b b2a) @ process_simplify tl
        (* (x -> T) <-> T *)
+       | [Eq ((Imp [x; True] as lhs), (True as rhs))] ->
           (*
              LTR:
              --true
              T
              RTL:
              --asmp   ----------imp_neg2
-             x        T -> x, ~x
+             T        x -> T, ~T
              -------------------res
-                   T -> x
+                   x -> T
           *)
+          let a2b = [(generate_id (), TrueAST, [rhs], [], [])] in
+          let b2ai = generate_id () in
+          let impni = generate_id () in
+          let b2a = [(impni, Impn2AST, [lhs; Not True], [], []);
+                     (generate_id (), ResoAST, [lhs], [b2ai;impni], [])] in
+          (simplify_to_subproof i (generate_id ()) b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* (T -> x) <-> x *)
+       | [Eq ((Imp [True; x] as lhs), (a as rhs))] when (x = a) ->
           (*
              LTR:
              ------asmp
              T -> x
-             ------implies@ tl
-             ~T, x      T
-             ------------res
-                  x
+             ------implies   --true
+             ~T, x            T
+             -------------------res
+                       x
              RTL:
-             --asmp -----------imp_neg2
-             x      T -> x, ~x
-             -----------------res
-                  T -> x
+             --asmp   -----------imp_neg2
+             x        T -> x, ~x
+             -------------------res
+                    T -> x
           *)
+          let a2bi = generate_id () in
+          let impi = generate_id () in
+          let ti = generate_id () in
+          let a2b = [(impi, ImpAST, [Not True; x], [a2bi], []);
+                     (ti, TrueAST, [True], [], []);
+                     (generate_id (), ResoAST, [rhs], [impi; ti], [])] in
+          let b2ai = generate_id () in
+          let impni = generate_id () in
+          let b2a = [(impni, Impn2AST, [lhs; Not x], [], []);
+                     (generate_id (), ResoAST, [lhs], [b2ai; impni], [])] in
+          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* (x -> F) <-> ~x *)
-       | [Eq ((Imp [x;False] as lhs), (Not y as rhs))] when (x = y) ->
+       | [Eq ((Imp [x;False] as lhs), (Not a as rhs))] when (x = a) ->
           (*
              LTR:
              ------asmp
@@ -1602,6 +1661,7 @@ let rec process_simplify (c : certif) : certif =
                      (generate_id (), ResoAST, [lhs], [b2ai;impn_id], [])] in
           (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* (x -> x) <-> T *)
+       | [Eq ((Imp [x;a] as lhs), (True as rhs))] when (x = a) ->
           (*
              LTR:
              --true
@@ -1612,7 +1672,15 @@ let rec process_simplify (c : certif) : certif =
              -----------------------------res
                          x -> x
           *)
+          let a2b = [(generate_id (), TrueAST, [rhs], [], [])] in
+          let impni1 = generate_id () in
+          let impni2 = generate_id () in
+          let b2a = [(impni1, Impn1AST, [Imp [x;x]; x], [], []);
+                     (impni2, Impn1AST, [Imp [x;x]; Not x], [], []);
+                     (generate_id (), ResoAST, [lhs], [impni1;impni2], [])] in
+          (simplify_to_subproof i (generate_id ()) (generate_id ()) lhs rhs a2b b2a) @ process_simplify tl
        (* (~x -> x) <-> x *)
+       | [Eq ((Imp [Not x;a] as lhs), (b as rhs))] when (x = a && x = b) ->
           (* TODO: check that ~~x is stored as x and duplicates are removed
              LTR:
              -------asmp  ------------------imp_pos
@@ -1625,7 +1693,17 @@ let rec process_simplify (c : certif) : certif =
              ------------------res
                   ~x -> x
           *)
+          let a2bi = generate_id () in
+          let imppi = generate_id () in
+          let a2b = [(imppi, ImppAST, [Not lhs; x; x], [], []);
+                     (generate_id (), ResoAST, [rhs], [a2bi;imppi],[])] in
+          let b2ai = generate_id () in
+          let impni = generate_id () in
+          let b2a = [(impni, Impn1AST, [lhs; Not x], [], []);
+                     (generate_id (), ResoAST, [lhs], [b2ai;impni], [])] in
+          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* (x -> ~x) <-> ~x *)
+       | [Eq ((Imp [x; Not a] as lhs), (Not b as rhs))] when (x = a && x = b) ->
           (*
              LTR:
              -------asmp  ------------------imp_pos
@@ -1635,10 +1713,20 @@ let rec process_simplify (c : certif) : certif =
              RTL:
              --asmp   ----------imp_neg1
              ~x       x -> ~x, x
-             -------------------
+             -------------------res
                   x -> ~x
           *)
+          let a2bi = generate_id () in
+          let imppi = generate_id () in
+          let a2b = [(imppi, ImppAST, [Not lhs; Not x; Not x], [], []);
+                     (generate_id (), ResoAST, [rhs], [a2bi; imppi], [])] in
+          let b2ai = generate_id () in
+          let impni = generate_id () in
+          let b2a = [(impni, Impn1AST, [lhs; x], [], []);
+                     (generate_id (), ResoAST, [lhs], [], [])] in
+          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* ((x -> y) -> y) <-> (x v y) *)
+       | [Eq ((Imp [Imp [x;y]; a] as lhs), (Or [b;c] as rhs))] when (y = a && x = b && y = c) ->
           (*
              LTR:
              -------------asmp
@@ -1656,6 +1744,27 @@ let rec process_simplify (c : certif) : certif =
              --------------------------------------------------------------------------------------res
                                                 (x -> y) -> y
           *)
+          let a2bi = generate_id () in
+          let impi = generate_id () in
+          let orni1 = generate_id () in
+          let impni1 = generate_id () in
+          let orni2 = generate_id () in
+          let a2b = [(impi, ImpAST, [Not (Imp [x;y]); y], [a2bi], []);
+                     (orni1, OrnAST, [Or [x;y]; Not y], [], []);
+                     (impni1, Impn1AST, [Imp [x;y]; x], [], []);
+                     (orni2, OrnAST, [Or [x;y]; Not x], [], []);
+                     (generate_id (), ResoAST, [rhs], [impi;orni1;impni1;orni2], [])] in
+          let b2ai = generate_id () in
+          let ori = generate_id () in
+          let impni2 = generate_id () in
+          let imppi = generate_id () in
+          let impni3 = generate_id () in
+          let b2a = [(ori, OrAST, [x; y], [b2ai], []);
+                     (impni2, Impn1AST, [lhs; Imp [x;y]], [], []);
+                     (imppi, ImppAST, [Not (Imp [x;y]); Not x; y], [], []);
+                     (impni3, Impn2AST, [lhs; Not y], [], []);
+                     (generate_id (), ResoAST, [lhs], [ori;impni2;imppi;impni3], [])] in
+          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        | [Eq _] -> (i, ImpsimpAST, cl, p, a) :: process_simplify tl
        | _ -> raise (Debug ("| process_simplify: expecting argument of implies_simplify to be an equivalence at id "^i^" |")))
   (* (x <-> y) <-> z *)
