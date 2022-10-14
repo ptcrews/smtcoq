@@ -1901,9 +1901,119 @@ let rec process_simplify (c : certif) : certif =
                     (generate_id (), ResoAST, [lhs], [b2ai; orpi; andpi1; andpi2], [])] in
          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
       (* (x -> (y -> z)) <-> ((x ^ y) -> z) *)
-      (* ((x -> y) -> z) <-> (x v y) *)
-      (* (x ^ (y -> z)) <-> (x ^ y) *)
+         (*
+            LTR:
+            -------------asmp  ----------------------------impp
+            x -> (y -> z)      ~(x -> (y -> z)), ~x, y -> z
+            -----------------------------------------------res  ---------------impp
+                                ~x, y -> z                      ~(y -> z), ~y, z
+                                ------------------------------------------------res   -----------andp -----------andp  ----------------impn2
+                                                    ~x, ~y, z                         ~(x ^ y), x     ~(x ^ y), y      (x ^ y) -> z, ~z
+            -------------------impn1                ------------------------------------------------------------------------------------res
+            (x ^ y) -> z, x ^ y                                                     ~(x ^ y), (x ^ y) -> z
+            ----------------------------------------------------------------------------------------------res
+                                                  (x ^ y) -> z
+            RTL:
+            ----------asmp
+            x ^ y -> z
+            -----------imp  ---------------and_neg
+            ~(x ^ y), z     (x ^ y), ~x, ~y
+            -------------------------------res  ------------------imp_neg1  ---------imp_neg1   ----------imp_neg2
+                      ~x, ~y, z                 x -> (y -> z), x            y -> z, y           y -> z, ~z        
+                      ------------------------------------------------------------------------------------res   --------------------------imp_neg2
+                                                  x -> (y -> z), y -> z                                         x -> (y -> z), ~(y -> z)
+                                                  ----------------------------------------------------------------------------------------res
+                                                                                      x -> (y -> z)
+         *)
+         (*let a2bi = generate_id () in
+         let imppi1 = generate_id () in
+         let imppi2 = generate_id () in
+         let andpi1 = generate_id () in
+         let andpi2 = generate_id () in
+         let impni1 = generate_id () in
+         let impni2 = generate_id () in
+         let a2b = [(imppi1, ImppAST, []);] in
+         []*)
+      (* ((x -> y) -> y) <-> (x v y) *)
+         (*
+            LTR:
+            -------------asmp   ------------------------------impp
+            (x -> y) -> y       ~((x -> y) -> y), ~(x -> y), y
+         res--------------------------------------------------   ---------impn1
+                              ~(x -> y), y                       x -> y, x
+                           res--------------------------------------------res  ---------orn
+                                                  x, y                         x v y, ~x   
+                                               res--------------------------------------  ---------orn
+                                                                 x v y, y                 x v y, ~y
+                                                              res----------------------------------
+                                                                               x v y
+            RTL:
+            -----asmp  ---------------orp  
+            x v y      ~(x v y), x, y      
+         res----------------------------- ----------------impp
+                         x,y               ~(x -> y), ~x, y
+                     res-----------------------------------  ---------------impn2
+                                   ~(x -> y), y              (x -> y) -> y, ~y
+                                res-------------------------------------------  ---------------------impn1
+                                              ~(x -> y), (x -> y) -> y          (x -> y) -> y, x -> y
+                                           res-------------------------------------------------------
+                                                                   (x -> y) -> y
+              
+         *)
+      (* (x ^ (x -> y)) <-> (x ^ y) *)
+         (*
+            LTR:
+            ------------asmp
+            x ^ (x -> y)
+            ------------and  ----------------impp  ------------asmp
+               x -> y        ~(x -> y), ~x, y       x ^ (x -> y)
+            res------------------------------      ------------and
+                          ~x, y                          x
+                       res-------------------------------- -------------andn ------------asmp
+                                         y                 x ^ y, ~x, ~y      x ^ (x -> y)
+                                      res-------------------------------     ------------and
+                                                    x ^ y, ~x                      x
+                                                 res--------------------------------
+                                                                 x ^ y
+            RTL:
+            -----asmp
+            x ^ y
+            -----and  ----------impn2
+              y       x -> y, ~y
+           res------------------  ---------------------------andn
+                    x -> y        x ^ (x -> y), ~x, ~(x -> y)     x ^ y
+                 res-----------------------------------------     -----and
+                                x ^ (x -> y), ~x                    x
+                             res-------------------------------------
+                                              x ^ (x -> y)
+          *)
       (* ((x -> y) ^ x) <-> (x ^ y) *)
+         (*
+            LTR:
+            ------------asmp
+            (x -> y) ^ x
+            ------------and  ----------------impp  ------------asmp
+               x -> y        ~(x -> y), ~x, y      (x -> y) ^ x
+            res------------------------------      ------------and
+                           ~x, y                         x
+                       res--------------------------------- -------------andn  ------------asmp
+                                          y                 x ^ y, ~x, ~y      (x -> y) ^ x
+                                      res-------------------------------       ------------and
+                                                    x ^ y, ~x                       x
+                                                 res---------------------------------
+                                                                 x ^ y
+            RTL:
+            -----asmp
+            x ^ y
+            -----and  ----------impn2
+              y       x -> y, ~y
+           res------------------  ---------------------------andn
+                    x -> y        (x -> y) ^ x, ~(x -> y), ~x     x ^ y
+                 res-----------------------------------------     -----and
+                                (x -> y) ^ x, ~x                    x
+                             res-------------------------------------
+                                              (x -> y) ^ x
+          *)
       | [Eq _] -> (i, BoolsimpAST, cl, p, a) :: process_simplify tl
       | _ -> raise (Debug ("| process_simplify: expecting argument of bool_simplify to be an equivalence at id "^i^" |"))
       )
@@ -1930,12 +2040,12 @@ let preprocess_certif (c: certif) : certif =
   Printf.printf ("Certif after storing shared terms: \n%s\n") (string_of_certif c1);
   let c2 = process_fins c1 in
   Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2);
-  let c3 = process_simplify c2 in
-  Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c3);
-  let c4 = process_subproof c3 in
-  Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c4);
-  let c5 = process_notnot c4 in
-  Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c5);
+  let c3 = process_notnot c2 in
+  Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c3);
+  let c4 = process_simplify c2 in
+  Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c4);
+  let c5 = process_subproof c3 in
+  Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c5);
   let c6 = process_cong c5 in
   Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c6);
   let c7 = process_proj c6 in
