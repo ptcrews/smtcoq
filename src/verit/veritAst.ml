@@ -1532,6 +1532,7 @@ let rec process_simplify (c : certif) : certif =
        (* ~(~x) <-> x handled by process_notnot*)
        | [Eq _] -> (i, NotsimpAST, cl, p, a) :: process_simplify tl
        | _ -> raise (Debug ("| process_simplify: expecting argument of and_simplify to be an equivalence at id "^i^" |")))
+  (* (x -> y) <-> z *)
   | (i, ImpsimpAST, cl, p, a) :: tl ->
       (match cl with
        (* (~x -> y) <-> (y -> x) *)
@@ -1771,7 +1772,7 @@ let rec process_simplify (c : certif) : certif =
   | (i, EqsimpAST, cl, p, a) :: tl ->
       (match cl with
        (* (~x <-> ~y) <-> (x <-> y) *)
-       | [Eq ((Eq (Not x, Not y)),(Eq (a, b)))] when x = a && y = b ->
+       (* | [Eq ((Eq (Not x, Not y) as lhs),(Eq (a, b) as rhs))] when x = a && y = b -> [] *)
           (*
              LTR:
              ---------------eqn1  ---------------------eqp1  ---------------------eqp2
@@ -1789,7 +1790,7 @@ let rec process_simplify (c : certif) : certif =
                                                              ~x <-> ~y
           *)
        (* (x <-> x) <-> T *)
-       | [Eq ((Eq (x, Not a)), True)]  when x = a ->
+       (* | [Eq ((Eq (x, Not a)as lhs), (True as rhs))]  when x = a -> [] *)
           (*
              LTR:
              ---true
@@ -1801,7 +1802,7 @@ let rec process_simplify (c : certif) : certif =
                             x <-> x
           *)
        (* (x <-> ~x) <-> F *)
-       | [Eq ((Eq (x, Not a)), False)] when x = a ->
+       (* | [Eq ((Eq (x, Not a) as lhs), (False as rhs))] when x = a -> [] *)
           (*
              LTR:
              -------------------eqp2  ---------impn1
@@ -1816,7 +1817,7 @@ let rec process_simplify (c : certif) : certif =
              Assume that this equivalence is only used as an LTR rewrite
           *)
        (* (~x <-> x) <-> F *)
-       | [Eq ((Eq (Not x, a)), False)] when x = a ->
+       (* | [Eq ((Eq (Not x, a) as lhs), (False as rhs))] when x = a -> [] *)
           (*
              LTR:
              -------------------eqp1  ---------impn1
@@ -1831,7 +1832,7 @@ let rec process_simplify (c : certif) : certif =
              Assume that this equivalence is only used as an LTR rewrite
           *)
        (* (T <-> x) <-> x *)
-       | [Eq ((Eq (True, x)), a)] when x = a ->
+       (* | [Eq ((Eq (True, x) as lhs), (a as rhs))] when x = a -> *)
           (*
              LTR:
              -------asmp  -----------------eqp2 ---true
@@ -1845,7 +1846,7 @@ let rec process_simplify (c : certif) : certif =
                           T <-> x
           *)
        (* (x <-> T) <-> x *)
-       | [Eq ((Eq (x, True)), a)] when x = a ->
+       (* | [Eq ((Eq (x, True) as lhs), (a as rhs))] when x = a -> *)
           (*
              LTR:
              -------asmp  -----------------eqp1 ---true
@@ -1859,7 +1860,7 @@ let rec process_simplify (c : certif) : certif =
                           T <-> x
           *)
        (* (F <-> x) <-> ~x *)
-       | [Eq ((Eq (False, x)), Not a)] when x = a ->
+       (* | [Eq ((Eq (False, x) as lhs), (Not a as rhs))] when x = a -> *)
           (*
              LTR:
              -------asmp  -----------------eqp1 ---false
@@ -1873,7 +1874,7 @@ let rec process_simplify (c : certif) : certif =
                           F <-> x
           *)
        (* (x <-> F) <-> ~x *)
-       | [Eq ((Eq (x, False)), Not a)] when x = a ->
+       (* | [Eq ((Eq (x, False)), (Not a as rhs))] when x = a -> *)
           (*
              LTR:
              -------asmp  -----------------eqp2 ---false
@@ -2129,7 +2130,7 @@ let rec process_simplify (c : certif) : certif =
   | (i, ConndefAST, cl, p, a) :: tl ->
       (match cl with
       (* x xor y <-> (~x ^ y) v (x ^ ~y) *)
-      | [Eq (Xor [x;y], Or[And [Not a; b]; And [c;d]])] when x = a && x = c && y = b && y = d ->
+      (* | [Eq (Xor [x;y], Or[And [Not a; b]; And [c;d]])] when x = a && x = c && y = b && y = d -> *)
         (*
            LTR:
            -----------------------------orn  ---------------andn  ------------------xorp2    -----------------------------orn  ---------------andn  ----------------xorp1
@@ -2149,14 +2150,14 @@ let rec process_simplify (c : certif) : certif =
                                                                                                         x xor y
         *)
       (* x <-> y <-> (x -> y) ^ (y -> x) *)
-      | [Eq (Eq (x, y), And [Imp [a;b]; Imp [d;c]])] when x = a && x = c && y = b && y = d ->
+      (* | [Eq (Eq (x, y), And [Imp [a;b]; Imp [d;c]])] when x = a && x = c && y = b && y = d -> *)
         (*
            LTR   
         *)
       (* ite c x y <-> (c -> x) ^ (~c -> y) *)
-      | [Eq ((), ())] ->
+      (* | [Eq ((), ())] -> *)
       (* forall x_1, ..., x_n. F <-> ~ exists x_1, ..., x_n. ~F *)
-      | [Eq ((), ())] ->
+      (* | [Eq ((), ())] -> *)
       | [Eq _] -> (i, ConndefAST, cl, p, a) :: process_simplify tl
       | _ -> raise (Debug ("| process_simplify: expecting argument of connective_def to be an equivalence at id "^i^" |"))
       )
