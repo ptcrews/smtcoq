@@ -297,7 +297,7 @@ rulename:
   | BOOLSIMP                                { BoolsimpAST }
   (*| ACSIMP                                  { HoleAST }*)
   | ITESIMP                                 { ItesimpAST }
-  | EQUALSIMP                               { EqsimpAST }
+  | EQUALSIMP                               { EqualsimpAST }
   | DISTELIM                                { DistelimAST }
   | LAGE                                    { LageAST }
   | LIAGE                                   { LiageAST }
