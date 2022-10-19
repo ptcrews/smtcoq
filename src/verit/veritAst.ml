@@ -2010,6 +2010,7 @@ let rec process_simplify (c : certif) : certif =
                     (generate_id (), ResoAST, [lhs], [b2ai; orpi; andpi1; andpi2], [])] in
          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
       (* (x -> (y -> z)) <-> ((x ^ y) -> z) *)
+      | [Eq ((Imp [x; Imp [y; z]] as lhs), (Imp [And [a;b]; c] as rhs))] when x = a && y = b && z = c ->
          (*
             LTR:
             -------------asmp  ----------------------------impp
@@ -2023,26 +2024,46 @@ let rec process_simplify (c : certif) : certif =
             ----------------------------------------------------------------------------------------------res
                                                   (x ^ y) -> z
             RTL:
-            ----------asmp
-            x ^ y -> z
-            -----------imp  ---------------and_neg
-            ~(x ^ y), z     (x ^ y), ~x, ~y
-            -------------------------------res  ------------------imp_neg1  ---------imp_neg1   ----------imp_neg2
-                      ~x, ~y, z                 x -> (y -> z), x            y -> z, y           y -> z, ~z        
-                      ------------------------------------------------------------------------------------res   --------------------------imp_neg2
-                                                  x -> (y -> z), y -> z                                         x -> (y -> z), ~(y -> z)
-                                                  ----------------------------------------------------------------------------------------res
-                                                                                      x -> (y -> z)
+            ----------asmp  --------------------------impp
+            x ^ y -> z      ~(x ^ y -> z), ~(x ^ y), z
+            ------------------------------------------res  ---------------and_neg
+                            ~(x ^ y), z                    (x ^ y), ~x, ~y
+                         res----------------------------------------------  ------------------imp_neg1  ---------imp_neg1   ----------imp_neg2
+                                              ~x, ~y, z                     x -> (y -> z), x            y -> z, y           y -> z, ~z        
+       impn2------------------------       res----------------------------------------------------------------------------------------   
+            x -> (y -> z), ~(y -> z)                                         x -> (y -> z), y -> z                                                  
+            ----------------------------------------------------------------------------------------res
+                                                x -> (y -> z)
          *)
-         (*let a2bi = generate_id () in
+         let a2bi = generate_id () in
          let imppi1 = generate_id () in
          let imppi2 = generate_id () in
          let andpi1 = generate_id () in
          let andpi2 = generate_id () in
          let impni1 = generate_id () in
          let impni2 = generate_id () in
-         let a2b = [(imppi1, ImppAST, []);] in
-         []*)
+         let a2b = [(imppi1, ImppAST, [Not lhs; Not x; Imp [y; z]], [], []);
+                    (imppi2, ImppAST, [Not (Imp [y; z]); Not y; z], [], []);
+                    (andpi1, AndpAST, [Not (And [x;y]); x], [], []);
+                    (andpi2, AndpAST, [Not (And [x;y]); y], [], []);
+                    (impni1, Impn2AST, [Imp [And [x;y]; z]; Not z], [], []);
+                    (impni2, Impn1AST, [Imp [And [x;y]; z]; And [x;y]], [], []);
+                    (generate_id (), ResoAST, [rhs], [a2bi; imppi1; imppi2; andpi1; andpi2; impni1; impni2], [])] in
+         let b2ai = generate_id () in
+         let imppi3 = generate_id () in
+         let andni = generate_id () in
+         let impni3 = generate_id () in
+         let impni4 = generate_id () in
+         let impni5 = generate_id () in
+         let impni6 = generate_id () in
+         let b2a = [(imppi3, ImppAST, [Not rhs; Not (And [x;y])], [], []);
+                    (andni, AndnAST, [And [x;y]; Not x; Not y], [], []);
+                    (impni3, Impn1AST, [rhs; x], [], []);
+                    (impni4, Impn1AST, [Imp [y;z]; y], [], []);
+                    (impni5, Impn2AST, [Imp [y;z]; Not z], [], []);
+                    (impni6, Impn2AST, [lhs; Not (Imp [y;z])], [], []);
+                    (generate_id (), ResoAST, [lhs], [b2ai; imppi3; andni; impni3; impni4; impni5; impni6], [])] in
+         (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
       (* ((x -> y) -> y) <-> (x v y) *)
          (*
             LTR:
