@@ -1894,7 +1894,7 @@ let rec process_simplify (c : certif) : certif =
       (match cl with
        (* ~(x -> y) <-> (x ^ ~y) *)
        | [Eq ((Not (Imp [x; y]) as lhs), (And [a; Not b] as rhs))] when (x = a && y = b) ->
-          (*
+         (*
              LTR:
              ---------asmp  -----------imp_neg1   ---------asmp   ------------imp_neg2
              ~(x -> y)      (x -> y), x           ~(x -> y)       (x -> y), ~y
@@ -1902,6 +1902,20 @@ let rec process_simplify (c : certif) : certif =
                           x                                     ~y                    x ^ ~y, ~x, ~~y
                           ---------------------------------------------------------------------------res
                                                               x ^ ~y
+         *)
+         let a2bi = generate_id () in
+         let impn1i = generate_id () in
+         let impn2i = generate_id () in
+         let res_1i = generate_id () in
+         let res_2i = generate_id () in
+         let andni = generate_id () in
+         let a2b = [(impn1i, Impn1AST, [Imp [x;y]; x], [], []);
+                    (res_1i, ResoAST, [x], [impn1i;a2bi], []);
+                    (impn2i, Impn2AST, [Imp [x;y]; Not y], [], []);
+                    (res_2i, ResoAST, [Not y], [impn2i;a2bi], []);
+                    (andni, AndnAST, [And [x;Not y]; Not x; Not (Not y)], [], []);
+                    (generate_id (), ResoAST, [rhs], [andni;res_1i;res_2i], [])] in
+         (*
              RTL:
              -------asmp  ------------and_pos   ------asmp    -------------and_pos
              x ^ ~y       ~(x ^ ~y), x          x ^ ~y        ~(x ^ ~y), ~y
@@ -1909,32 +1923,20 @@ let rec process_simplify (c : certif) : certif =
                          x                                   ~y                   ~(x -> y), ~x, y
                          -------------------------------------------------------------------------res
                                                           ~(x -> y)
-          *)
-          let a2bi = generate_id () in
-          let impn1i = generate_id () in
-          let impn2i = generate_id () in
-          let res_1i = generate_id () in
-          let res_2i = generate_id () in
-          let andni = generate_id () in
-          let a2b = [(impn1i, Impn1AST, [Imp [x;y]; x], [], []);
-                     (res_1i, ResoAST, [x], [impn1i;a2bi], []);
-                     (impn2i, Impn2AST, [Imp [x;y]; Not y], [], []);
-                     (res_2i, ResoAST, [Not y], [impn2i;a2bi], []);
-                     (andni, AndnAST, [And [x;Not y]; Not x; Not (Not y)], [], []);
-                     (generate_id (), ResoAST, [rhs], [andni;res_1i;res_2i], [])] in
-          let b2ai = generate_id () in
-          let andp_1i = generate_id () in
-          let res_3i = generate_id () in
-          let andp_2i = generate_id () in
-          let res_4i = generate_id () in
-          let imppi = generate_id () in
-          let b2a = [(andp_1i, AndpAST, [Not rhs; x], [], []);
-                     (res_3i, ResoAST, [x], [andp_1i;b2ai], []);
-                     (andp_2i, AndpAST, [Not rhs; Not y], [], []);
-                     (res_4i, ResoAST, [Not y], [andp_2i;b2ai], []);
-                     (imppi, ImppAST, [lhs; Not x; y], [], []);
-                     (generate_id (), ResoAST, [lhs], [imppi;res_3i;res_4i], [])] in
-          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
+         *)
+         let b2ai = generate_id () in
+         let andp_1i = generate_id () in
+         let res_3i = generate_id () in
+         let andp_2i = generate_id () in
+         let res_4i = generate_id () in
+         let imppi = generate_id () in
+         let b2a = [(andp_1i, AndpAST, [Not rhs; x], [], []);
+                    (res_3i, ResoAST, [x], [andp_1i;b2ai], []);
+                    (andp_2i, AndpAST, [Not rhs; Not y], [], []);
+                    (res_4i, ResoAST, [Not y], [andp_2i;b2ai], []);
+                    (imppi, ImppAST, [lhs; Not x; y], [], []);
+                    (generate_id (), ResoAST, [lhs], [imppi;res_3i;res_4i], [])] in
+         (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* ~(x v y) <-> (~x ^ ~y) *)
        | [Eq ((Not (Or [x;y]) as lhs), (And [Not a;Not b] as rhs))] when (x = a && y = b) ->
          (*
@@ -1945,13 +1947,6 @@ let rec process_simplify (c : certif) : certif =
                        ~x                               ~y                ~x ^ ~y, ~~x, ~~y
                        --------------------------------------------------------------------res
                                                       ~x ^ ~y
-            RTL:
-            -------asmp   --------------and_pos   -------asmp   --------------and_pos
-            ~x ^ ~y       ~(~x ^ ~y), ~x          ~x ^ ~y       ~(~x ^ ~y), ~y
-            ----------------------------res       ------------------------------res   --------------or_pos
-                        ~x                                      ~y                    ~(x v y), x, y
-                        ----------------------------------------------------------------------------res
-                                                        ~(x v y)
          *)
          let a2bi = generate_id () in
          let orn_1i = generate_id () in
@@ -1965,6 +1960,15 @@ let rec process_simplify (c : certif) : certif =
                     (res_2i, ResoAST, [Not y], [orn_2i;a2bi], []);
                     (andni, AndnAST, [rhs; Not x; Not y], [], []);
                     (generate_id (), ResoAST, [rhs], [andni;res_1i;res_2i], [])] in
+         (*
+            RTL:
+            -------asmp   --------------and_pos   -------asmp   --------------and_pos
+            ~x ^ ~y       ~(~x ^ ~y), ~x          ~x ^ ~y       ~(~x ^ ~y), ~y
+            ----------------------------res       ------------------------------res   --------------or_pos
+                        ~x                                      ~y                    ~(x v y), x, y
+                        ----------------------------------------------------------------------------res
+                                                        ~(x v y)
+         *)
          let b2ai = generate_id () in
          let andp_1i = generate_id () in
          let res_3i = generate_id () in
@@ -1986,11 +1990,6 @@ let rec process_simplify (c : certif) : certif =
             ~(x ^ y)      (x ^ y), ~x, ~y         ~x v ~y, ~~x        ~x v ~y, ~~y
             ----------------------------------------------------------------------res
                                               ~x v ~y
-            RTL:
-            -------asmp   ------------------or_pos    -----------and_pos  -----------and_pos
-            ~x v ~y       ~(~x v ~y), ~x, ~y          ~(x ^ y), x         ~(x ^ y), y
-            -------------------------------------------------------------------------res
-                                             ~(x ^ y)
          *)
          let a2bi = generate_id () in
          let andni = generate_id () in
@@ -2000,6 +1999,13 @@ let rec process_simplify (c : certif) : certif =
                     (orni1, OrnAST, [rhs; x], [], []);
                     (orni2, OrnAST, [rhs; y], [], []);
                     (generate_id (), ResoAST, [rhs], [a2bi; andni; orni1; orni2], [])] in
+         (*
+            RTL:
+            -------asmp   ------------------or_pos    -----------and_pos  -----------and_pos
+            ~x v ~y       ~(~x v ~y), ~x, ~y          ~(x ^ y), x         ~(x ^ y), y
+            -------------------------------------------------------------------------res
+                                             ~(x ^ y)
+         *)
          let b2ai = generate_id () in
          let orpi = generate_id () in
          let andpi1 = generate_id () in
@@ -2023,17 +2029,6 @@ let rec process_simplify (c : certif) : certif =
             (x ^ y) -> z, x ^ y                                                     ~(x ^ y), (x ^ y) -> z
             ----------------------------------------------------------------------------------------------res
                                                   (x ^ y) -> z
-            RTL:
-            ----------asmp  --------------------------impp
-            x ^ y -> z      ~(x ^ y -> z), ~(x ^ y), z
-            ------------------------------------------res  ---------------and_neg
-                            ~(x ^ y), z                    (x ^ y), ~x, ~y
-                         res----------------------------------------------  ------------------imp_neg1  ---------imp_neg1   ----------imp_neg2
-                                              ~x, ~y, z                     x -> (y -> z), x            y -> z, y           y -> z, ~z        
-       impn2------------------------       res----------------------------------------------------------------------------------------   
-            x -> (y -> z), ~(y -> z)                                         x -> (y -> z), y -> z                                                  
-            ----------------------------------------------------------------------------------------res
-                                                x -> (y -> z)
          *)
          let a2bi = generate_id () in
          let imppi1 = generate_id () in
@@ -2049,6 +2044,19 @@ let rec process_simplify (c : certif) : certif =
                     (impni1, Impn2AST, [Imp [And [x;y]; z]; Not z], [], []);
                     (impni2, Impn1AST, [Imp [And [x;y]; z]; And [x;y]], [], []);
                     (generate_id (), ResoAST, [rhs], [a2bi; imppi1; imppi2; andpi1; andpi2; impni1; impni2], [])] in
+         (*
+            RTL:
+            ----------asmp  --------------------------impp
+            x ^ y -> z      ~(x ^ y -> z), ~(x ^ y), z
+            ------------------------------------------res  ---------------and_neg
+                            ~(x ^ y), z                    (x ^ y), ~x, ~y
+                         res----------------------------------------------  ------------------imp_neg1  ---------imp_neg1   ----------imp_neg2
+                                              ~x, ~y, z                     x -> (y -> z), x            y -> z, y           y -> z, ~z        
+       impn2------------------------       res----------------------------------------------------------------------------------------   
+            x -> (y -> z), ~(y -> z)                                         x -> (y -> z), y -> z                                                  
+            ----------------------------------------------------------------------------------------res
+                                                x -> (y -> z)
+         *)
          let b2ai = generate_id () in
          let imppi3 = generate_id () in
          let andni = generate_id () in
@@ -2065,6 +2073,7 @@ let rec process_simplify (c : certif) : certif =
                     (generate_id (), ResoAST, [lhs], [b2ai; imppi3; andni; impni3; impni4; impni5; impni6], [])] in
          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
       (* ((x -> y) -> y) <-> (x v y) *)
+      | [Eq ((Imp [Imp [x;y]; n] as lhs), (Or [a;b]as rhs))] when y = n && x = a && y = b ->
          (*
             LTR:
             -------------asmp   ------------------------------impp
@@ -2077,6 +2086,18 @@ let rec process_simplify (c : certif) : certif =
                                                                  x v y, y                 x v y, ~y
                                                               res----------------------------------
                                                                                x v y
+         *)
+         let a2bi = generate_id () in
+         let imppi1 = generate_id () in
+         let impni1 = generate_id () in
+         let orni1 = generate_id () in
+         let orni2 = generate_id () in
+         let a2b = [(imppi1, ImppAST, [Not lhs; Not (Imp [x;y]); y], [], []);
+                    (impni1, Impn1AST, [Imp [x;y]; x], [], []);
+                    (orni1, OrnAST, [rhs; Not x], [], []);
+                    (orni2, OrnAST, [rhs; Not y], [], []);
+                    (generate_id (), ResoAST, [rhs], [a2bi; imppi1; impni1; orni1; orni2], [])] in
+         (*
             RTL:
             -----asmp  ---------------orp  
             x v y      ~(x v y), x, y      
@@ -2090,60 +2111,107 @@ let rec process_simplify (c : certif) : certif =
                                                                    (x -> y) -> y
               
          *)
+         let b2ai = generate_id () in
+         let orpi = generate_id () in
+         let imppi2 = generate_id () in
+         let impni2 = generate_id () in
+         let impni3 = generate_id () in
+         let b2a = [(orpi, OrpAST, [Not rhs; x; y], [], []);
+                    (imppi2, ImppAST, [Not (Imp [x;y]); Not x; y], [], []);
+                    (impni2, Impn2AST, [lhs; Not y], [], []);
+                    (impni3, Impn1AST, [lhs; Imp [x;y]], [], []);
+                    (generate_id (), ResoAST, [lhs], [b2ai; orpi; imppi2; impni2; impni3], [])] in
+         (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
       (* (x ^ (x -> y)) <-> (x ^ y) *)
+      | [Eq ((And [x; Imp [m; y]] as lhs), (And [a;b] as rhs))] when x = m && x = a && y = b ->
          (*
             LTR:
-            ------------asmp
-            x ^ (x -> y)
-            ------------and  ----------------impp  ------------asmp
-               x -> y        ~(x -> y), ~x, y       x ^ (x -> y)
-            res------------------------------      ------------and
-                          ~x, y                          x
-                       res-------------------------------- -------------andn ------------asmp
-                                         y                 x ^ y, ~x, ~y      x ^ (x -> y)
-                                      res-------------------------------     ------------and
-                                                    x ^ y, ~x                      x
-                                                 res--------------------------------
-                                                                 x ^ y
+            -----------------------andp  ----------------impp
+            ~(x ^ (x -> y)), x -> y      ~(x -> y), ~x, y
+            -----------------------------------------res  -------------andn
+                     ~(x ^ (x -> y)), ~x, y               x ^ y, ~x, ~y    
+                  res--------------------------------------------------  ------------------andp  ------------asmp
+                                ~(x ^ (x -> y)), ~x, x ^ y               ~(x ^ (x -> y)), x      x ^ (x -> y)
+                             res-----------------------------------------------------------------------------   
+                                                                  x ^ y
+         *)
+         let a2bi = generate_id () in
+         let andpi1 = generate_id () in
+         let imppi = generate_id () in
+         let andni = generate_id () in
+         let andpi2 = generate_id () in
+         let a2b = [(andpi1, AndpAST, [Not lhs; Imp [x;y]], [], []);
+                    (imppi, ImppAST, [Not (Imp [x;y]); Not x; y], [], []);
+                    (andni, AndnAST, [rhs; Not x; Not y], [], []);
+                    (andpi2, AndpAST, [Not lhs; x], [], []);
+                    (generate_id (), ResoAST, [rhs], [andpi1; imppi; andni; andpi2; a2bi], [])] in
+         (*
             RTL:
-            -----asmp
-            x ^ y
-            -----and  ----------impn2
-              y       x -> y, ~y
-           res------------------  ---------------------------andn
-                    x -> y        x ^ (x -> y), ~x, ~(x -> y)     x ^ y
-                 res-----------------------------------------     -----and
-                                x ^ (x -> y), ~x                    x
-                             res-------------------------------------
-                                              x ^ (x -> y)
-          *)
+            ----------impn2  ---------------------------andn
+            x -> y, ~y       x ^ (x -> y), ~x, ~(x -> y)     
+            --------------------------------------------res  -----------andp  -----------andp
+                       x ^ (x -> y), ~x, ~y                  ~(x ^ y), x      ~(x ^ y), y
+                    res------------------------------------------------------------------  -----asmp
+                                            x ^ (x -> y), ~(x ^ y)                         x ^ y
+                                        res-----------------------------------------------------
+                                                               x ^ (x -> y)
+         *)
+         let b2ai = generate_id () in
+         let impni = generate_id () in
+         let andni = generate_id () in
+         let andpi1 = generate_id () in
+         let andpi2 = generate_id () in
+         let b2a = [(impni, Impn2AST, [Imp [x; y]; Not y], [], []);
+                    (andni, AndnAST, [rhs; Not x; Not (Imp [x;y])], [], []);
+                    (andpi1, AndpAST, [Not rhs; x], [], []);
+                    (andpi2, AndpAST, [Not rhs; y], [], []);
+                    (generate_id (), ResoAST, [lhs], [impni; andni; andpi1; andpi2; b2ai], [])] in
+         (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
       (* ((x -> y) ^ x) <-> (x ^ y) *)
+      | [Eq ((And [Imp [m; y]; x] as lhs), (And [a;b] as rhs))] when x = m && x = a && y = b ->
          (*
             LTR:
-            ------------asmp
-            (x -> y) ^ x
-            ------------and  ----------------impp  ------------asmp
-               x -> y        ~(x -> y), ~x, y      (x -> y) ^ x
-            res------------------------------      ------------and
-                           ~x, y                         x
-                       res--------------------------------- -------------andn  ------------asmp
-                                          y                 x ^ y, ~x, ~y      (x -> y) ^ x
-                                      res-------------------------------       ------------and
-                                                    x ^ y, ~x                       x
-                                                 res---------------------------------
-                                                                 x ^ y
+            -----------------------andp  ----------------impp
+            ~((x -> y) ^ x), x -> y      ~(x -> y), ~x, y
+            -----------------------------------------res  -------------andn
+                     ~((x -> y) ^ x), ~x, y               x ^ y, ~x, ~y    
+                  res--------------------------------------------------  ------------------andp  ------------asmp
+                                ~((x -> y) ^ x), ~x, x ^ y               ~((x -> y) ^ x), x      (x -> y) ^ x
+                             res-----------------------------------------------------------------------------   
+                                                                  x ^ y
+         *)
+         let a2bi = generate_id () in
+         let andpi1 = generate_id () in
+         let imppi = generate_id () in
+         let andni = generate_id () in
+         let andpi2 = generate_id () in
+         let a2b = [(andpi1, AndpAST, [Not lhs; Imp [x;y]], [], []);
+                    (imppi, ImppAST, [Not (Imp [x;y]); Not x; y], [], []);
+                    (andni, AndnAST, [rhs; Not x; Not y], [], []);
+                    (andpi2, AndpAST, [Not lhs; x], [], []);
+                    (generate_id (), ResoAST, [rhs], [andpi1; imppi; andni; andpi2; a2bi], [])] in
+         (*
             RTL:
-            -----asmp
-            x ^ y
-            -----and  ----------impn2
-              y       x -> y, ~y
-           res------------------  ---------------------------andn
-                    x -> y        (x -> y) ^ x, ~(x -> y), ~x     x ^ y
-                 res-----------------------------------------     -----and
-                                (x -> y) ^ x, ~x                    x
-                             res-------------------------------------
-                                              (x -> y) ^ x
-          *)
+            ----------impn2  ---------------------------andn
+            x -> y, ~y       (x -> y) ^ x, ~(x -> y), ~x
+            --------------------------------------------res  -----------andp  -----------andp
+                       (x -> y) ^ x, ~x, ~y                  ~(x ^ y), x      ~(x ^ y), y
+                    res------------------------------------------------------------------  -----asmp
+                                            (x -> y) ^ x, ~(x ^ y)                         x ^ y
+                                        res-----------------------------------------------------
+                                                               (x -> y) ^ x
+         *)
+         let b2ai = generate_id () in
+         let impni = generate_id () in
+         let andni = generate_id () in
+         let andpi1 = generate_id () in
+         let andpi2 = generate_id () in
+         let b2a = [(impni, Impn2AST, [Imp [x; y]; Not y], [], []);
+                    (andni, AndnAST, [rhs; Not (Imp [x;y]); Not x], [], []);
+                    (andpi1, AndpAST, [Not rhs; x], [], []);
+                    (andpi2, AndpAST, [Not rhs; y], [], []);
+                    (generate_id (), ResoAST, [lhs], [impni; andni; andpi1; andpi2; b2ai], [])] in
+         (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
       | [Eq _] -> (i, BoolsimpAST, cl, p, a) :: process_simplify tl
       | _ -> raise (Debug ("| process_simplify: expecting argument of bool_simplify to be an equivalence at id "^i^" |"))
       )
