@@ -2219,30 +2219,84 @@ let rec process_simplify (c : certif) : certif =
   | (i, ConndefAST, cl, p, a) :: tl ->
       (match cl with
       (* x xor y <-> (~x ^ y) v (x ^ ~y) *)
-      (* | [Eq (Xor [x;y], Or[And [Not a; b]; And [c;d]])] when x = a && x = c && y = b && y = d -> *)
-        (*
-           LTR:
+      | [Eq ((Xor [x;y] as lhs), (Or [And [Not a; b]; And [c;d]] as rhs))] when x = a && x = c && y = b && y = d ->
+       (*
+           LTR: (can't reduce to single resolution)
            -----------------------------orn  ---------------andn  ------------------xorp2    -----------------------------orn  ---------------andn  ----------------xorp1
            (~x ^ y) v (x ^ ~y), ~(~x ^ y)     ~x ^ y, ~~x, ~y      ~(x xor y), ~x, ~y        (~x ^ y) v (x ^ ~y), ~(x ^ ~y)    x ^ ~y, ~x, ~~y       ~(x xor y), x, y
-        res-------------------------------------------------------------------------       res--------------------------------------------------------------------  
+        res-------------------------------------------------------------------------       res-----------------------------------------------------------------------
                             (~x ^ y) v (x ^ ~y), ~(x xor y), ~y                                                  (~x ^ y) v (x ^ y), ~(x xor y), y                 
         asmp-------      res-----------------------------------------------------------------------------------------------------------------------
             x xor y                                                      (~x ^ y) v (x ^ ~y), ~(x xor y)
         res---------------------------------------------------------------------------------------------
                                           (~x ^ y) v (x ^ ~y)
-           RTL:
+       *)
+       let a2bi = generate_id () in
+       let orni1 = generate_id () in
+       let andni1 = generate_id () in
+       let xorpi1 = generate_id () in
+       let resi = generate_id () in
+       let orni2 = generate_id () in
+       let andni2 = generate_id () in
+       let xorpi2 = generate_id () in
+       let a2b = [(orni1, OrnAST, [rhs; Not (And [x; Not y])], [], []);
+                  (andni1, AndnAST, [And [x; Not y]; Not x; y], [], []);
+                  (xorpi1, Xorp1AST, [Not lhs; x; y], [], []);
+                  (resi, ResoAST, [rhs; Not lhs; y], [orni1; andni1; xorpi1], []);
+                  (orni2, OrnAST, [rhs; Not (And [Not x; y])], [], []);
+                  (andni2, AndnAST, [And [Not x; y]; x; Not y], [], []);
+                  (xorpi2, Xorp2AST, [Not lhs; Not x; Not y], [], []);
+                  (generate_id (), ResoAST, [rhs], [orni2; andni2; xorpi2; resi; a2bi], [])] in
+       (*     
+           RTL: (can't reduce to single resolution)
            -------------------asmp  ---------------------------------------orp  -------------andp  --------------xorn1  ------------andp  -------------andp  --------------xorn2  -------------andp
            (~x ^ y) v (x ^ ~y)      ~((~x ^ y) v (x ^ ~y)), ~x ^ y, x ^ ~y      ~(~x ^ y), ~x      x xor y, x, ~y       ~(~x ^ y), y      ~(x ^ ~y), x      x xor y, ~x, y        ~(x ^ ~y), ~y
         res----------------------------------------------------------------     ----------------------------------------------------res   ----------------------------------------------------res
                                   ~x ^ y, x ^ ~y                                                 ~(~x ^ y), x xor y                                        ~(x ^ ~y), x xor y
                               res -------------------------------------------------------------------------------------------------------------------------------------------
                                                                                                         x xor y
-        *)
+       *)
+       let b2ai = generate_id () in
+       let andpi1 = generate_id () in
+       let xorni1 = generate_id () in
+       let andpi2 = generate_id () in
+       let resi1 = generate_id () in
+       let andpi3 = generate_id () in
+       let xorni2 = generate_id () in
+       let andpi4 = generate_id () in
+       let resi2 = generate_id () in
+       let orpi = generate_id () in
+       let b2a = [(andpi1, AndpAST, [Not (And [Not x; y]); Not x], [], []);
+                  (xorni1, Xorn1AST, [lhs; x; Not y], [], []);
+                  (andpi2, AndpAST, [Not (And [Not x; y]); y], [], []);
+                  (resi1, ResoAST, [Not (And [Not x; y]); lhs], [andpi1; xorni1; andpi2], []);
+                  (andpi3, AndpAST, [Not (And [x; Not y]); x], [], []);
+                  (xorni2, Xorn2AST, [lhs; Not x; y], [], []);
+                  (andpi4, AndpAST, [Not (And [x; Not y]); Not y], [], []);
+                  (resi1, ResoAST, [Not (And [x; Not y]); lhs], [andpi1; xorni1; andpi2], []);
+                  (orpi, OrpAST, [Not rhs; And [Not x; y]; And [x; Not y]], [], []);
+                  (generate_id (), ResoAST, [lhs], [b2ai; orpi; resi1; resi2], [])] in
+       (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
       (* x <-> y <-> (x -> y) ^ (y -> x) *)
       (* | [Eq (Eq (x, y), And [Imp [a;b]; Imp [d;c]])] when x = a && x = c && y = b && y = d -> *)
-        (*
-           LTR   
-        *)
+       (*
+           LTR: (can't reduce to single resolution)
+                                                             ------------------eqp1  ---------impn1  ----------impn2  ------------------eqp2  ---------impn1  ----------impn2
+                                                             ~(x <-> y), x , ~y      y -> x, y       y -> x, ~x       ~(x <-> y), ~x , y      x -> y, x       x -> y, ~y
+           -----------------------------------------and_neg  --------------------------------------------------res    --------------------------------------------------res  -------asmp          
+           (x -> y) ^ (y -> x), ~(x -> y), ~(y -> x)                 ~(x <-> y), y -> x                                       ~(x <-> y), x -> y                             x <-> y
+           -------------------------------------------------------------------------------------------------------------------------------------------------------------------------res
+                                                                                    (x -> y) ^ (y -> x)
+       *)
+       (*
+           RTL: (can't reduce to single resolution)
+           ------------------------------andp  ----------------impp  -------------eqn2  ------------------------------andp  ----------------impp  ----------------eqn1
+           ~((x -> y) ^ (y -> x)), x -> y      ~(x -> y), ~x, y      x <-> y, x, y      ~((x -> y) ^ (y -> x)), y -> x      ~(y -> x), ~y, x      x <-> y, ~x, ~y
+           -----------------------------------------------------------------------res   -------------------------------------------------------------------------res  -------------------asmp
+                              ~((x -> y) ^ (y -> x)), x <-> y, y                                           ~((x -> y) ^ (y -> x)), x <-> y, ~y                        (x -> y) ^ (y -> x)
+                           res-----------------------------------------------------------------------------------------------------------------------------------------------------------
+                                                                                               x <-> y
+       *)
       (* ite c x y <-> (c -> x) ^ (~c -> y) *)
       (* | [Eq ((), ())] -> *)
       (* forall x_1, ..., x_n. F <-> ~ exists x_1, ..., x_n. ~F *)
