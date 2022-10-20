@@ -1889,6 +1889,223 @@ let rec process_simplify (c : certif) : certif =
           *)
        | [Eq _] -> (i, EqsimpAST, cl, p, a) :: process_simplify tl
        | _ -> raise (Debug ("| process_simplify: expecting argument of equiv_simplify to be an equivalence at id "^i^" |")))
+  (* ite c x y <-> z *)
+  | (i, ItesimpAST, cl, p, a) :: tl ->
+      (match cl with
+      (* ite T x y <-> x *)
+      | [Eq ((Ite [True; x; y] as lhs), (a as rhs))] when x = a ->
+         (*
+           LTR:
+           --------------------itep2  ---------asmp  --T
+           ~(ite T x y), ~T, x        ite T x y      T
+           -------------------------------------------res
+                                x
+           *)
+           (*
+           RTL:
+           -----------------iten2  --T  --asmp
+           ite T x y, ~T, ~x       T    x
+           ------------------------------res
+                     ite T x y
+         *)
+         []
+      (* ite F x y <-> y *)
+      | [Eq ((Ite [False; x; y] as lhs), (b as rhs))] when y = b ->
+         (*
+           LTR:
+           --------------------itep1  ---------asmp  --F
+           ~(ite F x y), F, y         ite F x y      ~F 
+           --------------------------------------------res
+                               y
+           RTL:
+           -----------------iten1  --F  --asmp
+           ite F x y, F, ~y        ~F   y
+           ------------------------------res
+                     ite F x y
+         *)
+         []
+      (* ite c x x <-> x *)
+      | [Eq ((Ite [c; x; a] as lhs), (m as rhs))] when x = a && x = m ->
+         (*
+           LTR:
+           ------------------itep1  -------------------itep2  ---------asmp
+           ~(ite c x x), c, x       ~(ite c x x), ~c, x       ite c x x
+           ------------------------------------------------------------
+                                        x
+            RTL:
+            ----------------iten1  -----------------iten2  --asmp
+            ite c x x, c, ~x       ite c x x, ~c, ~x        x
+            -------------------------------------------------
+                                ite c x x
+         *)
+         []
+      (* ite ~c x y <-> ite c y x *)
+      | [Eq ((Ite [Not c; x; y] as lhs), (Ite [c'; b; a] as rhs))] when c = c' && x = a && y = b ->
+         (*
+             LTR: (can't reduce number of resolutions)
+             ------------------iten1  ---------------------itep2  --------------------itep1  -----------------iten2
+              ite c y x, c, ~x        ~(ite ~c x y), ~~c, x       ~(ite ~c x y), ~c, y       ite c y x, ~c, ~y   
+              ---------------------------------------------res    ---------------------------------------------res  
+                      ite c y x, c, ~(ite ~c x y)                         ~(ite ~c x y), ~c, ite c y x            
+                      --------------------------------------------------------------------------------res   ----------asmp
+                                                  ite c y x, c, ~(ite ~c x y)                               ite ~c x y
+                                                  --------------------------------------------------------------------res
+                                                                              ite c y x
+         *)
+         (*
+             RTL: (can't reduce number of resolutions)
+             ------------------itep1  -------------------iten2  -------------------itep2  ------------------iten1
+             ~(ite c y x), c, x       ite ~c x y, ~~c, ~x       ~(ite c y x), ~c, y       ite ~c x y, ~c, ~y
+             --------------------------------------------res    --------------------------------------------res
+                    ~(ite c y x), c, ite ~c x y                       ~(ite c y x), ~c, ite ~c x y
+                    ------------------------------------------------------------------------------res  ---------asmp
+                                              ~(ite c y x), ite ~c x y                                 ite c y x
+                                              ------------------------------------------------------------------res
+                                                                            ite ~c x y
+         *)
+         []
+      (* ite c (ite c x y) z <-> ite c x z *)
+      | [Eq ((Ite [c; (ite c' x y); z] as lhs), (Ite [c''; x'; z'] as rhs))] when c = c' && c = c'' && x = x' && z = z' ->
+         (*
+             LTR:
+             ----------------------------itep1  -------------------asmp  
+             ~(ite c (ite c x y) z), c, z       ite c (ite c x y) z
+             -------------------------------------------------------res  ----------------iten1
+                                      c, z                               ite c x z, c, ~z     
+                                      ---------------------------------------------------res
+                                                          ite c x z, c
+             
+             ----------------------------------itep2  -------------------asmp
+             ~(ite c (ite c x y) z), ~c, ite c x y    ite c (ite c x y) z
+             ------------------------------------------------------------res  ------------------itep2
+                                    ~c, ite c x y                             ~(ite c x y), ~c, x
+                                    -------------------------------------------------------------res
+                                                          ~c, x        
+             ----------------iten1  
+             ite c x z, c, ~z       
+             -----------------iten2  
+             ite c x z, ~c, ~x       
+             --------------------------------------------res
+             ite c x z, ~c, ~(ite c x y)
+             ------------------itep1
+             ~(ite c x y), c, y     
+             ------------------itep2
+             ~(ite c x y), ~c, x
+         *)
+         []
+      (* ite c x (ite c y z) <-> ite c x z *)
+      | [Eq ((Ite [c; x; (ite c' y z)] as lhs), (Ite [c''; x'; z'] as rhs))] when c = c' && c = c'' && x = x' && z = z' ->
+         []
+      (* ite c T F <-> c *)
+      | [Eq ((Ite [c; True; Fa;se] as lhs), (c' as rhs))] when c = c' ->
+         (*
+             LTR:
+             ------------------itep1  ---F  ----------asmp
+             ~(ite c T F), c, F       ~F    ite c T F
+             ----------------------------------------res
+                                 c
+         *)
+         (*
+             RTL:
+             -----------------iten2  ---T  ---asmp
+             ite c T F, ~c, ~T        T     c
+             --------------------------------res
+                        ite c T F
+         *)
+         []
+      (* ite c F T <-> ~c *)
+      | [Eq ((Ite [c; False; True] as lhs), (Not c' as rhs))] when c = c' ->
+         (*
+             LTR:
+             --------------------itep2  ---F  ----------asmp
+             ~(ite c F T), ~c, F         ~F   ite c F T
+             -------------------------------------------res
+                                ~c
+         *)
+         (*
+             RTL:
+             ----------------iten1  ---T  ---asmp
+             ite c F T, c, ~T        T    ~c
+             -------------------------------res
+                       ite c F T
+         *)
+         []
+      (* ite c T x <-> c v x *)
+      | [Eq ((Ite [c; True; x] as lhs), (Or [c'; x'] as rhs))] when c = c' && x = x' ->
+         (*
+             LTR:
+             ------------------itep1  ---------orn  ---------or  ---------asmp
+             ~(ite c T x), c, x       c v x, ~c     c v x, ~x    ite c T x    
+             ---------------------------------------------------------------res
+                                        c v x
+         *)
+         (*
+             RTL:
+             --------------orp  -----------------iten1  -----------------iten2  ---T  -----asmp
+             ~(c v x), c, x     ite c T x, c, ~x        ite c T x, ~c, ~T        T    c v x
+             ------------------------------------------------------------------------------res
+                                              ite c T x
+             
+         *)
+         []
+      (* ite c x F <-> c ^ x *)
+      | [Eq ((Ite [c; x; False] as lhs), (And [c'; x'] as rhs))] when c = c' && x = x' ->
+         (*
+             LTR:
+             ---------------andn  -------------------itep2
+             c ^ x, ~c, ~x        ~(ite c x F), ~c, x
+             ----------------------------------------res  ------------------itep1  ---F  ---------asmp
+                     c ^ x, ~c, ~(ite c x F)             ~(ite c x F), c, F        ~F    ite c x F
+                    ------------------------------------------------------------------------------res
+                                                      c ^ x
+         *)
+         (*
+             RTL:
+             -----------------iten1  -----------andp  -----------and  -----asmp
+             ite c x F, ~c, ~x       ~(c ^ x), c      ~(c ^ x), x     c ^ x
+             --------------------------------------------------------------res
+                                       ite c x F
+         *)
+         []
+      (* ite c F x <-> ~c ^ x *)
+      | [Eq ((Ite [c; False; x] as lhs), (And [Not c'; x'] as rhs))] when c = c' && x = x' ->
+         (*
+             LTR:
+             ---------------andn ------------------itep1  -------------------itep2  ---F  ---------asmp
+             ~c ^ x, ~~c, ~x     ~(ite c F x), c, x       ~(ite c F x), ~c, F        ~F   ite c F x
+             --------------------------------------------------------------------------------------res
+                                                  ~c ^ x
+         *)
+         (*
+             RTL:
+             ----------------iten1  -------------andp  --------------andp  ------asmp
+             ite c F x, c, ~x       ~(~c ^ x), ~c        ~(~c ^ x), x      ~c ^ x
+            ---------------------------------------------------------------------res
+                                          ite c F x
+         *)
+         []
+      (* ite c x F <-> ~c v x *)
+      | [Eq ((Ite [c; x; False] as lhs), (Or [Not c'; x'] as rhs))] when c = c' && x = x' ->
+         (*
+             LTR:
+             -------------------itep2  -----------orn  ----------orn  ---------asmp
+             ~(ite c x F), ~c, x       ~c v x, ~~c     ~c v x, ~x     ite c x F
+             ------------------------------------------------------------------res
+                                          ~c v x
+         *)
+         (*
+             RTL: I seem to need to derive F to complete this proof, I can't see another way to do this.
+             Assume that this equivalence is only used as an LTR rewrite
+             -----------------iten2  ----------------orp
+             ite c x F, ~c, ~x       ~(~c v x), ~c, x
+             ----------------------------------------res  ------asmp  -----------------iten1
+                    ite c x F, ~c, ~(~c v x)              ~c v x      ite c x F, c, ~F
+                    ------------------------------------------------------------------
+                                              ite c x F, ~F
+         *)
+         []
+      | [Eq _] -> (i, ItesimpAST, cl, p, a) :: process_simplify tl
+      | _ -> raise (Debug ("| process_simplify: expecting argument of ite_simplify to be an equivalence at id "^i^" |")))
   (* x <-> y *)
   | (i, BoolsimpAST, cl, p, a) :: tl ->
       (match cl with
