@@ -2278,7 +2278,7 @@ let rec process_simplify (c : certif) : certif =
                   (generate_id (), ResoAST, [lhs], [b2ai; orpi; resi1; resi2], [])] in
        (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
       (* x <-> y <-> (x -> y) ^ (y -> x) *)
-      (* | [Eq (Eq (x, y), And [Imp [a;b]; Imp [d;c]])] when x = a && x = c && y = b && y = d -> *)
+      | [Eq ((Eq (x, y) as lhs), (And [Imp [a;b]; Imp [d;c]] as rhs))] when x = a && x = c && y = b && y = d ->
        (*
            LTR: (can't reduce to single resolution)
                                                              ------------------eqp1  ---------impn1  ----------impn2  ------------------eqp2  ---------impn1  ----------impn2
@@ -2288,6 +2288,26 @@ let rec process_simplify (c : certif) : certif =
            -------------------------------------------------------------------------------------------------------------------------------------------------------------------------res
                                                                                     (x -> y) ^ (y -> x)
        *)
+       let a2bi = generate_id () in
+       let eqpi1 = generate_id () in
+       let impni1 = generate_id () in
+       let impni2 = generate_id () in
+       let resi1 = generate_id () in
+       let eqpi2 = generate_id () in
+       let impni3 = generate_id () in
+       let impni4 = generate_id () in
+       let resi2 = generate_id () in
+       let andni = generate_id () in
+       let a2b = [(eqpi1, Equp1AST, [Not lhs; x; Not y], [], []);
+                  (impni1, Impn1AST, [Imp [y; x]; y], [], []);
+                  (impni2, Impn2AST, [Imp [y; x]; Not x], [], []);
+                  (resi1, ResoAST, [Not lhs; Imp [y; x]], [eqpi1; impni1; impni2], []);
+                  (eqpi2, Equp2AST, [Not lhs; Not x; y], [], []);
+                  (impni3, Impn1AST, [Imp [x; y]; x], [], []);
+                  (impni4, Impn2AST, [Imp [x; y]; Not y], [], []);
+                  (resi2, ResoAST, [Not lhs; Imp [x; y]], [eqpi2; impni3; impni4], []);
+                  (andni, AndnAST, [rhs; Not (Imp [x; y]); Not (Imp [y; x])], [], []);
+                  (generate_id (), ResoAST, [rhs], [andni; resi1; resi2; a2bi], [])] in
        (*
            RTL: (can't reduce to single resolution)
            ------------------------------andp  ----------------impp  -------------eqn2  ------------------------------andp  ----------------impp  ----------------eqn1
@@ -2297,10 +2317,88 @@ let rec process_simplify (c : certif) : certif =
                            res-----------------------------------------------------------------------------------------------------------------------------------------------------------
                                                                                                x <-> y
        *)
+       let b2ai = generate_id () in
+       let andpi1 = generate_id () in
+       let imppi1 = generate_id () in
+       let eqni1 = generate_id () in
+       let resi1 = generate_id () in
+       let andpi2 = generate_id () in
+       let imppi2 = generate_id () in
+       let eqni2 = generate_id () in
+       let resi2 = generate_id () in
+       let b2a = [(andpi1, AndpAST, [Not rhs; Imp [x; y]], [], []);
+                  (imppi1, ImppAST, [Not (Imp [x; y]); Not x; y], [], []);
+                  (eqni1, Equn2AST, [lhs; x; y], [], []);
+                  (resi1, ResoAST, [Not rhs; lhs; y], [andpi1; imppi1; eqni1], []);
+                  (andpi2, AndpAST, [Not rhs; Imp [y; x]], [], []);
+                  (imppi2, ImppAST, [Not (Imp [y; x]); Not y; x], [], []);
+                  (eqni2, Equn1AST, [lhs; Not x; Not y], [], []);
+                  (resi2, ResoAST, [Not rhs; lhs; Not y], [andpi1; imppi1; eqni1], []);
+                  (generate_id (), ResoAST, [lhs], [resi1; resi2; b2ai], [])] in
+       (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
       (* ite c x y <-> (c -> x) ^ (~c -> y) *)
-      (* | [Eq ((), ())] -> *)
+      | [Eq ((Ite [c;x;y] as lhs), (And [Imp [c'; a]; Imp [Not c''; b]] as rhs))] when c = c' && c = c'' && x = a && y = b ->
+       (*
+           LTR: (can't reduce to single resolution)
+                                                            ------------------itep1  -----------impn1  -----------impn2  -------------------itep2  ---------impn1  ----------impn2
+                                                            ~(ite c x y), c, y       ~c -> y, ~c       ~c -> y, ~y       ~(ite c x y), ~c, x       c -> x, c       c -> x, ~x
+           -------------------------------------------andn  ------------------------------------------------------res    ------------------------------------------------------res  ---------asmp
+           (c -> x) ^ (~c -> y), ~(c -> x), ~(~c -> y)                  ~(ite c x y), ~c -> y                                        ~(ite c x y), c -> x                           ite c x y
+           ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                                                                                      (c -> x) ^ (~c -> y)
+       *)
+       let a2bi = generate_id () in
+       let itepi1 = generate_id () in
+       let impni1 = generate_id () in
+       let impni2 = generate_id () in
+       let resi1 = generate_id () in
+       let itepi2 = generate_id () in
+       let impni3 = generate_id () in
+       let impni4 = generate_id () in
+       let resi2 = generate_id () in 
+       let andni = generate_id () in
+       let a2b = [(itepi1, Itep1AST, [Not lhs; c; y], [], []);
+                  (impni1, Impn1AST, [Imp [Not c; y]; Not c], [], []);
+                  (impni2, Impn2AST, [Imp [Not c; y]; Not y], [], []);
+                  (resi1, ResoAST, [Not lhs; Imp [Not c; y]], [itepi1; impni1; impni2], []);
+                  (itepi2, Itep2AST, [Not lhs; Not c; x], [], []);
+                  (impni3, Impn1AST, [Imp [c; x]; c], [], []);
+                  (impni4, Impn2AST, [Imp [c; x]; Not x], [], []);
+                  (resi2, ResoAST, [Not lhs; Imp [c; x]], [itepi2; impni3; impni4], []);
+                  (andni, AndnAST, [rhs; Not (Imp [c; x]); Not (Imp [Not c; y])], [], []);
+                  (generate_id (), ResoAST, [rhs], [andni; resi1; resi2; a2bi], [])] in
+       (*
+           RTL: (can't reduce to single resolution)
+           ----------------iten1  ------------------impp  -----------------iten2  ----------------impp
+           ite c x y, c, ~y       ~(~c -> y), ~~c, y      ite c x y, ~c, ~x       ~(c -> x), ~c, x
+           -----------------------------------------res   -----------------------------------------res
+                   ite c x y, c, ~(~c -> y)                       ite c x y, ~c, ~(c -> x)
+                   -----------------------------------------------------------------------res  -------------------------------andp  --------------------------------andp  --------------------asmp
+                                     ite c x y, ~(~c -> y), ~(c -> x)                          ~((c -> x) ^ (~c -> y)), c -> x      ~((c -> x) ^ (~c -> y)), ~c -> y      (c -> x) ^ (~c -> y)
+                                  res---------------------------------------------------------------------------------------------------------------------------------------------------------
+                                                                                                        ite c x y
+       *)
+       let b2ai = generate_id () in
+       let iteni1 = generate_id () in
+       let imppi1 = generate_id () in
+       let resi1 = generate_id () in
+       let iteni2 = generate_id () in
+       let imppi2 = generate_id () in
+       let resi2 = generate_id () in
+       let andpi1 = generate_id () in
+       let andpi2 = generate_id () in
+       let b2a = [(iteni1, Iten1AST, [lhs; c; Not y], [], []);
+                  (imppi1, ImppAST, [Not (Imp [Not c; y]); c; y], [], []);
+                  (resi1, ResoAST, [lhs; c; Not (Imp [Not c; y])], [iteni1; imppi1], []);
+                  (iteni2, Iten2AST, [lhs; Not c; Not x], [], []);
+                  (imppi2, ImppAST, [Not (Imp [c; x]); Not c; x], [], []);
+                  (resi2, ResoAST, [lhs; Not c; Not (Imp [c; x])], [iteni2; imppi2], []);
+                  (andpi1, AndpAST, [Not rhs; Imp [c; x]], [], []);
+                  (andpi2, AndpAST, [Not rhs; Imp [Not c; y]], [], []);
+                  (generate_id (), ResoAST, [rhs], [resi1; resi2; andpi1; andpi2; b2ai], [])] in 
+       (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
       (* forall x_1, ..., x_n. F <-> ~ exists x_1, ..., x_n. ~F *)
-      (* | [Eq ((), ())] -> *)
+      | [Eq (Forall _, _)] -> raise (Debug ("| process_simplify: forall case of connective_def at id "^i^" |"))
       | [Eq _] -> (i, ConndefAST, cl, p, a) :: process_simplify tl
       | _ -> raise (Debug ("| process_simplify: expecting argument of connective_def to be an equivalence at id "^i^" |"))
       )

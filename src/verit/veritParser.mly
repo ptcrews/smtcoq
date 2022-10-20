@@ -185,6 +185,8 @@ term:
     { Ite ts }
   | LPAREN FORALL LPAREN vs=sorted_var+ RPAREN t=term RPAREN
     { Forall (vs, t) }
+  (*| LPAREN LET LPAREN vs=var_binding+ RPAREN term RPAREN
+    { Exists (vs, t) }*)
 
   (* Atoms *)
   | i=INT                                   { Int i }
@@ -219,8 +221,7 @@ term:
   | i=ident                                 { i }
   | LPAREN f=SYMBOL l=term+ RPAREN          { App (f,l) }
   | LPAREN EQ t1=term t2=term RPAREN        { Eq (t1, t2) }
-  (*| LPAREN LET LPAREN var_binding+ RPAREN term RPAREN { "" }
-  | LPAREN EXISTS LPAREN sorted_var+ RPAREN term RPAREN { "" }
+  (*| LPAREN EXISTS LPAREN sorted_var+ RPAREN term RPAREN { "" }
   | LPAREN MATCH term LPAREN match_case+ RPAREN RPAREN { "" }
   | LPAREN BANG term attr+ RPAREN { "" }*)
 ;
