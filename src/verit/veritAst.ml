@@ -2004,82 +2004,130 @@ let rec process_simplify (c : certif) : certif =
        | [Eq _] -> (i, EqsimpAST, cl, p, a) :: process_simplify tl
        | _ -> raise (Debug ("| process_simplify: expecting argument of equiv_simplify to be an equivalence at id "^i^" |")))
   (* ite c x y <-> z *)
-  (*| (i, ItesimpAST, cl, p, a) :: tl ->
+  | (i, ItesimpAST, cl, p, a) :: tl ->
       (match cl with
       (* ite T x y <-> x *)
       | [Eq ((Ite [True; x; y] as lhs), (a as rhs))] when x = a ->
          (*
-           LTR:
-           --------------------itep2  ---------asmp  --T
-           ~(ite T x y), ~T, x        ite T x y      T
-           -------------------------------------------res
-                                x
-           *)
-           (*
-           RTL:
-           -----------------iten2  --T  --asmp
-           ite T x y, ~T, ~x       T    x
-           ------------------------------res
-                     ite T x y
+             LTR:
+             --------------------itep2  ---------asmp  --T
+             ~(ite T x y), ~T, x        ite T x y      T
+             -------------------------------------------res
+                                  x
          *)
-         []
+         let a2bi = generate_id () in
+         let itep2i = generate_id () in
+         let ti = generate_id () in
+         let a2b = [(itep2i, Itep2AST, [Not lhs; Not True; x], [], []);
+                    (ti, TrueAST, [True], [], []);
+                    (generate_id (), ResoAST, [rhs], [itep2i; a2bi; ti], [])] in
+         (*
+             RTL:
+             -----------------iten2  --T  --asmp
+             ite T x y, ~T, ~x       T    x
+             ------------------------------res
+                       ite T x y
+         *)
+         let b2ai = generate_id () in
+         let iten2i = generate_id () in
+         let ti = generate_id () in
+         let b2a = [(iten2i, Iten2AST, [lhs; Not True; Not x], [], []);
+                    (ti, TrueAST, [True], [], []);
+                    (generate_id (), ResoAST, [lhs], [iten2i; ti; b2ai], [])] in
+         (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
       (* ite F x y <-> y *)
       | [Eq ((Ite [False; x; y] as lhs), (b as rhs))] when y = b ->
          (*
-           LTR:
-           --------------------itep1  ---------asmp  --F
-           ~(ite F x y), F, y         ite F x y      ~F 
-           --------------------------------------------res
-                               y
-           RTL:
-           -----------------iten1  --F  --asmp
-           ite F x y, F, ~y        ~F   y
-           ------------------------------res
-                     ite F x y
+             LTR:
+             --------------------itep1  ---------asmp  --F
+             ~(ite F x y), F, y         ite F x y      ~F 
+             --------------------------------------------res
+                                 y
          *)
-         []
+         let a2bi = generate_id () in
+         let itep1i = generate_id () in
+         let fi = generate_id () in
+         let a2b = [(itep1i, Itep1AST, [Not lhs; y], [], []);
+                    (fi, FalsAST, [Not False], [], []);
+                    (generate_id (), ResoAST, [rhs], [itep1i; a2bi; fi], [])] in
+         (*
+             RTL:
+             -----------------iten1  --F  --asmp
+             ite F x y, F, ~y        ~F   y
+             ------------------------------res
+                       ite F x y
+         *)
+         let b2ai = generate_id () in
+         let iten1i = generate_id () in
+         let fi = generate_id () in
+         let b2a = [(iten1i, Iten1AST, [lhs; False; Not y], [], []);
+                    (fi, FalsAST, [Not False], [], []);
+                    (generate_id (), ResoAST, [lhs], [iten1i; fi; b2ai], [])] in
+         (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
       (* ite c x x <-> x *)
       | [Eq ((Ite [c; x; a] as lhs), (m as rhs))] when x = a && x = m ->
          (*
-           LTR:
-           ------------------itep1  -------------------itep2  ---------asmp
-           ~(ite c x x), c, x       ~(ite c x x), ~c, x       ite c x x
-           ------------------------------------------------------------
-                                        x
-            RTL:
-            ----------------iten1  -----------------iten2  --asmp
-            ite c x x, c, ~x       ite c x x, ~c, ~x        x
-            -------------------------------------------------
-                                ite c x x
+             LTR:
+             ------------------itep1  -------------------itep2  ---------asmp
+             ~(ite c x x), c, x       ~(ite c x x), ~c, x       ite c x x
+             ------------------------------------------------------------
+                                          x
          *)
-         []
+         let a2bi = generate_id () in
+         let itep1i = generate_id () in
+         let itep2i = generate_id () in
+         let a2b = [] in
+         (*                                 
+             RTL:
+             ----------------iten1  -----------------iten2  --asmp
+             ite c x x, c, ~x       ite c x x, ~c, ~x        x
+             -------------------------------------------------
+                                 ite c x x
+         *)
+         let b2ai = generate_id () in
+         let iten1i = generate_id () in
+         let iten2i = generate_id () in
+         let b2ai = [] in
+         (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
       (* ite ~c x y <-> ite c y x *)
       | [Eq ((Ite [Not c; x; y] as lhs), (Ite [c'; b; a] as rhs))] when c = c' && x = a && y = b ->
          (*
              LTR: (can't reduce number of resolutions)
              ------------------iten1  ---------------------itep2  --------------------itep1  -----------------iten2
               ite c y x, c, ~x        ~(ite ~c x y), ~~c, x       ~(ite ~c x y), ~c, y       ite c y x, ~c, ~y   
-              ---------------------------------------------res    ---------------------------------------------res  
-                      ite c y x, c, ~(ite ~c x y)                         ~(ite ~c x y), ~c, ite c y x            
-                      --------------------------------------------------------------------------------res   ----------asmp
-                                                  ite c y x, c, ~(ite ~c x y)                               ite ~c x y
-                                                  --------------------------------------------------------------------res
-                                                                              ite c y x
+              ---------------------------------------------res    ---------------------------------------------res  ----------asmp
+                      ite c y x, c, ~(ite ~c x y)                         ~(ite ~c x y), ~c, ite c y x              ite ~c x y
+                      --------------------------------------------------------------------------------------------------------res   
+                                                                     ite c y x
          *)
+         let a2bi = generate_id () in
+         let iten1i = generate_id () in
+         let itep2i = generate_id () in
+         let resi1 = generate_id () in
+         let itep1i = generate_id () in
+         let iten2i = generate_id () in
+         let resi2 = generate_id () in
+         let a2b = [] in
          (*
              RTL: (can't reduce number of resolutions)
              ------------------itep1  -------------------iten2  -------------------itep2  ------------------iten1
              ~(ite c y x), c, x       ite ~c x y, ~~c, ~x       ~(ite c y x), ~c, y       ite ~c x y, ~c, ~y
-             --------------------------------------------res    --------------------------------------------res
-                    ~(ite c y x), c, ite ~c x y                       ~(ite c y x), ~c, ite ~c x y
-                    ------------------------------------------------------------------------------res  ---------asmp
-                                              ~(ite c y x), ite ~c x y                                 ite c y x
-                                              ------------------------------------------------------------------res
-                                                                            ite ~c x y
+             --------------------------------------------res    --------------------------------------------res  ---------asmp
+                    ~(ite c y x), c, ite ~c x y                       ~(ite c y x), ~c, ite ~c x y               ite c y x
+                    -------------------------------------------------------------------------------------------------------res  
+                                                                 ite ~c x y     
          *)
-         []
+         let b2ai = generate_id () in
+         let itep1i = generate_id () in
+         let iten2i = generate_id () in
+         let resi1 = generate_id () in
+         let itep2i = generate_id () in
+         let iten1i = generate_id () in
+         let resi2 = generate_id () in
+         let b2a = [] in
+         (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
       (* ite c (ite c x y) z <-> ite c x z *)
-      | [Eq ((Ite [c; (ite c' x y); z] as lhs), (Ite [c''; x'; z'] as rhs))] when c = c' && c = c'' && x = x' && z = z' ->
+      (*| [Eq ((Ite [c; (ite c' x y); z] as lhs), (Ite [c''; x'; z'] as rhs))] when c = c' && c = c'' && x = x' && z = z' ->
          (*
              LTR:
              ----------------------------itep1  -------------------asmp  
@@ -2109,7 +2157,7 @@ let rec process_simplify (c : certif) : certif =
          []
       (* ite c x (ite c y z) <-> ite c x z *)
       | [Eq ((Ite [c; x; (ite c' y z)] as lhs), (Ite [c''; x'; z'] as rhs))] when c = c' && c = c'' && x = x' && z = z' ->
-         []
+         []*)
       (* ite c T F <-> c *)
       | [Eq ((Ite [c; True; Fa;se] as lhs), (c' as rhs))] when c = c' ->
          (*
@@ -2119,6 +2167,10 @@ let rec process_simplify (c : certif) : certif =
              ----------------------------------------res
                                  c
          *)
+         let a2bi = generate_id () in
+         let itep1i = generate_id () in
+         let fi = generate_id () in
+         let a2b = [] in
          (*
              RTL:
              -----------------iten2  ---T  ---asmp
@@ -2126,7 +2178,11 @@ let rec process_simplify (c : certif) : certif =
              --------------------------------res
                         ite c T F
          *)
-         []
+         let b2ai = generate_id () in
+         let iten2i = generate_id () in
+         let ti = generate_id () in
+         let b2a = [] in
+         (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
       (* ite c F T <-> ~c *)
       | [Eq ((Ite [c; False; True] as lhs), (Not c' as rhs))] when c = c' ->
          (*
@@ -2136,6 +2192,10 @@ let rec process_simplify (c : certif) : certif =
              -------------------------------------------res
                                 ~c
          *)
+         let a2bi = generate_id () in
+         let itep2i = generate_id () in
+         let fi = generate_id () in
+         let a2b = [] in
          (*
              RTL:
              ----------------iten1  ---T  ---asmp
@@ -2143,16 +2203,25 @@ let rec process_simplify (c : certif) : certif =
              -------------------------------res
                        ite c F T
          *)
-         []
+         let b2ai = generate_id () in
+         let iten1i = generate_id () in
+         let ti = generate_id () in
+         let b2a = [] in
+         (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
       (* ite c T x <-> c v x *)
       | [Eq ((Ite [c; True; x] as lhs), (Or [c'; x'] as rhs))] when c = c' && x = x' ->
          (*
              LTR:
-             ------------------itep1  ---------orn  ---------or  ---------asmp
+             ------------------itep1  ---------orn  ---------orn ---------asmp
              ~(ite c T x), c, x       c v x, ~c     c v x, ~x    ite c T x    
              ---------------------------------------------------------------res
                                         c v x
          *)
+         let a2bi = generate_id () in
+         let itep1i = generate_id () in
+         let orni = generate_id () in
+         let orni = generate_id () in
+         let a2b = [] in
          (*
              RTL:
              --------------orp  -----------------iten1  -----------------iten2  ---T  -----asmp
@@ -2161,7 +2230,13 @@ let rec process_simplify (c : certif) : certif =
                                               ite c T x
              
          *)
-         []
+         let b2ai = generate_id () in
+         let orpi = generate_id () in
+         let iten1i = generate_id () in
+         let iten2i = generate_id () in
+         let ti = generate_id () in
+         let b2a = [] in
+         (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
       (* ite c x F <-> c ^ x *)
       | [Eq ((Ite [c; x; False] as lhs), (And [c'; x'] as rhs))] when c = c' && x = x' ->
          (*
@@ -2173,14 +2248,25 @@ let rec process_simplify (c : certif) : certif =
                     ------------------------------------------------------------------------------res
                                                       c ^ x
          *)
+         let a2bi = generate_id () in
+         let andni = generate_id () in
+         let itep2i = generate_id () in
+         let itep1i = generate_id () in
+         let fi = generate_id () in
+         let a2b = [] in
          (*
              RTL:
-             -----------------iten1  -----------andp  -----------and  -----asmp
+             -----------------iten1  -----------andp  -----------andp  -----asmp
              ite c x F, ~c, ~x       ~(c ^ x), c      ~(c ^ x), x     c ^ x
              --------------------------------------------------------------res
                                        ite c x F
          *)
-         []
+         let b2ai = generate_id () in
+         let iten1i = generate_id () in
+         let andpi1 = generate_id () in
+         let andpi2 = generate_id () in
+         let b2a = [] in
+         (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
       (* ite c F x <-> ~c ^ x *)
       | [Eq ((Ite [c; False; x] as lhs), (And [Not c'; x'] as rhs))] when c = c' && x = x' ->
          (*
@@ -2190,6 +2276,12 @@ let rec process_simplify (c : certif) : certif =
              --------------------------------------------------------------------------------------res
                                                   ~c ^ x
          *)
+         let a2bi = generate_id () in
+         let andni = generate_id () in
+         let itep1i = generate_id () in
+         let itep2i = generate_id () in
+         let fi = generate_id () in
+         let a2b = [] in
          (*
              RTL:
              ----------------iten1  -------------andp  --------------andp  ------asmp
@@ -2197,7 +2289,12 @@ let rec process_simplify (c : certif) : certif =
             ---------------------------------------------------------------------res
                                           ite c F x
          *)
-         []
+         let b2ai = generate_id () in
+         let iten1i = generate_id () in
+         let andpi1 = generate_id () in
+         let andpi2 = generate_id () in
+         let b2a = [] in
+         (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
       (* ite c x F <-> ~c v x *)
       | [Eq ((Ite [c; x; False] as lhs), (Or [Not c'; x'] as rhs))] when c = c' && x = x' ->
          (*
@@ -2207,6 +2304,11 @@ let rec process_simplify (c : certif) : certif =
              ------------------------------------------------------------------res
                                           ~c v x
          *)
+         let a2bi = generate_id () in
+         let itep2i = generate_id () in
+         let orni1 = generate_id () in
+         let orni2 = generate_id () in
+         let a2b = [] in
          (*
              RTL: I seem to need to derive F to complete this proof, I can't see another way to do this.
              Assume that this equivalence is only used as an LTR rewrite
@@ -2217,9 +2319,11 @@ let rec process_simplify (c : certif) : certif =
                     ------------------------------------------------------------------
                                               ite c x F, ~F
          *)
-         []
+         (match (simplify_to_subproof_ltr i a2bi lhs rhs a2b tl) with
+           | h :: t -> h :: process_simplify t
+           | [] -> [])
       | [Eq _] -> (i, ItesimpAST, cl, p, a) :: process_simplify tl
-      | _ -> raise (Debug ("| process_simplify: expecting argument of ite_simplify to be an equivalence at id "^i^" |")))*)
+      | _ -> raise (Debug ("| process_simplify: expecting argument of ite_simplify to be an equivalence at id "^i^" |")))
   (* x <-> y *)
   | (i, BoolsimpAST, cl, p, a) :: tl ->
       (match cl with
