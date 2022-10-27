@@ -2698,7 +2698,6 @@ let rec process_simplify (c : certif) : certif =
       | [Eq _] -> (i, BoolsimpAST, cl, p, a) :: process_simplify tl
       | _ -> raise (Debug ("| process_simplify: expecting argument of bool_simplify to be an equivalence at id "^i^" |"))
       )
-  (* x <-> y *)
   | (i, ConndefAST, cl, p, a) :: tl ->
       (match cl with
       (* x xor y <-> (~x ^ y) v (x ^ ~y) *)
@@ -2884,6 +2883,19 @@ let rec process_simplify (c : certif) : certif =
       | [Eq (Forall _, _)] -> raise (Debug ("| process_simplify: forall case of connective_def at id "^i^" |"))
       | [Eq _] -> (i, ConndefAST, cl, p, a) :: process_simplify tl
       | _ -> raise (Debug ("| process_simplify: expecting argument of connective_def to be an equivalence at id "^i^" |"))
+      )
+  (* t1 = t2 <-> x *)
+  | (i, EqualsimpAST, cl, p, a) :: tl ->
+      (match cl with
+       (* t = t <-> T *)
+       | [Eq ((Eq (t, t') as lhs), (True as rhs))] when t = t' ->
+         let a2b = [(generate_id (), TrueAST, [rhs], [], [])] in
+         let b2a = [(generate_id (), EqreAST, [lhs], [], [])] in
+         (simplify_to_subproof i (generate_id ()) (generate_id ()) lhs rhs a2b b2a) @ process_simplify tl
+       (* TODO: We should be able to solve the next 2 using micromega?  *)
+       (* t1 = t2 <-> F, when t1, t2 are different numeric constants *)
+       (* ~(t = t) <-> F, if t is a numeric constant *)
+       | _ -> raise (Debug ("| process_simplify: expecting argument of eq_simplify to be an equivalence at id "^i^" |"))
       )
   | h :: tl -> h :: process_simplify tl
   | nil -> nil
