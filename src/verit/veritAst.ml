@@ -2143,37 +2143,111 @@ let rec process_simplify (c : certif) : certif =
                     (generate_id (), ResoAST, [lhs], [resi1; resi2; b2ai], [])] in
          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
       (* ite c (ite c x y) z <-> ite c x z *)
-      (*| [Eq ((Ite [c; (ite c' x y); z] as lhs), (Ite [c''; x'; z'] as rhs))] when c = c' && c = c'' && x = x' && z = z' ->
+      | [Eq ((Ite [c; (Ite [c'; x; y] as lhs'); z] as lhs), (Ite [c''; x'; z'] as rhs))] when c = c' && c = c'' && x = x' && z = z' ->
          (*
-             LTR:
-             ----------------------------itep1  -------------------asmp  
-             ~(ite c (ite c x y) z), c, z       ite c (ite c x y) z
-             -------------------------------------------------------res  ----------------iten1
-                                      c, z                               ite c x z, c, ~z     
-                                      ---------------------------------------------------res
-                                                          ite c x z, c
-             
-             ----------------------------------itep2  -------------------asmp
-             ~(ite c (ite c x y) z), ~c, ite c x y    ite c (ite c x y) z
-             ------------------------------------------------------------res  ------------------itep2
-                                    ~c, ite c x y                             ~(ite c x y), ~c, x
-                                    -------------------------------------------------------------res
-                                                          ~c, x        
-             ----------------iten1  
-             ite c x z, c, ~z       
-             -----------------iten2  
-             ite c x z, ~c, ~x       
-             --------------------------------------------res
-             ite c x z, ~c, ~(ite c x y)
-             ------------------itep1
-             ~(ite c x y), c, y     
-             ------------------itep2
-             ~(ite c x y), ~c, x
+             LTR: (Can't reduce resolutions)
+            -------------------------------------itep2  --------------------itep2  -----------------iten2  ----------------------------itep1  ----------------iten1
+            ~(ite c (ite c x y) z), ~c, ite c x y        ~(ite c x y), ~c, x       ite c x z, ~c, ~x       ~(ite c (ite c x y) z), c, z       ite c x z, c, ~z
+            ----------------------------------------------------------------------------------------res    ---------------------------------------------------res  -------------------asmp
+                                     ~(ite c (ite c x y) z), ~c, ite c x z                                        ~(ite c (ite c x y) z), c, ite c x z             ite c (ite c x y) z
+                                     -------------------------------------------------------------------------------------------------------------------------------------------------res
+                                                                                                    ite c x z
          *)
-         []
+         let a2bi = generate_id () in
+         let itep2i1 = generate_id () in
+         let itep2i2 = generate_id () in
+         let iten2i = generate_id () in
+         let resi1 = generate_id () in
+         let itep1i = generate_id () in
+         let iten1i = generate_id () in
+         let resi2 = generate_id () in
+         let a2b = [(itep2i1, Itep2AST, [Not lhs; Not c; lhs'], [], []);
+                    (itep2i2, Itep2AST, [Not lhs'; Not x; x], [], []);
+                    (iten2i, Iten2AST, [rhs; Not c; Not x], [], []);
+                    (resi1, ResoAST, [Not lhs; Not c; rhs], [itep2i1; itep2i2; iten2i], []);
+                    (itep1i, Itep1AST, [Not lhs; c; z], [], []);
+                    (iten1i, Iten1AST, [rhs; c; Not z], [], []);
+                    (resi2, ResoAST, [Not lhs; c; rhs], [itep1i; iten1i], []);
+                    (generate_id (), ResoAST, [rhs], [resi1; resi2; a2bi], [])] in
+         (*
+             RTL: (Can't reduce resolutions)
+             -------------------itep2  ------------------iten2 -------------------------------------iten2  --------------------------iten1  ------------------itep1
+             ~(ite c x z), ~c, x       ite c x y, ~c, ~x       ite c (ite c x y) z, ~c, ~(ite c x y)       ite c (ite c x y) z, c, ~z       ~(ite c x z), c, z
+             ---------------------------------------------------------------------------------------res     ---------------------------------------------------res  ---------asmp
+                                    ~(ite c x z), ~c, ite c (ite c x y) z                                           ite c (ite c x y) z, c, ~(ite c x z)            ite c x z
+                                    -----------------------------------------------------------------------------------------------------------------------------------------res
+                                                                                              ite c (ite c x y) z
+         *)
+         let b2ai = generate_id () in
+         let itep2i = generate_id () in
+         let iten2i1 = generate_id () in
+         let iten2i2 = generate_id () in
+         let resi1 = generate_id () in
+         let iten1i = generate_id () in
+         let itep1i = generate_id () in
+         let resi2 = generate_id () in
+         let b2a = [(itep2i, Itep2AST, [Not rhs; Not c; x], [], []);
+                    (iten2i1, Iten2AST, [lhs'; Not c; Not x], [], []);
+                    (iten2i2, Iten2AST, [lhs; Not c; lhs'], [], []);
+                    (resi1, ResoAST, [Not rhs; Not c; lhs], [itep2i; iten2i1; iten2i2], []);
+                    (iten1i, Iten1AST, [lhs; c; Not z], [], []);
+                    (itep1i, Itep1AST, [rhs; c; z], [], []);
+                    (resi2, ResoAST, [lhs; c; Not rhs], [iten1i; itep1i], []);
+                    (generate_id (), ResoAST, [rhs], [resi1; resi2; b2ai], [])] in
+         (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
       (* ite c x (ite c y z) <-> ite c x z *)
-      | [Eq ((Ite [c; x; (ite c' y z)] as lhs), (Ite [c''; x'; z'] as rhs))] when c = c' && c = c'' && x = x' && z = z' ->
-         []*)
+      | [Eq ((Ite [c; x; (Ite [c'; y; z] as lhs')] as lhs), (Ite [c''; x'; z'] as rhs))] when c = c' && c = c'' && x = x' && z = z' ->
+         (*
+             LTR: (Can't reduce resolutions)
+             ------------------------------------itep1  ------------------itep1  ----------------iten1  -----------------------------itep2  -----------------iten2
+             ~(ite c x (ite c y z)), c, ite c y z       ~(ite c y z), c, z       ite c x z, c, ~z       ~(ite c x (ite c y z)), ~c, x       ite c x z, ~c, ~x
+             ------------------------------------------------------------------------------------res    -----------------------------------------------------res   -------------------asmp
+                                            ~(ite c x (ite c y z)), c, ite c x z                              ~(ite c x (ite c y z)), ~c, ite c x z                ite c x (ite c y z)
+                                            ------------------------------------------------------------------------------------------------------------------------------------------res
+                                                                                                               ite c x z
+         *)
+         let a2bi = generate_id () in
+         let itep1i1 = generate_id () in
+         let itep1i2 = generate_id () in
+         let iten1i = generate_id () in
+         let resi1 = generate_id () in
+         let itep2i = generate_id () in
+         let iten2i = generate_id () in
+         let resi2 = generate_id () in
+         let a2b = [(itep1i1, Itep1AST, [Not lhs; c; lhs'], [], []);
+                    (itep1i2, Itep1AST, [Not lhs'; c; z], [], []);
+                    (iten1i, Iten1AST, [rhs; c; Not z], [], []);
+                    (resi1, ResoAST, [Not lhs; c; rhs], [itep1i1; itep1i2; iten1i], []);
+                    (itep2i, Itep2AST, [Not lhs; Not c; x], [], []);
+                    (iten2i, Iten2AST, [rhs; Not c; Not x], [], []);
+                    (resi2, ResoAST, [Not lhs; Not c; rhs], [itep2i; iten2i], []);
+                    (generate_id (), ResoAST, [rhs], [resi1; resi2; a2bi], [])] in
+         (* (Can't reduce resolutions)
+             RTL:
+             -------------------itep1  ----------------iten1  ------------------------------------iten1  ---------------------------iten2  -------------------itep2
+             ~(ite c x z), c, z        ite c y z, c, ~z       ite c x (ite c y z), c, ~(ite c y z)       ite c x (ite c y z), ~c, ~x       ~(ite c x z), ~c, x
+             -------------------------------------------------------------------------------------res    -----------------------------------------------------res  ---------asmp
+                                      ~(ite c x z), c, ite c x (ite c y z)                                     ite c x (ite c y z), ~c, ~(ite c x z)               ite c x z
+                                      --------------------------------------------------------------------------------------------------------------------------------------res
+                                                                                             ite c x (ite c y z)
+         *)
+         let b2ai = generate_id () in
+         let itep1i = generate_id () in
+         let iten1i1 = generate_id () in
+         let iten1i2 = generate_id () in
+         let resi1 = generate_id () in
+         let iten2i = generate_id () in
+         let itep2i = generate_id () in
+         let resi2 = generate_id () in
+         let b2a = [(itep1i, Itep1AST, [Not rhs; c; z], [], []);
+                    (iten1i1, Iten1AST, [lhs'; c; Not z], [], []);
+                    (iten1i2, Iten1AST, [lhs; c; Not lhs'], [], []);
+                    (resi1, ResoAST, [Not rhs; c; lhs], [itep1i; iten1i1; iten1i2], []);
+                    (iten2i, Iten2AST, [lhs; Not c; Not x], [], []);
+                    (itep2i, Itep2AST, [Not rhs; Not c; x], [], []);
+                    (resi2, ResoAST, [lhs; Not c; Not rhs], [iten2i; itep2i], []);
+                    (generate_id (), ResoAST, [lhs], [resi1; resi2; b2ai], [])] in
+         (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
       (* ite c T F <-> c *)
       | [Eq ((Ite [c; True; False] as lhs), (c' as rhs))] when c = c' ->
          (*
