@@ -1,0 +1,279 @@
+# Status Quo
+In its current mode of operation, SMTCoq has a proof certificate format which is really close to the
+veriT-2016 proof format. VeriT's proofs are converted to this format without any difficulty and so are
+cvc4's LFSC proofs with some difficulty.
+
+# Goal
+We want to adapt SMTCoq so that it accepts [alethe](https://verit.loria.fr/documentation/alethe-spec.pdf) proofs 
+instead. That way, it will be upto date with veriT's current proof format, and once the efforts to produce 
+alethe proofs are completed, it will be easier to handle cvc5 proofs.
+
+SMTCoq parsed verit-2016 proofs directly to internal SMT terms. We introduce an AST layer and parse 
+alethe proofs to create ASTs. We deal with most differences between Alethe and verit-2016 at the 
+AST layer.
+Old Pipeline:
+```
+                 Parser
+verit-2016 proof ------> SMT terms
+```
+New Pipeline:
+```
+              Parser       Transformations
+Alethe proof  ------>  AST ---------------> Modified AST (closer to verit-2016 proof) ----> SMT terms
+```
+Our immediate goal is to achieve this for EUF + LIA + a small part of quantifier rules.
+In the long term, we want to restore support for AX and BV that we have with LFSC, but
+for this, rules in alethe for these theories must be defined first, and cvc5 should
+produce them.
+
+## Transformations
+We perform the following transformations on the parsed AST:
+1. Storing shared terms
+2. Processing `forall_inst` rule
+3. Processing `notnot` rule
+4. Processing `_simplify` rules
+5. Processing `_subproof` rules
+6. Processing `_cong` rules
+7. Processing projection rules
+
+### Storing Shared Terms
+We want to support term-sharing on the proofs where terms have names. We go through
+the proof and hash name-term pairs, while replacing all terms by their names. The 
+names are replaced with terms in the final processing stage.
+
+### Processing Forall Instantiation
+Quantified hypotheses are shallowly embedded as Props, but have no deep embedding. 
+Proofs containing universally quantified formualas are used by SMTCoq only when the 
+formulas are fully instantiated in the proof. Thus, SMTCoq only supports the 
+`forall_inst` rule which has the form `QH -> Inst`, where `QH` is the quantified 
+hypothesis of type Prop, and `Inst` is the instantiated quantifier-free formula 
+of type `Bool`. SMTCoq translates the proof step `QH -> Inst` into `Inst`. 
+To convert `QH -> Inst`, we need a proof of `QH`, and a proof of `QH -> Inst` 
+(and then we apply modus ponens). We have a proof of `QH` since it is a hypothesis, 
+and `QH -> Inst` is proved using a variant of the `auto` tactic. This rule does
+require that we search the proof to find `QH` from the hypotheses.
+So the proof of a `forall_inst` rule looks like this:
+```
+    variant of `auto`	    Term from `intro`
+------------------------	-----------------
+(forall x, p x) -> (p a)	 (forall x, p x)
+-----------------------------------------------
+                   (p a)
+```
+
+The infrastructure to do all this already exists in SMTCoq. Additionally,
+alethe proofs do a lot of alpha renaming of quantified variables in subproofs
+and also introduce `qnt_cnf` rules that are unsupported. In this transformation, 
+we ignore the alpha renaming subproofs, and deal with any instances of `qnt_cnf`.
+
+### Processing Double Negations
+The `notnot` rule for some `x` proves the clause `~~x, x`. SMTCoq implicitly
+eliminates double negation, so this would be proving `x,x`. In this 
+transformation, we remove all instances of `notnot` rules and any 
+occurence of these instances as premises to other rules.
+So typically, a proof that eliminates `~~` by doing the following
+```
+   ...
+ -------   ---------not_not
+ ~~x v C    ~~~x v x
+--------------------reso
+       x v C
+```
+can be replaced by the following, since double negations 
+are implicitly simplified at the term level, and since
+SMTCoq supports resolutions with single arguments.
+```
+  ...
+ -------
+  x v C
+--------reso
+  x v C
+```
+
+### Processing Solver Rewrites
+Alethe has a large set of rules that represent solver rewrites, that aren't
+present in the verit-2016 rules. These have a `_simplify` suffix in the rule 
+name. For all the EUF `_simplify` rules, this transformation replaces the
+rule instance by a derivation using the verit-2016 rules. Rewrites are 
+essentially hard-coded. 2 things to consider:
+1. The alethe spec consists of veriT rewrites only, cvc5 rewrites will
+be different. For this, we hope to use the cvc5's DSL infrastructure. 
+We hope that the DSL can rewrite the cvc5 rewrites in terms of the veriT
+rewrites, so our transformation still works.
+2. On all theh LIA rules, SMTCoq calls the Micromega tactic. I'm not 
+sure how successful this is, but the LIA rewrites also call Micromega 
+now.
+
+### Processing Subproofs (Flattening)
+Alethe has 2 types of subproofs:
+1. Subproofs that push into a context at the beginning and pop from the context at the end. 
+2. Subproofs that introduce an assumption `h` and discharge the assumption using `g`, proving `h => g`.
+We handle type 1 subproofs only on a case-by-case basis. For instance, we eliminate
+subproofs that only do alpha-renaming while dealing with `forall_inst`. We handle
+all type 2 subproofs by flattening.
+Proof with type 2 subproof:
+```
+...
+
+Pi_1
+----
+C
+-------
+|  H  |
+| ... |
+|  G  |
+|-----|
+~H v G
+...
+Res (~H v G) H
+--------------
+     G
+...
+Res G ~G
+--------
+   []
+```
+Flattened proof:
+```
+...
+C
+-----------------not_and (ImmBuildDef)
+(H ^ ~G) v ~H v G
+...
+Res ((H ^ ~G) v ~H v G) H
+-------------------------
+(H ^ ~G) v G
+...
+Res ((H ^ ~G) v G) ~G
+---------------------
+H ^ ~G
+----and (H ^ ~G) (ImmBuildProj 1)
+~G
+--and (H ^ ~G) (ImmBuildProj 2)
+H
+-------
+| ... |
+|  G  |
+-------
+Res G ~ G
+---------
+   []
+```
+
+### Processing `cong` Rule Instances
+Verit-2016 has rules `eq_congruent` and `eq_congruent_pred` that state 
+congruence of functions and predicates as tautologies. Additionally, 
+alethe has the `cong` rule which performs congruence (of both cases) in a
+premise-conclusion format. This transformation replaces `cong` instances
+by derivations that use either of the verit-2016 rules.
+
+### Processing Projection Rule Instances
+Rules that project a term from a formula (ex: projection of
+conjunct from a conjunction) took an argument specifying 
+the index of the term to project in verit-2016. So the backend
+expects this argument, whereas these rules don't have this 
+argument anymore in alethe. This transformation searches the
+term for the index and specifies as the argument for the
+backend.
+
+## Rules
+This section at coverage in terms of rules in alethe and verit-2016. 
+### No Modifications
+These are the rules that require no work since both alethe and verit-2016 
+have the same version of them.
+| Rule Name             | Theory |
+|-----------------------|--------|
+| false                 | EUF    |
+| true                  | EUF    |
+| and                   | EUF    |
+| and_neg               | EUF    |
+| and_pos               | EUF    |
+| eq_congruent          | EUF    |
+| eq_congruent_pred     | EUF    |
+| eq_reflexive          | EUF    |
+| eq_transitive         | EUF    |
+| equiv_neg1            | EUF    |
+| equiv_neg2            | EUF    |
+| equiv_pos1            | EUF    |
+| equiv_pos2            | EUF    |
+| equiv1                | EUF    |
+| equiv2                | EUF    |
+| implies               | EUF    |
+| implies_pos           | EUF    |
+| implies_neg1          | EUF    |
+| implies_neg2          | EUF    |
+| ite_neg1              | EUF    |
+| ite_neg2              | EUF    |
+| ite_pos1              | EUF    |
+| ite_pos2              | EUF    |
+| ite1                  | EUF    |
+| ite2                  | EUF    |
+| not_and               | EUF    |
+| not_equiv1            | EUF    |
+| not_equiv2            | EUF    |
+| not_implies1          | EUF    |
+| not_implies2          | EUF    |
+| not_ite1              | EUF    |
+| not_ite2              | EUF    |
+| not_or                | EUF    |
+| not_xor1              | EUF    |
+| not_xor2              | EUF    |
+| or                    | EUF    |
+| or_neg                | EUF    |
+| or_pos                | EUF    |
+| resolution            | EUF    |
+| th_resolution         | EUF    |
+| xor_neg1              | EUF    |
+| xor_neg2              | EUF    |
+| xor_pos1              | EUF    |
+| xor_pos2              | EUF    |
+| xor1                  | EUF    |
+| xor2                  | EUF    |
+| la_disequality        | LIA    |
+| la_generic            | LIA    |
+| la_tautology          | LIA    |
+| lia_generic           | LIA    |
+
+### Modified Rules
+These are the more interesting rules that either need a transformation or
+some other form of modification, or in the worst case, added support,  
+to work with SMTCoq.
+| Rule Name             | Theory | Modification                                      | Done |
+|-----------------------|--------|---------------------------------------------------|------|
+| and_simplify          | EUF    | Process `_simplify`                               | [x]  |
+| bool_simplify         | EUF    | Process `_simplify`                               | [x]  |
+| eq_simplify           | EUF    | Process `_simplify`                               | [x]  |
+| equiv_simplify        | EUF    | Process `_simplify`                               | [x]  |
+| implies_simplify      | EUF    | Process `_simplify`                               | [x]  |
+| ite_simplify          | EUF    | Process `_simplify`                               | [x]  |
+| not_simplify          | EUF    | Process `_simplify`                               | [x]  |
+| or_simplify           | EUF    | Process `_simplify`                               | [x]  |
+| not_not               | EUF    | Process `notnot`                                  | [x]  |
+| comp_simplify         | LIA    | Micromega                                         | [x]  |
+| div_simplify          | LIA    | Micromega                                         | [x]  |
+| minus_simplify        | LIA    | Micromega                                         | [x]  |
+| prod_simplify         | LIA    | Micromega                                         | [x]  |
+| sum_simplify          | LIA    | Micromega                                         | [x]  |
+| unary_minus_simplify  | LIA    | Micromega                                         | [x]  |
+| la_rw_eq              | LIA    | Micromega                                         | [x]  |
+| assume                | Misc   | Rename `input`                                    | [x]  |
+| subproof              | Misc   | Process subproof                                  | [x]  |
+| ac_simp               | EUF    | Add                                               | [ ]  |
+| bfun_elim             | EUF    | Add                                               | [ ]  |
+| cong                  | EUF    | Process `cong`                                    | [ ]  |
+| contraction           | EUF    | Add                                               | [ ]  |
+| distinct_elim         | EUF    | Modify `tmp_distinct_elim`                        | [ ]  |
+| ite_intro             | EUF    | Add                                               | [ ]  |
+| refl                  | EUF    | Dealt with when used with `forall_inst`           | [ ]  |
+| tautology             | EUF    | Add                                               | [ ]  |
+| trans                 | EUF    | Modify similar to process `cong`                  | [ ]  |
+| let                   | Misc   | Not sure what's done with `Tple` (`tmp_let_elim`) | [ ]  |
+| nary_elim             | Misc   | Add                                               | [ ]  |
+| qnt_simplify          | Quant  | Add                                               | [ ]  |
+| bind                  | Quant  | Handled with `forall_inst`                        | [ ]  |
+| onepoint              | Quant  | Add                                               | [ ]  |
+| qnt_cnf               | Quant  | Add                                               | [ ]  |
+| qnt_join              | Quant  | Add                                               | [ ]  |
+| qnt_rm_unused         | Quant  | Add                                               | [ ]  |
+| sko_ex                | Quant  | Add                                               | [ ]  |
+| sko_forall            | Quant  | Add                                               | [ ]  |

@@ -737,18 +737,18 @@ let process_rule (r: rule) : VeritSyntax.typ =
    proving a new rule correct. For cong, we have
    x1 = y1 and x2 = y2, and we need to prove Px = Py, 
       short for P(x1, x2) = P(y1, y2)
-   ~(x1 = y1) \/ ~(x2 = y2) \/ ~Px \/ Py --(1) by eq_congruent_pred
-   ~(x1 = y1) \/ ~(x2 = y2) \/ ~Py \/ Px --(2) by eq_congruent_pred
+   ~(x1 = y1) v ~(x2 = y2) v ~Px v Py --(1) by eq_congruent_pred
+   ~(x1 = y1) v ~(x2 = y2) v ~Py v Px --(2) by eq_congruent_pred
    (1)  (x1 = y1)  (x2 = y2)        (2)  (x1 = y1)  (x2 = y2)
    -------------------------Res     -------------------------Res
-        ~Px \/ Py --(3)                   ~Py \/ Px --(4)
+        ~Px v Py --(3)                    ~Py v Px --(4)
   
-  Px = Py \/ Px \/ Py   --(5) by equiv_neg2
-  Px = Py \/ ~Px \/ ~Py --(6) by equiv_neg1
+  Px = Py v Px v Py   --(5) by equiv_neg2
+  Px = Py v ~Px v ~Py --(6) by equiv_neg1
   Finally,
     (3)  (5)          (4)  (6)
   -------------Res  --------------Res
-  Px = Py \/ Py      Px = Py \/ ~Py
+  Px = Py v Py      Px = Py v ~Py
   ---------------------------------Res
                Px = Py
   We do something similar for the function case of cong, except 
