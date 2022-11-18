@@ -314,15 +314,34 @@ let get_sterm s =
 let add_sterm s t = Hashtbl.add sterms s t
 let clear_sterms () = Hashtbl.clear sterms
 
-(* Get expression modulo aliasing*)
+(* Get expression modulo aliasing *)
 let rec get_expr = function
+  | Not t -> Not (get_expr t)
+  | And ts -> And (List.map get_expr ts)
+  | Or ts -> Or (List.map get_expr ts)
+  | Imp ts -> Imp (List.map get_expr ts)
+  | Xor ts -> Xor (List.map get_expr ts)
+  | Ite ts -> Ite (List.map get_expr ts)
+  | Forall (ls, t) -> Forall (ls, (get_expr t))
+  | Eq (t1, t2) -> Eq (get_expr t1, get_expr t2)
+  | App (s, ts) -> App (s, (List.map get_expr ts))
   | STerm t -> 
       let t' = try get_sterm t with
                | Debug s -> 
                 raise (Debug ("| get_expr: can't find sterm |")) in
       get_expr t'
-  | NTerm (_, e) -> e
+  | NTerm (s, t) -> NTerm (s, (get_expr t))
+  | Lt (t1, t2) -> Lt (get_expr t1, get_expr t2)
+  | Leq (t1, t2) -> Leq (get_expr t1, get_expr t2)
+  | Gt (t1, t2) -> Gt (get_expr t1, get_expr t2)
+  | Geq (t1, t2) -> Geq (get_expr t1, get_expr t2)
+  | UMinus t -> UMinus (get_expr t)
+  | Plus (t1, t2) -> Plus (get_expr t1, get_expr t2)
+  | Minus (t1, t2) -> Minus (get_expr t1, get_expr t2)
+  | Mult (t1, t2) -> Mult (get_expr t1, get_expr t2)
   | e -> e
+
+let get_expr_cl (c : clause) = List.map get_expr c
 
 let rec store_shared_terms_t (t : term) : term =
   match t with
@@ -430,7 +449,14 @@ let rec term_eq (t1 : term) (t2 : term) : bool =
   | Eq (t11, t12), Eq (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
   | App (f1, t1'), App (f2, t2') -> f1 = f2 && check_arg_lists t1' t2'
   | Var x, Var y -> x = y
-  | STerm x, STerm y -> x = y
+  (* This allows equality over shared terms and other shared terms or 
+     regular terms. Note that we expect perfect sharing - if the same 
+     term is given 2 different names in a proof and the names are checked
+     for equality, this function would return false *)
+  | STerm x, s -> (match s with
+                  | STerm y -> x = y
+                  | t -> let x' = get_sterm x in
+                         term_eq x' t)
   | NTerm (s1, t1'), NTerm (s2, t2') -> s1 = s2 && term_eq t1' t2'
   | Int i, Int j -> i = j
   | Lt (t11, t12), Lt (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
@@ -528,8 +554,11 @@ let process_fins (c : certif) : certif =
 let rec process_notnot (c : certif) : certif = 
   match c with
   | (i, NotnotAST, cl, p, a) :: tl -> process_notnot (remove_res_premise i tl)
-  | (i, NotsimpAST, [Eq (Not (Not x), y)], p, a) :: tl when x = y -> 
-      (i, ReflAST, [Eq (x, x)], [], []) :: process_notnot tl
+  | (i, NotsimpAST, cl, p, a) :: tl ->
+      (match (get_expr_cl cl) with
+      | [Eq (Not (Not x), y)] when x = y -> 
+         (i, ReflAST, [Eq (x, x)], [], []) :: process_notnot tl
+      | _ -> (i, NotsimpAST, cl, p, a) :: process_notnot tl)
   | h :: tl -> h :: process_notnot tl
   | [] -> []
 
@@ -837,7 +866,7 @@ let process_cong (c : certif) : certif =
 let findi (x : 'a) (l : 'a list) : int = 
   let rec findi' (x : 'a) (l : 'a list) (n : int) : int = 
     match l with
-    | h :: t -> if h = x then n else findi' x t (n+1)
+    | h :: t -> if term_eq h x then n else findi' x t (n+1)
     | [] -> raise (Debug ("| findi : element not found |")) in
   findi' x l 0
 
@@ -850,7 +879,7 @@ let process_proj (c: certif): certif =
                            | None -> raise (Debug ("Can't fetch premises to `and` at id "
                                             ^i^" |"))) 
                  p in
-        (match (get_expr (List.hd p')), (get_expr (List.hd cl)) with
+        (match (get_expr (List.hd p')), (List.hd cl) with
         | And ts, x ->
             let i' = try findi x ts with
                      | Debug s -> raise (Debug ("| process_proj: fails at id "
@@ -881,7 +910,7 @@ let process_proj (c: certif): certif =
         | _, _ -> raise (Debug 
                   ("| process_proj: expecting clause with `or` and `not` at id "^i^" |")))
     | (i, AndpAST, cl, p, a) :: tl when a = [] ->
-        (match get_expr (List.nth cl 0), get_expr (List.nth cl 1) with
+        (match get_expr (List.nth cl 0), (List.nth cl 1) with
         | Not (And ts), x ->
             let i' = try findi x ts with
                      | Debug s -> raise (Debug ("| process_proj: fails at id "^i^" |"^s)) in
@@ -1110,7 +1139,7 @@ let simplify_to_subproof_ltr (i: id) (a2bi: id) (a: term) (b: term) (a2b: certif
     | (i, Equp2AST, c, _, _) :: ct when c = [Not (Eq (a,b)); Not a; b] -> 
        let ct' = remove_res_premise i ct in
        process_tail ct'
-    | h :: ct -> process_tail ct
+    | h :: ct -> h :: (process_tail ct)
     | [] -> [] in
   (i, SubproofAST subp, [], [], []) :: (process_tail tail)
 (* are t1 and t2 negations of each other? *)
@@ -1131,7 +1160,7 @@ let rec process_simplify (c : certif) : certif =
   match c with
   (* x_1 ^ ... ^ x_n <-> y *)
   | (i, AndsimpAST, cl, p, a) :: tl ->
-      (match cl with
+      (match (get_expr_cl cl) with
        (* T ^ ... ^ T <-> T *)
        | [Eq ((And xs as lhs), (True as rhs))] when (List.for_all ((=) True) xs) ->
           (* T ^ T <-> T
@@ -1326,10 +1355,11 @@ let rec process_simplify (c : certif) : certif =
            | h :: t -> h :: process_simplify t
            | [] -> [])
        | [Eq _] -> (i, AndsimpAST, cl, p, a) :: process_simplify tl
-       | _ -> raise (Debug ("| process_simplify: expecting argument of and_simplify to be an equivalence at id "^i^" |")))
+       | c -> raise (Debug ("process_simplify: in and simplify I have clause "^(string_of_clause c)^" instead of a singleton with an equivalence")))
+       (* | _ -> raise (Debug ("| process_simplify: expecting argument of and_simplify to be an equivalence at id "^i^" |"))) *)
   (* x_1 v ... v x_n <-> y *)
   | (i, OrsimpAST, cl, p, a) :: tl ->
-      (match cl with
+      (match (get_expr_cl cl) with
        (* F v ... v F <-> F *)
        | [Eq ((Or xs as lhs), (False as rhs))] when (List.for_all ((=) False) xs) ->
           (* F v F <-> F
@@ -1487,7 +1517,7 @@ let rec process_simplify (c : certif) : certif =
        | _ -> raise (Debug ("| process_simplify: expecting argument of or_simplify to be an equivalence at id "^i^" |")))
   (* ~x <-> y *)
   | (i, NotsimpAST, cl, p, a) :: tl ->
-      (match cl with
+      (match (get_expr_cl cl) with
        (* ~F <-> T *)
           (*
              LTR:
@@ -1531,10 +1561,10 @@ let rec process_simplify (c : certif) : certif =
            | [] -> [])
        (* ~(~x) <-> x handled by process_notnot*)
        | [Eq _] -> (i, NotsimpAST, cl, p, a) :: process_simplify tl
-       | _ -> raise (Debug ("| process_simplify: expecting argument of and_simplify to be an equivalence at id "^i^" |")))
+       | _ -> raise (Debug ("| process_simplify: expecting argument of not_simplify to be an equivalence at id "^i^" |")))
   (* (x -> y) <-> z *)
   | (i, ImpsimpAST, cl, p, a) :: tl ->
-      (match cl with
+      (match (get_expr_cl cl) with
        (* (~x -> y) <-> (y -> x) *)
        | [Eq ((Imp [Not x; y] as lhs), (Imp [b; a] as rhs))] when (x = a && y = b) ->
           (*
@@ -1770,7 +1800,7 @@ let rec process_simplify (c : certif) : certif =
        | _ -> raise (Debug ("| process_simplify: expecting argument of implies_simplify to be an equivalence at id "^i^" |")))
   (* (x <-> y) <-> z *)
   | (i, EqsimpAST, cl, p, a) :: tl ->
-      (match cl with
+      (match (get_expr_cl cl) with
        (* (~x <-> ~y) <-> (x <-> y) *)
        | [Eq ((Eq (Not x, Not y) as lhs),(Eq (a, b) as rhs))] when x = a && y = b ->
           (*
@@ -2005,7 +2035,7 @@ let rec process_simplify (c : certif) : certif =
        | _ -> raise (Debug ("| process_simplify: expecting argument of equiv_simplify to be an equivalence at id "^i^" |")))
   (* ite c x y <-> z *)
   | (i, ItesimpAST, cl, p, a) :: tl ->
-      (match cl with
+      (match (get_expr_cl cl) with
       (* ite T x y <-> x *)
       | [Eq ((Ite [True; x; y] as lhs), (a as rhs))] when x = a ->
          (*
@@ -2448,7 +2478,7 @@ let rec process_simplify (c : certif) : certif =
       | _ -> raise (Debug ("| process_simplify: expecting argument of ite_simplify to be an equivalence at id "^i^" |")))
   (* x <-> y *)
   | (i, BoolsimpAST, cl, p, a) :: tl ->
-      (match cl with
+      (match (get_expr_cl cl) with
        (* ~(x -> y) <-> (x ^ ~y) *)
        | [Eq ((Not (Imp [x; y]) as lhs), (And [a; Not b] as rhs))] when (x = a && y = b) ->
          (*
@@ -2773,7 +2803,7 @@ let rec process_simplify (c : certif) : certif =
       | _ -> raise (Debug ("| process_simplify: expecting argument of bool_simplify to be an equivalence at id "^i^" |"))
       )
   | (i, ConndefAST, cl, p, a) :: tl ->
-      (match cl with
+      (match (get_expr_cl cl) with
       (* x xor y <-> (~x ^ y) v (x ^ ~y) *)
       | [Eq ((Xor [x;y] as lhs), (Or [And [Not a; b]; And [c;d]] as rhs))] when x = a && x = c && y = b && y = d ->
        (*
@@ -2960,7 +2990,7 @@ let rec process_simplify (c : certif) : certif =
       )
   (* t1 = t2 <-> x *)
   | (i, EqualsimpAST, cl, p, a) :: tl ->
-      (match cl with
+      (match (get_expr_cl cl) with
        (* t = t <-> T *)
        | [Eq ((Eq (t, t') as lhs), (True as rhs))] when t = t' ->
          let a2b = [(generate_id (), TrueAST, [rhs], [], [])] in
@@ -2986,9 +3016,9 @@ let preprocess_certif (c: certif) : certif =
   Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2);
   let c3 = process_notnot c2 in
   Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c3);
-  let c4 = process_simplify c2 in
+  let c4 = process_simplify c3 in
   Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c4);
-  let c5 = process_subproof c3 in
+  let c5 = process_subproof c4 in
   Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c5);
   let c6 = process_cong c5 in
   Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c6);

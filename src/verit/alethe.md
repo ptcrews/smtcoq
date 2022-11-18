@@ -277,3 +277,12 @@ to work with SMTCoq.
 | qnt_rm_unused         | Quant  | Add                                               | [ ]  |
 | sko_ex                | Quant  | Add                                               | [ ]  |
 | sko_forall            | Quant  | Add                                               | [ ]  |
+
+# Tests
+This is a big addition to SMTCoq in the order of 1000s of lines of code. The only way to validate its
+soundness is by testing. We want Alethe proofs with enough rule coverage so we are able to test all
+the rules in the Alethe specfication and all its variants. The bad new is that in these 1000s of lines
+of code added by a single person, there are bound to be a lot of bugs. The good news is that these won't
+affect the soundness of SMTCoq. A proof must prove the formula it claims to prove, otherwise SMTCoq will
+fail. In the worst case, if a rule isn't encoded properly, proofs that contain instances of that rule
+won't work, making SMTCoq more incomplete, but it won't be able to prove things that don't stand. 
