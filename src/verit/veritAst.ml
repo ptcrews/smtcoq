@@ -200,7 +200,7 @@ let rec get_expr = function
   | Mult (t1, t2) -> Mult (get_expr t1, get_expr t2)
   | e -> e
 
-(* let get_expr_cl (c : clause) = List.map get_expr c *)
+let get_expr_cl (c : clause) = List.map get_expr c
 
 
 (* Convert certificates to strings for debugging *)
@@ -559,11 +559,11 @@ let process_fins (c : certif) : certif =
 let rec process_notnot (c : certif) : certif = 
   match c with
   | (i, NotnotAST, cl, p, a) :: tl -> process_notnot (remove_res_premise i tl)
-  (*| (i, NotsimpAST, cl, p, a) :: tl ->
+  | (i, NotsimpAST, cl, p, a) :: tl ->
       (match (get_expr_cl cl) with
       | [Eq (Not (Not x), y)] when x = y -> 
          (i, ReflAST, [Eq (x, x)], [], []) :: process_notnot tl
-      | _ -> (i, NotsimpAST, cl, p, a) :: process_notnot tl)*)
+      | _ -> (i, NotsimpAST, cl, p, a) :: process_notnot tl)
   | h :: tl -> h :: process_notnot tl
   | [] -> []
 
@@ -585,9 +585,9 @@ let rec process_vars (vs : (string * typ) list) : (string * SmtBtype.btype) list
 let rec process_term (x: bool * SmtAtom.Form.atom_form_lit) : SmtAtom.Form.t =
   Form.lit_of_atom_form_lit rf x
 
-(*term |-> bool * SmtAtom.Form.atom_form_lit |-> SmtAtom.Form.t*)
+(* term |-> bool * SmtAtom.Form.atom_form_lit |-> SmtAtom.Form.t *)
 
-and process_term_aux (t : term) : bool * SmtAtom.Form.atom_form_lit (*option*) =
+and process_term_aux (t : term) : bool * SmtAtom.Form.atom_form_lit (* option *) =
   let process (t : term) : (bool * SmtAtom.Form.t) =
     let decl, t' = process_term_aux t in
     let t'' = process_term (decl, t') in
@@ -1105,7 +1105,7 @@ let rec process_subproof (c : certif) : certif =
    3. Prove a <-> b v ~a v ~b via equiv_neg1
    4. Prove a <-> b by resolving 3,2,1
 *)
-(*let simplify_to_subproof (i: id) (a2bi: id) (b2ai: id) (a: term) (b: term) (a2b: certif) (b2a: certif) : certif =
+let simplify_to_subproof (i: id) (a2bi: id) (b2ai: id) (a: term) (b: term) (a2b: certif) (b2a: certif) : certif =
   (* Step 1. *)
   let sp1id = generate_id () in
   let subp1 = (a2bi, AssumeAST, [a], [], []) ::
@@ -3007,7 +3007,7 @@ let rec process_simplify (c : certif) : certif =
        | _ -> raise (Debug ("| process_simplify: expecting argument of eq_simplify to be an equivalence at id "^i^" |"))
       )
   | h :: tl -> h :: process_simplify tl
-  | nil -> nil*)
+  | nil -> nil
 
 
 (* Final processing and linking of AST *)
@@ -3021,9 +3021,9 @@ let preprocess_certif (c: certif) : certif =
   Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2);
   let c3 = process_notnot c2 in
   Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c3);
-  (*let c4 = process_simplify c3 in
-  Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c4);*)
-  let c5 = process_subproof c3 in
+  let c4 = process_simplify c3 in
+  Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c4);
+  let c5 = process_subproof c4 in
   Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c5);
   let c6 = process_cong c5 in
   Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c6);
