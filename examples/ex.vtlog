@@ -1,3 +1,0 @@
-(assume h1 (not (= (+ 2 x) (* 2 y))))
-(assume h2 (= (+ 2 x) (* 2 y)))
-(step t3 (cl) :rule th_resolution :premises (h1 h2))

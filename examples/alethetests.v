@@ -62,7 +62,7 @@ Qed.
 
 Local Open Scope Z_scope.
 
-Goal forall (a b : Z) (P : Z -> bool) (f : Z -> Z),
+Lemma ex6: forall (a b : Z) (P : Z -> bool) (f : Z -> Z),
   (negb (Z.eqb (f a) b)) || (negb (P (f a))) || (P b).
 Proof.
   verit_bool.
@@ -78,7 +78,7 @@ Qed.
 Proof.
   verit_bool.
 Qed.*)
-
+(*
 Goal forall
     (x y: Z)
     (f: Z -> Z),
@@ -86,10 +86,10 @@ Goal forall
 Proof.
   verit.
 Qed.
-
+*)
 Variable P : Z -> bool.
 Variable a : Z.
-Goal (forall (x : Z), P x) -> P a.
+Lemma ex7: (forall (x : Z), P x) -> P a.
 Proof. verit. Qed.
 
 (* Some examples of using verit with lemmas. Use <verit H1 .. Hn> to
