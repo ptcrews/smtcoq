@@ -166,7 +166,7 @@ Section Checker_SmtEx3Debug.
 
   Eval vm_compute in List.nth 12 (fst c3) _.
   (* 12. Res 1 {| 3, 1 |} *)
-  Definition s13_3 := Eval vm_compute in (step_checker s12_3 (List.nth 11 (fst c3) (CTrue t_func3 t_atom3 t_form3 0))).
+  Definition s13_3 := Eval vm_compute in (step_checker s12_3 (List.nth 12 (fst c3) (CTrue t_func3 t_atom3 t_form3 0))).
   Print s13_3.
   (* s1_3 = ({| [5], [0], [4], [2] |}, 
     0 :: nil, 4) : PArray.Map.t C.t * C.t * int *)
