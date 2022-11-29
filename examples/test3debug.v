@@ -18,21 +18,8 @@ Add Rec LoadPath "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/sr
 
 Require Import SMTCoq.SMTCoq.
 Require Import Bool.
-
-Require Import ZArith.
 Require Import Int31.
-
-Import BVList.BITVECTOR_LIST.
-Local Open Scope bv_scope.
-
-Import FArray.
-Local Open Scope farray_scope.
-
-(* Examples that check ZChaff certificates *)
-
-(*Local Open Scope int63_scope.*)
 Local Open Scope int31_scope.
-Local Open Scope array_scope.
 
 Section Checker_SmtEx3Debug.
   Parse_certif_verit t_i3 t_func3 t_atom3 t_form3 root3 used_roots3 trace3 
