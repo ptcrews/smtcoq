@@ -1132,7 +1132,7 @@ let simplify_to_subproof (i: id) (a2bi: id) (b2ai: id) (a: term) (b: term) (a2b:
                ...
                n: [~a, b]                       reso(i,m)
              We want the encoded proof to be:
-               i: [~a, B]                       subproof
+               i: [~a, b]                       subproof
                ... (remove m) ...
                n: [~a, b]                       reso(i) *)
 let simplify_to_subproof_ltr (i: id) (a2bi: id) (a: term) (b: term) (a2b: certif) (tail: certif) : certif =
@@ -1141,7 +1141,7 @@ let simplify_to_subproof_ltr (i: id) (a2bi: id) (a: term) (b: term) (a2b: certif
               [(i, DischargeAST, [Not a; b], [], [])]) in
   let rec process_tail (c' : certif) : certif =
     match c' with
-    | (i, Equp2AST, c, _, _) :: ct when c = [Not (Eq (a,b)); Not a; b] -> 
+    | (i, Equp2AST, c, _, _) :: ct when get_expr_cl c = [Not (Eq (a,b)); Not a; b] -> 
        let ct' = remove_res_premise i ct in
        process_tail ct'
     | h :: ct -> h :: (process_tail ct)
