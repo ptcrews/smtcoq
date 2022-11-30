@@ -14,7 +14,7 @@
    If you are using native-coq instead of Coq 8.9, replace it with:
      Require Import SMTCoq.
    *)
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/src" as SMTCoq.
+Add Rec LoadPath "/home/arjun/Desktop/smtcoq-veritAst/smtcoq/src" as SMTCoq.
 
 Require Import SMTCoq.SMTCoq.
 Require Import Bool.
@@ -25,24 +25,20 @@ Require Import Int31.
 Import BVList.BITVECTOR_LIST.
 Local Open Scope bv_scope.
 
-Import FArray.
-Local Open Scope farray_scope.
-
-(* Examples that check ZChaff certificates *)
-
 (*Local Open Scope int63_scope.*)
 Local Open Scope int31_scope.
-Local Open Scope array_scope.
 
 Lemma ex1: negb (true && (negb true)).
 Proof.
   verit_bool.
 Qed.
+(* Problem: a rewrite that is supposed to be LTR is used by congruence which means its using both implication *)
 
 Lemma ex2: true || false.
 Proof.
   verit_bool.
 Qed.
+(* Might be same problem as 5 *)
 
 Lemma ex3: forall p, negb (p && (negb p)).
 Proof.
@@ -58,7 +54,7 @@ Lemma ex5: forall p, p || (negb p).
 Proof.
   verit_bool.
 Qed.
-
+(* Problem: When we have multiple _simplify rules in a proof, we turn them into multiple subproofs but the flattening of each of them messes up the order of the whole proof for the others *)
 
 Local Open Scope Z_scope.
 

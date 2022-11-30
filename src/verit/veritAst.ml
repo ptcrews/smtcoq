@@ -945,11 +945,11 @@ let process_proj (c: certif): certif =
 ...                                        Pi_2             ------and'        
    []                                       G                 ~G        --(5)
                                             --------------------
-                                                     []                 --(6)               
+                                                     []                 --(6)
 Pi_3' replaces every step in Pi_3 that directly or indirectly uses (1), so that the result 
 naturally produces the original result v (H ^ ~G) 
 
-and' is and implemented through andPos and reso
+and' is implemented through andPos and reso
 *)
 
 (* Function that takes a certif, a list of id pairs, and 

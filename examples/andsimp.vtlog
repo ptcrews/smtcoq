@@ -1,0 +1,5 @@
+(assume h1 (and x y true))
+(assume h2 (not (and x y)))
+(step t3 (cl (= (and x y true) (and x y))) :rule and_simplify)
+(step t4 (cl (not (= (and x y true) (and x y))) (not (and x y true)) (and x y)) :rule equiv_pos2)
+(step t5 (cl) :rule resolution :premises (t4 t3 h2 h1))

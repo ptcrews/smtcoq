@@ -24,17 +24,16 @@ Require Import Int31.
 
 Import BVList.BITVECTOR_LIST.
 Local Open Scope bv_scope.
-
-Import FArray.
-Local Open Scope farray_scope.
-
-(* Examples that check ZChaff certificates *)
-
-(*Local Open Scope int63_scope.*)
 Local Open Scope int31_scope.
-Local Open Scope array_scope.
 
-Lemma ex3: forall p, negb (p && (negb p)).
-Proof.
-  verit_bool.
-Qed.
+Section AndSimp.
+  Verit_Checker "../examples/andsimp.smt2" "../examples/andsimp.vtlog".
+End AndSimp.
+
+(*Section NotSimp1.
+  Verit_Checker "../examples/notsimp1.smt2" "../examples/notsimp1.vtlog".
+End NotSimp1.
+
+Section NotSimp2.
+  Verit_Checker "../examples/notsimp2.smt2" "../examples/notsimp2.vtlog".
+End NotSimp2.*)
