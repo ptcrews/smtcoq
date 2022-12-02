@@ -128,11 +128,6 @@ type rule =
 and step = id * rule * clause * params * args
 and certif = step list
 
-let mk_cl (ts : term list) : clause = ts
-let mk_step (s : (id * rule * clause * params * args)) : step = s
-let mk_cert (c : step list) : certif = c
-(*let mk_args (a : id list) : args = a*)
-
 let get_id (s : step) : id =
   match s with
   | (i, _, _, _, _) -> i
@@ -766,92 +761,152 @@ let process_rule (r: rule) : VeritSyntax.typ =
 (* Removing occurrences of the cong rule using other rules 
    including eq_congruent, eq_congruent_pred, reso *)
 
-(* We use eq_congruent_pred to prove cong (in the predicate case). 
-   It is an elaborate process, but it saves us the effort of 
-   proving a new rule correct. For cong, we have
-   x1 = y1 and x2 = y2, and we need to prove Px = Py, 
-      short for P(x1, x2) = P(y1, y2)
-   ~(x1 = y1) v ~(x2 = y2) v ~Px v Py --(1) by eq_congruent_pred
-   ~(x1 = y1) v ~(x2 = y2) v ~Py v Px --(2) by eq_congruent_pred
-   (1)  (x1 = y1)  (x2 = y2)        (2)  (x1 = y1)  (x2 = y2)
-   -------------------------Res     -------------------------Res
-        ~Px v Py --(3)                    ~Py v Px --(4)
-  
-  Px = Py v Px v Py   --(5) by equiv_neg2
-  Px = Py v ~Px v ~Py --(6) by equiv_neg1
-  Finally,
-    (3)  (5)          (4)  (6)
-  -------------Res  --------------Res
-  Px = Py v Py      Px = Py v ~Py
-  ---------------------------------Res
-               Px = Py
-  We do something similar for the function case of cong, except 
-  that there is 1 intermediate step of calling eq_congruent, 
-  followed by a resolution. Here, there are 8. Because, when 
-  the intermediate step numbers are generated in VeritAst, 
-  it is not possible to determine the case of cong, VeritAst
-  passes 8 clause IDs to the cong rule as args (in Alethe, the
-  cong rule has no args)
-*)
-(*
-  TODO: Predicate case. Issues: Currently all premises are expected to be explicit,
-  but the rule uses implicit premises such as true = true, which need to be 
-  inferred and added to the resolutions (for each of these premises a rule of refl
-  must be invoked). Without this, process_congr_form will probably fail.
-*)
+(* Get arguments of function/predicate application. Used to determine 
+   implicit arguments in a congruence rule application *)
+(*let rec cong_arg_cnt (t : term) : int =
+   match get_expr t with
+   | True | False | Forall _ | Var _ | STerm _ | Int _ -> 0
+   | Not _ | UMinus _ -> 1
+   | Eq _ | Lt _ | Leq _ | Gt _ | Geq _ | Plus _ | Minus _ | Mult _ -> 2
+   | Ite _ -> 3
+   | And xs -> List.length xs
+   | Or xs -> List.length xs
+   | Imp xs -> List.length xs
+   | Xor xs -> List.length xs
+   | App (_, xs) -> List.length xs
+   | NTerm (_, t) -> cong_arg_cnt t*)
+let rec get_args (t : term) : term list =
+   match t with
+   | True | False | Forall _ | Var _ | STerm _ | Int _ -> []
+   | Not x | UMinus x -> [x]
+   | Eq (x,y) | Lt (x,y) | Leq (x,y) | Gt (x,y) | Geq (x,y) | Plus (x,y) | Minus (x,y) | Mult (x,y) -> [x; y]
+   | Ite xs | And xs | Or xs | Imp xs | Xor xs -> xs
+   | App (_, xs) -> xs
+   | NTerm (_, t) -> get_args t
+
+let cong_find_implicit_args (c : clause) (cog : certif) (p : params) : term list =
+   match List.hd c with
+   | Eq (x , y) -> let n = List.length (get_args x) in
+                   if (n = List.length p) then
+                     List.map (fun x -> (match (get_cl x cog) with
+                                         | Some x -> Not (List.hd x)
+                                         | None -> raise (Debug ("| cong_find_implicit_args: can't fetch premises to congr |")))) p
+                   else
+                     let xs = get_args x in
+                     let ys = get_args y in
+                     let rec f (xs : term list) (ys : term list) (p : parms) : term list =
+                        match xs ys p with
+                        | xh :: xt, yh :: yt, ph :: pt ->
+                           let ph' = match (get_cl ph cog) with
+                                     | Some [e :: _] -> match e with
+                                        | Eq (xp, yp) -> if (xp = xh && yp = yh) || (xp = yh && yp = xh) then
+                                                          Not e :: (f xt yt pt)
+                                                         else
+                                                          
+                     (* 1. get premise p1 = p2, get the corresponding arguments x1 and x2
+                        2. if p1 = x1 and p2 = x2, add ~(p1 = p2) and repeat with tail, 
+                           else add true = true and repeat with p1 = p2 *)
+                       List.map (fun x -> (match (get_cl x cog) with
+                                         | Some x -> Not (List.hd x)
+                                         | None -> raise (Debug ("| cong_find_implicit_args: can't fetch premises to congr |")))) p
+   | _ -> raise (Debug ("| cong_find_implicit_args: expecting head of clause to be an equality |"))
+
 let process_cong (c : certif) : certif = 
   let rec process_cong_aux (c : certif) (cog : certif) : certif = 
     match c with
     | (i, r, c, p, a) :: t ->
         (match r with
         | CongAST ->
+            (* To differentiate between the predicate and function case, we need to process
+               the clause because we treat equality and iff as the same at the AST level *)
             let c' = process_cl c in
             (match c' with
-            | l::_ ->
-                (* get premises and convert from clauses to formulas *)
-                let prems = List.map (fun x -> (match (get_cl x cog) with
+            | l:: _ ->
+                (* get negation of premises *)
+                let prems_neg = List.map (fun x -> (match (get_cl x cog) with
                 | Some x -> Not (List.hd x)
-                | None -> raise (Debug ("| process_cong: can't fetch premises to congr at id "^i)))) p in
+                | None -> raise (Debug ("| process_cong: can't fetch premises to congr at id "^i^" |")))) p in
                 (* congruence over functions *)
                 if is_eq l then
-                  let new_id = VeritSyntax.generate_id () in
-                  (* perform application of eq_congruent to 
-                   get a CNF form of the rule application *)
-                  let new_cl = mk_cl (prems @ c) in
-                  (* then, resolve out all the premises from the CNF so only 
-                   the conclusion is left *)
-                  (new_id, EqcoAST, new_cl, [], []) ::
-                  (i, ResoAST, c, new_id :: p, a) :: process_cong_aux t cog
+                  (*
+                     Convert a proof of the form:
+                     ...
+                     x = a              y = b
+                     ------------------------cong
+                         f(x, y) = f(a, b)
+                     
+                     to:
+                     ...
+                     -------------------------------------eqcong
+                     ~(x = a), ~(y = b), (f(x,y) = f(a,b))          x = a    y = b
+                     --------------------------------------------------------------res
+                                           f(x,y) = f(a,b)   
+                  *)
+                  let eqci = generate_id () in
+                    (eqci, EqcoAST, (prems_neg @ c), [], []) ::
+                    (i, ResoAST, c, eqci ::  p, a) :: 
+                    process_cong_aux t cog
                 (* congruence over predicates*)
-                (*else if is_iff l then
-                  let new_id1 = VeritSyntax.generate_id () in
-                  let new_id2 = VeritSyntax.generate_id () in
-                  let new_id3 = VeritSyntax.generate_id () in
-                  let new_id4 = VeritSyntax.generate_id () in
-                  let new_id5 = VeritSyntax.generate_id () in
-                  let new_id6 = VeritSyntax.generate_id () in
-                  let new_id7 = VeritSyntax.generate_id () in
-                  let new_id8 = VeritSyntax.generate_id () in
-                  let (c1, c2) = (match List.hd c with
+                else if is_iff l then
+                  (*
+                     Convert a proof of the form:
+                     ...
+                     x = a              y = b
+                     ------------------------cong
+                         P(x, y) = P(a, b)
+
+                     to:
+                     (1)    x = a    y = b              (2)    x = a    y = b
+                     ---------------------res           ---------------------res
+                       ~P(x, y), P(a, b)      (3)         ~P(a, b), P(x, y)         (4)
+                     -----------------------------res     ------------------------------res
+                     (P(x, y) = P(a, b)), P(a, b)        (P(x, y) = P(a, b)), ~P(a, b)
+                     -------------------------------------------------------------------res
+                                               P(x, y) = P(a, b)
+                     where:
+                     -------------------------------------eqcongp
+                     ~(x = a), ~(y = b), ~P(x, y), P(a, b)     --(1)
+                     -------------------------------------eqcongp
+                     ~(x = a), ~(y = b), ~P(a, b), P(x, y)     --(2)
+                     -------------------------------------eqn2
+                     (P(x, y) = P(a, b)), P(x, y), P(a, b)      --(3)
+                     ---------------------------------------eqn1
+                     (P(x, y) = P(a, b)), ~P(x, y), ~P(a, b)    --(4)
+
+                     TODO: Currently all premises are expected to be explicit,
+                     but the rule uses implicit premises such as true = true, which need to be 
+                     inferred and added to the resolutions (for each of these premises a rule of refl
+                     must be invoked). Without this, process_congr_form will probably fail.
+                     Solution: fetch all the arguments, and if they don't match the expected number
+                     infer them as follows. Unhash all premises and the conclusion and do pattern 
+                     matching. Fill whatever is remaining using refl.   
+                  *)
+                  let eqcpi1 = generate_id () in
+                  let eqcpi2 = generate_id () in
+                  let eqn2i = generate_id () in
+                  let eqn1i = generate_id () in
+                  let resi1 = generate_id () in
+                  let resi2 = generate_id () in
+                  let resi3 = generate_id () in
+                  let resi4 = generate_id () in
+                  (* variables for the target equality and the predicates it equates *)
+                  let conc = List.hd c in
+                  let (p1, p2) = (match conc with
                                   | Eq (x, y) -> (x, y)
                                   | _ -> assert false) in
-                  (* Construct (1) and (2) *)
-                  let cl1 = (new_id1, EqcpAST, mk_cl (prems @ [Not c1] @ [c2]), [], []) in
-                  let cl2 = (new_id2, EqcpAST, mk_cl (prems @ [Not c2] @ [c1]), [], []) in
-                  (* Construct (3) and (4) *)
-                  let cl3 = (new_id3, ResoAST, mk_cl [Not c1; c2], new_id1::p, []) in
-                  let cl4 = (new_id4, ResoAST, mk_cl [Not c2; c1], new_id2::p, []) in
-                  (* Construct (5) and (6) *)
-                  let cl5 = (new_id5, Nequ2AST, mk_cl [List.hd c; c1; c2], [], []) in
-                  let cl6 = (new_id6, Nequ1AST, mk_cl [List.hd c; Not c1; Not c2], [], []) in
-                  (* Final resolutions *)
-                  let cl7 = (new_id7, ResoAST, mk_cl [List.hd c; c1], [new_id3; new_id5], []) in
-                  let cl8 = (new_id8, ResoAST, mk_cl [List.hd c; Not c1], [new_id4; new_id6], []) in
-                  let cl9 = (i, ResoAST, c, [new_id7; new_id8], []) in
-                  cl1 :: cl2 :: cl3 :: cl4 :: cl5 :: cl6 :: cl7 :: cl8 :: cl9 :: process_cong_aux t cog*)
+                    (eqcpi1, EqcpAST, (prems_neg @ [Not p1; p2]), [], []) :: (* (1) *)
+                    (resi1, ResoAST, [Not p1; p2], eqcpi1 :: p, []) ::
+                    (eqn2i, Equn2AST, [conc; p1; p2], [], []) ::             (* (3) *)
+                    (resi2, ResoAST, [conc; p1], [resi1; eqn2i], []) ::
+                    (eqcpi2, EqcpAST, (prems_neg @ [Not p2; p1]), [], []) :: (* (2) *)
+                    (resi3, ResoAST, [Not p2; p1], eqcpi2 :: p, []) ::
+                    (eqn1i, Equn1AST, [conc; Not p1; Not p2], [], []) ::     (* (4) *)
+                    (resi4, ResoAST, [conc; Not p1], [resi3; eqn1i], []) ::
+                    (i, ResoAST, c, [resi2; resi4], []) ::
+                    process_cong_aux t cog
                 else
-                  (i, r, c, p, a) :: process_cong_aux t cog
-              | _ -> assert false)
+                  raise (Debug ("| process_cong: expecting head of clause to be either an equality or an iff at id "^i^" |"))
+              | _ -> raise (Debug ("| process_cong: expecting clause to have one literal at id "^i^" |")))
         | _ -> (* This is necessary to add the shared terms to the hash tables *)
                let _ = process_cl c in
                (i, r, c, p, a) :: process_cong_aux t cog)
@@ -946,10 +1001,10 @@ let process_proj (c: certif): certif =
    []                                       G                 ~G        --(5)
                                             --------------------
                                                      []                 --(6)
-Pi_3' replaces every step in Pi_3 that directly or indirectly uses (1), so that the result 
-naturally produces the original result v (H ^ ~G) 
-
-and' is implemented through andPos and reso
+where        
+ - Pi_3' replaces every step in Pi_3 that directly or indirectly uses (1), so that the result 
+   naturally produces the original result v (H ^ ~G) 
+ - and' is and implemented through andPos and reso
 *)
 
 (* Function that takes a certif, a list of id pairs, and 
