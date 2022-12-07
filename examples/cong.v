@@ -14,27 +14,19 @@
    If you are using native-coq instead of Coq 8.9, replace it with:
      Require Import SMTCoq.
    *)
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/src" as SMTCoq.
+   Add Rec LoadPath "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/src" as SMTCoq.
 
-Require Import SMTCoq.SMTCoq.
-Require Import Bool.
-
-Require Import ZArith.
-Require Import Int31.
-
-Import BVList.BITVECTOR_LIST.
-Local Open Scope bv_scope.
-
-Import FArray.
-Local Open Scope farray_scope.
-
-(* Examples that check ZChaff certificates *)
-
-(*Local Open Scope int63_scope.*)
-Local Open Scope int31_scope.
-Local Open Scope array_scope.
-
-Lemma ex5: forall p, p || (negb p).
-Proof.
-  verit_bool.
-Qed.
+   Require Import SMTCoq.SMTCoq.
+   Require Import Bool.
+   
+   Require Import ZArith.
+   Require Import Int31.
+   
+   (*Local Open Scope int63_scope.*)
+   Local Open Scope int31_scope.
+   Local Open Scope array_scope.
+   Local Open Scope int63_scope.
+   
+   Section Cong.
+     Verit_Checker "../examples/cong.smt2" "../examples/cong.vtlog".
+   End Cong.

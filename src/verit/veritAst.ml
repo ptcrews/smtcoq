@@ -801,14 +801,16 @@ let rec get_args (t : term) : term list =
 *)
 let cong_find_implicit_args (ft : term) (p : params) (cog : certif) : (term list * term list) =
    match get_expr ft with
-   | Eq (fx , fy) -> let n = List.length (get_args fx) in
+   | Eq (fx, fy) -> let n = List.length (get_args fx) in
                    (* no implicit equalities *)
                    if (n = List.length p) then
+                     let () = Printf.printf ("cong_find_implicit_args: no implicit equalities\n") in
                      let prem_negs = List.map (fun x -> (match (get_cl x cog) with
                                            | Some x -> Not (List.hd x)
                                            | None -> raise (Debug ("| cong_find_implicit_args: can't fetch premises to congr |")))) p in
                      (prem_negs, [])
                    else
+                     let () = Printf.printf ("cong_find_implicit_args: yes implicit equalities\n") in
                      (* get all arguments of fx and fy *)
                      let fxas = get_args fx in
                      let fyas = get_args fy in
@@ -846,9 +848,9 @@ let cong_find_implicit_args (ft : term) (p : params) (cog : certif) : (term list
                      in f fxas fyas pxs pys
    | _ -> raise (Debug ("| cong_find_implicit_args: expecting head of clause to be an equality |"))
 
-let process_cong (c : certif) : certif = 
+let process_cong (c : certif) : certif =
   let rec process_cong_aux (c : certif) (cog : certif) : certif = 
-    match c with
+   match c with
     | (i, r, c, p, a) :: t ->
         (match r with
         | CongAST ->
@@ -856,9 +858,10 @@ let process_cong (c : certif) : certif =
                the clause because we treat equality and iff as the same at the AST level *)
             let c' = process_cl c in
             (match c' with
-            | l:: _ ->
+            | l :: _ ->
+                let conc = get_expr (List.hd c) in
                 (* get negation of premises and terms for any implicit equality *)
-                let prems_neg, imp_eq = cong_find_implicit_args (List.hd c) p cog in
+                let prems_neg, imp_eq = cong_find_implicit_args conc p cog in
                 let refls, refl_ids = 
                   List.split (List.map 
                                (fun x -> let i' = generate_id () in
@@ -923,9 +926,7 @@ let process_cong (c : certif) : certif =
                   let eqn1i = generate_id () in
                   let resi1 = generate_id () in
                   let resi2 = generate_id () in
-                  let resi3 = generate_id () in
                   (* variables for the target equality and the predicates it equates *)
-                  let conc = List.hd c in
                   let (p1, p2) = (match conc with
                                   | Eq (x, y) -> (x, y)
                                   | _ -> assert false) in
@@ -936,7 +937,7 @@ let process_cong (c : certif) : certif =
                     (eqn1i, Equn1AST, [conc; Not p1; Not p2], [], []) ::
                     (resi2, ResoAST, (prems_neg @ [conc; Not p1]), [eqcpi2; eqn1i], []) ::
                     refls) @
-                    ((resi3, ResoAST, [conc], resi1 :: resi2 :: refl_ids, []) ::
+                    ((i, ResoAST, [conc], resi1 :: resi2 :: refl_ids, []) ::
                     process_cong_aux t cog)
                 else
                   raise (Debug ("| process_cong: expecting head of clause to be either an equality or an iff at id "^i^" |"))
@@ -1193,26 +1194,34 @@ let rec process_subproof (c : certif) : certif =
    2. Prove ~b v a via subproof discharge
    3. Prove a <-> b v ~a v ~b via equiv_neg1
    4. Prove a <-> b by resolving 3,2,1
+   ---------------eqn1    -----subp      -------------eqn2  ------subp
+   a <-> b, ~a, ~b        ~a, b          a <-> b, a, b      a, ~b
+   --------------------------------res   ------------------------res
+              a <-> b, ~a                      a <-> b, a
+              -------------------------------------------res
+                                 a <-> b
+
 *)
 let simplify_to_subproof (i: id) (a2bi: id) (b2ai: id) (a: term) (b: term) (a2b: certif) (b2a: certif) : certif =
-  (* Step 1. *)
   let sp1id = generate_id () in
   let subp1 = (a2bi, AssumeAST, [a], [], []) ::
               (a2b @ 
               [(sp1id, DischargeAST, [Not a; b], [], [])]) in
-  (* Step 2. *)
   let sp2id = generate_id () in
   let subp2 = (b2ai, AssumeAST, [b], [], []) ::
               (b2a @ 
               [(sp2id, DischargeAST, [Not b; a], [], [])]) in
-  let eqn1id = generate_id () in
-  (* subp1 @ subp2 @  *)
-  [(generate_id (), SubproofAST subp1, [], [], []);
+  let eq1i = generate_id () in
+  let eq2i = generate_id () in
+  let resi1 = generate_id () in
+  let resi2 = generate_id () in
+  [(eq1i, Equn1AST, [Eq (a, b); Not a; Not b], [], []);
+   (generate_id (), SubproofAST subp1, [], [], []);
+   (resi1, ResoAST, [Eq (a, b); Not a], [sp1id; eq1i], []);
+   (eq2i, Equn2AST, [Eq (a, b); a; b], [], []);
    (generate_id (), SubproofAST subp2, [], [], []);
-  (* Step 3. *)
-   (eqn1id, Equn1AST, [Eq (a, b); Not a; Not b], [], []);
-  (* Step 4. *)
-   (i, ResoAST, [Eq (a,b)], [eqn1id; sp1id; sp2id], [])]
+   (resi2, ResoAST, [Eq (a, b); a], [sp2id; eq2i], []);
+   (i, ResoAST, [Eq (a, b)], [resi1; resi2], [])]
 (* Process _simplify rules with the assumption that only their LTR 
    implication is used. Transform a rule of the form:
                i: [a <-> b]                     _simplify
