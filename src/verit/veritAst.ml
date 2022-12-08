@@ -798,6 +798,20 @@ let rec get_args (t : term) : term list =
         (iii) the certificate
   Return (i) the negations of the equalities in the premise and any implicit equalities
          (ii) list of terms for any implicit equalities to be proven by refl (t = t)
+
+  New approach:
+  Example:
+  1. c1 v x = y
+  2. c2 v a = b
+  3. f x T b = f y T a by cong(1,2)
+  Given (i) the equality in the result
+        (ii) the ids for the premises
+        (iii) the certificate
+  Return (i) the negations of the equalities in the premise and any implicit equalities
+         (ii) list of terms for any implicit equalities to be proven by refl (t = t)
+  By
+  - for each pair of terms that are arguments of f in (i)
+  - 
 *)
 let cong_find_implicit_args (ft : term) (p : params) (cog : certif) : (term list * term list) =
    match get_expr ft with
@@ -806,7 +820,9 @@ let cong_find_implicit_args (ft : term) (p : params) (cog : certif) : (term list
                    if (n = List.length p) then
                      let () = Printf.printf ("cong_find_implicit_args: no implicit equalities\n") in
                      let prem_negs = List.map (fun x -> (match (get_cl x cog) with
-                                           | Some x -> Not (List.hd x)
+                                           | Some x -> Not (List.find (fun y -> match y with
+                                                                       | Eq _ -> true
+                                                                       | _ -> false) x)
                                            | None -> raise (Debug ("| cong_find_implicit_args: can't fetch premises to congr |")))) p in
                      (prem_negs, [])
                    else
