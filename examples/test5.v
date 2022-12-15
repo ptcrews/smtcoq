@@ -34,6 +34,11 @@ Local Open Scope farray_scope.
 Local Open Scope int31_scope.
 Local Open Scope array_scope.
 
+(* Success:
+Section Test5.
+     Verit_Checker "../examples/test5.smt2" "../examples/test5.vtlog".
+End Test5.
+*)
 Lemma ex5: forall p, p || (negb p).
 Proof.
   verit_bool.

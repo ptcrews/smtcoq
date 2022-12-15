@@ -33,7 +33,11 @@ Local Open Scope farray_scope.
 (*Local Open Scope int63_scope.*)
 Local Open Scope int31_scope.
 Local Open Scope array_scope.
-
+(* Success:
+Section Test2.
+     Verit_Checker "../examples/test2.smt2" "../examples/test2.vtlog".
+End Test2.
+*)
 Lemma ex2: true || false.
 Proof.
   verit_bool.

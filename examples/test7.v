@@ -36,7 +36,13 @@ Local Open Scope array_scope.
 
 Local Open Scope Z_scope.
 
+Section Test7.
+     Verit_Checker "../examples/test7.smt2" "../examples/test7.vtlog".
+End Test7.
+
+(* Success:
 Variable P : Z -> bool.
 Variable a : Z.
 Goal (forall (x : Z), P x) -> P a.
 Proof. verit. Qed.
+*)

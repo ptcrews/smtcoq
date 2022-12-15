@@ -36,6 +36,10 @@ Local Open Scope array_scope.
 
 Local Open Scope Z_scope.
 
+Section Test6.
+     Verit_Checker "../examples/test6.smt2" "../examples/test6.vtlog".
+End Test6.
+
 Goal forall (a b : Z) (P : Z -> bool) (f : Z -> Z),
   (negb (Z.eqb (f a) b)) || (negb (P (f a))) || (P b).
 Proof.

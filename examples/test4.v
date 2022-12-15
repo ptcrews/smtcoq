@@ -34,6 +34,10 @@ Local Open Scope farray_scope.
 Local Open Scope int31_scope.
 Local Open Scope array_scope.
 
+Section Test4.
+     Verit_Checker "../examples/test4.smt2" "../examples/test4.vtlog".
+End Test4.
+
 Lemma ex4: forall a b c, ((a || b || c) && ((negb a) || (negb b) || (negb c)) && ((negb a) || b) && ((negb b) || c) && ((negb c) || a)) = false.
 Proof.
   verit_bool.

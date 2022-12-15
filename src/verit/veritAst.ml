@@ -818,7 +818,6 @@ let cong_find_implicit_args (ft : term) (p : params) (cog : certif) : (term list
    | Eq (fx, fy) -> let n = List.length (get_args fx) in
                    (* no implicit equalities *)
                    if (n = List.length p) then
-                     let () = Printf.printf ("cong_find_implicit_args: no implicit equalities\n") in
                      let prem_negs = List.map (fun x -> (match (get_cl x cog) with
                                            | Some x -> Not (List.find (fun y -> match y with
                                                                        | Eq _ -> true
@@ -826,7 +825,6 @@ let cong_find_implicit_args (ft : term) (p : params) (cog : certif) : (term list
                                            | None -> raise (Debug ("| cong_find_implicit_args: can't fetch premises to congr |")))) p in
                      (prem_negs, [])
                    else
-                     let () = Printf.printf ("cong_find_implicit_args: yes implicit equalities\n") in
                      (* get all arguments of fx and fy *)
                      let fxas = get_args fx in
                      let fyas = get_args fy in
@@ -963,6 +961,40 @@ let process_cong (c : certif) : certif =
                (i, r, c, p, a) :: process_cong_aux t cog)
     | [] -> []
     in process_cong_aux c c
+
+
+(* Removing occurrences of the trans rule using other rules 
+   including eq_transitive, reso *)
+(*
+   Convert a proof of the form:
+   ...
+   a = b    b = c    c = d
+   -----------------------trans
+            a = d
+   
+   to:
+   ...
+   -----------------------------------eqtrans
+   ~(a = b), ~(b = c), ~(c = d), a = d         a = b    b = c    c = d
+   -------------------------------------------------------------------res
+                                   a = d
+*)
+let process_trans (c : certif) : certif =
+  let rec aux (c : certif) (cog : certif) : certif =
+    match c with
+     | (i, TransAST, c, p, a) :: t -> 
+        let prem_negs = List.map (fun x -> (match (get_cl x cog) with
+                                             | Some x -> Not (List.find (fun y -> match y with
+                                                                         | Eq _ -> true
+                                                                         | _ -> false) x)
+                                             | None -> raise (Debug ("| process_trans: can't fetch premises to trans at id "^i^" |")))) p in
+        let eqti = generate_id () in
+        [(eqti, EqtrAST, prem_negs @ c, [], []);
+         (i, ResoAST, c, eqti :: p, [])] @
+        (aux t cog)
+     | h :: t -> h :: (aux t cog)
+     | [] -> []
+   in  aux c c
 
 
 (* SMTCoq requires projection rules `and`, `not_or`, `or_neg`, `and_pos`
@@ -3141,9 +3173,11 @@ let preprocess_certif (c: certif) : certif =
   Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c5);
   let c6 = process_cong c5 in
   Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c6);
-  let c7 = process_proj c6 in
-  Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c7);
-  c7) with
+  let c7 = process_trans c6 in
+  Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c7);
+  let c8 = process_proj c7 in
+  Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c8);
+  c8) with
   | Debug s -> raise (Debug ("| VeritAst.preprocess_certif: failed to preprocess |"^s))
 
 let rec process_certif (c : certif) : VeritSyntax.id list =
