@@ -1,0 +1,113 @@
+Probelm 1:
+(assume h1 (and true (not true)))
+(step t2 (cl (= (not true) false)) :rule not_simplify)
+(step t3 (cl (= (and true (not true)) (and true false))) :rule cong :premises (t2))
+(step t4 (cl (= (and true false) (and false))) :rule and_simplify)
+(step t5 (cl (= (and false) false)) :rule and_simplify)
+(step t6 (cl (= (and true (not true)) false)) :rule trans :premises (t3 t4 t5))
+(step t7 (cl (not (= (and true (not true)) false)) (not (and true (not true))) false) :rule equiv_pos2)
+(step t8 (cl false) :rule th_resolution :premises (h1 t6 t7))
+(step t9 (cl (not false)) :rule false)
+(step t10 (cl) :rule resolution :premises (t8 t9))
+Original proof:
+    ------notsimp
+    ~T = F
+--------------cong  -----------andsimp  -------andsimp
+T ^ ~T = T ^ F      T ^ F = ^ F         ^ F = F
+-----------------------------------------------trans  -------------------------eqp2  ------asmp
+                   T ^ ~T = F                         T ^ ~T != F, ~(T ^ ~T), F      T ^ ~T
+                   ------------------------------------------------------------------------res  ----false
+                                                      F                                          ~F
+                                                      ---------------------------------------------
+                                                                          []
+------notsimp  -------------andn  ------------andp
+~T, F          T ^ F, ~T, ~F      ~(T ^ ~T), T
+~(T ^ ~T), T ^ F    ~(T ^ F), ^ F    ~(^ F), F
+----------------------------------------------res  ------asmp
+                ~(T ^ ~T), F                       T ^ ~T 
+                -----------------------------------------res  ----false
+                                    F                          ~F
+                                    -----------------------------
+                                                 []
+x = y         ~x, y
+---------   ----------
+f x = f y   ~(f x), f y
+Problem 2:
+(assume h1 (not (or true false)))
+(step t2 (cl (= (or true false) (or true))) :rule or_simplify)
+(step t3 (cl (= (or true) true)) :rule or_simplify)
+(step t4 (cl (= (or true false) true)) :rule trans :premises (t2 t3))
+(step t5 (cl (= (not (or true false)) (not true))) :rule cong :premises (t4))
+(step t6 (cl (= (not true) false)) :rule not_simplify)
+(step t7 (cl (= (not (or true false)) false)) :rule trans :premises (t5 t6))
+(step t8 (cl (not (= (not (or true false)) false)) (not (not (or true false))) false) :rule equiv_pos2)
+(step t9 (cl (not (not (not (or true false)))) (or true false)) :rule not_not)
+(step t10 (cl (not (= (not (or true false)) false)) (or true false) false) :rule th_resolution :premises (t9 t8))
+(step t11 (cl false) :rule th_resolution :premises (h1 t7 t10))
+(step t12 (cl (not false)) :rule false)
+(step t13 (cl) :rule resolution :premises (t11 t12))
+Procedure:
+- If you see an `x = y` by `_simp`, replace it by `~x, y` by subproof.
+- If you see `cong`, that uses a `_simp` argument (directly, or indirectly through `trans`), remove the `cong`.
+- If you see a `trans` that uses `_simp` arguments (directly, or indirectly through `cong`), replace it with `reso`
+- If the `eqp2` is resolved with a `_simp` rule or its `cong/trans` derivative, remove the `eqp2`
+Idea: the equality proved by the `_simp` rule - `x = y` is transformed into `x' = y'` via `cong` and `trans`, and then used with `eqp2`
+to derive the LTR implication `~x', y'`
+Original proof:
+-----------orsimp  -------orsimp
+T v F = v T        v T = T
+--------------------------trans
+         T v F = T
+       -------------cong  --------notsimp  ---------------------------eqp2  -----------------notnot
+       ~(T v F) = ~T       ~T = F          ~(T v F) != F, ~~(T v F), F      ~~~(T v F), T v F
+       --------------------------trans     --------------------------------------------------res  --------asmp
+              ~(T v F) = F                             ~(T v F) != F, T v F, F                    ~(T v F)
+              -----------------------------------------------------------------------------------------res  -----false
+                                                        F                                                     ~F
+                                                        --------------------------------------------------------res
+                                                                                    []
+Refactored proof:
+-------------orsimp  ---------orsimp  --------notsimp
+~(T v F), v T        ~(v T), T         ~~T, F        
+--------------------------trans
+         T v F = T
+       -------------cong  --------notsimp  ---------------------------eqp2  -----------------notnot
+       ~(T v F) = ~T       ~T = F          ~(T v F) != F, ~~(T v F), F      ~~~(T v F), T v F
+       --------------------------trans     --------------------------------------------------res  --------asmp
+              ~(T v F) = F                             ~(T v F) != F, T v F, F                    ~(T v F)
+              -----------------------------------------------------------------------------------------res  -----false
+                                                        F                                                     ~F
+                                                        --------------------------------------------------------res
+                                                                                    []                                                                                    
+Problem 5:
+(assume h1 (not (or p (not p))))
+(step t2 (cl (= (or p (not p)) true)) :rule or_simplify)
+(step t3 (cl (= (not (or p (not p))) (not true))) :rule cong :premises (t2))
+(step t4 (cl (= (not true) false)) :rule not_simplify) -- We only have LTR version of this!
+(step t5 (cl (= (not (or p (not p))) false)) :rule trans :premises (t3 t4))
+(step t6 (cl (not (= (not (or p (not p))) false)) (not (not (or p (not p)))) false) :rule equiv_pos2)
+(step t7 (cl (not (not (not (or p (not p))))) (or p (not p))) :rule not_not)
+(step t8 (cl (not (= (not (or p (not p))) false)) (or p (not p)) false) :rule th_resolution :premises (t7 t6))
+(step t9 (cl false) :rule th_resolution :premises (h1 t5 t8))
+(step t10 (cl (not false)) :rule false)
+(step t11 (cl) :rule resolution :premises (t9 t10))
+Original proof:
+----------orsimp
+p v ~p = T
+--------------cong  ------notsimp  -----------------------------eqp2  -------------------notnot
+~(p v ~p) = ~T      ~T = F         ~(p v ~p) != F, ~~(p v ~p), F      ~~~(p v ~p), p v ~p
+--------------------------trans    ------------------------------------------------------res  ---------asmp
+      ~(p v ~p) = F                             ~(p v ~p) != F, p v ~p, F                     ~(p v ~p)
+      -------------------------------------------------------------------------------------------------res  -----false
+                                                  F                                                           ~F
+                                                  --------------------------------------------------------------res
+                                                                               []
+Refactored proof:
+------------orsimp  -----notsimp
+~(p v ~p), T        ~T, F
+-------------------------  ---------asmp
+      ~(p v ~p), F         ~(p v ~p)  
+      ------------------------------res  -----false
+                    F                      ~F
+                    -------------------------res
+                               []
