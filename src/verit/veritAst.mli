@@ -114,6 +114,7 @@ type rule =
   | AnchorAST
   | AllsimpAST
   | SameAST
+  | WeakenAST
   | DischargeAST
   | SubproofAST of certif
 and step = id * rule * clause * params * args

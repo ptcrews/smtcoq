@@ -101,6 +101,7 @@ type typ =
   | Qcnf (* New *)
   | Allsimp (* New(cvc5) *)
   | Same
+  | Weaken
   | Hole
 
 
@@ -589,6 +590,7 @@ let to_add = ref []
   | Qcnf -> "Qcnf"
   | Allsimp -> "Allsimp"
   | Same -> "Same"
+  | Weaken -> "Weaken"
   | Hole -> "Hole"
 
 let mk_clause_to_string (id,typ,value,ids_params,args) = 
@@ -764,6 +766,10 @@ let mk_clause (id,typ,value,ids_params,args) =
         (match ids_params with
          | [i] -> Same (get_clause i)
          | _ -> raise (Debug ("| mk_clause: unexpected form of Same, might be caused by bind subproof |")))
+      | Weaken -> 
+        (match ids_params with
+          | [i] -> Other (Weaken ((get_clause i), value))
+          | _ -> raise (Debug ("| mk_clause: unexpected form of Weaken, expected exactly one premise |")))
       (* Not implemented *)
       | Bind -> raise (Debug ("| mk_clause: unimplemented rule bind |"))
       | Qcnf -> raise (Debug ("| mk_clause: unimplemented rule qnt_cnf |"))

@@ -95,6 +95,7 @@ type typ =
   | Qcnf (* New *)
   | Allsimp (* New(cvc5) *)
   | Same (* Internal *)
+  | Weaken
   | Hole
 
 val is_iff : SmtAtom.Form.t -> bool

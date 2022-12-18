@@ -123,6 +123,7 @@ type rule =
   | AnchorAST
   | AllsimpAST
   | SameAST
+  | WeakenAST
   | DischargeAST
   | SubproofAST of certif
 and step = id * rule * clause * params * args
@@ -295,6 +296,7 @@ and string_of_rule (r : rule) : string =
   | QcnfAST -> "QcnfAST"
   | AllsimpAST -> "AllsimpAST"
   | SameAST -> "SameAST"
+  | WeakenAST -> "WeakenAST"
   | AnchorAST -> "AnchorAST"
   | DischargeAST -> "DischargeAST"
   | SubproofAST c -> "SubproofAST\n\t"^(string_of_certif c)^"\t"
@@ -756,6 +758,7 @@ let process_rule (r: rule) : VeritSyntax.typ =
   | QcnfAST -> Qcnf
   | AllsimpAST -> Allsimp
   | SameAST -> Same
+  | WeakenAST -> Weaken
   | AnchorAST -> Hole
   | DischargeAST -> Hole
   | SubproofAST c -> Hole
@@ -1318,13 +1321,15 @@ let rec process_simplify (c : certif) : certif =
              LTR:
              --true
              T
+           *)          
+          let a2b = [(generate_id (), TrueAST, [True], [], [])] in
+          (*
              RTL:
              -------------and_neg   --asmp  --asmp
              T ^ T, ~T, ~T          T       T
              --------------------------------
                           T ^ T
           *)
-          let a2b = [(generate_id (), TrueAST, [True], [], [])] in
           let b2ai = generate_id () in
           let andn_id = generate_id () in
           (* We need 2 things repeated n (= lengh xs) times: 
@@ -1346,13 +1351,6 @@ let rec process_simplify (c : certif) : certif =
                  x                y           x ^ y, ~x, ~y
                 -------------------------------------------res
                                     x ^ y
-             RTL:
-             -----asmp    -----asmp
-             x ^ y        x ^ y
-             -----and     -----and     ---true  ---------------------and_neg
-               x            y           T       x ^ y ^ T, ~x, ~y, ~T
-               ------------------------------------------------------res
-                                    x ^ y ^ T
           *)
           let a2bi = generate_id () in
           (* for each y in ys,
@@ -1372,6 +1370,15 @@ let rec process_simplify (c : certif) : certif =
           let a2b = c1 @ 
                     [(andn_id1, AndnAST, rhs :: projnegl1, [], []);
                      (generate_id (), ResoAST, [rhs], andn_id1 :: proj_ids1, [])] in
+          (*
+             RTL:
+             -----asmp    -----asmp
+             x ^ y        x ^ y
+             -----and     -----and     ---true  ---------------------and_neg
+               x            y           T       x ^ y ^ T, ~x, ~y, ~T
+               ------------------------------------------------------res
+                                    x ^ y ^ T
+          *)
           let b2ai = generate_id () in
           let true_id = generate_id () in
           (* for each x in xs
@@ -1409,13 +1416,6 @@ let rec process_simplify (c : certif) : certif =
                  x                y           x ^ y, ~x, ~y
                  ------------------------------------------res
                                   x ^ y
-             RTL:
-             -----asmp    -----asmp    -----asmp
-             x ^ y        x ^ y        x ^ y
-             -----and     -----and     -----and   ---------------------and_neg
-               x            y            x        x ^ y ^ x, ~x, ~y, ~x
-               --------------------------------------------------------res
-                                      x ^ y ^ x
           *)
           let a2bi = generate_id () in
           (* for each y in ys,
@@ -1435,6 +1435,15 @@ let rec process_simplify (c : certif) : certif =
           let a2b = c1 @
                     [(andn_id1, AndnAST, rhs :: projnegl1, [], []);
                      (generate_id (), ResoAST, [rhs], andn_id1 :: proj_ids1, [])] in
+          (*
+             RTL:
+             -----asmp    -----asmp    -----asmp
+             x ^ y        x ^ y        x ^ y
+             -----and     -----and     -----and   ---------------------and_neg
+               x            y            x        x ^ y ^ x, ~x, ~y, ~x
+               --------------------------------------------------------res
+                                      x ^ y ^ x
+          *)
           let b2ai = generate_id () in
           (* for each x in xs
                find index ind of first occurrence of x in ys and return
@@ -1460,12 +1469,34 @@ let rec process_simplify (c : certif) : certif =
              LTR:
              -----asmp
              x ^ F
-             RTL: can't derive x from F without an absurd rule which we don't have.
-             We simplify assuming that this equivalence is only used as an LTR
           *)
           let a2bi = generate_id () in
           let ind = findi False xs in
           let a2b = [(generate_id (), AndAST, [False], [a2bi], [string_of_int ind])] in
+          (*
+             RTL:
+                                   ---asmp             
+                                    F             
+                                  -------weaken  ---false             
+                                  F v x           ~F             
+             ---------------andn  ------------------res  --asmp
+              x ^ F, ~x, ~F                x             F     
+              --------------------------------------------res             
+                             x ^ F                    
+          *)
+          let b2ai = generate_id () in
+          let weaki = generate_id () in
+          let fi = generate_id () in
+          let resi = generate_id () in
+          let andni = generate_id () in
+          (* for each x in xs
+               1. generate (F v x) by weaken
+               2. resolve (~F) and 1. to get x *)
+          let b2a = [(weaki, WeakenAST, [False; lhs], [b2ai], []);
+                     (fi, FalsAST, [Not False], [], []);
+                     (resi, ResoAST, [lhs], [weaki; fi], []);
+                     (andni, AndnAST, [And (False :: xs); Not xs; Not False], [], []);
+                     ] in
           (match (simplify_to_subproof_ltr i a2bi lhs rhs a2b tl) with
            | h :: t -> h :: process_simplify t
            | [] -> [])
