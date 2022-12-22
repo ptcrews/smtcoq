@@ -173,3 +173,25 @@ ite c x F, c, ~F
 ~(ite c x F), c, F     
 ----------------orp
 ~(~c v x), ~c, x
+
+(* Process _simplify rules from Alethe 
+   Each rule has multiple variants, all taking the form
+   a <-> b
+   To prove a <-> b:
+   1. Prove ~a v b via subproof discharge
+   2. Prove ~b v a via subproof discharge
+   3. Prove a <-> b v ~a v ~b via equiv_neg1
+   4. Prove a <-> b by resolving 3,2,1
+   ---------------eqn1    -------------subp
+   a <-> b, ~a, ~b        a ^ ~b, ~a, b    
+   ------------------------------------res  -------------andp
+            a <-> b, a ^ ~b, ~a             ~(a ^ ~b), ~b
+            ---------------------------------------------    
+                       a <-> b, ~a, ~b
+   -------------eqn2  -------------subp
+   a <-> b, a, b      b ^ ~a, ~b, a
+   --------------------------------res  ------------andp
+          a <-> b, a, b ^ ~a            ~(b ^ ~a), b
+          -------------------------------------------
+                       a <-> b, a, b
+*)
