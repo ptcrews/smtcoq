@@ -801,20 +801,6 @@ let rec get_args (t : term) : term list =
         (iii) the certificate
   Return (i) the negations of the equalities in the premise and any implicit equalities
          (ii) list of terms for any implicit equalities to be proven by refl (t = t)
-
-  New approach:
-  Example:
-  1. c1 v x = y
-  2. c2 v a = b
-  3. f x T b = f y T a by cong(1,2)
-  Given (i) the equality in the result
-        (ii) the ids for the premises
-        (iii) the certificate
-  Return (i) the negations of the equalities in the premise and any implicit equalities
-         (ii) list of terms for any implicit equalities to be proven by refl (t = t)
-  By
-  - for each pair of terms that are arguments of f in (i)
-  - 
 *)
 let cong_find_implicit_args (ft : term) (p : params) (cog : certif) : (term list * term list) =
    match get_expr ft with
@@ -825,16 +811,22 @@ let cong_find_implicit_args (ft : term) (p : params) (cog : certif) : (term list
                                            | Some x -> Not (List.find (fun y -> match y with
                                                                        | Eq _ -> true
                                                                        | _ -> false) x)
-                                           | None -> raise (Debug ("| cong_find_implicit_args: can't fetch premises to congr |")))) p in
+                                           | None -> raise (Debug ("| cong_find_implicit_args: can't fetch premises to congr (no implicit equalities case) |")))) p in
                      (prem_negs, [])
                    else
                      (* get all arguments of fx and fy *)
                      let fxas = get_args fx in
                      let fyas = get_args fy in
-                     (* get all equalities from p *)
+                     (* get all equalities from params *)
                      let (pxs, pys) = List.split (List.map (fun x -> (match (get_cl x cog) with
-                                             | Some ((Eq (px, py) :: _)) -> (px, py)
-                                             | _ -> raise (Debug ("| cong_find_implicit_args: can't fetch premises to congr |")))) p) in
+                                             | Some c -> let eq = List.find (fun x -> match x with
+                                                                            | Eq _ -> true
+                                                                            | _ -> false) c in
+                                                 (match eq with
+                                                 | Eq (a, b) -> (a, b)
+                                                 | _ -> raise (Debug ("| cong_find_implicit_args: can't fetch premises to congr (implicit equalities case) |")))
+                                             | None -> raise (Debug ("| cong_find_implicit_args: can't fetch premises to congr (implicit equalities case) |")))) p) in
+                     (* function that checks pairwise equality of arguments *)
                      let rec f (fxas : term list) (fyas : term list) (pxs : term list) (pys : term list) : (term list * term list) =
                         match fxas, fyas, pxs, pys with
                         | fxa :: fxat, fya :: fyat, px :: pxt, py :: pyt ->
@@ -851,7 +843,7 @@ let cong_find_implicit_args (ft : term) (p : params) (cog : certif) : (term list
                               let (pneg, imp) = f fxat fyat (px' :: pxt) (py' :: pyt) in
                               (Not (Eq (fxa', fya')) :: pneg, fxa' :: imp)
                            else
-                              raise (Debug ("| cong_find_implicit_args: can't find implicit premise to congr |"))
+                              raise (Debug ("| cong_find_implicit_args.f: can't find implicit premise to congr |"))
                         | fxa :: fxat, fya :: fyat, [], [] ->
                            let fxa' = get_expr fxa in
                            let fya' = get_expr fya in
@@ -859,9 +851,9 @@ let cong_find_implicit_args (ft : term) (p : params) (cog : certif) : (term list
                               let (pneg, imp) = f fxat fyat [] [] in
                               (Not (Eq (fxa', fya')) :: pneg, fxa' :: imp)
                            else
-                              raise (Debug ("| cong_find_implicit_args: can't find implicit premise to congr |"))
+                              raise (Debug ("| cong_find_implicit_args.f: can't find implicit premise to congr |"))
                         | [], [] ,[] ,[] -> ([], [])
-                        | _ -> raise (Debug ("| cong_find_implicit_args: number of arguments don't match with premises |"))
+                        | _ -> raise (Debug ("| cong_find_implicit_args.f: number of arguments don't match with premises |"))
                      in f fxas fyas pxs pys
    | _ -> raise (Debug ("| cong_find_implicit_args: expecting head of clause to be an equality |"))
 
@@ -878,7 +870,8 @@ let process_cong (c : certif) : certif =
             | l :: _ ->
                 let conc = get_expr (List.hd c) in
                 (* get negation of premises and terms for any implicit equality *)
-                let prems_neg, imp_eq = cong_find_implicit_args conc p cog in
+                let prems_neg, imp_eq = try (cong_find_implicit_args conc p cog) with 
+                                        | Debug s -> raise (Debug ("| process_cong: can't find premise(s) to congr at id "^i^" |"^s)) in
                 let refls, refl_ids = 
                   List.split (List.map 
                                (fun x -> let i' = generate_id () in
@@ -1801,7 +1794,7 @@ let rec process_simplify (c : certif) : certif =
           let b2a = [(weaki, WeakenAST, [False; Not True], [b2ai], []);
                      (fi, FalsAST, [Not False], [], []);
                      (generate_id (), ResoAST, [Not True], [weaki; fi], [])] in         
-          (simplify_to_subproof i (generate_id ()) (generate_id ()) lhs rhs a2b b2a) @ process_simplify tl
+          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* ~(~x) <-> x handled by process_notnot*)
        | [Eq _] -> (i, NotsimpAST, cl, p, a) :: process_simplify tl
        | _ -> raise (Debug ("| process_simplify: expecting argument of not_simplify to be an equivalence at id "^i^" |")))
@@ -2167,7 +2160,7 @@ let rec process_simplify (c : certif) : certif =
                      (ri2, ResoAST, [Not x], [wi2; fi], []);
                      (eqn1i, Equn1AST, [lhs; Not x; x], [], []);
                      (generate_id (), ResoAST, [lhs], [ri1; ri2; eqn1i], [])] in
-          (simplify_to_subproof i (generate_id ()) (generate_id ()) lhs rhs a2b b2a) @ process_simplify tl
+          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* (~x <-> x) <-> F *)
        | [Eq ((Eq (Not x, a) as lhs), (False as rhs))] when x = a ->
           (*
@@ -2216,7 +2209,7 @@ let rec process_simplify (c : certif) : certif =
                      (ri2, ResoAST, [Not x], [wi2; fi], []);
                      (eqp2i, Equp2AST, [lhs; x; Not x], [], []);
                      (generate_id (), ResoAST, [lhs], [ri1; ri2; eqp2i], [])] in
-          (simplify_to_subproof i (generate_id ()) (generate_id ()) lhs rhs a2b b2a) @ process_simplify tl
+          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* (T <-> x) <-> x *)
        | [Eq ((Eq (True, x) as lhs), (a as rhs))] when x = a ->
           (*
