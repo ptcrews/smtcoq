@@ -27,7 +27,7 @@ Local Open Scope bv_scope.
 
 (*Local Open Scope int63_scope.*)
 Local Open Scope int31_scope.
-(*
+
 Lemma ex1: negb (true && (negb true)).
 Proof.
   verit_bool.
@@ -39,7 +39,7 @@ Proof.
   verit_bool.
 Qed.
 (* Might be same problem as 5 *)
-*)
+
 Lemma ex3: forall p, negb (p && (negb p)).
 Proof.
   verit_bool.
@@ -49,13 +49,13 @@ Lemma ex4: forall a b c, ((a || b || c) && ((negb a) || (negb b) || (negb c)) &&
 Proof.
   verit_bool.
 Qed.
-(*
+
 Lemma ex5: forall p, p || (negb p).
 Proof.
   verit_bool.
 Qed.
 (* Problem: When we have multiple _simplify rules in a proof, we turn them into multiple subproofs but the flattening of each of them messes up the order of the whole proof for the others *)
-*)
+
 Local Open Scope Z_scope.
 
 Lemma ex6: forall (a b : Z) (P : Z -> bool) (f : Z -> Z),

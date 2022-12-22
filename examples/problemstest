@@ -161,3 +161,15 @@ F v x           ~F       F v ~x          ~F
                                   ~x <-> x
 
 ite c x F <-> ~c v x
+------asmp
+~c v x    
+-----------------iten2
+ite c x F, ~c, ~x     
+-----------------iten1    
+ite c x F, c, ~F
+------------------itep2
+~(ite c x F), ~c, F
+------------------itep1
+~(ite c x F), c, F     
+----------------orp
+~(~c v x), ~c, x
