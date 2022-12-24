@@ -174,24 +174,36 @@ ite c x F, c, ~F
 ----------------orp
 ~(~c v x), ~c, x
 
-(* Process _simplify rules from Alethe 
-   Each rule has multiple variants, all taking the form
-   a <-> b
-   To prove a <-> b:
-   1. Prove ~a v b via subproof discharge
-   2. Prove ~b v a via subproof discharge
-   3. Prove a <-> b v ~a v ~b via equiv_neg1
-   4. Prove a <-> b by resolving 3,2,1
-   ---------------eqn1    -------------subp
-   a <-> b, ~a, ~b        a ^ ~b, ~a, b    
-   ------------------------------------res  -------------andp
-            a <-> b, a ^ ~b, ~a             ~(a ^ ~b), ~b
-            ---------------------------------------------    
-                       a <-> b, ~a, ~b
-   -------------eqn2  -------------subp
-   a <-> b, a, b      b ^ ~a, ~b, a
-   --------------------------------res  ------------andp
-          a <-> b, a, b ^ ~a            ~(b ^ ~a), b
-          -------------------------------------------
-                       a <-> b, a, b
-*)
+process_simplify:
+---------------eqn1    -----subp      -------------eqn2  ------subp
+   a <-> b, ~a, ~b        ~a, b          a <-> b, a, b      a, ~b
+   --------------------------------res   ------------------------res
+              a <-> b, ~a                      a <-> b, a
+              -------------------------------------------res
+                                 a <-> b
+1. eqn1,   a <-> b, ~a, ~b
+2. subp,   ~a, b
+3. res     a <-> b, ~a     1,2
+4. eqn2,   a <-> b, a, b
+5. subp,   a, ~b
+6. res     a <-> b, a      4,5
+7. res     a <-> b         3,6
+
+  Pi_1                                         Pi_1
+...                                     ...
+--------                                -----------------and_neg
+| [H]  |                                [(H ^ ~G), ~H, G]               --(2)
+| Pi_2 |                                ...       
+|  G   |                                Pi_3'
+--------               ----->           ...        
+ [~H, G] --(1)                          H ^ ~G                          --(3)
+...                                     --------and'
+  Pi_3                                      H --(4)         H ^ ~G      --(3)      
+...                                        Pi_2             ------and'        
+   []                                       G                 ~G        --(5)
+                                            --------------------
+                                                     []                 --(6)
+where        
+ - Pi_3' replaces every step in Pi_3 that directly or indirectly uses (1), so that the result 
+   naturally produces the original result v (H ^ ~G) 
+ - and' is and implemented through andPos and reso

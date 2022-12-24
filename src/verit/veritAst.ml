@@ -1078,7 +1078,7 @@ let process_proj (c: certif): certif =
   Pi_3                                      H --(4)         H ^ ~G      --(3)      
 ...                                        Pi_2             ------and'        
    []                                       G                 ~G        --(5)
-                                            --------------------
+                                            --------------------res
                                                      []                 --(6)
 where        
  - Pi_3' replaces every step in Pi_3 that directly or indirectly uses (1), so that the result 
@@ -1139,14 +1139,16 @@ let extend_cl_aux (r : rule) (p : params) (a : args) (pi3 : certif) : rule * cla
   | r, None -> raise (Debug ("| extend_cl_aux: rule "^(string_of_rule r)^" has no premise"^" |")) 
 let rec extend_cl (andn_id : id) (h : term) (g : term) (pi3 : certif) (pi3og : certif): certif =
   match pi3 with
-  | (i, ResoAST, cl, p, a) :: tl when
+  | (i, r, cl, p, a) :: tl when
       (* Resolution that directly uses andn_id *)
-      (List.mem andn_id p)
+      (r = ResoAST || r = ThresoAST)
+              &&
+      ((List.mem andn_id p)
               ||
       (* Resolution that indirectly uses andn_id *)
-      (List.exists (fun x -> List.mem x (get_cids andn_id)) p) ->
+      (List.exists (fun x -> List.mem x (get_cids andn_id)) p)) ->
         add_cid andn_id i;
-        (i, ResoAST, ((And [h; Not g])) :: cl, p, a) :: extend_cl andn_id h g tl pi3og
+        (i, r, ((And [h; Not g])) :: cl, p, a) :: extend_cl andn_id h g tl pi3og
   (* Change ImmBuilddef/ImmBuilddef2/ImmBuildProj rules that use andn_id. For example, not_and:
                                                          ----------------and_neg
    ~(x ^ y) --(andn_id)  --->    ~(x ^ y), (h ^ ~g)      (x ^ y), ~x, ~y  --(1)
@@ -1169,7 +1171,7 @@ let rec extend_cl (andn_id : id) (h : term) (g : term) (pi3 : certif) (pi3og : c
         let rul, claus = extend_cl_aux r p a pi3og in
         let taut_id = generate_id () in
         (taut_id, rul, claus, [], []) ::                    (* (1) *)
-        (i, ResoAST, (List.tl claus), taut_id :: p, []) ::  (* (2) *)
+        (i, ResoAST, ((And [h; Not g]) :: List.tl claus), taut_id :: p, []) ::  (* (2) *)
         extend_cl andn_id h g tl pi3og
   | hd :: tl -> hd :: (extend_cl andn_id h g tl pi3og)
   | [] -> []
@@ -1320,7 +1322,7 @@ let rec process_simplify (c : certif) : certif =
              RTL:
              -------------and_neg   --asmp  --asmp
              T ^ T, ~T, ~T          T       T
-             --------------------------------
+             --------------------------------res
                           T ^ T
           *)
           let b2ai = generate_id () in

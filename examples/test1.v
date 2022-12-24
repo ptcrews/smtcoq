@@ -33,13 +33,13 @@ Local Open Scope farray_scope.
 (*Local Open Scope int63_scope.*)
 Local Open Scope int31_scope.
 Local Open Scope array_scope.
-(* Problem: a rewrite (~T = F by notsimplify) that is supposed to be LTR is used by cong which means needs both LTR and RTL *)
+(* Success
 Section Test1.
      Verit_Checker "../examples/test1.smt2" "../examples/test1.vtlog".
 End Test1.
-(* Failure:
+*)
+
 Lemma ex1: negb (true && (negb true)).
 Proof.
   verit_bool.
 Qed.
-*)

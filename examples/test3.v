@@ -33,11 +33,11 @@ Local Open Scope farray_scope.
 (*Local Open Scope int63_scope.*)
 Local Open Scope int31_scope.
 Local Open Scope array_scope.
-
+(* Success
 Section Test3.
      Verit_Checker "../examples/test3.smt2" "../examples/test3.vtlog".
 End Test3.
-
+*)
 Lemma ex3: forall p, negb (p && (negb p)).
 Proof.
   verit_bool.
