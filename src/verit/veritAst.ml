@@ -1479,11 +1479,7 @@ let rec process_simplify (c : certif) : certif =
              ---------------andn  ------------------res  --asmp
               x ^ F, ~x, ~F                x             F     
               --------------------------------------------res             
-                                  x ^ F                    
-                             x ^ F                    
-                                  x ^ F                    
-                             x ^ F                    
-                                  x ^ F                    
+                                  x ^ F                   
           *)
           let b2ai = generate_id () in
           let fi = generate_id () in
@@ -1744,12 +1740,12 @@ let rec process_simplify (c : certif) : certif =
   | (i, NotsimpAST, cl, p, a) :: tl ->
       (match (get_expr_cl cl) with
        (* ~F <-> T *)
+          | [Eq ((Not False as lhs), (True as rhs))] ->
           (*
              LTR:
              --true
              T
           *)
-       | [Eq ((Not False as lhs), (True as rhs))] ->
           let a2b = [(generate_id (), TrueAST, [True], [], [])] in
           (*
              RTL:

@@ -1,0 +1,6 @@
+(set-logic UFLIA)
+(declare-fun x () Bool)
+(declare-fun y () Bool)
+(assert (not true))
+(assert (not false))
+(check-sat)
