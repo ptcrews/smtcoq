@@ -207,3 +207,26 @@ where
  - Pi_3' replaces every step in Pi_3 that directly or indirectly uses (1), so that the result 
    naturally produces the original result v (H ^ ~G) 
  - and' is and implemented through andPos and reso
+
+(h1, AssumeAST, (cl  ((x = y))), [], [])
+(h2, AssumeAST, (cl  ((a = b))), [], [])
+(h3, AssumeAST, (cl  ((not ((and  x (true) a) = (and  y (true) b))))), [], [])
+(x2, EqcpAST, (cl  ((not (x = y))) ((not ((true) = (true)))) ((not (a = b))) ((not (and  x (true) a))) ((and  y (true) b))), [], [])
+(x4, Equn2AST, (cl  (((and  x (true) a) = (and  y (true) b))) ((and  x (true) a)) ((and  y (true) b))), [], [])
+(x6, ResoAST, (cl  ((not (x = y))) ((not ((true) = (true)))) ((not (a = b))) (((and  x (true) a) = (and  y (true) b))) ((and  y (true) b))), [ x2 x4], [])
+(x3, EqcpAST, (cl  ((not (x = y))) ((not ((true) = (true)))) ((not (a = b))) ((not (and  y (true) b))) ((and  x (true) a))), [], [])
+(x5, Equn1AST, (cl  (((and  x (true) a) = (and  y (true) b))) ((not (and  x (true) a))) ((not (and  y (true) b)))), [], [])
+(x7, ResoAST, (cl  ((not (x = y))) ((not ((true) = (true)))) ((not (a = b))) (((and  x (true) a) = (and  y (true) b))) ((not (and  y (true) b)))), [ x3 x5], [])
+(x1, ReflAST, (cl  (((true) = (true)))), [], [])
+(t4, ResoAST, (cl  (((and  x (true) a) = (and  y (true) b)))), [ x6 x7 h1 h2 x1], [])
+(t5, ResoAST, (cl ), [ h3 t4], [])
+
+
+-------------------------------------------------------ecp  -------------------------------------------------eqn2 -------------------------------------------------------ecp  ---------------------------------------------------eqn1
+~(x = y), ~(T = T), ~(a = b), ~(x ^ T ^ a), (y ^ T ^ b)     (x ^ T ^ a = y ^ T ^ b), (x ^ T ^ a), (y ^ T ^ b)     ~(x = y), ~(T = T), ~(a = b), ~(y ^ T ^ b), (x ^ T ^ a)     (x ^ T ^ a = y ^ T ^ b), ~(x ^ T ^ a), ~(y ^ T ^ b)
+-------------------------------------------------------------------------------------------------------------res  -------------------------------------------------------------------------------------------------------------res    -----refl ------asmp  ------asmp
+                              ~(x = y), ~(T = T), ~(a = b), (x ^ T ^ a = y ^ T ^ b), (y ^ T ^ b)                                         ~(x = y), ~(T = T), ~(a = b), (x ^ T ^ a = y ^ T ^ b), ~(y ^ T ^ b)                          T = T     x = y       a = b
+------------------------asmp  -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------res
+~(x ^ T ^ a = y ^ T ^ b)                                                                                                      (x ^ T ^ a = y ^ T ^ b)
+------------------------------------------------------------------------------------------------------------------------------------------------------res
+                                                                    []

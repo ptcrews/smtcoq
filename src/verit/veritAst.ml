@@ -942,12 +942,12 @@ let process_cong (c : certif) : certif =
                                   | _ -> assert false) in
                     ((eqcpi1, EqcpAST, (prems_neg @ [Not p1; p2]), [], []) ::
                     (eqn2i, Equn2AST, [conc; p1; p2], [], []) ::
-                    (resi1, ResoAST, (prems_neg @ [conc; p1]), [eqcpi1; eqn2i], []) ::
+                    (resi1, ResoAST, (prems_neg @ [conc; p2]), [eqcpi1; eqn2i], []) ::
                     (eqcpi2, EqcpAST, (prems_neg @ [Not p2; p1]), [], []) ::
                     (eqn1i, Equn1AST, [conc; Not p1; Not p2], [], []) ::
-                    (resi2, ResoAST, (prems_neg @ [conc; Not p1]), [eqcpi2; eqn1i], []) ::
+                    (resi2, ResoAST, (prems_neg @ [conc; Not p2]), [eqcpi2; eqn1i], []) ::
                     refls) @
-                    ((i, ResoAST, [conc], resi1 :: resi2 :: refl_ids, []) ::
+                    ((i, ResoAST, [conc], resi1 :: resi2 :: (p @ refl_ids), []) ::
                     process_cong_aux t cog)
                 else
                   raise (Debug ("| process_cong: expecting head of clause to be either an equality or an iff at id "^i^" |"))
@@ -1140,8 +1140,8 @@ let extend_cl_aux (r : rule) (p : params) (a : args) (pi3 : certif) : rule * cla
 let rec extend_cl (andn_id : id) (h : term) (g : term) (pi3 : certif) (pi3og : certif): certif =
   match pi3 with
   | (i, r, cl, p, a) :: tl when
-      (* Resolution that directly uses andn_id *)
-      (r = ResoAST || r = ThresoAST)
+      (* Resolution/weaken that directly uses andn_id *)
+      (r = ResoAST || r = ThresoAST || r = WeakenAST)
               &&
       ((List.mem andn_id p)
               ||
@@ -1563,7 +1563,7 @@ let rec process_simplify (c : certif) : certif =
           let b2a = [(fi, FalsAST, [Not False], [], []);
                      (andni, AndnAST, [lhs] @ projnegxs, [], [])] @
                     cert_r @
-                    [(resi, ResoAST, [lhs], [andni; b2ai] @ ids_r, [])] in
+                    [(resi, ResoAST, [lhs], andni :: ids_r, [])] in
           (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        | [Eq _] -> (i, AndsimpAST, cl, p, a) :: process_simplify tl
        | c -> raise (Debug ("process_simplify: in and simplify I have clause "^(string_of_clause c)^" instead of a singleton with an equivalence")))

@@ -266,40 +266,38 @@ let mkCongr p =
   |[c] -> mkCongr_aux c prem
   |_ -> raise (Debug "| mkCongr: 0 or more than 1 conclusions |")
 
-  (*let mkCongrPred p =
-      let (concl,prem) = List.partition Form.is_pos p in
-      let (prem,prem_P) = List.partition (fun x -> is_eq x || is_iff x) prem in
-      match concl with
-      |[c] -> let (prem, prem_P) = if (List.for_all is_eq (List.hd (List.rev prem))) then
-                                    List.partition is_eq prem
-                                   else
-                                    List.partition is_iff prem in
-              let iseq = List.for_all is_eq (List.hd (List.rev prem) in
-              let isiff = List.for_all is_iff (List.hd (List.rev prem) in
-        (match prem_P with
-         |[p_p] ->
-            if iseq then 
-              let prem_val = try List.map (fun l -> (l, get_eq l)) prem with
-                             | Debug s -> raise (Debug ("| mkCongrPred: can't fetch premise |"^s)) in
-              (match Atom.atom (get_at c), Atom.atom (get_at p_p) with
-               | Abop(aop,a1,a2), Abop(bop,b1,b2) when (aop = bop) ->
-                  let a_args = [a1;a2] in
-                  let b_args = [b1;b2] in
-                  let cert = process_congr a_args b_args prem_val [] in
+(*let mkCongrPred p =
+    (* Rule proves ~(p1 = p1)', ..., ~(pn = pn'), ~P(p1, ..., pn), P(p1', ..., pn') 
+       prem: [~(p1 = p1'); ...; ~(pn = pn')], prem_P: ~P(p1, ..., pn), concl: P(p1', ..., pn' *)
+    let (concl,prem) = List.partition Form.is_pos p in
+    let (prem,prem_P) = List.partition (fun x -> is_eq x || is_iff x) prem in
+    match concl with
+    |[c] -> let iseq = List.for_all (fun x -> is_eq (List.hd x)) prem in
+            let isiff = List.for_all (fun x -> is_iff (List.hd x)) prem in
+      (match prem_P with
+       |[p_p] ->
+          if iseq then 
+            let prem_val = try List.map (fun l -> (l, get_eq l)) prem with
+                           | Debug s -> raise (Debug ("| mkCongrPred: can't fetch premise |"^s)) in
+            (match Atom.atom (get_at c), Atom.atom (get_at p_p) with
+             | Abop(aop,a1,a2), Abop(bop,b1,b2) when (aop = bop) ->
+                let a_args = [a1;a2] in
+                let b_args = [b1;b2] in
+                let cert = process_congr a_args b_args prem_val [] in
+                Other (EqCgrP (p_p,c,cert))
+             | Aapp (a_f,a_args), Aapp (b_f,b_args) ->
+                if indexed_op_index a_f = indexed_op_index b_f then
+                  let cert = process_congr (Array.to_list a_args) (Array.to_list b_args) prem_val [] in
                   Other (EqCgrP (p_p,c,cert))
-               | Aapp (a_f,a_args), Aapp (b_f,b_args) ->
-                  if indexed_op_index a_f = indexed_op_index b_f then
-                    let cert = process_congr (Array.to_list a_args) (Array.to_list b_args) prem_val [] in
-                    Other (EqCgrP (p_p,c,cert))
-                  else raise (Debug "| mkCongrPred: unmatching predicates |")
-               | _ -> raise (Debug "| mkCongrPred : not pred app |"))
-            else if isiff then
-              let prem_val = try List.map (fun l -> (l, get_iff l)) prem with
-                             | Debug s -> raise (Debug ("| mkCongrPred: can't fetch premise |"^s)) in
-              (match Form.pform c, Form.pform p_p with
-               | ) 
-         | _ ->  raise (Debug "| mkCongrPred: 0 or more than 1 predicate app premise |"))  
-      | _ -> raise (Debug "| mkCongrPred: 0 conclusions |")*)
+                else raise (Debug "| mkCongrPred: unmatching predicates |")
+             | _ -> raise (Debug "| mkCongrPred : not pred app |"))
+          else if isiff then
+            let prem_val = try List.map (fun l -> (l, get_iff l)) prem with
+                           | Debug s -> raise (Debug ("| mkCongrPred: can't fetch premise |"^s)) in
+            (match Form.pform c, Form.pform p_p with
+             | ) 
+       | _ ->  raise (Debug "| mkCongrPred: 0 or more than 1 predicate app premise |"))  
+    | _ -> raise (Debug "| mkCongrPred: 0 conclusions |")*)
 
 let mkCongrPred p =
   if (is_eq (List.hd p)) then

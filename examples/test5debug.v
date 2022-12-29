@@ -1,15 +1,7 @@
 Add Rec LoadPath "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/src" as SMTCoq.
-
 Require Import SMTCoq.SMTCoq.
 Require Import Bool.
-
-Require Import ZArith.
 Require Import Int31.
-
-Import BVList.BITVECTOR_LIST.
-Local Open Scope bv_scope.
-
-(*Local Open Scope int63_scope.*)
 Local Open Scope int31_scope.
 
 Section Test5Debug.
@@ -32,12 +24,12 @@ Section Test5Debug.
   (* Start state *)
   Definition s0_5 := Eval vm_compute in (add_roots (S.make nclauses5) root5 used_roots5).
   Print s0_5.
-  (* s0_5 = ({| [7] |} *)
+  (* s0_5 = ({|  |} *)
   Eval vm_compute in List.nth 0 (fst c5) _.
-  (* 1. EqCgrP 1 6 1 [Some 9] *)
+  (* 1. *)
   Definition s1_5 := Eval vm_compute in (step_checker s0_5 (List.nth 0 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
   Print s1_5.
-  (* s1_5 = ({| [7], [0] |} *)
+  (* s1_5 = ({|  |} *)
 
   Eval vm_compute in List.nth 1 (fst c5) _.
   (* 2. *)
@@ -206,5 +198,83 @@ Section Test5Debug.
   Definition s29_5 := Eval vm_compute in (step_checker s28_5 (List.nth 28 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
   Print s29_5.
   (* s29_5 = ({|  |} *)
+
+  Eval vm_compute in List.nth 29 (fst c5) _.
+  (* 30. *)
+  Definition s30_5 := Eval vm_compute in (step_checker s29_5 (List.nth 29 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s30_5.
+  (* s30_5 = ({|  |} *)
+
+  Eval vm_compute in List.nth 30 (fst c5) _.
+  (* 31. *)
+  Definition s31_5 := Eval vm_compute in (step_checker s30_5 (List.nth 30 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s31_5.
+  (* s31_5 = ({|  |} *)
+
+  Eval vm_compute in List.nth 31 (fst c5) _.
+  (* 32. *)
+  Definition s32_5 := Eval vm_compute in (step_checker s31_5 (List.nth 31 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s32_5.
+  (* s32_5 = ({|  |} *)
+
+  Eval vm_compute in List.nth 32 (fst c5) _.
+  (* 33. *)
+  Definition s33_5 := Eval vm_compute in (step_checker s32_5 (List.nth 32 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s33_5.
+  (* s33_5 = ({|  |} *)
+
+  Eval vm_compute in List.nth 33 (fst c5) _.
+  (* 34. *)
+  Definition s34_5 := Eval vm_compute in (step_checker s33_5 (List.nth 33 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s34_5.
+  (* s34_5 = ({|  |} *)
+
+  Eval vm_compute in List.nth 34 (fst c5) _.
+  (* 35. *)
+  Definition s35_5 := Eval vm_compute in (step_checker s34_5 (List.nth 34 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s35_5.
+  (* s35_5 = ({|  |} *)
+
+  Eval vm_compute in List.nth 35 (fst c5) _.
+  (* 36. *)
+  Definition s36_5 := Eval vm_compute in (step_checker s35_5 (List.nth 35 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s36_5.
+  (* s36_5 = ({|  |} *)
+
+  Eval vm_compute in List.nth 36 (fst c5) _.
+  (* 37. *)
+  Definition s37_5 := Eval vm_compute in (step_checker s36_5 (List.nth 36 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s37_5.
+  (* s37_5 = ({|  |} *)
+
+  Eval vm_compute in List.nth 37 (fst c5) _.
+  (* 38. *)
+  Definition s38_5 := Eval vm_compute in (step_checker s37_5 (List.nth 37 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s38_5.
+  (* s38_5 = ({|  |} *)
+
+  Eval vm_compute in List.nth 38 (fst c5) _.
+  (* 39. *)
+  Definition s39_5 := Eval vm_compute in (step_checker s38_5 (List.nth 38 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s39_5.
+  (* s39_5 = ({|  |} *)
+
+  Eval vm_compute in List.nth 39 (fst c5) _.
+  (* 40. *)
+  Definition s40_5 := Eval vm_compute in (step_checker s39_5 (List.nth 39 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s40_5.
+  (* s40_5 = ({|  |} *)
+
+  Eval vm_compute in List.nth 40 (fst c5) _.
+  (* 41. *)
+  Definition s41_5 := Eval vm_compute in (step_checker s40_5 (List.nth 40 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s41_5.
+  (* s41_5 = ({|  |} *)
+
+  Eval vm_compute in List.nth 41 (fst c5) _.
+  (* 42. *)
+  Definition s42_5 := Eval vm_compute in (step_checker s41_5 (List.nth 41 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s42_5.
+  (* s42_5 = ({|  |} *)
 
 End Test5Debug.
