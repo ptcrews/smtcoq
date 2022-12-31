@@ -115,10 +115,12 @@ let get_eq l =
       | _ -> raise (Debug "| get_eq: equality expected |"))
   | _ -> raise (Debug "| get_eq: atomic equality expected| ")
 
+(*
 let get_at l =
   match Form.pform l with
   | Fatom ha -> ha
   | _ -> raise (Debug "| get_at: atom expected |")
+*)
 
 let is_eq l =
   match Form.pform l with
@@ -225,7 +227,7 @@ let rec process_congr a_args b_args prem res =
   | [],[] -> List.rev res
   | _ -> raise (Debug "| process_congr: wrong no. of args to function application |")
 
-(* Using this for congruence over connectives *)
+(* Congruence over connectives *)
 let rec process_congr_form a_args b_args prem res =
   match a_args, b_args with
   | a::a_args,b::b_args ->
@@ -300,78 +302,58 @@ let mkCongr p =
     | _ -> raise (Debug "| mkCongrPred: 0 conclusions |")*)
 
 let mkCongrPred p =
-  if (is_eq (List.hd p)) then
-    let (concl,prem) = List.partition Form.is_pos p in
-    let (prem,prem_P) = List.partition (fun x -> is_eq x || is_iff x) prem in
-    match concl with
-    |[c] ->
-      (match prem_P with
-       |[p_p] ->
-         let prem_val = try List.map (fun l -> (l,get_eq l)) prem with
-                        | Debug s -> raise (Debug ("| mkCongrPred: can't fetch premise |"^s)) in
-         (match Atom.atom (get_at c), Atom.atom (get_at p_p) with
-          | Abop(aop,a1,a2), Abop(bop,b1,b2) when (aop = bop) ->
-             let a_args = [a1;a2] in
-             let b_args = [b1;b2] in
-             let cert = process_congr a_args b_args prem_val [] in
-             Other (EqCgrP (p_p,c,cert))
-          | Aapp (a_f,a_args), Aapp (b_f,b_args) ->
-             if indexed_op_index a_f = indexed_op_index b_f then
-               let cert = process_congr (Array.to_list a_args) (Array.to_list b_args) prem_val [] in
-               Other (EqCgrP (p_p,c,cert))
-             else raise (Debug "| mkCongrPred: unmatching predicates |")
-          | _ -> raise (Debug "| mkCongrPred : not pred app |"))
-       | _ ->  raise (Debug "| mkCongrPred: 0 or more than 1 predicate app premise |"))  
-    | _ -> raise (Debug "| mkCongrPred: 0 conclusions |")
-  else if (is_iff (List.hd p)) then
-    let l = List.length p in
-    let concl = [List.nth p (l-1)] in
-    let prem_P = [List.nth p (l-2)] in
-    let prem = List.rev (List.tl (List.tl (List.rev p))) in
-    match concl with
-    |[c] ->
-      (match prem_P with
-       | [p_p] ->
-          let prem_val = List.map (fun l -> l,get_iff l) prem in
-          (match Form.pform c, Form.pform p_p with
-          | Fapp (Fand, a), Fapp (Fand, b) -> 
-              let a_args = Array.to_list a in 
-              let b_args = Array.to_list b in
-              let cert = process_congr_form a_args b_args prem_val [] in
-                Other (EqCgrP (p_p, c, cert))
-          | Fapp (For, a), Fapp (For, b) ->
-              let a_args = Array.to_list a in 
-              let b_args = Array.to_list b in
-              let cert = process_congr_form a_args b_args prem_val [] in
-                Other (EqCgrP (p_p, c, cert))
-          | Fapp (Fxor, a), Fapp (Fxor, b) ->
-              let a_args = Array.to_list a in 
-              let b_args = Array.to_list b in
-              let cert = process_congr_form a_args b_args prem_val [] in
-                Other (EqCgrP (p_p, c, cert))
-          | Fapp (Fimp, a), Fapp (Fimp, b) ->
-              let a_args = Array.to_list a in 
-              let b_args = Array.to_list b in
-              let cert = process_congr_form a_args b_args prem_val [] in
-                Other (EqCgrP (p_p, c, cert))
-          | Fapp (Fiff, a), Fapp (Fiff, b) ->
-              let a_args = Array.to_list a in 
-              let b_args = Array.to_list b in
-              let cert = process_congr_form a_args b_args prem_val [] in
-                Other (EqCgrP (p_p, c, cert)) 
-          | Fapp (Fite, a), Fapp (Fite, b) ->
-              let a_args = Array.to_list a in 
-              let b_args = Array.to_list b in
-              let cert = process_congr_form a_args b_args prem_val [] in
-                Other (EqCgrP (p_p, c, cert))
-          (* TODO: we're not handling uninterpreted bool functions properly *)
-          | f1, f2 when Form.is_neg c && Form.is_pos p_p -> 
-              let cert = process_congr_form [Form.neg c] [p_p] prem_val [] in
-                Other (EqCgrP (p_p, c, cert))
-          | _ -> raise (Debug "| VeritSyntax.mkCongrPred formula case: not pred app |"))
-        | _ -> raise (Debug "| VeritSyntax.mkCongr formula case: no or more than one predicate app premise in congruence |"))
-      | _ -> raise (Debug "| VeritSyntax.mkCongr formula case: no conclusion in congruence |")
-  else raise (Debug "| VeritSyntax.mkCongr: the first premise is neither an equality nor an iff |")
+  (* Rule proves ~(p1 = p1)', ..., ~(pn = pn'), ~P(p1, ..., pn), P(p1', ..., pn') 
+     prem: [~(p1 = p1'); ...; ~(pn = pn')], prem_P: ~P(p1, ..., pn), concl: P(p1', ..., pn' *)
+  let (concl,prem) = List.partition Form.is_pos p in
+  let (prem,prem_P) = List.partition (fun x -> is_eq x || is_iff x) prem in
+  (*let l = List.length p in
+  let concl = [List.nth p (l-1)] in
+  let prem_P = [List.nth p (l-2)] in
+  let prem = List.rev (List.tl (List.tl (List.rev p))) in*)
+  match concl with
+  |[c] ->
+    (match prem_P with
+     | [p_p] ->
+        let prem_val = List.map (fun l -> l, get_iff l) prem in
+        (match Form.pform c, Form.pform p_p with
+        | Fapp (Fand, a), Fapp (Fand, b) -> 
+            let a_args = Array.to_list a in 
+            let b_args = Array.to_list b in
+            let cert = process_congr_form a_args b_args prem_val [] in
+              Other (EqCgrP (p_p, c, cert))
+        | Fapp (For, a), Fapp (For, b) ->
+            let a_args = Array.to_list a in 
+            let b_args = Array.to_list b in
+            let cert = process_congr_form a_args b_args prem_val [] in
+              Other (EqCgrP (p_p, c, cert))
+        | Fapp (Fxor, a), Fapp (Fxor, b) ->
+            let a_args = Array.to_list a in 
+            let b_args = Array.to_list b in
+            let cert = process_congr_form a_args b_args prem_val [] in
+              Other (EqCgrP (p_p, c, cert))
+        | Fapp (Fimp, a), Fapp (Fimp, b) ->
+            let a_args = Array.to_list a in 
+            let b_args = Array.to_list b in
+            let cert = process_congr_form a_args b_args prem_val [] in
+              Other (EqCgrP (p_p, c, cert))
+        | Fapp (Fiff, a), Fapp (Fiff, b) ->
+            let a_args = Array.to_list a in 
+            let b_args = Array.to_list b in
+            let cert = process_congr_form a_args b_args prem_val [] in
+              Other (EqCgrP (p_p, c, cert)) 
+        | Fapp (Fite, a), Fapp (Fite, b) ->
+            let a_args = Array.to_list a in 
+            let b_args = Array.to_list b in
+            let cert = process_congr_form a_args b_args prem_val [] in
+              Other (EqCgrP (p_p, c, cert))
+        (* congruence over negation *)
+        | f1, f2 when Form.is_neg c && Form.is_pos p_p -> 
+            let cert = process_congr_form [Form.neg c] [p_p] prem_val [] in
+              Other (EqCgrP (p_p, c, cert))
+        (* TODO: we're not handling uninterpreted bool functions properly *)
+        | _ -> raise (Debug "| VeritSyntax.mkCongrPred formula case: not pred app |"))
+      | _ -> raise (Debug "| VeritSyntax.mkCongr formula case: no or more than one predicate app premise in congruence |"))
+    | _ -> raise (Debug "| VeritSyntax.mkCongr formula case: no conclusion in congruence |")
 
 
 (* Linear arithmetic *)
