@@ -1307,6 +1307,11 @@ let repeat (x : 'a) (n : int) : 'a list =
     | n -> repeat' x (n-1) (x :: acc)
   in
   repeat' x n []
+(* returns true if the list has at least one pair of duplicates *)
+let rec exists_dup (xs : 'a list) : bool =
+  match xs with
+  | h :: t -> if List.exists ((=) h) t then true else exists_dup t
+  | [] -> false
 let rec process_simplify (c : certif) : certif =
   match c with
   (* x_1 ^ ... ^ x_n <-> y *)
@@ -1418,7 +1423,7 @@ let rec process_simplify (c : certif) : certif =
                     (resi3, ResoAST, [Not x; False], [resi2; imppi], []);
                     (andpi2, AndpAST, [Not lhs; x], [], [x_ind]);
                     (resi4, ResoAST, [x], [a2bi; andpi2], []);
-                    (generate_id (), ResoAST, [False], [resi1; resi4], [])] in
+                    (generate_id (), ResoAST, [False], [resi3; resi4], [])] in
          (*
             RTL:
               --asmp                   --asmp
@@ -1517,8 +1522,7 @@ let rec process_simplify (c : certif) : certif =
                      (generate_id (), ResoAST, [lhs], andni :: ti :: proj_ids2, [])] in
           (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* x_1 ^ ... ^ x_n <-> x_1 ^ ... ^ x_n', RHS has all repeated literals removed *)
-       | [Eq ((And xs as lhs), (And ys as rhs))] when ((List.exists (fun x -> (List.exists (fun y -> y = x) xs)) xs)
-          && not (List.exists (fun x -> (List.exists (fun y -> y = x) ys)) ys)) ->
+       | [Eq ((And xs as lhs), (And ys as rhs))] when (exists_dup xs) && not (exists_dup ys) ->
           (* x ^ y ^ x <-> x ^ y
              LTR:
              ---------asmp ----------------andp ---------asmp  ----------------andp
