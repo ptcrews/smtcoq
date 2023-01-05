@@ -1337,7 +1337,6 @@ let rec process_simplify (c : certif) : certif =
          let a2b = [(andpi, AndpAST, [Not lhs; False], [], [ind]);
                     (generate_id (), ResoAST, [False], [a2bi; andpi], [])] in
          (*
-            TODO: get unique elements of and to project
             RTL:
                                   ---asmp             
                                    F
@@ -1352,7 +1351,7 @@ let rec process_simplify (c : certif) : certif =
          let fi = generate_id () in
          let resi = generate_id () in
          let andni = generate_id () in
-         (* for each x in xs except x = F,
+         (* for each x in to_uniq(xs) except x = F,
               1. generate (F v x) by weaken, and resolve it with ~F to generate x
               2. store all the ids of the derived x for the final resolution
               3. generate ~x for andn *)
@@ -1365,7 +1364,7 @@ let rec process_simplify (c : certif) : certif =
                  ri :: ris,
                  Not x :: negxs)
               else (c_r, ris, negxs))
-           ([], [], []) xs in
+           ([], [], []) (to_uniq xs) in
          let b2a = [(fi, FalsAST, [Not False], [], []);
                     (andni, AndnAST, [lhs] @ projnegxs, [], [])] @
                    cert_r @
@@ -1410,7 +1409,6 @@ let rec process_simplify (c : certif) : certif =
                     (generate_id (), ResoAST, [False], [resi3; resi4], [])] in
          (*
             RTL:
-            TODO: get unique elements of and to project
               --asmp                   --asmp
               F                        F
             -------weaken  ---false  -------weaken  ---false
@@ -1467,7 +1465,6 @@ let rec process_simplify (c : certif) : certif =
        | [Eq ((And xs as lhs), (And ys as rhs))] when ((List.exists ((=) True) xs) 
             && not (List.exists ((=) True) ys)) ->
           (* x ^ y ^ T <-> x ^ y
-             TODO: get unique elements of and to project
              LTR:
              ---------asmp  ---------------andp  ---------asmp ---------------andp
              x ^ y ^ T      ~(x ^ y ^ T), x      x ^ y ^ T     ~(x ^ y ^ T), y
@@ -1477,7 +1474,7 @@ let rec process_simplify (c : certif) : certif =
                                                             x ^ y
           *)
           let a2bi = generate_id () in
-          (* for each y in ys,
+          (* for each y in to_uniq(ys),
                find index ind of first occurrence of y in xs and return
                 1. (id1', AndpAST, [Not lhs; y], [], [ind]), (id2', ResoAST, [y], [id1'; a2bi], []), 
                 2. id2'
@@ -1491,7 +1488,7 @@ let rec process_simplify (c : certif) : certif =
                ((id1', AndpAST, [Not lhs; y], [], [ind]) :: (id2', ResoAST, [y], [a2bi; id1'], []) :: s,
                 id2' :: i,
                 Not y :: n))
-              ([], [], []) ys in
+              ([], [], []) (to_uniq ys) in
           let andni = generate_id () in
           let a2b = c1 @ 
                     [(andni, AndnAST, rhs :: projnegl1, [], []);
@@ -1508,7 +1505,8 @@ let rec process_simplify (c : certif) : certif =
           *)
           let b2ai = generate_id () in
           let ti = generate_id () in
-          (* for each x in xs except x = T, find index ind of first occurrence of x in ys and return
+          (* for each x in to_uniq(xs) except x = T, 
+              find index ind of first occurrence of x in ys and return
               1. (id1', AndpAST, [Not rhs; x], [], [ind]) :: (id2', ResoAST, [x], [b2ai; id1'], []])
               2. id2'
               3. ~x
@@ -1523,7 +1521,7 @@ let rec process_simplify (c : certif) : certif =
                 ((id1', AndpAST, [Not rhs; x], [], [ind]) :: (id2', ResoAST, [x], [b2ai; id1'], []) :: s,
                  id2' :: i,
                  Not x :: n))
-            ([], [], []) xs in
+            ([], [], []) (to_uniq xs) in
           let andni = generate_id () in
           let b2a = c2 @
                     [(ti, TrueAST, [True], [], []);
@@ -1533,7 +1531,6 @@ let rec process_simplify (c : certif) : certif =
        (* x_1 ^ ... ^ x_n <-> x_1 ^ ... ^ x_n', RHS has all repeated literals removed *)
        | [Eq ((And xs as lhs), (And ys as rhs))] when (exists_dup xs) && not (exists_dup ys) ->
           (* x ^ y ^ x <-> x ^ y
-             TODO: get unique elements of and to project
              LTR:
              ---------asmp ----------------andp ---------asmp  ----------------andp
              x ^ y ^ x     ~(x ^ y ^ x), x      x ^ y ^ x      ~(x ^ y ^ x), y    
@@ -1543,7 +1540,7 @@ let rec process_simplify (c : certif) : certif =
                                                             x ^ y
           *)
           let a2bi = generate_id () in
-          (* for each y in ys,
+          (* for each y in to_uniq(ys),
                find index ind of first occurrence of y in xs and return
                 1. (id1', AndpAST, [Not lhs; y], [], [ind]) :: (id2', ResoAST, [y], [a2bi; id1'], [])
                 2. id2'
@@ -1557,13 +1554,12 @@ let rec process_simplify (c : certif) : certif =
               ((id1', AndpAST, [Not lhs; y], [], [ind]) :: (id2', ResoAST, [y], [a2bi; id1'], []) :: s,
                id2' :: i,
                Not y :: n))
-              ([], [], []) ys in
+              ([], [], []) (to_uniq ys) in
           let andni = generate_id () in
           let a2b = c1 @
                     [(andni, AndnAST, rhs :: projnegl1, [], []);
                      (generate_id (), ResoAST, [rhs], andni :: proj_ids1, [])] in
           (*
-             TODO: get unique elements of and to project
              RTL: Note that andn would project the repeated literals (another ~x here), but 
                   SMTCoq's representation would remove repeats
              -----asmp  -------------andp -----asmp   -------------andp
@@ -1574,7 +1570,7 @@ let rec process_simplify (c : certif) : certif =
                                                       x ^ y ^ x
           *)
           let b2ai = generate_id () in
-          (* for each y in ys
+          (* for each y in to_uniq(ys)
                find index ind of first occurrence of y in ys and return
                 1. (id1', AndpAST, [Not rhs; y], [], [ind]) :: (id2', ResoAST, [y], [b2ai; id1'], [])
                 2. id2'
@@ -1588,15 +1584,14 @@ let rec process_simplify (c : certif) : certif =
                 ((id1', AndpAST, [Not rhs; y], [], [ind]) :: (id2', ResoAST, [y], [b2ai; id1'], []) :: s,
                  id2' :: i,
                  Not y :: n))
-            ([], [], []) ys in
+            ([], [], []) (to_uniq ys) in
           let andni = generate_id () in
           let b2a = c2 @
                     [(andni, AndnAST, lhs :: projnegl2, [], []);
                      (generate_id (), ResoAST, [lhs], andni :: proj_ids2, [])] in
           (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-       | [Eq _] -> (i, AndsimpAST, cl, p, a) :: process_simplify tl
-       | c -> raise (Debug ("process_simplify: in and simplify I have clause "^(string_of_clause c)^" instead of a singleton with an equivalence")))
-       (* | _ -> raise (Debug ("| process_simplify: expecting argument of and_simplify to be an equivalence at id "^i^" |"))) *)
+       | [Eq _] -> raise (Debug ("| process_simplify: unexpected form of equivalence for and_simplify at id "^i^" |"))
+       | _ -> raise (Debug ("| process_simplify: expecting and_simplify to derive a singleton equivalence at id "^i^" |")))
   (* x_1 v ... v x_n <-> y *)
   | (i, OrsimpAST, cl, p, a) :: tl ->
       (match (get_expr_cl cl) with
@@ -1687,7 +1682,7 @@ let rec process_simplify (c : certif) : certif =
            let orpi = generate_id () in
            let resi = generate_id () in
            let fi = generate_id () in
-           (* for each y in to_unique(ys), return
+           (* for each y in to_uniq(ys), return
               find index ind of first occurrence of y in ys and return
               1. fresh id i'
               2. (i', OrnAST, [rhs; Not y], [], [ind]) *)
@@ -1715,7 +1710,7 @@ let rec process_simplify (c : certif) : certif =
            let b2ai = generate_id () in
            let orpi = generate_id () in
            let resi = generate_id () in
-           (* for each y in to_unique(ys),
+           (* for each y in to_uniq(ys),
                 find index ind of first occurrence of y in xs and return
                  1. (id', OrnAST, [lhs; ~y], [], [ind]), where id' is a new id
                  2. id' *)
@@ -1745,7 +1740,7 @@ let rec process_simplify (c : certif) : certif =
            let a2bi = generate_id () in
            let orpi = generate_id () in
            let resi = generate_id () in
-           (* for each y in to_unique(ys),
+           (* for each y in to_uniq(ys),
                 find index ind of first occurrence of y in ys and return
                  1. (id', OrnAST, [rhs; ~y], [], [ind]), where id' is a new id
                  2. id' *)
@@ -1788,8 +1783,8 @@ let rec process_simplify (c : certif) : certif =
                      c @
                      [(generate_id (), ResoAST, [lhs], resi :: proj_ids, [])] in 
            (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-       | [Eq _] -> (i, OrsimpAST, cl, p, a) :: process_simplify tl
-       | _ -> raise (Debug ("| process_simplify: expecting argument of or_simplify to be an equivalence at id "^i^" |")))
+       | [Eq _] -> raise (Debug ("| process_simplify: unexpected form of equivalence for or_simplify at id "^i^" |"))
+       | _ -> raise (Debug ("| process_simplify: expecting or_simplify to derive a singleton equivalence at id "^i^" |")))
   (* ~x <-> y *)
   | (i, NotsimpAST, cl, p, a) :: tl ->
       (match (get_expr_cl cl) with
