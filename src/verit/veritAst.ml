@@ -1299,46 +1299,29 @@ let is_neg (t1 : term) (t2 : term) : bool =
   | t, Not t' when t' = t -> true
   | Not t, t' when t' = t -> true
   | _ -> false
-(* repeat x n returns list with n x's *)
+(* repeat x n returns list with n x's
 let repeat (x : 'a) (n : int) : 'a list =
   let rec repeat' (x : 'a) (n : int) (acc : 'a list) : 'a list = 
     match n with
     | 0 -> acc
     | n -> repeat' x (n-1) (x :: acc)
   in
-  repeat' x n []
+  repeat' x n []*)
 (* returns true if the list has at least one pair of duplicates *)
 let rec exists_dup (xs : 'a list) : bool =
   match xs with
   | h :: t -> if List.exists ((=) h) t then true else exists_dup t
   | [] -> false
+(* returns the list of terms without duplicates (only syntactiv duplicates, not considering shared terms) *)
+let rec to_uniq (l : 'a list) : 'a list =
+   match l with
+   | h :: t -> if List.exists ((=) h) t then to_uniq t else h :: to_uniq t
+   | [] -> [] 
 let rec process_simplify (c : certif) : certif =
   match c with
   (* x_1 ^ ... ^ x_n <-> y *)
   | (i, AndsimpAST, cl, p, a) :: tl ->
       (match (get_expr_cl cl) with
-       (* T ^ ... ^ T <-> T *)
-       | [Eq ((And xs as lhs), (True as rhs))] when (List.for_all ((=) True) xs) ->
-          (* T ^ T <-> T
-             LTR:
-             --true
-             T
-           *)          
-          let a2b = [(generate_id (), TrueAST, [True], [], [])] in
-          (*
-             RTL: (note that and_neg would prove (T ^ T, ~T, ~T) but repeats
-                   are removed in SMTCoq's representation)
-             ---------and_neg   --asmp
-             T ^ T, ~T          T     
-             --------------------res
-                     T ^ T
-          *)
-          let b2ai = generate_id () in
-          let andn_id = generate_id () in
-          let b2a = [(andn_id, AndnAST, [lhs; Not True], [], []);
-                     (generate_id (), ResoAST, [lhs], [andn_id; b2ai], [])]
-                      in
-          (simplify_to_subproof i (generate_id ()) b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* x_1 ^ ... F ... ^ x_n <-> F *)
        | [Eq ((And xs as lhs), (False as rhs))] when (List.exists ((=) False) xs) ->
          (* x ^ F <-> F
@@ -1354,6 +1337,7 @@ let rec process_simplify (c : certif) : certif =
          let a2b = [(andpi, AndpAST, [Not lhs; False], [], [ind]);
                     (generate_id (), ResoAST, [False], [a2bi; andpi], [])] in
          (*
+            TODO: get unique elements of and to project
             RTL:
                                   ---asmp             
                                    F
@@ -1426,6 +1410,7 @@ let rec process_simplify (c : certif) : certif =
                     (generate_id (), ResoAST, [False], [resi3; resi4], [])] in
          (*
             RTL:
+            TODO: get unique elements of and to project
               --asmp                   --asmp
               F                        F
             -------weaken  ---false  -------weaken  ---false
@@ -1455,15 +1440,38 @@ let rec process_simplify (c : certif) : certif =
                     (andni, AndnAST, [lhs] @ projnegxs, [], [])] @
                    cert_r @
                    [(resi, ResoAST, [lhs], andni :: ids_r, [])] in
-         (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl          
+         (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
+       (* T ^ ... ^ T <-> T *)
+       | [Eq ((And xs as lhs), (True as rhs))] when (List.for_all ((=) True) xs) ->
+         (* T ^ T <-> T
+            LTR:
+            --true
+            T
+          *)          
+         let a2b = [(generate_id (), TrueAST, [True], [], [])] in
+         (*
+            RTL: (note that and_neg would prove (T ^ T, ~T, ~T) but repeats
+                  are removed in SMTCoq's representation)
+            ---------andn   --asmp
+            T ^ T, ~T          T     
+            --------------------res
+                    T ^ T
+         *)
+         let b2ai = generate_id () in
+         let andn_id = generate_id () in
+         let b2a = [(andn_id, AndnAST, [lhs; Not True], [], []);
+                    (generate_id (), ResoAST, [lhs], [andn_id; b2ai], [])]
+                     in
+         (simplify_to_subproof i (generate_id ()) b2ai lhs rhs a2b b2a) @ process_simplify tl         
        (* x_1 ^ ... ^ x_n <-> x_1 ^ ... ^ x_n', RHS has all T removed *)
        | [Eq ((And xs as lhs), (And ys as rhs))] when ((List.exists ((=) True) xs) 
             && not (List.exists ((=) True) ys)) ->
           (* x ^ y ^ T <-> x ^ y
+             TODO: get unique elements of and to project
              LTR:
              ---------asmp  ---------------andp  ---------asmp ---------------andp
              x ^ y ^ T      ~(x ^ y ^ T), x      x ^ y ^ T     ~(x ^ y ^ T), y
-             ------------------------------res   -----------------------------res    -------------and_neg
+             ------------------------------res   -----------------------------res    -------------andn
                              x                                 y                     x ^ y, ~x, ~y
                              ---------------------------------------------------------------------res
                                                             x ^ y
@@ -1489,10 +1497,11 @@ let rec process_simplify (c : certif) : certif =
                     [(andni, AndnAST, rhs :: projnegl1, [], []);
                      (generate_id (), ResoAST, [rhs], andni :: proj_ids1, [])] in
           (*
+             TODO: get unique elements of and to project
              RTL:
              -----asmp  -----------andp   -----asmp   -----------andp
              x ^ y      ~(x ^ y), x       x ^ y       ~(x ^ y), y    
-             ----------------------res    -----------------------res ---true  ---------------------and_neg
+             ----------------------res    -----------------------res ---true  ---------------------andn
                         x                             y               T       x ^ y ^ T, ~x, ~y, ~T
                ------------------------------------------------------------------------------------res
                                                       x ^ y ^ T
@@ -1524,10 +1533,11 @@ let rec process_simplify (c : certif) : certif =
        (* x_1 ^ ... ^ x_n <-> x_1 ^ ... ^ x_n', RHS has all repeated literals removed *)
        | [Eq ((And xs as lhs), (And ys as rhs))] when (exists_dup xs) && not (exists_dup ys) ->
           (* x ^ y ^ x <-> x ^ y
+             TODO: get unique elements of and to project
              LTR:
              ---------asmp ----------------andp ---------asmp  ----------------andp
              x ^ y ^ x     ~(x ^ y ^ x), x      x ^ y ^ x      ~(x ^ y ^ x), y    
-             ------------------------------res  -------------------------------res    -------------and_neg
+             ------------------------------res  -------------------------------res    -------------andn
                            x                                   y                      x ^ y, ~x, ~y
                            ------------------------------------------------------------------------res
                                                             x ^ y
@@ -1553,11 +1563,12 @@ let rec process_simplify (c : certif) : certif =
                     [(andni, AndnAST, rhs :: projnegl1, [], []);
                      (generate_id (), ResoAST, [rhs], andni :: proj_ids1, [])] in
           (*
+             TODO: get unique elements of and to project
              RTL: Note that andn would project the repeated literals (another ~x here), but 
                   SMTCoq's representation would remove repeats
              -----asmp  -------------andp -----asmp   -------------andp
              x ^ y       ~(x ^ y), x      x ^ y        ~(x ^ y), y    
-             ------------------------res  -------------------------res  -----------------and_neg
+             ------------------------res  -------------------------res  -----------------andn
                         x                             y                 x ^ y ^ x, ~x, ~y
                         -----------------------------------------------------------------res
                                                       x ^ y ^ x
@@ -1589,28 +1600,68 @@ let rec process_simplify (c : certif) : certif =
   (* x_1 v ... v x_n <-> y *)
   | (i, OrsimpAST, cl, p, a) :: tl ->
       (match (get_expr_cl cl) with
+       (* x_1 v ... T ... x_n <-> T *)
+       | [Eq ((Or xs as lhs), (True as rhs))] when (List.exists ((=) True) xs) ->
+         (* x v T <-> T
+            LTR:
+            --true
+            T
+         *)
+         let a2b = [(generate_id (), TrueAST, [rhs], [], [])] in
+         let orn_id = generate_id () in
+         (*
+            RTL:
+            --asmp   -----------orn
+            T        (x v T), ~T
+            --------------------res
+                   x v T
+         *)
+         let b2ai = generate_id () in
+         let orn_a = string_of_int (findi (term_eq True) xs) in
+         let b2a = [(orn_id, OrnAST, [lhs; Not True], [], [orn_a]);
+                    (generate_id (), ResoAST, [lhs], [b2ai; orn_id], [])] in
+         (simplify_to_subproof i (generate_id ()) b2ai lhs rhs a2b b2a) @ process_simplify tl
+      (* x_1 v ... x_i ... x_j ... x_n <-> T, if x_i = ~x_j *)
+      | [Eq ((Or xs as lhs), (True as rhs))] when 
+         (List.exists (fun x -> (List.exists (fun y -> is_neg y x) xs)) xs) ->
+         (* x v ~x <-> T
+            LTR:
+            --true
+             T
+         *)
+         let a2b = [(generate_id (), TrueAST, [rhs], [], [])] in
+         (*
+            RTL:
+            --------------or_neg -------------orn
+            (x v ~x), ~x         (x v ~x), ~~x
+            ----------------------------------res
+                          x v ~x
+         *)
+         let orn_id1 = generate_id () in
+         let orn_id2 = generate_id () in
+         let x = List.find (fun x -> (List.exists (fun y -> y = Not x) xs)) xs in
+         let x_id = string_of_int (findi (term_eq x) xs) in
+         let nx_id = string_of_int (findi (term_eq (Not x)) xs) in
+         let b2a = [(orn_id1, OrnAST, [lhs; Not x], [], [x_id]);
+                    (orn_id2, OrnAST, [lhs; x], [], [nx_id]);
+                    (generate_id (), ResoAST, [lhs], [orn_id1; orn_id2], [])] in
+         (simplify_to_subproof i (generate_id ()) (generate_id ()) lhs rhs a2b b2a) @ process_simplify tl      
        (* F v ... v F <-> F *)
        | [Eq ((Or xs as lhs), (False as rhs))] when (List.for_all ((=) False) xs) ->
           (* F v F <-> F
-             LTR: 
-             -----asmp  ---false  --------------or_pos
-             F v F      ~F        ~(F v F), F, F
-             -----------------------------------res
-                              F
+             LTR: (Note that or_pos would derive another F but SMTCoq would only store one F)
+             -----asmp  -----------orp
+             F v F      ~(F v F), F
+             ----------------------res
+                        F
           *)
            let a2bi = generate_id () in
-           let f_id = generate_id () in
            let orp_id = generate_id () in
-           (* We need 2 things repeated around n (= lengh xs) times: 
-                1. id of F rule (f_id) for resolution (n-1 times)
-                2. term F for or_pos rule (n times) *)
-           let f_ids, nfalses = List.fold_left (fun (f,n) _ -> (f_id :: f, False :: n)) ([],[]) xs in
-           let a2b = [(f_id, FalsAST, [Not False], [], []);
-                      (orp_id, OrpAST, (Not lhs) :: nfalses, [],[]);
-                      (generate_id (), ResoAST, [rhs], orp_id :: a2bi :: (List.tl f_ids), [])] in
+           let a2b = [(orp_id, OrpAST, [Not lhs; False], [],[]);
+                      (generate_id (), ResoAST, [rhs], [orp_id; a2bi], [])] in
           (*
              RTL:
-             --asmp   ---------or_neg
+             --asmp   ---------orn
              F        F v F, ~F
              ------------------res
                     F v F
@@ -1625,133 +1676,118 @@ let rec process_simplify (c : certif) : certif =
             && not (List.exists ((=) False) ys)) ->
           (* x v y v F <-> x v y
              LTR:
-             ---------asmp
-             x v y v F
-             ---------or    --false
-             x v y v F      ~F             
-             -----------------res
-                    x v y
+             ---------asmp  ---------------------orp  --false
+             x v y v F      ~(x v y v F), x, y, F     ~F
+             --------------------------------------------res  ---------orn   ---------orn
+                                 x, y                          x v y, ~x      x v y, ~y
+                                 ------------------------------------------------------res
+                                                         x v y
           *)
            let a2bi = generate_id () in
-           let or_id1 = generate_id () in
-           let f_id = generate_id () in
-           (* number of F in xs *)
-           let f_cnt = List.fold_left (fun n x -> if x = False then n + 1 else n) 0 xs in
-           let a2b = [(or_id1, OrAST, xs, [a2bi], []);
-                      (f_id, FalsAST, [False], [], []);
-                      (generate_id (), ResoAST, [rhs], or_id1 :: (repeat f_id f_cnt), [])] in
+           let orpi = generate_id () in
+           let resi = generate_id () in
+           let fi = generate_id () in
+           (* for each y in to_unique(ys), return
+              find index ind of first occurrence of y in ys and return
+              1. fresh id i'
+              2. (i', OrnAST, [rhs; Not y], [], [ind]) *)
+           let ornis, orns = List.fold_left
+            (fun (i, r) y ->
+               let i' = generate_id () in
+               let ind = string_of_int (findi (term_eq y) ys) in
+               i' :: i,
+               (i', OrnAST, [rhs; Not y], [], [ind]) :: r)
+            ([], []) (to_uniq ys) in
+            let a2b = [(orpi, OrpAST, Not lhs :: xs, [], []);
+                       (fi, FalsAST, [Not False], [], []);
+                       (resi, ResoAST, xs, [a2bi; orpi; fi], [])] @ 
+                      orns @
+                      [(generate_id (), ResoAST, [rhs], resi :: ornis, [])] in
           (*
             RTL:
-            -----asmp
-            x v y
-            -----or   ---------------or_neg   ---------------or_neg
-             x,y      (x v y v x), ~x         (x v y v x), ~y
-             ------------------------------------------------res
-                                x v y v x
-          *)            
+            -----asmp   --------------orp
+            x v y       ~(x v y), x, y
+            --------------------------res   ---------------orn   ---------------orn
+                        x,y                 (x v y v x), ~x      (x v y v x), ~y
+                        --------------------------------------------------------res
+                                                   x v y v x
+          *)
            let b2ai = generate_id () in
-           let or_id2 = generate_id () in
-           (* for each y in ys,
+           let orpi = generate_id () in
+           let resi = generate_id () in
+           (* for each y in to_unique(ys),
                 find index ind of first occurrence of y in xs and return
                  1. (id', OrnAST, [lhs; ~y], [], [ind]), where id' is a new id
                  2. id' *)
            let c, proj_ids = List.fold_left 
-             (fun (s,i) y -> 
-               let ind = findi (term_eq y) xs in
+             (fun (s, i) y -> 
+               let ind = string_of_int (findi (term_eq y) xs) in
                let id' = generate_id () in
-               ((id', OrnAST, [lhs; Not y], [], [string_of_int ind]) :: s,
+               ((id', OrnAST, [lhs; Not y], [], [ind]) :: s,
                 id' :: i))
-             ([],[]) ys in
-           let b2a = c @
-                     [(or_id2, OrAST, ys, [b2ai], []);
-                      (generate_id (), ResoAST, [lhs], or_id2 :: proj_ids, [])] in
+             ([], []) (to_uniq ys) in
+           let b2a = [(orpi, OrpAST, Not rhs :: ys, [], []);
+                      (resi, ResoAST, ys, [b2ai; orpi], [])] @
+                     c @
+                     [(generate_id (), ResoAST, [lhs], resi :: proj_ids, [])] in
            (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* x_1 v ... v x_n <-> x_1 v ... x_n', RHS has all repeated literals removed *)
-       | [Eq ((Or xs as lhs), (Or ys as rhs))] when ((List.exists (fun x -> (List.exists (fun y -> y = x) xs)) xs)
-          && not (List.exists (fun x -> (List.exists (fun y -> y = x) ys)) ys)) ->
+       | [Eq ((Or xs as lhs), (Or ys as rhs))] when (exists_dup xs) && not (exists_dup ys) ->
           (* x v y v x <-> x v y
-             SMTCoq removes duplicates in clauses, but in LTR we don't construct an or in the end, 
-             I think this should be okay. TODO check with Chantal
-             LTR:
-             ---------asmp
-             x v y v x
-             ---------or
-                x,y
+             LTR: Duplicates are removed in orp by SMTCoq's representation
+             ---------asmp ------------------orp
+             x v y v x     ~(x v y v x), x, y
+             --------------------------------res   ---------orn   ---------orn
+                            x, y                   x v y, ~x      x v y, ~y
+                            -----------------------------------------------res
+                                                x v y
           *)
            let a2bi = generate_id () in
-           let or_id1 = generate_id () in
-           let a2b = [(or_id1, OrAST, xs, [a2bi], [])] in
+           let orpi = generate_id () in
+           let resi = generate_id () in
+           (* for each y in to_unique(ys),
+                find index ind of first occurrence of y in ys and return
+                 1. (id', OrnAST, [rhs; ~y], [], [ind]), where id' is a new id
+                 2. id' *)
+                 let c, proj_ids = List.fold_left 
+                 (fun (s, i) y -> 
+                   let ind = string_of_int (findi (term_eq y) xs) in
+                   let id' = generate_id () in
+                   ((id', OrnAST, [rhs; Not y], [], [ind]) :: s,
+                    id' :: i))
+                 ([], []) (to_uniq ys) in
+           let a2b = [(orpi, OrpAST, Not lhs :: ys, [], []);
+                      (resi, ResoAST, ys, [a2bi; orpi], [])] @
+                     c @
+                     [(generate_id (), ResoAST, [lhs], resi :: proj_ids, [])] in
           (*
              RTL:
-             -----asmp
-             x v y
-             -----or  ---------------or_neg   ---------------or_neg
-              x,y     (x v y v x), ~x         (x v y v x), ~y
-              -----------------------------------------------res
-                                x v y v x
+             -----asmp  --------------orp
+             x v y      ~(x v y), x, y
+             -------------------------res ---------------orn   ---------------orn
+                        x,y               (x v y v x), ~x      (x v y v x), ~y
+                        ------------------------------------------------------res
+                                             x v y v x
           *)           
            let b2ai = generate_id () in
-           let or_id2 = generate_id () in
+           let orpi = generate_id () in
+           let resi = generate_id () in
            (* for each y in ys,
                find index ind of first occurrence of y in xs and return
-                1. (id', OrnAST, [y], [b2ai], [ind]), where id' is a new id
+                1. (id', OrnAST, [lhs; Not y], [], [ind]), where id' is a new id
                 2. id' *)
            let c, proj_ids = List.fold_left 
             (fun (s,i) y -> 
-              let ind = findi (term_eq y) xs in
+              let ind = string_of_int (findi (term_eq y) xs) in
               let id' = generate_id () in
-              ((id', OrnAST, [y], [b2ai], [string_of_int ind]) :: s,
+              ((id', OrnAST, [lhs; Not y], [], [ind]) :: s,
                id' :: i))
-              ([],[]) ys in
-           let b2a = (or_id2, OrAST, ys, [b2ai], []):: c @
-                     [(generate_id (), ResoAST, [lhs], or_id2 :: proj_ids, [])] in 
+              ([], []) ys in
+           let b2a = [(orpi, OrpAST, Not rhs :: ys, [], []);
+                      (resi, ResoAST, ys, [b2ai; orpi], [])] @ 
+                     c @
+                     [(generate_id (), ResoAST, [lhs], resi :: proj_ids, [])] in 
            (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-       (* x_1 v ... T ... x_n <-> T *)
-       | [Eq ((Or xs as lhs), (True as rhs))] when (List.exists ((=) True) xs) ->
-          (* x v T <-> T
-             LTR:
-             --true
-             T
-          *)
-          let a2b = [(generate_id (), TrueAST, [rhs], [], [])] in
-          let orn_id = generate_id () in
-          (*
-             RTL:
-             --asmp   -----------or_neg
-             T        (x v T), ~T
-             --------------------res
-                    x v T
-          *)
-          let b2ai = generate_id () in
-          let orn_a = string_of_int (findi (term_eq True) xs) in
-          let b2a = [(orn_id, OrnAST, [lhs; Not True], [], [orn_a]);
-                     (generate_id (), ResoAST, [lhs], [b2ai; orn_id], [])] in
-          (simplify_to_subproof i (generate_id ()) b2ai lhs rhs a2b b2a) @ process_simplify tl
-       (* x_1 v ... x_i ... x_j ... x_n <-> T, if x_i = ~x_j *)
-       | [Eq ((Or xs as lhs), (True as rhs))] when 
-          (List.exists (fun x -> (List.exists (fun y -> is_neg y x) xs)) xs) ->
-          (* x v ~x <-> T
-             LTR:
-             --true
-              T
-          *)
-          let a2b = [(generate_id (), TrueAST, [rhs], [], [])] in
-          (*
-             RTL:
-             --------------or_neg -------------or_neg
-             (x v ~x), ~x         (x v ~x), ~~x
-             ----------------------------------res
-                           x v ~x
-          *)
-          let orn_id1 = generate_id () in
-          let orn_id2 = generate_id () in
-          let x = List.find (fun x -> (List.exists (fun y -> y = Not x) xs)) xs in
-          let x_id = string_of_int (findi (term_eq x) xs) in
-          let nx_id = string_of_int (findi (term_eq (Not x)) xs) in
-          let b2a = [(orn_id1, OrnAST, [lhs; Not x], [], [x_id]);
-                     (orn_id2, OrnAST, [lhs; x], [], [nx_id]);
-                     (generate_id (), ResoAST, [lhs], [orn_id1; orn_id2], [])] in
-          (simplify_to_subproof i (generate_id ()) (generate_id ()) lhs rhs a2b b2a) @ process_simplify tl
        | [Eq _] -> (i, OrsimpAST, cl, p, a) :: process_simplify tl
        | _ -> raise (Debug ("| process_simplify: expecting argument of or_simplify to be an equivalence at id "^i^" |")))
   (* ~x <-> y *)
