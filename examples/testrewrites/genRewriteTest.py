@@ -11,6 +11,7 @@ with open('rewrites.csv') as csv_file:
     fsmt.write("(set-logic UFLIA)\n")
     fsmt.write("(declare-fun x () Bool)\n")
     fsmt.write("(declare-fun y () Bool)\n")
+    fsmt.write("(declare-fun z () Bool)\n")
 
     lhs = row[1]
     rhs = row[2]

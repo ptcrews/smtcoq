@@ -563,7 +563,7 @@ let rec process_notnot (c : certif) : certif =
   | (i, NotsimpAST, cl, p, a) :: tl ->
       (match (get_expr_cl cl) with
       | [Eq (Not (Not x), y)] when x = y -> 
-         (i, ReflAST, [Eq (x, x)], [], []) :: process_notnot tl
+         (i, EqreAST, [Eq (x, x)], [], []) :: process_notnot tl
       | _ -> (i, NotsimpAST, cl, p, a) :: process_notnot tl)
   | h :: tl -> h :: process_notnot tl
   | [] -> []
@@ -1842,48 +1842,52 @@ let rec process_simplify (c : certif) : certif =
                      (fi, FalsAST, [Not False], [], []);
                      (generate_id (), ResoAST, [Not True], [weaki; fi], [])] in         
           (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-       (* ~(~x) <-> x handled by process_notnot*)
+       (* ~(~x) <-> x handled by process_notnot *)
        | [Eq _] -> (i, NotsimpAST, cl, p, a) :: process_simplify tl
-       | _ -> raise (Debug ("| process_simplify: expecting argument of not_simplify to be an equivalence at id "^i^" |")))
+       | _ -> raise (Debug ("| process_simplify: expecting not_simplify to derive a singleton equivalence at id "^i^" |")))
   (* (x -> y) <-> z *)
   | (i, ImpsimpAST, cl, p, a) :: tl ->
       (match (get_expr_cl cl) with
-       (* (~x -> y) <-> (y -> x) *)
-       | [Eq ((Imp [Not x; y] as lhs), (Imp [b; a] as rhs))] when (x = a && y = b) ->
+       (* (~x -> ~y) <-> (y -> x) *)
+       | [Eq ((Imp [Not x; Not y] as lhs), (Imp [b; a] as rhs))] when (x = a && y = b) ->
           (*
              LTR:
-             -------asmp
-             ~x -> y
-             -------imp   ---------imp_neg1   ----------imp_neg2
-             ~~x, ~y      y -> x, y           y -> x, ~x
-             -------------------------------------------res
-                                 y -> x
+             --------asmp   --------------------impp
+             ~x -> ~y       ~(~x -> ~y), ~~x, ~y
+             -----------------------------------res   ---------impn1   -----------impn2
+                           ~~x, ~y                    y -> x, y        y -> x, ~x
+                           ------------------------------------------------------res
+                                                   y -> x
           *)
           let a2bi = generate_id () in
-          let impi1 = generate_id () in
+          let imppi1 = generate_id () in
+          let resi1 = generate_id () in
           let impn1i1 = generate_id () in
           let impn2i1 = generate_id () in
-          let a2b = [(impi1, ImpAST, [x; Not y], [a2bi], []);
+          let a2b = [(imppi1, ImppAST, [Not lhs; x; Not y], [], []);
+                     (resi1, ResoAST, [x; Not y], [a2bi; imppi1], []);
                      (impn1i1, Impn1AST, [rhs; y], [], []);
                      (impn2i1, Impn2AST, [rhs; Not x], [], []);
-                     (generate_id (), ResoAST, [rhs], [impi1; impn1i1; impn2i1], [])] in
+                     (generate_id (), ResoAST, [rhs], [resi1; impn1i1; impn2i1], [])] in
           (*
              RTL:
-             ------asmp
-             y -> x
-             ------imp     ------------imp_neg1  -------------imp_neg2
-             ~y, x         ~x -> ~y, ~x          ~x -> ~y, ~~y
-             -------------------------------------------------res
-                                 ~x -> ~y
+             ------asmp ----------------impp
+             y -> x     ~(y -> x), ~y, x
+             ---------------------------res     ------------impn1  -------------impn2
+                        ~y, x                   ~x -> ~y, ~x       ~x -> ~y, ~~y
+                        --------------------------------------------------------res
+                                                ~x -> ~y
           *)
           let b2ai = generate_id () in
-          let impi2 = generate_id () in
+          let imppi2 = generate_id () in
+          let resi2 = generate_id () in
           let impn1i2 = generate_id () in
           let impn2i2 = generate_id () in
-          let b2a = [(impi2, ImpAST, [Not y; x], [b2ai], []);
+          let b2a = [(imppi2, ImppAST, [Not rhs; Not y; x], [], []);
+                     (resi2, ResoAST, [Not y; x], [b2ai; imppi2], []);
                      (impn1i2, Impn1AST, [lhs; Not x], [], []);
                      (impn2i2, Impn2AST, [lhs; y], [], []);
-                     (generate_id (), ResoAST, [lhs], [impi2; impn1i2; impn2i2], [])] in
+                     (generate_id (), ResoAST, [lhs], [resi2; impn1i2; impn2i2], [])] in
           (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* (F -> x) <-> T *)
        | [Eq ((Imp [False; x] as lhs), (True as rhs))] ->
@@ -1895,8 +1899,8 @@ let rec process_simplify (c : certif) : certif =
           let a2b = [(generate_id (), TrueAST, [rhs], [], [])] in
           (*
              RTL:
-             ---------imp_neg1  --false
-             F -> x, F          ~F
+             ---------impn1  --false
+             F -> x, F        ~F
              ---------------------res
                      F -> x
           *)
@@ -1904,7 +1908,7 @@ let rec process_simplify (c : certif) : certif =
           let fi = generate_id () in
           let b2a = [(impni, Impn1AST, [Imp [False; x]; False], [], []);
                      (fi, FalsAST, [Not False], [], []);
-                     (generate_id (), ResoAST, [Imp [False; x]], [], [])] in
+                     (generate_id (), ResoAST, [Imp [False; x]], [impni; fi], [])] in
           (simplify_to_subproof i (generate_id ()) (generate_id ()) lhs rhs a2b b2a) @ process_simplify tl
        (* (x -> T) <-> T *)
        | [Eq ((Imp [x; True] as lhs), (True as rhs))] ->
@@ -1916,7 +1920,7 @@ let rec process_simplify (c : certif) : certif =
           let a2b = [(generate_id (), TrueAST, [rhs], [], [])] in
           (*
              RTL:
-             --asmp   ----------imp_neg2
+             --asmp   ----------impn2
              T        x -> T, ~T
              -------------------res
                    x -> T
@@ -1930,51 +1934,55 @@ let rec process_simplify (c : certif) : certif =
        | [Eq ((Imp [True; x] as lhs), (a as rhs))] when (x = a) ->
           (*
              LTR:
-             ------asmp
-             T -> x
-             ------implies   --true
-             ~T, x            T
-             -------------------res
-                       x
+             ------asmp -----------------impp
+             T -> x     ~(T -> x), ~T, x
+             ---------------------------res   --true
+                        ~T, x                  T
+                        ------------------------res
+                                    x
           *)
           let a2bi = generate_id () in
-          let impi = generate_id () in
+          let imppi = generate_id () in
+          let resi = generate_id () in
           let ti = generate_id () in
-          let a2b = [(impi, ImpAST, [Not True; x], [a2bi], []);
+          let a2b = [(imppi, ImppAST, [Not lhs; Not True; x], [], []);
+                     (resi, ResoAST, [Not True; x], [a2bi; imppi], []);
                      (ti, TrueAST, [True], [], []);
-                     (generate_id (), ResoAST, [rhs], [impi; ti], [])] in
+                     (generate_id (), ResoAST, [rhs], [resi; ti], [])] in
           (*
              RTL:
-             --asmp   -----------imp_neg2
+             --asmp   -----------impn2
              x        T -> x, ~x
              -------------------res
                     T -> x
           *)
           let b2ai = generate_id () in
-          let impni = generate_id () in
-          let b2a = [(impni, Impn2AST, [lhs; Not x], [], []);
-                     (generate_id (), ResoAST, [lhs], [b2ai; impni], [])] in
+          let impn2i = generate_id () in
+          let b2a = [(impn2i, Impn2AST, [lhs; Not x], [], []);
+                     (generate_id (), ResoAST, [lhs], [b2ai; impn2i], [])] in
           (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* (x -> F) <-> ~x *)
        | [Eq ((Imp [x;False] as lhs), (Not a as rhs))] when (x = a) ->
           (*
              LTR:
-             ------asmp
-             x -> F
-             ------imp  --false
-             ~x, F      ~F
-             -------------res
-                   ~x
+             ------asmp ----------------impp
+             x -> F     ~(x -> F), ~x, F
+             ---------------------------res  --false
+                        ~x, F                ~F
+                        -----------------------res
+                                   ~x
           *)
           let a2bi = generate_id () in
-          let imp_id = generate_id () in
-          let f_id = generate_id () in
-          let a2b = [(imp_id, ImpAST, [Not x; False], [a2bi], []);
-                     (f_id, FalsAST, [Not False], [], []);
-                     (generate_id (), ResoAST, [rhs], [imp_id; f_id], [])] in
+          let imppi = generate_id () in
+          let resi = generate_id () in
+          let fi = generate_id () in
+          let a2b = [(imppi, ImppAST, [Not lhs; Not x; False], [], []);
+                     (resi, ResoAST, [Not x; False], [a2bi; imppi], []);
+                     (fi, FalsAST, [Not False], [], []);
+                     (generate_id (), ResoAST, [rhs], [resi; fi], [])] in
           (*
              RTL:
-             --asmp   ---------imp_neg1
+             --asmp   ---------impn1
              ~x       x -> F, x
              ------------------res
                   x -> F
@@ -1994,22 +2002,22 @@ let rec process_simplify (c : certif) : certif =
           let a2b = [(generate_id (), TrueAST, [rhs], [], [])] in
           (*
              RTL:
-             ---------imp_neg1  ----------imp_neg1
-             x -> x, x          x -> x, ~x
-             -----------------------------res
+             ---------impn1  ----------impn2
+             x -> x, x       x -> x, ~x
+             --------------------------res
                          x -> x
           *)
-          let impni1 = generate_id () in
-          let impni2 = generate_id () in
-          let b2a = [(impni1, Impn1AST, [Imp [x;x]; x], [], []);
-                     (impni2, Impn1AST, [Imp [x;x]; Not x], [], []);
-                     (generate_id (), ResoAST, [lhs], [impni1;impni2], [])] in
+          let impn1i = generate_id () in
+          let impn2i = generate_id () in
+          let b2a = [(impn1i, Impn1AST, [Imp [x;x]; x], [], []);
+                     (impn2i, Impn2AST, [Imp [x;x]; Not x], [], []);
+                     (generate_id (), ResoAST, [lhs], [impn1i;impn2i], [])] in
           (simplify_to_subproof i (generate_id ()) (generate_id ()) lhs rhs a2b b2a) @ process_simplify tl
        (* (~x -> x) <-> x *)
        | [Eq ((Imp [Not x;a] as lhs), (b as rhs))] when (x = a && x = b) ->
           (*
              LTR:
-             -------asmp  ------------------imp_pos
+             -------asmp  ------------------impp
              ~x -> x      ~(~x -> x), ~~x, x
              -------------------------------res
                             x
@@ -2020,7 +2028,7 @@ let rec process_simplify (c : certif) : certif =
                      (generate_id (), ResoAST, [rhs], [a2bi;imppi],[])] in
           (*
              RTL:
-             --asmp -----------imp_neg1
+             --asmp -----------impn1
              x      ~x -> x, ~x
              ------------------res
                   ~x -> x
@@ -2033,8 +2041,8 @@ let rec process_simplify (c : certif) : certif =
        (* (x -> ~x) <-> ~x *)
        | [Eq ((Imp [x; Not a] as lhs), (Not b as rhs))] when (x = a && x = b) ->
           (*
-             LTR:
-             -------asmp  ------------------imp_pos
+             LTR: (SMTCoq will remove duplicates)
+             -------asmp  ------------------impp
              x -> ~x      ~(x -> ~x), ~x, ~x
              -------------------------------res
                            ~x
@@ -2045,59 +2053,55 @@ let rec process_simplify (c : certif) : certif =
                      (generate_id (), ResoAST, [rhs], [a2bi; imppi], [])] in
           (*
              RTL:
-             --asmp   ----------imp_neg1
+             --asmp   ----------impn1
              ~x       x -> ~x, x
              -------------------res
                   x -> ~x
           *)
           let b2ai = generate_id () in
-          let impni = generate_id () in
-          let b2a = [(impni, Impn1AST, [lhs; x], [], []);
-                     (generate_id (), ResoAST, [lhs], [], [])] in
+          let impn1i = generate_id () in
+          let b2a = [(impn1i, Impn1AST, [lhs; x], [], []);
+                     (generate_id (), ResoAST, [lhs], [b2ai; impn1i], [])] in
           (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* ((x -> y) -> y) <-> (x v y) *)
        | [Eq ((Imp [Imp [x;y]; a] as lhs), (Or [b;c] as rhs))] when (y = a && x = b && y = c) ->
           (*
              LTR:
-             -------------asmp
-             (x -> y) -> y
-             -------------imp   ---------or_neg   ---------imp_neg1   ---------or_neg
-             ~(x -> y), y       x v y, ~y         x -> y, x           x v y, ~x
-             ------------------------------------------------------------------res    
-                                            x v y
+             -------------asmp   ------------------------------impp  ---------orn   ---------impn1   ---------orn
+             (x -> y) -> y       ~((x -> y) -> y), ~(x -> y), y       x v y, ~y     x -> y, x         x v y, ~x
+             --------------------------------------------------------------------------------------------------res   
+                                                         x v y
           *)
           let a2bi = generate_id () in
-          let impi = generate_id () in
+          let imppi1 = generate_id () in
           let orni1 = generate_id () in
-          let impni1 = generate_id () in
+          let impn1i1 = generate_id () in
           let orni2 = generate_id () in
-          let a2b = [(impi, ImpAST, [Not (Imp [x;y]); y], [a2bi], []);
-                     (orni1, OrnAST, [Or [x;y]; Not y], [], []);
-                     (impni1, Impn1AST, [Imp [x;y]; x], [], []);
-                     (orni2, OrnAST, [Or [x;y]; Not x], [], []);
-                     (generate_id (), ResoAST, [rhs], [impi;orni1;impni1;orni2], [])] in
+          let a2b = [(imppi1, ImppAST, [Not lhs; Not (Imp [x; y]); y], [], []);
+                     (orni1, OrnAST, [Or [x; y]; Not y], [], []);
+                     (impn1i1, Impn1AST, [Imp [x; y]; x], [], []);
+                     (orni2, OrnAST, [Or [x; y]; Not x], [], []);
+                     (generate_id (), ResoAST, [rhs], [a2bi; imppi1; orni1; impn1i1; orni2], [])] in
           (*
              RTL:
-             -----asmp  
-             x v y      
-             -----or    ---------------------imp_neg1   ----------------imp_pos   -----------------imp_neg2
-             x, y       (x -> y) -> y, x -> y           ~(x -> y), ~x, y          (x -> y) -> y, ~y       
-             --------------------------------------------------------------------------------------res
-                                                (x -> y) -> y
+             -----asmp  ----------------orp  ----------------impp   -----------------impn2   ---------------------impn1
+             x v y      ~(x v y), x, y       ~(x -> y), ~x, y       (x -> y) -> y, ~y         (x -> y) -> y, x -> y        
+             ------------------------------------------------------------------------------------------------------res
+                                                         (x -> y) -> y
           *)
           let b2ai = generate_id () in
-          let ori = generate_id () in
-          let impni2 = generate_id () in
-          let imppi = generate_id () in
-          let impni3 = generate_id () in
-          let b2a = [(ori, OrAST, [x; y], [b2ai], []);
-                     (impni2, Impn1AST, [lhs; Imp [x;y]], [], []);
-                     (imppi, ImppAST, [Not (Imp [x;y]); Not x; y], [], []);
-                     (impni3, Impn2AST, [lhs; Not y], [], []);
-                     (generate_id (), ResoAST, [lhs], [ori;impni2;imppi;impni3], [])] in
+          let orpi = generate_id () in
+          let imppi2 = generate_id () in
+          let impn2i = generate_id () in
+          let impn1i2 = generate_id () in
+          let b2a = [(orpi, OrpAST, [Not rhs; x; y], [], []);
+                     (imppi2, ImppAST, [Not (Imp [x; y]); Not x; y], [], []);
+                     (impn2i, Impn2AST, [lhs; Not y], [], []);
+                     (impn1i2, Impn1AST, [lhs; Imp [x; y]], [], []);
+                     (generate_id (), ResoAST, [lhs], [b2ai; orpi; imppi2; impn2i; impn1i2], [])] in
           (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-       | [Eq _] -> (i, ImpsimpAST, cl, p, a) :: process_simplify tl
-       | _ -> raise (Debug ("| process_simplify: expecting argument of implies_simplify to be an equivalence at id "^i^" |")))
+       | [Eq _] -> raise (Debug ("| process_simplify: unexpected form of equivalence for implies_simplify at id "^i^" |"))
+       | _ -> raise (Debug ("| process_simplify: expecting implies_simplify to derive a singleton equivalence at id "^i^" |")))
   (* (x <-> y) <-> z *)
   | (i, EqsimpAST, cl, p, a) :: tl ->
       (match (get_expr_cl cl) with
@@ -2373,8 +2377,8 @@ let rec process_simplify (c : certif) : certif =
                      (fi, FalsAST, [Not False], [], []);
                      (generate_id (), ResoAST, [lhs], [b2ai; eqn2i; fi], [])] in
           (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-       | [Eq _] -> (i, EqsimpAST, cl, p, a) :: process_simplify tl
-       | _ -> raise (Debug ("| process_simplify: expecting argument of equiv_simplify to be an equivalence at id "^i^" |")))
+       | [Eq _] -> raise (Debug ("| process_simplify: unexpected form of equivalence for equiv_simplify at id "^i^" |"))
+       | _ -> raise (Debug ("| process_simplify: expecting equiv_simplify to derive a singleton equivalence at id "^i^" |")))
   (* ite c x y <-> z *)
   | (i, ItesimpAST, cl, p, a) :: tl ->
       (match (get_expr_cl cl) with
@@ -2816,8 +2820,8 @@ let rec process_simplify (c : certif) : certif =
          (match (simplify_to_subproof_ltr i a2bi lhs rhs a2b tl) with
            | h :: t -> h :: process_simplify t
            | [] -> [])
-      | [Eq _] -> (i, ItesimpAST, cl, p, a) :: process_simplify tl
-      | _ -> raise (Debug ("| process_simplify: expecting argument of ite_simplify to be an equivalence at id "^i^" |")))
+      | [Eq _] -> raise (Debug ("| process_simplify: unexpected form of equivalence for ite_simplify at id "^i^" |"))
+      | _ -> raise (Debug ("| process_simplify: expecting ite_simplify to derive a singleton equivalence at id "^i^" |")))
   (* x <-> y *)
   | (i, BoolsimpAST, cl, p, a) :: tl ->
       (match (get_expr_cl cl) with
@@ -3141,9 +3145,8 @@ let rec process_simplify (c : certif) : certif =
                     (andpi2, AndpAST, [Not rhs; y], [], ["1"]);
                     (generate_id (), ResoAST, [lhs], [impni; andni; andpi1; andpi2; b2ai], [])] in
          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-      | [Eq _] -> (i, BoolsimpAST, cl, p, a) :: process_simplify tl
-      | _ -> raise (Debug ("| process_simplify: expecting argument of bool_simplify to be an equivalence at id "^i^" |"))
-      )
+      | [Eq _] -> raise (Debug ("| process_simplify: unexpected form of equivalence for bool_simplify at id "^i^" |"))
+      | _ -> raise (Debug ("| process_simplify: expecting bool_simplify to derive a singleton equivalence at id "^i^" |")))
   | (i, ConndefAST, cl, p, a) :: tl ->
       (match (get_expr_cl cl) with
       (* x xor y <-> (~x ^ y) v (x ^ ~y) *)
@@ -3326,10 +3329,9 @@ let rec process_simplify (c : certif) : certif =
                   (generate_id (), ResoAST, [rhs], [resi1; resi2; andpi1; andpi2; b2ai], [])] in 
        (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
       (* forall x_1, ..., x_n. F <-> ~ exists x_1, ..., x_n. ~F *)
-      | [Eq (Forall _, _)] -> raise (Debug ("| process_simplify: forall case of connective_def at id "^i^" |"))
-      | [Eq _] -> (i, ConndefAST, cl, p, a) :: process_simplify tl
-      | _ -> raise (Debug ("| process_simplify: expecting argument of connective_def to be an equivalence at id "^i^" |"))
-      )
+      | [Eq (Forall _, _)] -> raise (Debug ("| process_simplify: forall case of connective_def at id "^i^" not supported |"))
+      | [Eq _] -> raise (Debug ("| process_simplify: unexpected form of equivalence for connective_def at id "^i^" |"))
+      | _ -> raise (Debug ("| process_simplify: expecting connective_def to derive a singleton equivalence at id "^i^" |")))
   (* t1 = t2 <-> x *)
   | (i, EqualsimpAST, cl, p, a) :: tl ->
       (match (get_expr_cl cl) with
