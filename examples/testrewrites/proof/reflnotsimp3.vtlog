@@ -1,0 +1,3 @@
+(assume h1 (not (= x x)))
+(step t2 (cl (= (not (not x)) x)) :rule not_simplify)
+(step t3 (cl) :rule resolution :premises (t2 h1))
