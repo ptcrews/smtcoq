@@ -1,1 +1,12 @@
-andsimp2,(and x y z (not y)),false,and_simplify
+itesimp1,(ite true x y),x,ite_simplify
+itesimp2,(ite false x y),y,ite_simplify
+itesimp3,(ite x y y),y,ite_simplify
+itesimp4,(ite (not x) y z),(ite x z y),ite_simplify
+itesimp5,(ite x (ite x y z) w),(ite x y w),ite_simplify
+itesimp6,(ite x y (ite x z w)),(ite x y w),ite_simplify
+itesimp7,(ite x true false),x,ite_simplify
+itesimp8,(ite x false true),(not x),ite_simplify
+itesimp9,(ite x true y),(or x y),ite_simplify
+itesimp10,(ite x y false),(and x y),ite_simplify
+itesimp11,(ite x false y),(and (not x) y),ite_simplify
+itesimp12,(ite x y true),(or (not x) y),ite_simplify

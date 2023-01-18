@@ -277,4 +277,40 @@ Section Test5Debug.
   Print s42_5.
   (* s42_5 = ({|  |} *)
 
+  Eval vm_compute in List.nth 42 (fst c5) _.
+  (* 43. *)
+  Definition s43_5 := Eval vm_compute in (step_checker s42_5 (List.nth 42 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s43_5.
+  (* s43_5 = ({|  |} *)
+
+  Eval vm_compute in List.nth 43 (fst c5) _.
+  (* 44. *)
+  Definition s44_5 := Eval vm_compute in (step_checker s43_5 (List.nth 43 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s44_5.
+  (* s44_5 = ({|  |} *)
+
+  Eval vm_compute in List.nth 44 (fst c5) _.
+  (* 45. *)
+  Definition s45_5 := Eval vm_compute in (step_checker s44_5 (List.nth 44 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s45_5.
+  (* s45_5 = ({|  |} *)
+
+  Eval vm_compute in List.nth 45 (fst c5) _.
+  (* 46. *)
+  Definition s46_5 := Eval vm_compute in (step_checker s45_5 (List.nth 45 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s46_5.
+  (* s46_5 = ({|  |} *)
+
+  Eval vm_compute in List.nth 46 (fst c5) _.
+  (* 47. *)
+  Definition s47_5 := Eval vm_compute in (step_checker s46_5 (List.nth 46 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s47_5.
+  (* s47_5 = ({|  |} *)
+
+  Eval vm_compute in List.nth 47 (fst c5) _.
+  (* 48. *)
+  Definition s48_5 := Eval vm_compute in (step_checker s47_5 (List.nth 47 (fst c5) (CTrue t_func5 t_atom5 t_form5 0))).
+  Print s48_5.
+  (* s48_5 = ({|  |} *)
+
 End Test5Debug.

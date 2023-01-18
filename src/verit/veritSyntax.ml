@@ -115,12 +115,10 @@ let get_eq l =
       | _ -> raise (Debug "| get_eq: equality expected |"))
   | _ -> raise (Debug "| get_eq: atomic equality expected| ")
 
-(*
 let get_at l =
   match Form.pform l with
   | Fatom ha -> ha
   | _ -> raise (Debug "| get_at: atom expected |")
-*)
 
 let is_eq l =
   match Form.pform l with
@@ -165,7 +163,22 @@ let rec process_trans a b prem res =
     let c = if Atom.equal c b then c' else c in
     process_trans a c prem (l::res)
 
-let rec process_trans_form a b prem res =
+ let mkTrans p =
+  let (concl,prem) = List.partition Form.is_pos p in
+  match concl with
+  |[c] ->
+    let a,b = try get_eq c with
+              | Debug s -> raise (Debug ("| mkTrans: can't fetch conclusion |"^s)) in
+    let prem_val = try List.map (fun l -> (l,get_eq l)) prem with
+                      | Debug s -> raise (Debug ("| mkTrans: can't fetch premise |"^s)) in
+    let cert = (process_trans a b prem_val []) in
+    Other (EqTr (c,cert))
+  |_ -> raise (Debug "| mkTrans: 0 or more than 1 conclusions |")
+
+(* Arjun: I rewrote mkTrans and mkCongrPred below, to extend it with iff premises, but in fact, SMTCoq doesn't
+   support this, so unless we extend it to support them, we need to encode congruences
+
+  let rec process_trans_form a b prem res =
   if List.length prem = 0 then (
     assert (Form.equal a b);
     List.rev res
@@ -178,19 +191,7 @@ let rec process_trans_form a b prem res =
     let c = if Form.equal c b then c' else c in
     process_trans_form a c prem (l::res)
 
-(* let mkTrans p =
-  let (concl,prem) = List.partition Form.is_pos p in
-  match concl with
-  |[c] ->
-    let a,b = try get_eq c with
-              | Debug s -> raise (Debug ("| mkTrans: can't fetch conclusion |"^s)) in
-    let prem_val = try List.map (fun l -> (l,get_eq l)) prem with
-                      | Debug s -> raise (Debug ("| mkTrans: can't fetch premise |"^s)) in
-    let cert = (process_trans a b prem_val []) in
-    Other (EqTr (c,cert))
-  |_ -> raise (Debug "| mkTrans: 0 or more than 1 conclusions |") *)
-
-let mkTrans p =
+  let mkTrans p =
   let (concl,prem) = List.partition Form.is_pos p in
   match concl with
   |[c] ->
@@ -210,7 +211,7 @@ let mkTrans p =
       else
         raise (Debug ("| mkTrans: expecting premises and conclusion to be iff or eq |"))) in
     Other (EqTr (c,cert))
-  |_ -> raise (Debug "| mkTrans: 0 or more than 1 conclusions |")
+  |_ -> raise (Debug "| mkTrans: 0 or more than 1 conclusions |")*)
 
 (* Congruence *)
 
@@ -226,18 +227,6 @@ let rec process_congr a_args b_args prem res =
      process_congr a_args b_args prem ((Some l)::res)
   | [],[] -> List.rev res
   | _ -> raise (Debug "| process_congr: wrong no. of args to function application |")
-
-(* Congruence over connectives *)
-let rec process_congr_form a_args b_args prem res =
-  match a_args, b_args with
-  | a::a_args,b::b_args ->
-      let (l, (a', b')) = List.find (fun (l, (a', b')) -> 
-                                      ((SmtAtom.Form.equal a a') && (SmtAtom.Form.equal b b'))||
-                                      ((SmtAtom.Form.equal a b') && (SmtAtom.Form.equal b a')))
-                               prem in
-      process_congr_form a_args b_args prem ((Some l)::res)
-  | [], [] -> List.rev res
-  | _ -> raise (Debug "VeritSyntax.process_congr_form: incorrect number of arguments in function appliction")
 
 let mkCongr_aux c prem = 
   let a,b = try get_eq c with
@@ -268,40 +257,45 @@ let mkCongr p =
   |[c] -> mkCongr_aux c prem
   |_ -> raise (Debug "| mkCongr: 0 or more than 1 conclusions |")
 
-(*let mkCongrPred p =
+  let mkCongrPred p =
     (* Rule proves ~(p1 = p1)', ..., ~(pn = pn'), ~P(p1, ..., pn), P(p1', ..., pn') 
        prem: [~(p1 = p1'); ...; ~(pn = pn')], prem_P: ~P(p1, ..., pn), concl: P(p1', ..., pn' *)
     let (concl,prem) = List.partition Form.is_pos p in
-    let (prem,prem_P) = List.partition (fun x -> is_eq x || is_iff x) prem in
+    let (prem,prem_P) = List.partition is_eq prem in
     match concl with
-    |[c] -> let iseq = List.for_all (fun x -> is_eq (List.hd x)) prem in
-            let isiff = List.for_all (fun x -> is_iff (List.hd x)) prem in
+    |[c] ->
       (match prem_P with
        |[p_p] ->
-          if iseq then 
-            let prem_val = try List.map (fun l -> (l, get_eq l)) prem with
-                           | Debug s -> raise (Debug ("| mkCongrPred: can't fetch premise |"^s)) in
-            (match Atom.atom (get_at c), Atom.atom (get_at p_p) with
-             | Abop(aop,a1,a2), Abop(bop,b1,b2) when (aop = bop) ->
-                let a_args = [a1;a2] in
-                let b_args = [b1;b2] in
-                let cert = process_congr a_args b_args prem_val [] in
-                Other (EqCgrP (p_p,c,cert))
-             | Aapp (a_f,a_args), Aapp (b_f,b_args) ->
-                if indexed_op_index a_f = indexed_op_index b_f then
-                  let cert = process_congr (Array.to_list a_args) (Array.to_list b_args) prem_val [] in
-                  Other (EqCgrP (p_p,c,cert))
-                else raise (Debug "| mkCongrPred: unmatching predicates |")
-             | _ -> raise (Debug "| mkCongrPred : not pred app |"))
-          else if isiff then
-            let prem_val = try List.map (fun l -> (l, get_iff l)) prem with
-                           | Debug s -> raise (Debug ("| mkCongrPred: can't fetch premise |"^s)) in
-            (match Form.pform c, Form.pform p_p with
-             | ) 
-       | _ ->  raise (Debug "| mkCongrPred: 0 or more than 1 predicate app premise |"))  
-    | _ -> raise (Debug "| mkCongrPred: 0 conclusions |")*)
+         let prem_val = List.map (fun l -> (l,get_eq l)) prem in
+         (match Atom.atom (get_at c), Atom.atom (get_at p_p) with
+          | Abop(aop,a1,a2), Abop(bop,b1,b2) when (aop = bop) ->
+             let a_args = [a1;a2] in
+             let b_args = [b1;b2] in
+             let cert = process_congr a_args b_args prem_val [] in
+             Other (EqCgrP (p_p,c,cert))
+          | Aapp (a_f,a_args), Aapp (b_f,b_args) ->
+             if indexed_op_index a_f = indexed_op_index b_f then
+               let cert = process_congr (Array.to_list a_args) (Array.to_list b_args) prem_val [] in
+               Other (EqCgrP (p_p,c,cert))
+             else raise (Debug "| mkCongrPred: unmatching predicates ")
+          | _ -> raise (Debug "| mkCongrPred : not pred app |"))
+       |_ ->  raise (Debug "| mkCongr: no or more than one predicate app premise in congruence| "))
+    |[] ->  raise (Debug "| mkCongrPred: no conclusion in congruence |")
+    |_ -> raise (Debug "| mkCongrPred: more than one conclusion in congruence| ")
 
-let mkCongrPred p =
+(*(* Congruence over connectives *)
+  let rec process_congr_form a_args b_args prem res =
+    match a_args, b_args with
+    | a::a_args,b::b_args ->
+        let (l, (a', b')) = List.find (fun (l, (a', b')) -> 
+                                        ((SmtAtom.Form.equal a a') && (SmtAtom.Form.equal b b'))||
+                                        ((SmtAtom.Form.equal a b') && (SmtAtom.Form.equal b a')))
+                                 prem in
+        process_congr_form a_args b_args prem ((Some l)::res)
+    | [], [] -> List.rev res
+    | _ -> raise (Debug "VeritSyntax.process_congr_form: incorrect number of arguments in function appliction")
+        
+  let mkCongrPred p =
   (* Rule proves ~(p1 = p1)', ..., ~(pn = pn'), ~P(p1, ..., pn), P(p1', ..., pn') 
      prem: [~(p1 = p1'); ...; ~(pn = pn')], prem_P: ~P(p1, ..., pn), concl: P(p1', ..., pn' *)
   let (concl,prem) = List.partition Form.is_pos p in
@@ -351,9 +345,9 @@ let mkCongrPred p =
             let cert = process_congr_form [Form.neg c] [p_p] prem_val [] in
               Other (EqCgrP (p_p, c, cert))
         (* TODO: we're not handling uninterpreted bool functions properly *)
-        | _ -> raise (Debug "| VeritSyntax.mkCongrPred formula case: not pred app |"))
+        | _ -> raise (Debug "| mkCongrPred formula case: not pred app |"))
       | _ -> raise (Debug "| VeritSyntax.mkCongr formula case: no or more than one predicate app premise in congruence |"))
-    | _ -> raise (Debug "| VeritSyntax.mkCongr formula case: no conclusion in congruence |")
+    | _ -> raise (Debug "| VeritSyntax.mkCongr formula case: no conclusion in congruence |")*)
 
 
 (* Linear arithmetic *)
