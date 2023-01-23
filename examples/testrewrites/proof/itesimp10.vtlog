@@ -1,5 +1,0 @@
-(assume h1 (ite x y false))
-(assume h2 (not (and x y)))
-(step t3 (cl (= (ite x y false) (and x y))) :rule ite_simplify)
-(step t4 (cl (not (= (ite x y false) (and x y))) (not (ite x y false)) (and x y)) :rule equiv_pos2)
-(step t5 (cl) :rule resolution :premises (t4 t3 h2 h1))

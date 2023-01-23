@@ -1,3 +1,0 @@
-(assume h1 (not (= x x)))
-(step t2 (cl (= x x)) :rule eq_reflexive)
-(step t3 (cl) :rule resolution :premises (t2 h1))
