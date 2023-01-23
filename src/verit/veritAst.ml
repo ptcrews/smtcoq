@@ -2667,7 +2667,7 @@ let rec process_simplify (c : certif) : certif =
                     (generate_id (), ResoAST, [rhs], [andni; itep2i; itep1i; fi; a2bi], [])] in
          (*
              RTL:
-             -----------------iten1  -----------andp  -----------andp  -----asmp
+             -----------------iten2  -----------andp  -----------andp  -----asmp
              ite c x F, ~c, ~x       ~(c ^ x), c      ~(c ^ x), x      c ^ x
              ---------------------------------------------------------------res
                                        ite c x F
@@ -2676,10 +2676,10 @@ let rec process_simplify (c : certif) : certif =
             ite c x F, ~c , ~x      ~(c ^ x), c
             ------------------------------------res -----------andp
                   ite c x F, ~x, ~(c ^ x)           ~(c ^ x), x
-                  ---------------------------------------------res  ------------------------------res(x20)
-                              ite c x F, ~(c ^ x)                   (ite c x F) ^ ~(c ^ x), c ^ x
-                              -------------------------------------------------------------------res
-                                              (ite x y F) ^ ~(x ^ y), ite x y F
+                  ---------------------------------------------res  -----asmp
+                              ite c x F, ~(c ^ x)                   c ^ x
+                              -------------------------------------------res
+                                                ite c x F
          *)
          let b2ai = generate_id () in
          let iten1i = generate_id () in
@@ -2687,10 +2687,10 @@ let rec process_simplify (c : certif) : certif =
          let andpi2 = generate_id () in
          let resi1 = generate_id () in
          let resi2 = generate_id () in
-         let b2a = [(iten1i, Iten1AST, [lhs; Not c; Not x], [], []);
+         let b2a = [(iten1i, Iten2AST, [lhs; Not c; Not x], [], []);
                     (andpi1, AndpAST, [Not rhs; c], [], ["0"]);
-                    (andpi2, AndpAST, [Not rhs; x], [], ["1"]);
                     (resi1, ResoAST, [lhs; Not rhs; Not x], [iten1i; andpi1], []);
+                    (andpi2, AndpAST, [Not rhs; x], [], ["1"]);
                     (resi2, ResoAST, [lhs; Not rhs], [resi1; andpi2], []);
                     (generate_id (), ResoAST, [lhs], [resi2; b2ai], [])] in
                     (*(generate_id (), ResoAST, [lhs], [iten1i; andpi1; andpi2; b2ai], [])] in*)
