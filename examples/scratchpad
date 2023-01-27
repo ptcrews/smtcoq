@@ -2,6 +2,7 @@
  x = a  y = b
 --------------cong
  x ^ y = a ^ b
+
 Encoding
 ========
                     -----   ---------------eqp2 -----   -----------------eqp2                                                                                                   -----   ---------------eqp1 -----   -----------------eqp1
@@ -16,7 +17,49 @@ Encoding
                                                                                                                                                             x ^ y = a ^ b
 
 
-For LHS `x1 ^ ... ^ xn` in the conclusion, 
+1. For LHS `x1 ^ ... ^ xn` in the conclusion, 
 - generate `x1 ^ ... ^ xn, ~x1, ..., ~xn` by `andn`
 - for each equality `x = y` in premise, generate `~(x = y), ~y, x` by `eqp2` and resolve it with `x = y`, to get `~y, x`
-- for each `xi`
+- for each `yi` in `y1 ^ ... ^ yn` (the RHS in the conclusion), generate `~(y1 ^ ... ^ yn), yi` by `andp`
+- generate `x1 ^ ... ^ xn = y1 ^ ... ^ yn, x1 ^ ... ^ xn, y1 ^ ... ^ yn` by `eqn2`
+- resolve all the above to get `x1 ^ ... ^ xn = y1 ^ ... ^ yn, x1 ^ ... ^ xn`
+
+2. For RHS `y1 ^ ... ^ yn` in the conclusion, 
+- generate `y1 ^ ... ^ yn, ~y1, ..., ~yn` by `andn`
+- for each equality `x = y` in premise, generate `~(x = y), ~x, y` by `eqp1` and resolve it with `x = y`, to get `~x, y`
+- for each `xi` in `x1 ^ ... ^ xn` (the LHS in the conclusion), generate `~(x1 ^ ... ^ xn), xi` by `andp`
+- generate `x1 ^ ... ^ xn = y1 ^ ... ^ yn, ~(x1 ^ ... ^ xn), ~(y1 ^ ... ^ yn)` by `eqn1`
+- resolve all the above to get `x1 ^ ... ^ xn = y1 ^ ... ^ yn, ~(x1 ^ ... ^ xn)`
+
+3. Resolve 1. and 2. to get the conclusion `x1 ^ ... ^ xn = y1 ^ ... ^ yn`
+
+
+
+
+-----   ------
+x = y   y = z 
+-------------trans
+    x = z
+
+Encoding
+========
+-----   ---------------eqp1 ------  ---------------eqp1                     ------  ---------------eqp2 -----   ---------------eqp2
+x = y   ~(x = y), ~x, y     y = z   ~(y = z), ~y, z                         y = z   ~(y = z), ~z, y     x = y   ~(x = y), ~y, x    
+-----------------------res  -----------------------res  -----------eqn2     -----------------------res  -----------------------res  -------------eqn1
+        ~x, y                       ~y, z               x = z, x, z                 ~z, y                       ~y, x               x = z, ~x, ~z    
+        ------------------------------------------------------------res     ---------------------------------------------------------------------res
+                                  x = z, z                                                                x = z, ~z
+                                  ---------------------------------------------------------------------------------res
+                                                                        x = z
+
+1. For each `a = b` in premises, 
+- generate `~(a = b), ~a, b` by `eqp1` and resolve with `a = b`, to get `~a, b`
+- for conclusion `m = n`, generate `m = n, m, n` by `eqn2`
+- resolve all the above to get `m = n, n`
+
+2. For each `a = b` in premises, 
+- generate `~(a = b), ~b, a` by `eqp2` and resolve with `a = b`, to get `~b, a`
+- for conclusion `m = n`, generate `m = n, ~m, ~n` by `eqn1`
+- resolve all the above to get `m = n, ~n`
+
+3. Resolve 1. and 2. to get the conclusion `m = n`
