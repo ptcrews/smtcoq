@@ -350,7 +350,7 @@ let call_cvc5_abduct i env rt ro ra rf root lsmt =
     let open Smtlib2_solver in
     let fl = Form.neg (snd root) in
   
-    let cvc5 = create [| "cvc5"; "--produce-abducts"; "--incremental"|] in
+    let cvc5 = create [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"|] in
   
     set_option cvc5 "print-success" true;
     set_option cvc5 "produce-assignments" true;
