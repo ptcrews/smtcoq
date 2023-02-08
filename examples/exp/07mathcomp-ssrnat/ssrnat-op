@@ -1,0 +1,589 @@
+1 subgoal
+  
+  ============================
+  cancel succn predn
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  injective succn
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  n : nat
+  f : T -> T
+  x : T
+  ============================
+  iter n.+1 f x = iter n f (f x)
+The command has indeed failed with message:
+Anomaly "Uncaught exception Invalid_argument("index out of bounds")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  n : nat
+  f : T -> T
+  x : T
+  ============================
+  iter n.+1 f x = f (iter n f x)
+The command has indeed failed with message:
+Anomaly "Uncaught exception Invalid_argument("index out of bounds")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  n, m : nat
+  f : T -> T
+  x : T
+  ============================
+  iter (n + m) f x = iter n f (iter m f x)
+1 subgoal
+  
+  ============================
+  Equality.axiom eqn
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  eqn = eq_op
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Atom (op_2 (aka @eq_op) op_1 (aka nat_eqType)) is not of the expected type")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  m, n : nat
+  ============================
+  (m.+1 == n.+1) = (m == n)
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+if m = n then (succn m) else n = m
+if (succn m) = n then m else n = (succn m)
+if (succn n) = n then m else n = (succn n)
+1 subgoal
+  
+  x, y : nat
+  E, E' : x = y
+  ============================
+  E = E'
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  addn = addn_rec
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  T : Type
+  n : nat
+  f : nat -> T -> T
+  x : T
+  ============================
+  iteri n.+1 f x = f n (iteri n f x)
+The command has indeed failed with message:
+Anomaly "Uncaught exception Invalid_argument("index out of bounds")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  idx : T
+  n : nat
+  op : T -> T -> T
+  x : T
+  ============================
+  iterop n.+1 op x idx = iter n (op x) x
+The command has indeed failed with message:
+Anomaly "Uncaught exception Invalid_argument("index out of bounds")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  f, f' : T -> T
+  ============================
+  f =1 f' -> forall n, iter n f =1 iter n f'
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  n : nat
+  f : T -> T
+  x : T
+  ============================
+  f x = x -> iter n f x = x
+The command has indeed failed with message:
+Solver error: (error Parse Error: <stdin>:11.37: argument type is not a subtype of the function's argument type:
+
+  (assert (not (= (op_3 op_2 op_1 op_0) op_0)))
+	                              ^
+
+argument:  op_1
+has type:  (-> Tindex_0 Tindex_0)
+not subtype: Tindex_0
+in term : (op_3 op_2 (as op_1 Tindex_0) op_0) ).
+1 subgoal
+  
+  T : Type
+  f, f' : nat -> T -> T
+  ============================
+  f =2 f' -> forall n, iteri n f =1 iteri n f'
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  n : nat
+  op, op' : T -> T -> T
+  ============================
+  op =2 op' -> iterop n op =2 iterop n op'
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  f : T -> T
+  S : {pred T}
+  i : nat
+  ============================
+  {homo f : x / x \in S} -> {homo iter i f : x / x \in S}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  Nat.add = addn
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  left_id 0 addn
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  m, n : nat
+  ============================
+  m.+1 + n = (m + n).+1
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : nat
+  ============================
+  1 + n = n.+1
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  T : Type
+  D : {pred nat}
+  f : nat -> T
+  r : T -> T -> Prop
+  ============================
+  (forall y x z : T, r x y -> r y z -> r x z) ->
+  {in D &, forall i j k : nat, i < k < j -> k \in D} ->
+  {in D, forall i : nat, i.+1 \in D -> r (f i) (f i.+1)} ->
+  {in D &, {homo f : i j / i < j >-> r i j}}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  f : nat -> T
+  r : T -> T -> Prop
+  ============================
+  (forall y x z : T, r x y -> r y z -> r x z) ->
+  (forall i : nat, r (f i) (f i.+1)) -> {homo f : i j / i < j >-> r i j}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  D : {pred nat}
+  f : nat -> T
+  r : T -> T -> Prop
+  ============================
+  (forall x : T, r x x) ->
+  (forall y x z : T, r x y -> r y z -> r x z) ->
+  {in D &, forall i j k : nat, i < k < j -> k \in D} ->
+  {in D, forall i : nat, i.+1 \in D -> r (f i) (f i.+1)} ->
+  {in D &, {homo f : i j / i <= j >-> r i j}}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  f : nat -> T
+  r : T -> T -> Prop
+  ============================
+  (forall x : T, r x x) ->
+  (forall y x z : T, r x y -> r y z -> r x z) ->
+  (forall i : nat, r (f i) (f i.+1)) -> {homo f : i j / i <= j >-> r i j}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  f : nat -> nat
+  ltn_neqAle := ssrnat.ltn_neqAle
+   : forall m n : nat, (m < n) = (m != n) && (m <= n)
+  x, y : nat
+  ============================
+  (y < x) = (x != y) && (y <= x)
+1 subgoal
+  
+  ============================
+  right_id 0 addn
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+The command has indeed failed with message:
+Solver error: (error Parse Error: <stdin>:12.15: Quantifier used in non-quantified logic. ).
+1 subgoal
+  
+  T : Type
+  f : nat -> nat
+  ltn_neqAle := ssrnat.ltn_neqAle
+   : forall m n : nat, (m < n) = (m != n) && (m <= n)
+  anti_leq := ssrnat.anti_leq : antisymmetric leq
+  ============================
+  antisymmetric geq
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  f : nat -> nat
+  ltn_neqAle := ssrnat.ltn_neqAle
+   : forall m n : nat, (m < n) = (m != n) && (m <= n)
+  anti_leq := ssrnat.anti_leq : antisymmetric leq
+  leq_total := ssrnat.leq_total : forall m n : nat, (m <= n) || (n <= m)
+  ============================
+  {homo f : m n / m < n} -> {homo f : m n / m <= n}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  f : nat -> nat
+  ltn_neqAle := ssrnat.ltn_neqAle
+   : forall m n : nat, (m < n) = (m != n) && (m <= n)
+  anti_leq := ssrnat.anti_leq : antisymmetric leq
+  leq_total := ssrnat.leq_total : forall m n : nat, (m <= n) || (n <= m)
+  ============================
+  injective f -> {homo f : m n / m <= n} -> {homo f : m n / m < n}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  f : nat -> nat
+  ltn_neqAle := ssrnat.ltn_neqAle
+   : forall m n : nat, (m < n) = (m != n) && (m <= n)
+  anti_leq := ssrnat.anti_leq : antisymmetric leq
+  leq_total := ssrnat.leq_total : forall m n : nat, (m <= n) || (n <= m)
+  ============================
+  {homo f : m n /~ m < n} -> {homo f : m n /~ m <= n}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  f : nat -> nat
+  ltn_neqAle := ssrnat.ltn_neqAle
+   : forall m n : nat, (m < n) = (m != n) && (m <= n)
+  anti_leq := ssrnat.anti_leq : antisymmetric leq
+  leq_total := ssrnat.leq_total : forall m n : nat, (m <= n) || (n <= m)
+  ============================
+  injective f -> {homo f : m n /~ m <= n} -> {homo f : m n /~ m < n}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  f : nat -> nat
+  ltn_neqAle := ssrnat.ltn_neqAle
+   : forall m n : nat, (m < n) = (m != n) && (m <= n)
+  anti_leq := ssrnat.anti_leq : antisymmetric leq
+  leq_total := ssrnat.leq_total : forall m n : nat, (m <= n) || (n <= m)
+  ============================
+  {mono f : m n / m <= n} -> injective f
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  f : nat -> nat
+  ltn_neqAle := ssrnat.ltn_neqAle
+   : forall m n : nat, (m < n) = (m != n) && (m <= n)
+  anti_leq := ssrnat.anti_leq : antisymmetric leq
+  leq_total := ssrnat.leq_total : forall m n : nat, (m <= n) || (n <= m)
+  ============================
+  {mono f : m n /~ m <= n} -> injective f
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  f : nat -> nat
+  ltn_neqAle := ssrnat.ltn_neqAle
+   : forall m n : nat, (m < n) = (m != n) && (m <= n)
+  anti_leq := ssrnat.anti_leq : antisymmetric leq
+  leq_total := ssrnat.leq_total : forall m n : nat, (m <= n) || (n <= m)
+  ============================
+  {mono f : m n / m <= n} -> {mono f : m n / m < n}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  f : nat -> nat
+  ltn_neqAle := ssrnat.ltn_neqAle
+   : forall m n : nat, (m < n) = (m != n) && (m <= n)
+  anti_leq := ssrnat.anti_leq : antisymmetric leq
+  leq_total := ssrnat.leq_total : forall m n : nat, (m <= n) || (n <= m)
+  ============================
+  {mono f : m n /~ m <= n} -> {mono f : m n /~ m < n}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  f : nat -> nat
+  ltn_neqAle := ssrnat.ltn_neqAle
+   : forall m n : nat, (m < n) = (m != n) && (m <= n)
+  anti_leq := ssrnat.anti_leq : antisymmetric leq
+  leq_total := ssrnat.leq_total : forall m n : nat, (m <= n) || (n <= m)
+  ============================
+  {homo f : m n / m < n} -> {mono f : m n / m <= n}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  f : nat -> nat
+  ltn_neqAle := ssrnat.ltn_neqAle
+   : forall m n : nat, (m < n) = (m != n) && (m <= n)
+  anti_leq := ssrnat.anti_leq : antisymmetric leq
+  leq_total := ssrnat.leq_total : forall m n : nat, (m <= n) || (n <= m)
+  ============================
+  {homo f : m n /~ m < n} -> {mono f : m n /~ m <= n}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  f : nat -> nat
+  ltn_neqAle := ssrnat.ltn_neqAle
+   : forall m n : nat, (m < n) = (m != n) && (m <= n)
+  anti_leq := ssrnat.anti_leq : antisymmetric leq
+  leq_total := ssrnat.leq_total : forall m n : nat, (m <= n) || (n <= m)
+  D, D' : {pred nat}
+  ============================
+  {in D & D', {homo f : m n / m < n}} -> {in D & D', {homo f : m n / m <= n}}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  f : nat -> nat
+  ltn_neqAle := ssrnat.ltn_neqAle
+   : forall m n : nat, (m < n) = (m != n) && (m <= n)
+  anti_leq := ssrnat.anti_leq : antisymmetric leq
+  leq_total := ssrnat.leq_total : forall m n : nat, (m <= n) || (n <= m)
+  D, D' : {pred nat}
+  ============================
+  {in D & D', {homo f : m n /~ m < n}} ->
+  {in D & D', {homo f : m n /~ m <= n}}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  f : nat -> nat
+  ltn_neqAle := ssrnat.ltn_neqAle
+   : forall m n : nat, (m < n) = (m != n) && (m <= n)
+  anti_leq := ssrnat.anti_leq : antisymmetric leq
+  leq_total := ssrnat.leq_total : forall m n : nat, (m <= n) || (n <= m)
+  D, D' : {pred nat}
+  ============================
+  {in D & D', injective f} ->
+  {in D & D', {homo f : m n / m <= n}} -> {in D & D', {homo f : m n / m < n}}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  f : nat -> nat
+  ltn_neqAle := ssrnat.ltn_neqAle
+   : forall m n : nat, (m < n) = (m != n) && (m <= n)
+  anti_leq := ssrnat.anti_leq : antisymmetric leq
+  leq_total := ssrnat.leq_total : forall m n : nat, (m <= n) || (n <= m)
+  D, D' : {pred nat}
+  ============================
+  {in D & D', injective f} ->
+  {in D & D', {homo f : m n /~ m <= n}} ->
+  {in D & D', {homo f : m n /~ m < n}}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  f : nat -> nat
+  ltn_neqAle := ssrnat.ltn_neqAle
+   : forall m n : nat, (m < n) = (m != n) && (m <= n)
+  anti_leq := ssrnat.anti_leq : antisymmetric leq
+  leq_total := ssrnat.leq_total : forall m n : nat, (m <= n) || (n <= m)
+  D, D' : {pred nat}
+  ============================
+  {in D &, {mono f : m n / m <= n}} -> {in D &, injective f}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  f : nat -> nat
+  ltn_neqAle := ssrnat.ltn_neqAle
+   : forall m n : nat, (m < n) = (m != n) && (m <= n)
+  anti_leq := ssrnat.anti_leq : antisymmetric leq
+  leq_total := ssrnat.leq_total : forall m n : nat, (m <= n) || (n <= m)
+  D, D' : {pred nat}
+  ============================
+  {in D &, {mono f : m n /~ m <= n}} -> {in D &, injective f}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  f : nat -> nat
+  ltn_neqAle := ssrnat.ltn_neqAle
+   : forall m n : nat, (m < n) = (m != n) && (m <= n)
+  anti_leq := ssrnat.anti_leq : antisymmetric leq
+  leq_total := ssrnat.leq_total : forall m n : nat, (m <= n) || (n <= m)
+  D, D' : {pred nat}
+  ============================
+  {in D &, {mono f : m n / m <= n}} -> {in D &, {mono f : m n / m < n}}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  f : nat -> nat
+  ltn_neqAle := ssrnat.ltn_neqAle
+   : forall m n : nat, (m < n) = (m != n) && (m <= n)
+  anti_leq := ssrnat.anti_leq : antisymmetric leq
+  leq_total := ssrnat.leq_total : forall m n : nat, (m <= n) || (n <= m)
+  D, D' : {pred nat}
+  ============================
+  {in D &, {mono f : m n /~ m <= n}} -> {in D &, {mono f : m n /~ m < n}}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  f : nat -> nat
+  ltn_neqAle := ssrnat.ltn_neqAle
+   : forall m n : nat, (m < n) = (m != n) && (m <= n)
+  anti_leq := ssrnat.anti_leq : antisymmetric leq
+  leq_total := ssrnat.leq_total : forall m n : nat, (m <= n) || (n <= m)
+  D, D' : {pred nat}
+  ============================
+  {in D &, {homo f : m n / m < n}} -> {in D &, {mono f : m n / m <= n}}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  T : Type
+  f : nat -> nat
+  ltn_neqAle := ssrnat.ltn_neqAle
+   : forall m n : nat, (m < n) = (m != n) && (m <= n)
+  anti_leq := ssrnat.anti_leq : antisymmetric leq
+  leq_total := ssrnat.leq_total : forall m n : nat, (m <= n) || (n <= m)
+  D, D' : {pred nat}
+  ============================
+  {in D &, {homo f : m n /~ m < n}} -> {in D &, {mono f : m n /~ m <= n}}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  m, n : nat
+  ============================
+  m + n.+1 = (m + n).+1
+
