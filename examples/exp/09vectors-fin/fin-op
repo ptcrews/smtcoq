@@ -1,0 +1,108 @@
+1 subgoal
+  
+  p, n : nat
+  h, h' : p < n
+  ============================
+  of_nat_lt h = of_nat_lt h'
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+h = h'
+((@of_nat_lt) p n h') = ((@of_nat_lt) p n h)
+h = h' && p = n
+1 subgoal
+  
+  m : nat
+  p : t m
+  ============================
+  of_nat_lt (proj2_sig (to_nat p)) = p
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p, n : nat
+  h : p < n
+  ============================
+  to_nat (of_nat_lt h) = exist (fun i : nat => i < n) p h
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : nat
+  p, q : t n
+  ============================
+  proj1_sig (to_nat p) = proj1_sig (to_nat q) -> p = q
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  m, n : nat
+  p : t m
+  ============================
+  proj1_sig (to_nat (L n p)) = proj1_sig (to_nat p)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Atom op_4 (aka p) is not of the expected type")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  m, n : nat
+  p : t m
+  ============================
+  proj1_sig (to_nat (R n p)) = n + proj1_sig (to_nat p)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Atom op_4 (aka p) is not of the expected type")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  m, n : nat
+  o : t m
+  p : t n
+  ============================
+  proj1_sig (to_nat (depair o p)) =
+  n * proj1_sig (to_nat o) + proj1_sig (to_nat p)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Atom op_4 (aka o) is not of the expected type")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall (m n : nat) (p : t m) (q : t n), eqb p q = true -> m = n
+1 subgoal
+  
+  m, n : nat
+  p : t m
+  ============================
+  t (n + m)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall (n : nat) (p q : t n), eqb p q = true <-> p = q
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : nat
+  x, y : t n
+  ============================
+  {x = y} + {x <> y}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall m : nat, t m -> forall n : nat, m = n -> t n
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
