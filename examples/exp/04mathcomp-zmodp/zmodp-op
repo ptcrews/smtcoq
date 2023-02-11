@@ -1,0 +1,464 @@
+1 subgoal
+  
+  p' : nat
+  x : 'I_p
+  ============================
+  x %% p = x
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p' : nat
+  x : 'I_p
+  ============================
+  inZp x = x
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p' : nat
+  ============================
+  left_id Zp0 Zp_add
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p' : nat
+  ============================
+  left_inverse Zp0 Zp_opp Zp_add
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p' : nat
+  ============================
+  associative Zp_add
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p' : nat
+  ============================
+  commutative Zp_add
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p' : nat
+  ============================
+  left_id Zp1 Zp_mul
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p' : nat
+  ============================
+  commutative Zp_mul
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p' : nat
+  ============================
+  right_id Zp1 Zp_mul
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p' : nat
+  ============================
+  associative Zp_mul
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p' : nat
+  ============================
+  right_distributive Zp_mul Zp_add
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p' : nat
+  ============================
+  left_distributive Zp_mul Zp_add
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p' : nat
+  x : 'I_p
+  ============================
+  coprime p x -> Zp_mul (Zp_inv x) x = Zp1
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p' : nat
+  x : 'I_p
+  ============================
+  coprime p x -> Zp_mul x (Zp_inv x) = Zp1
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p' : nat
+  x, y : 'I_p
+  ============================
+  Zp_mul y x = Zp1 -> coprime p x
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p' : nat
+  x : 'I_p
+  ============================
+  ~~ coprime p x -> Zp_inv x = x
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(Zp_inv x) = x
+(Zp_inv x) = x && (nat_of_ord p' x) = p'
+(Zp_inv x) = x && (succn p') = p'
+1 subgoal
+  
+  p' : nat
+  x : 'I_p
+  n : nat
+  ============================
+  x *+ n = inZp (x * n)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Atom (op_8 (aka inZp) (op_7 (aka muln) (op_6 (aka nat_of_ord) (op_5 (aka succn) op_4 (aka p')) op_1 (aka x)) op_2 (aka n))) is not of the expected type")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p' : nat
+  ============================
+  commutative mulg
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p' : nat
+  ============================
+  abelian [set: 'I_p]
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p' : nat
+  x : 'I_p
+  n : nat
+  ============================
+  x ^+ n = inZp (x * n)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Atom (op_8 (aka inZp) (op_7 (aka muln) (op_6 (aka nat_of_ord) (op_5 (aka succn) op_4 (aka p')) op_1 (aka x)) op_2 (aka n))) is not of the expected type")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p' : nat
+  x : 'I_p
+  ============================
+  Zp1 ^+ x = x
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Atom op_4 (aka x) is not of the expected type")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p' : nat
+  ============================
+  [set: Zp_finGroupType] = <[Zp1]>
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p' : nat
+  ============================
+  #[Zp1] = p
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+((@order) Zp_finGroupType Zp1) = (succn p')
+((@order) Zp_finGroupType Zp1) = p' && (succn p') = p'
+if ((@order) Zp_finGroupType Zp1) = p' then (succn p') else p' = ((@order) Zp_finGroupType Zp1)
+1 subgoal
+  
+  p' : nat
+  ============================
+  Zp1 != 0 :> 'I_p
+1 subgoal
+  
+  ============================
+  all_equal_to (0 : 'I_1)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  m, n : nat
+  ============================
+  lshift m (0 : 'I_n.+1) = (0 : 'I_(n + m).+1)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Atom (op_4 (aka GRing.zero) (op_3 (aka Zp_zmodType) (op_6 (aka addn) op_0 (aka n) op_2 (aka m)))) is not of the expected type")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n : nat
+  ============================
+  rshift 1 (n:=n) =1 lift (0 : 'I_n.+1)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  R : Type
+  idx : R
+  op : Monoid.law idx
+  F : 'I_1 -> R
+  ============================
+  \big[op/idx]_(i < 1) F i = F 0
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p', n : nat
+  ============================
+  n%:R = inZp n
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Atom (op_4 (aka GRing.natmul) (op_1 (aka GRing.Ring.zmodType) op_0 (aka Zp_ringType)) (op_2 (aka GRing.one) op_0 (aka Zp_ringType)) op_3 (aka n)) is not of the expected type")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p' : nat
+  x : 'I_p
+  ============================
+  x%:R = x
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Atom op_5 (aka x) is not of the expected type")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p' : nat
+  x : 'I_p
+  ============================
+  (- x)%:R = - x
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Atom (op_7 (aka GRing.opp) (op_5 (aka Zp_zmodType) (op_4 (aka succn) op_3 (aka p'))) op_6 (aka x)) is not of the expected type")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p' : nat
+  ============================
+  commutative mulg
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p : nat
+  ============================
+  1 < p -> (Zp_trunc p).+2 = p
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  R : Type
+  idx : R
+  op : Monoid.law idx
+  P : 'I_1 -> bool
+  F : 'I_1 -> R
+  ============================
+  \big[op/idx]_(i < 1 | P i) F i = (if P 0 then F 0 else idx)
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(succn (succn (Zp_trunc p))) = p
+(Zp_trunc p) = p && Zp_trunc = succn
+(succn p) = p && Zp_trunc = succn
+1 subgoal
+  
+  p : nat
+  p_gt1 : 1 < p
+  n : nat
+  ============================
+  (n%:R : 'Z_p) = n %% p
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p : nat
+  p_gt1 : 1 < p
+  m : nat
+  ============================
+  (m %% p)%:R = m%:R
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Atom (op_10 (aka GRing.natmul) (op_6 (aka GRing.Ring.zmodType) (op_5 (aka Zp_ringType) (op_4 (aka Zp_trunc) op_2 (aka p)))) (op_7 (aka GRing.one) (op_5 (aka Zp_ringType) (op_4 (aka Zp_trunc) op_2 (aka p)))) (op_9 (aka modn) op_8 (aka m) op_2 (aka p))) is not of the expected type")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p : nat
+  ============================
+  1 < p -> p%:R = 0
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Atom (op_8 (aka GRing.natmul) (op_6 (aka GRing.Ring.zmodType) (op_5 (aka Zp_ringType) (op_4 (aka Zp_trunc) op_2 (aka p)))) (op_7 (aka GRing.one) (op_5 (aka Zp_ringType) (op_4 (aka Zp_trunc) op_2 (aka p)))) op_2 (aka p)) is not of the expected type")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p, x : nat
+  ============================
+  1 < p -> ((x%:R : 'Z_p) \is a GRing.unit) = coprime p x
+The command has indeed failed with message:
+Could not reconstruct abduct
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p : nat
+  ============================
+  group_set Zp
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p : nat
+  ============================
+  0 < p -> #|Zp| = p
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p : nat
+  x : ordinal_finType (Zp_trunc p).+2
+  ============================
+  1 < p -> x \in Zp
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p : nat
+  ============================
+  0 < p -> #|units_Zp| = totient p
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p : nat
+  ============================
+  abelian units_Zp
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p : nat
+  p_pr : prime p
+  ============================
+  (Zp_trunc (pdiv p)).+2 = (Zp_trunc p).+2
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p : nat
+  p_pr : prime p
+  ============================
+  (Zp_trunc (pdiv p)).+2 = p
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p : nat
+  p_pr : prime p
+  ============================
+  #|'F_p| = p
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p : nat
+  p_pr : prime p
+  n : nat
+  ============================
+  (n%:R : 'F_p) = n %% p
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p : nat
+  p_pr : prime p
+  m : nat
+  ============================
+  (m %% p)%:R = m%:R
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Atom (op_9 (aka GRing.natmul) (op_5 (aka GRing.Ring.zmodType) (op_4 (aka Zp_ringType) (op_3 (aka Zp_trunc) (op_2 (aka pdiv) op_0 (aka p))))) (op_6 (aka GRing.one) (op_4 (aka Zp_ringType) (op_3 (aka Zp_trunc) (op_2 (aka pdiv) op_0 (aka p))))) (op_8 (aka modn) op_7 (aka m) op_0 (aka p))) is not of the expected type")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p : nat
+  p_pr : prime p
+  ============================
+  p \in [char 'F_p]
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p : nat
+  p_pr : prime p
+  ============================
+  p%:R = 0
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Atom (op_7 (aka GRing.natmul) (op_5 (aka GRing.Ring.zmodType) (op_4 (aka Zp_ringType) (op_3 (aka Zp_trunc) (op_2 (aka pdiv) op_0 (aka p))))) (op_6 (aka GRing.one) (op_4 (aka Zp_ringType) (op_3 (aka Zp_trunc) (op_2 (aka pdiv) op_0 (aka p))))) op_0 (aka p)) is not of the expected type")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p : nat
+  p_pr : prime p
+  x : nat
+  ============================
+  ((x%:R : 'F_p) \is a GRing.unit) = coprime p x
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p : nat
+  ============================
+  GRing.Field.mixin_of [the unitRingType of 'F_p]
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+
