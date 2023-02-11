@@ -1,0 +1,426 @@
+1 subgoal
+  
+  p, p' : positive
+  ============================
+  (p =? p')%positive = true -> p = p'
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Atom op_0 (aka p) is not of the expected type")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p, p' : positive
+  ============================
+  (p =? p')%positive = true -> (p ?= p')%positive = Eq
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p, p' : positive
+  ============================
+  (p ?= p')%positive = Eq -> (p =? p')%positive = true
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, n' : N
+  ============================
+  (n =? n') = true -> (n ?= n') = Eq
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(N.compare n n') = Eq
+(N.compare n n) = Eq && n = n'
+(N.compare n if (N.compare n n') = Eq then n else n') = Eq
+1 subgoal
+  
+  n, n' : N
+  ============================
+  (n ?= n') = Eq -> (n =? n') = true
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, n' : N
+  ============================
+  (n =? n') = true -> n = n'
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, n' : N
+  ============================
+  N.lxor n n' = 0 -> (n =? n') = true
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, n' : N
+  p : positive
+  ============================
+  N.lxor n n' = N.pos p -> (n =? n') = false
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  a : N
+  ============================
+  Nodd a -> forall a0 : N, (N.double a0 =? a) = false
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  a, a0 : N
+  ============================
+  (N.div2 a =? a0) = false -> (a =? N.double a0) = false
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  a : N
+  ============================
+  Neven a -> forall a0 : N, (N.succ_double a0 =? a) = false
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  a, a0 : N
+  ============================
+  (N.div2 a =? a0) = false -> (N.succ_double a0 =? a) = false
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  a, a' : N
+  ============================
+  N.odd a = false -> N.odd a' = true -> (a =? a') = false
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  a, a' : N
+  ============================
+  (a =? a') = true -> (N.div2 a =? N.div2 a') = true
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+if a = a' then (N.div2 a) else a' = a
+if (N.div2 a) = a' then a else a' = (N.div2 a)
+if (N.div2 a') = a' then a else a' = (N.div2 a')
+1 subgoal
+  
+  a, a' : N
+  ============================
+  (N.div2 a =? N.div2 a') = false -> (a =? a') = false
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+if a = a' then (N.div2 a) else a' = a
+if (N.div2 a) = a' then a else a' = (N.div2 a)
+if (N.div2 a') = a' then a else a' = (N.div2 a')
+1 subgoal
+  
+  a, a' : N
+  ============================
+  N.odd a = N.odd a' -> N.div2 a = N.div2 a' -> a = a'
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+a = a'
+if a = a' then (N.div2 a) else a' = a
+if (N.div2 a) = a' then (N.div2 a') else a' = a
+1 subgoal
+  
+  a, a' : N
+  ============================
+  (a =? a') = false -> N.odd a = N.odd a' -> (N.div2 a =? N.div2 a') = false
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+if a = a' then (N.div2 a) else a' = a
+if (N.div2 a) = a' then a else a' = (N.div2 a)
+if (N.div2 a') = a' then a else a' = (N.div2 a')
+1 subgoal
+  
+  a, a' : N
+  ============================
+  (a =? a') = false ->
+  N.odd a = negb (N.odd a') \/ (N.div2 a =? N.div2 a') = false
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+if a = a' then (N.div2 a) else a' = a
+if (N.div2 a) = a' then a else a' = (N.div2 a)
+if (N.div2 a') = a' then a else a' = (N.div2 a')
+1 subgoal
+  
+  a : N
+  ============================
+  {a0 : N | a = N.double a0} + {a1 : N | a = N.succ_double a1}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  a, b : N
+  ============================
+  Nleb a b = (a <=? b)
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+Nleb = N.leb
+Nleb = N.leb && a = b
+(not a = b) && Nleb = N.leb
+1 subgoal
+  
+  a, b : N
+  ============================
+  Nleb a b = true <-> a <= b
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  a : N
+  ============================
+  Nleb a a = true
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  a, b : N
+  ============================
+  Nleb a b = true -> Nleb b a = true -> a = b
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  a, b, c : N
+  ============================
+  Nleb a b = true -> Nleb b c = true -> Nleb a c = true
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+a = b
+b = c
+if b = c then a else b = a
+1 subgoal
+  
+  a, b, c : N
+  ============================
+  Nleb a b = true -> Nleb c b = false -> Nleb c a = false
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+a = b
+if a = c then a else b = a
+(not if a = b then c else a = a)
+1 subgoal
+  
+  a, b, c : N
+  ============================
+  Nleb b a = false -> Nleb b c = true -> Nleb c a = false
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+b = c
+if b = c then a else c = a
+(not if b = c then b else a = a)
+1 subgoal
+  
+  a, b, c : N
+  ============================
+  Nleb b a = false -> Nleb c b = false -> Nleb c a = false
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+a = b
+c = b
+if c = b then a else b = a
+1 subgoal
+  
+  a, b : N
+  ============================
+  Nleb b a = false -> Nleb a b = true
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  a, b : N
+  ============================
+  Nleb a b = true -> Nleb (N.double a) (N.double b) = true
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+if a = b then (N.double a) else b = a
+if (N.double a) = b then a else b = (N.double a)
+if (N.double b) = b then a else b = (N.double b)
+1 subgoal
+  
+  a, b : N
+  ============================
+  Nleb a b = true -> Nleb (N.succ_double a) (N.succ_double b) = true
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+if a = b then (N.succ_double a) else b = a
+if (N.succ_double a) = b then a else b = (N.succ_double a)
+if (N.succ_double b) = b then a else b = (N.succ_double b)
+1 subgoal
+  
+  a, b : N
+  ============================
+  Nleb (N.double a) (N.double b) = true -> Nleb a b = true
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+if a = b then (N.double a) else b = a
+if (N.double a) = b then a else b = (N.double a)
+if (N.double b) = b then a else b = (N.double b)
+1 subgoal
+  
+  a, b : N
+  ============================
+  Nleb (N.succ_double a) (N.succ_double b) = true -> Nleb a b = true
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+if a = b then (N.succ_double a) else b = a
+if (N.succ_double a) = b then a else b = (N.succ_double a)
+if (N.succ_double b) = b then a else b = (N.succ_double b)
+1 subgoal
+  
+  a, b : N
+  ============================
+  Nleb a b = false -> Nleb (N.double a) (N.double b) = false
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+if a = b then (N.double a) else b = a
+if (N.double a) = b then a else b = (N.double a)
+if (N.double b) = b then a else b = (N.double b)
+1 subgoal
+  
+  a, b : N
+  ============================
+  Nleb a b = false -> Nleb (N.succ_double a) (N.succ_double b) = false
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+if a = b then (N.succ_double a) else b = a
+if (N.succ_double a) = b then a else b = (N.succ_double a)
+if (N.succ_double b) = b then a else b = (N.succ_double b)
+1 subgoal
+  
+  a, b : N
+  ============================
+  Nleb (N.double a) (N.double b) = false -> Nleb a b = false
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+if a = b then (N.double a) else b = a
+if (N.double a) = b then a else b = (N.double a)
+if (N.double b) = b then a else b = (N.double b)
+1 subgoal
+  
+  a, b : N
+  ============================
+  Nleb (N.succ_double a) (N.succ_double b) = false -> Nleb a b = false
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+if a = b then (N.succ_double a) else b = a
+if (N.succ_double a) = b then a else b = (N.succ_double a)
+if (N.succ_double b) = b then a else b = (N.succ_double b)
+1 subgoal
+  
+  a, b : N
+  ============================
+  Nleb a b = false <-> (a ?= b) = Gt
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  a, b : N
+  ============================
+  (a ?= b) = Gt -> Nleb a b = false
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  a, b : N
+  ============================
+  (a ?= b) = Lt -> Nleb b a = false
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  a, b : N
+  ============================
+  Nleb (N.min a b) a = true
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  a, b : N
+  ============================
+  Nleb (N.min a b) b = true
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  a, b, c : N
+  ============================
+  Nleb a (N.min b c) = true -> Nleb a b = true
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(N.min b c) = b
+if a = b then (N.min a c) else b = a
+if b = c then (N.min b b) else c = b
+1 subgoal
+  
+  a, b, c : N
+  ============================
+  Nleb a (N.min b c) = true -> Nleb a c = true
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(N.min b c) = c
+if a = c then (N.min b a) else c = a
+if b = c then (N.min b b) else c = b
+1 subgoal
+  
+  a, b, c : N
+  ============================
+  Nleb a b = true -> Nleb a c = true -> Nleb a (N.min b c) = true
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(N.min b c) = b
+(N.min b c) = c
+if a = c then b else c = (N.min b c)
+1 subgoal
+  
+  a, b, c : N
+  ============================
+  Nleb (N.min b c) a = false -> Nleb b a = false
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(N.min b c) = b
+if b = c then (N.min b b) else c = b
+if b = a then (N.min b c) else a = b
+1 subgoal
+  
+  a, b, c : N
+  ============================
+  Nleb (N.min b c) a = false -> Nleb c a = false
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(N.min b c) = c
+if b = c then (N.min b b) else c = b
+if c = a then (N.min b c) else a = c
