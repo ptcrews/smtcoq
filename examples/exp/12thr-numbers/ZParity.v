@@ -9,7 +9,8 @@
 (************************************************************************)
 
 Require Import Bool ZMulOrder NZParity.
-
+Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
+Require Import SMTCoq.SMTCoq.
 (** Some more properties of [even] and [odd]. *)
 
 Module Type ZParityProp (Import Z : ZAxiomsSig')
@@ -18,37 +19,21 @@ Module Type ZParityProp (Import Z : ZAxiomsSig')
 Include NZParityProp Z Z ZP.
 
 Lemma odd_pred : forall n, odd (P n) = even n.
-Proof.
- intros n. rewrite <- (succ_pred n) at 2. symmetry. apply even_succ.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma even_pred : forall n, even (P n) = odd n.
-Proof.
- intros n. rewrite <- (succ_pred n) at 2. symmetry. apply odd_succ.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma even_opp : forall n, even (-n) = even n.
-Proof.
- assert (H : forall n, Even n -> Even (-n)).
-  intros n (m,H). exists (-m). rewrite mul_opp_r. now f_equiv.
- intros n. rewrite eq_iff_eq_true, !even_spec.
- split. rewrite <- (opp_involutive n) at 2. apply H.
- apply H.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma odd_opp : forall n, odd (-n) = odd n.
-Proof.
- intros. rewrite <- !negb_even. now rewrite even_opp.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma even_sub : forall n m, even (n-m) = Bool.eqb (even n) (even m).
-Proof.
- intros. now rewrite <- add_opp_r, even_add, even_opp.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma odd_sub : forall n m, odd (n-m) = xorb (odd n) (odd m).
-Proof.
- intros. now rewrite <- add_opp_r, odd_add, odd_opp.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 End ZParityProp.

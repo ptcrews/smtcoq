@@ -1,0 +1,44 @@
+1 subgoal
+  
+  ============================
+  forall n : t, odd (P n) = even n
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall n : t, even (P n) = odd n
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall n : t, even (- n) = even n
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(opp n) = n
+(opp (opp n)) = n && (opp n) = n
+(opp if (opp n) = n then (opp (opp n)) else n) = n
+1 subgoal
+  
+  ============================
+  forall n : t, odd (- n) = odd n
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(opp n) = n
+(opp (opp n)) = n && (opp n) = n
+(opp if (opp n) = n then (opp (opp n)) else n) = n
+1 subgoal
+  
+  ============================
+  forall n m : t, even (n - m) = even n <---> even m
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall n m : t, odd (n - m) = xorb (odd n) (odd m)
+The command has indeed failed with message:
+Could not reconstruct abduct
