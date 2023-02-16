@@ -1,2 +1,0 @@
-Proof\.(\n|.)*?(Qed\.|Defined\.)
-Proof. Show. Fail (cvc5_abduct 3). Admitted.

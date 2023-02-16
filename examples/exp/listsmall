@@ -1,0 +1,344 @@
+  Theorem nil_cons (x:A) (l:list A) : [] <> x :: l.
+  Proof.
+    discriminate.
+  Qed.
+
+
+  Lemma hd_error_some_nil l (a:A) : hd_error l = Some a -> l <> nil.
+  Proof. unfold hd_error. destruct l; now discriminate. Qed.
+
+
+  Theorem hd_error_nil : hd_error (@nil A) = None.
+  Proof.
+    simpl; reflexivity.
+  Qed.
+
+
+  Theorem hd_error_cons (l : list A) (x : A) : hd_error (x::l) = Some x.
+  Proof.
+    simpl; reflexivity.
+  Qed.
+
+
+  Theorem app_nil_l (l:list A) : [] ++ l = l.
+  Proof.
+    reflexivity.
+  Qed.
+
+
+  Theorem app_nil_r (l:list A) : l ++ [] = l.
+  Proof.
+    induction l; simpl; f_equal; auto.
+  Qed.
+
+
+  Theorem app_nil_end (l:list A) : l = l ++ [].
+  Proof. symmetry; apply app_nil_r. Qed.
+
+
+  Theorem app_assoc (l m n:list A) : l ++ m ++ n = (l ++ m) ++ n.
+  Proof.
+    induction l; simpl; f_equal; auto.
+  Qed.
+
+
+  Theorem app_assoc_reverse (l m n:list A) : (l ++ m) ++ n = l ++ m ++ n.
+  Proof.
+     auto using app_assoc.
+  Qed.
+
+
+  Theorem app_comm_cons (x y:list A) (a:A) : a :: (x ++ y) = (a :: x) ++ y.
+  Proof.
+    auto.
+  Qed.
+
+
+  Lemma app_length : forall l l' : list A, length (l++l') = length l + length l'.
+  Proof.
+    intro l; induction l; simpl; auto.
+  Qed.
+
+
+  Theorem in_eq : forall (a:A) (l:list A), In a (a :: l).
+  Proof.
+    simpl; auto.
+  Qed.
+
+
+  Theorem in_cons : forall (a b:A) (l:list A), In b l -> In b (a :: l).
+  Proof.
+    simpl; auto.
+  Qed.
+
+
+  Theorem in_nil : forall a:A, ~ In a [].
+  Proof.
+    unfold not; intros a H; inversion_clear H.
+  Qed.
+
+
+  Lemma in_app_iff : forall l l' (a:A), In a (l++l') <-> In a l \/ In a l'.
+  Proof.
+    split; auto using in_app_or, in_or_app.
+  Qed.
+
+
+  Lemma in_inv : forall (a b:A) (l:list A), In b (a :: l) -> a = b \/ In b l.
+  Proof. easy. Qed.
+
+
+  Lemma remove_cons : forall x l, remove x (x :: l) = remove x l.
+  Proof.
+    intros x l; simpl; destruct (eq_dec x x); [ reflexivity | now exfalso ].
+  Qed.
+
+
+  Lemma remove_remove_eq : forall l x, remove x (remove x l) = remove x l.
+  Proof. intros l x; now rewrite (notin_remove _ _ (remove_In l x)). Qed.
+
+
+  Theorem count_occ_not_In l x : ~ In x l <-> count_occ l x = 0.
+  Proof.
+    rewrite count_occ_In. unfold gt. now rewrite Nat.nlt_ge, Nat.le_0_r.
+  Qed.
+
+
+  Lemma count_occ_nil x : count_occ [] x = 0.
+  Proof.
+    reflexivity.
+  Qed.
+
+
+
+
+  Lemma concat_nil : concat nil = nil.
+  Proof.
+  reflexivity.
+  Qed.
+
+
+  Lemma concat_cons : forall x l, concat (cons x l) = x ++ concat l.
+  Proof.
+  reflexivity.
+  Qed.
+
+
+  Lemma in_map_iff : forall l y, In y (map l) <-> exists x, f x = y /\ In x l.
+  Proof.
+    intro l; induction l; firstorder (subst; auto).
+  Qed.
+
+
+  Lemma map_length : forall l, length (map l) = length l.
+  Proof.
+    intro l; induction l; simpl; auto.
+  Qed.
+
+
+  Lemma map_eq_nil : forall l, map l = [] -> l = [].
+  Proof.
+    intro l; destruct l; simpl; reflexivity || discriminate.
+  Qed.
+
+
+Lemma ext_in_map :
+  forall (A B : Type)(f g:A->B) l, map f l = map g l -> forall a, In a l -> f a = g a.
+Proof. intros A B f g l; induction l; intros [=] ? []; subst; auto. Qed.
+
+
+Lemma map_ext_in_iff :
+   forall (A B : Type)(f g:A->B) l, map f l = map g l <-> forall a, In a l -> f a = g a.
+Proof. split; [apply ext_in_map | apply map_ext_in]. Qed.
+
+
+  Lemma lel_refl : lel l l.
+  Proof.
+    unfold lel; auto with arith.
+  Qed.
+
+
+  Lemma lel_cons_cons : lel l m -> lel (a :: l) (b :: m).
+  Proof.
+    unfold lel; simpl; auto with arith.
+  Qed.
+
+
+  Lemma lel_cons : lel l m -> lel l (b :: m).
+  Proof.
+    unfold lel; simpl; auto with arith.
+  Qed.
+
+
+  Lemma lel_tail : lel (a :: l) (b :: m) -> lel l m.
+  Proof.
+    unfold lel; simpl; auto with arith.
+  Qed.
+
+
+  Lemma incl_nil_l : forall l, incl nil l.
+  Proof.
+    intros l a Hin; inversion Hin.
+  Qed.
+
+
+  Lemma incl_refl : forall l:list A, incl l l.
+  Proof.
+    auto.
+  Qed.
+
+
+  Lemma incl_tl : forall (a:A) (l m:list A), incl l m -> incl l (a :: m).
+  Proof.
+    auto with datatypes.
+  Qed.
+
+
+  Lemma incl_tran : forall l m n:list A, incl l m -> incl m n -> incl l n.
+  Proof.
+    auto.
+  Qed.
+
+
+  Lemma incl_appl : forall l m n:list A, incl l n -> incl l (n ++ m).
+  Proof.
+    auto with datatypes.
+  Qed.
+
+
+  Lemma incl_appr : forall l m n:list A, incl l n -> incl l (m ++ n).
+  Proof.
+    auto with datatypes.
+  Qed.
+
+
+  Lemma incl_filter f l : incl (filter f l) l.
+  Proof. intros x Hin; now apply filter_In in Hin. Qed.
+
+
+  Lemma firstn_nil n: firstn n [] = [].
+  Proof. induction n; now simpl. Qed.
+
+
+  Lemma firstn_cons n a l: firstn (S n) (a::l) = a :: (firstn n l).
+  Proof. now simpl. Qed.
+
+
+  Lemma firstn_all l: firstn (length l) l = l.
+  Proof. induction l as [| ? ? H]; simpl; [reflexivity | now rewrite H]. Qed.
+
+
+  Lemma firstn_O l: firstn 0 l = [].
+  Proof. now simpl. Qed.
+
+
+  Lemma firstn_skipn_comm : forall m n l,
+  firstn m (skipn n l) = skipn n (firstn (n + m) l).
+  Proof. now intros m n; induction n; intros []; simpl; destruct m. Qed.
+
+
+  Lemma skipn_firstn_comm : forall m n l,
+  skipn m (firstn n l) = firstn (n - m) (skipn m l).
+  Proof. now intro m; induction m; intros [] []; simpl; rewrite ?firstn_nil. Qed.
+
+
+  Lemma skipn_O : forall l, skipn 0 l = l.
+  Proof. reflexivity. Qed.
+
+
+  Lemma skipn_nil : forall n, skipn n ([] : list A) = [].
+  Proof. now intros []. Qed.
+
+
+  Lemma skipn_cons n a l: skipn (S n) (a::l) = skipn n l.
+  Proof. reflexivity. Qed.
+
+
+  Lemma skipn_all : forall l, skipn (length l) l = nil.
+  Proof. now intro l; induction l. Qed.
+
+
+  Lemma firstn_length : forall n l, length (firstn n l) = min n (length l).
+  Proof.
+    intro n; induction n; intro l; destruct l; simpl; auto.
+  Qed.
+
+
+  Lemma skipn_app n : forall l1 l2,
+    skipn n (l1 ++ l2) = (skipn n l1) ++ (skipn (n - length l1) l2).
+  Proof. induction n; auto; intros [|]; simpl; auto. Qed.
+
+
+  Lemma Add_app a l1 l2 : Add a (l1++l2) (l1++a::l2).
+  Proof.
+   induction l1; simpl; now constructor.
+  Qed.
+
+
+  Lemma Add_length a l l' : Add a l l' -> length l' = S (length l).
+  Proof.
+   induction 1; simpl; auto with arith.
+  Qed.
+
+
+  Lemma NoDup_remove_1 l l' a : NoDup (l++a::l') -> NoDup (l++l').
+  Proof.
+  intros. now apply NoDup_remove with a.
+  Qed.
+
+
+  Lemma NoDup_remove_2 l l' a : NoDup (l++a::l') -> ~In a (l++l').
+  Proof.
+  intros. now apply NoDup_remove.
+  Qed.
+
+
+  Lemma nodup_incl l1 l2 : incl l1 (nodup l2) <-> incl l1 l2.
+  Proof.
+    split; intros Hincl a Ha; apply nodup_In; intuition.
+  Qed.
+
+
+  Lemma cons_seq : forall len start, start :: seq (S start) len = seq start (S len).
+  Proof.
+    reflexivity.
+  Qed.
+
+
+  Lemma seq_length : forall len start, length (seq start len) = len.
+  Proof.
+    intro len; induction len; simpl; auto.
+  Qed.
+
+
+    Lemma Exists_nil : Exists nil <-> False.
+    Proof. split; inversion 1. Qed.
+
+
+    Lemma Exists_cons x l:
+      Exists (x::l) <-> P x \/ Exists l.
+    Proof. split; inversion 1; auto. Qed.
+
+
+    Lemma Forall_inv : forall (a:A) l, Forall (a :: l) -> P a.
+    Proof.
+      intros a l H; inversion H; trivial.
+    Qed.
+
+
+    Theorem Forall_inv_tail : forall (a:A) l, Forall (a :: l) -> Forall l.
+    Proof.
+      intros a l H; inversion H; trivial.
+    Qed.
+
+
+    Lemma Forall_elt a l1 l2 : Forall (l1 ++ a :: l2) -> P a.
+    Proof.
+      intros HF; apply Forall_app in HF; destruct HF as [HF1 HF2]; now inversion HF2.
+    Qed.
+
+
+  Theorem Forall2_refl : Forall2 [] [].
+  Proof. intros; apply Forall2_nil. Qed.
+
+
