@@ -23,7 +23,8 @@ Require Import Zcompare.
 Require Import Zorder.
 Require Import Znat.
 Require Import ZArith_dec.
-
+Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
+Require Import SMTCoq.SMTCoq.
 Local Open Scope Z_scope.
 
 (**********************************************************************)
@@ -42,27 +43,18 @@ Notation Zabs_Zmult := Z.abs_mul (only parsing).
 Lemma Zabs_ind :
   forall (P:Z -> Prop) (n:Z),
     (n >= 0 -> P n) -> (n <= 0 -> P (- n)) -> P (Z.abs n).
-Proof.
- intros. apply Z.abs_case_strong; Z.swap_greater; trivial.
- intros x y Hx; now subst.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Theorem Zabs_intro : forall P (n:Z), P (- n) -> P n -> P (Z.abs n).
-Proof.
- intros P n; now destruct n.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Definition Zabs_dec : forall x:Z, {x = Z.abs x} + {x = - Z.abs x}.
-Proof.
- intros x; destruct x; auto.
-Defined.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zabs_spec x :
   0 <= x /\ Z.abs x = x \/
   0 > x /\ Z.abs x = -x.
-Proof.
- Z.swap_greater. apply Z.abs_spec.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** * Some results about the sign function. *)
 
@@ -78,9 +70,7 @@ Lemma Zsgn_spec x :
   0 < x /\ Z.sgn x = 1 \/
   0 = x /\ Z.sgn x = 0 \/
   0 > x /\ Z.sgn x = -1.
-Proof.
- intros. Z.swap_greater. apply Z.sgn_spec.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** Compatibility *)
 
@@ -93,12 +83,7 @@ Notation Zabs_nat_Zminus := (fun n m => Zabs2Nat.inj_sub m n) (only parsing).
 Notation Zabs_nat_compare := Zabs2Nat.inj_compare (only parsing).
 
 Lemma Zabs_nat_le n m : 0 <= n <= m -> (Z.abs_nat n <= Z.abs_nat m)%nat.
-Proof.
- intros (H,H'). apply Zabs2Nat.inj_le; trivial. now transitivity n.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zabs_nat_lt n m : 0 <= n < m -> (Z.abs_nat n < Z.abs_nat m)%nat.
-Proof.
- intros (H,H'). apply Zabs2Nat.inj_lt; trivial.
-  transitivity n; trivial. now apply Z.lt_le_incl.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.

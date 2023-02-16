@@ -19,6 +19,8 @@
 Require Import BinInt.
 Declare Scope Int_scope.
 Delimit Scope Int_scope with I.
+Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
+Require Import SMTCoq.SMTCoq.
 Local Open Scope Int_scope.
 
 (** * A specification of integers *)
@@ -114,34 +116,22 @@ Module MoreInt (Import I:Int).
   Local Notation int := I.t.
 
   Lemma eqb_eq n p : (n =? p) = true <-> n == p.
-  Proof.
-   now rewrite i2z_eqb, Z.eqb_eq.
-  Qed.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
   Lemma eqb_neq n p : (n =? p) = false <-> ~(n == p).
-  Proof.
-   rewrite <- eqb_eq. destruct (n =? p); intuition.
-  Qed.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
   Lemma ltb_lt n p : (n <? p) = true <-> n < p.
-  Proof.
-   now rewrite i2z_ltb, Z.ltb_lt.
-  Qed.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
   Lemma ltb_nlt n p : (n <? p) = false <-> ~(n < p).
-  Proof.
-   rewrite <- ltb_lt. destruct (n <? p); intuition.
-  Qed.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
   Lemma leb_le n p : (n <=? p) = true <-> n <= p.
-  Proof.
-   now rewrite i2z_leb, Z.leb_le.
-  Qed.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
   Lemma leb_nle n p : (n <=? p) = false <-> ~(n <= p).
-  Proof.
-   rewrite <- leb_le. destruct (n <=? p); intuition.
-  Qed.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
   (** A magic (but costly) tactic that goes from [int] back to the [Z]
       friendly world ... *)
@@ -364,24 +354,16 @@ Module MoreInt (Import I:Int).
     end.
 
   Lemma norm_ei_correct (e:ExprI) : ez2z (norm_ei e) = i2z (ei2i e).
-  Proof.
-    induction e; simpl; i2z; auto; try congruence.
-  Qed.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
   Lemma norm_ez_correct (e:ExprZ) : ez2z (norm_ez e) = ez2z e.
-  Proof.
-    induction e; simpl; i2z; auto; try congruence; apply norm_ei_correct.
-  Qed.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
   Lemma norm_ep_correct (e:ExprP) : ep2p (norm_ep e) <-> ep2p e.
-  Proof.
-    induction e; simpl; rewrite ?norm_ez_correct; intuition.
-  Qed.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
   Lemma norm_ep_correct2 (e:ExprP) : ep2p (norm_ep e) -> ep2p e.
-  Proof.
-    intros; destruct (norm_ep_correct e); auto.
-  Qed.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
   Ltac i2z_refl :=
     i2z_gen;
@@ -419,40 +401,32 @@ Module Z_as_Int <: Int.
 
   Definition eq_dec := Z.eq_dec.
   Definition gt_le_dec i j : {i > j} + { i <= j }.
-  Proof.
-    generalize (Z.ltb_spec j i).
-    destruct (j <? i); [left|right]; inversion H; trivial.
-    now apply Z.lt_gt.
-  Defined.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
   Definition ge_lt_dec i j : {i >= j} + { i < j }.
-  Proof.
-    generalize (Z.ltb_spec i j).
-    destruct (i <? j); [right|left]; inversion H; trivial.
-    now apply Z.le_ge.
-  Defined.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
   Definition i2z : t -> Z := fun n => n.
-  Lemma i2z_eq n p : i2z n = i2z p -> n = p. Proof. trivial. Qed.
-  Lemma i2z_0 : i2z _0 = 0.  Proof. reflexivity. Qed.
-  Lemma i2z_1 : i2z _1 = 1.  Proof. reflexivity. Qed.
-  Lemma i2z_2 : i2z _2 = 2.  Proof. reflexivity. Qed.
-  Lemma i2z_3 : i2z _3 = 3.  Proof. reflexivity. Qed.
+  Lemma i2z_eq n p : i2z n = i2z p -> n = p. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Lemma i2z_0 : i2z _0 = 0.  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Lemma i2z_1 : i2z _1 = 1.  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Lemma i2z_2 : i2z _2 = 2.  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Lemma i2z_3 : i2z _3 = 3.  Proof. Show. Fail (cvc5_abduct 3). Admitted.
   Lemma i2z_add n p : i2z (n + p) = i2z n + i2z p.
-  Proof. reflexivity. Qed.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
   Lemma i2z_opp n : i2z (- n) = - i2z n.
-  Proof. reflexivity. Qed.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
   Lemma i2z_sub n p : i2z (n - p) = i2z n - i2z p.
-  Proof. reflexivity. Qed.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
   Lemma i2z_mul n p : i2z (n * p) = i2z n * i2z p.
-  Proof. reflexivity. Qed.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
   Lemma i2z_max n p : i2z (max n p) = Z.max (i2z n) (i2z p).
-  Proof. reflexivity. Qed.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
   Lemma i2z_eqb n p : eqb n p = Z.eqb (i2z n) (i2z p).
-  Proof. reflexivity. Qed.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
   Lemma i2z_leb n p : leb n p = Z.leb (i2z n) (i2z p).
-  Proof. reflexivity. Qed.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
   Lemma i2z_ltb n p : ltb n p = Z.ltb (i2z n) (i2z p).
-  Proof. reflexivity. Qed.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
   (** Compatibility notations for Coq v8.4 *)
   Notation plus := add (only parsing).

@@ -1,0 +1,162 @@
+1 subgoal
+  
+  ============================
+  forall n m p : Z, (n ?= m) = Gt -> (m ?= p) = Gt -> (n ?= p) = Gt
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+n = m
+m = p
+(Z.compare n p) = Gt
+1 subgoal
+  
+  n, m : Z
+  ============================
+  (n ?= m) = (- m ?= - n)
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+m + n = 0
+if m = 0 then n else 0 = m
+if m = 1 then 0 else 0 - n = m
+1 subgoal
+  
+  n, m : Z
+  ============================
+  (n ?= m) = Gt -> exists h : positive, n + - m = Z.pos h
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n, m, p : Z
+  ============================
+  (p + n ?= p + m) = (n ?= m)
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+p = 0
+if p = 0 then n else 0 = p
+if p = 0 then m else 0 = p
+1 subgoal
+  
+  r : comparison
+  n, m, p, q : Z
+  ============================
+  (n ?= m) = r -> (p ?= q) = r -> (n + p ?= m + q) = r
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  (Z.succ n ?= n) = Gt
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  (n ?= m) = Gt <-> (n ?= m + 1) <> Lt
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  (Z.succ n ?= Z.succ m) = (n ?= m)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall (p : positive) (n m : Z), (Z.pos p * n ?= Z.pos p * m) = (n ?= m)
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  n, m, p : Z
+  ============================
+  p > 0 -> (n ?= m) = (p * n ?= p * m)
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  n, m, p : Z
+  ============================
+  p > 0 -> (n ?= m) = (n * p ?= m * p)
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  ============================
+  forall (c1 c2 c3 : Prop) (n m : Z),
+  (n = m -> c1) ->
+  (n < m -> c2) ->
+  (n > m -> c3) -> match n ?= m with
+	               | Eq => c1
+                   | Lt => c2
+                   | Gt => c3
+                   end
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall (c1 c2 c3 : Prop) (n m : Z),
+  c1 -> n = m -> match n ?= m with
+	             | Eq => c1
+                 | Lt => c2
+                 | Gt => c3
+                 end
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall n m : Z, n <= m -> match n ?= m with
+	                        | Gt => False
+                            | _ => True
+                            end
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall n m : Z, n < m -> match n ?= m with
+	                       | Lt => True
+                           | _ => False
+                           end
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall n m : Z, n >= m -> match n ?= m with
+	                        | Lt => False
+                            | _ => True
+                            end
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall n m : Z, n > m -> match n ?= m with
+	                       | Gt => True
+                           | _ => False
+                           end
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.

@@ -14,7 +14,8 @@ Require Import Zorder.
 Require Import Zcompare.
 Require Import ZArith_dec.
 Require Import Sumbool.
-
+Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
+Require Import SMTCoq.SMTCoq.
 Local Open Scope Z_scope.
 
 (** * Boolean operations from decidability of order *)
@@ -58,129 +59,81 @@ Definition Zneq_bool (x y:Z) :=
 (** Properties in term of [if ... then ... else ...] *)
 
 Lemma Zle_cases n m : if n <=? m then n <= m else n > m.
-Proof.
- case Z.leb_spec; now Z.swap_greater.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zlt_cases n m : if n <? m then n < m else n >= m.
-Proof.
- case Z.ltb_spec; now Z.swap_greater.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zge_cases n m : if n >=? m then n >= m else n < m.
-Proof.
- rewrite Z.geb_leb. case Z.leb_spec; now Z.swap_greater.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zgt_cases n m : if n >? m then n > m else n <= m.
-Proof.
- rewrite Z.gtb_ltb. case Z.ltb_spec; now Z.swap_greater.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** Lemmas on [Z.leb] used in contrib/graphs *)
 
 Lemma Zle_bool_imp_le n m : (n <=? m) = true -> (n <= m).
-Proof.
- apply Z.leb_le.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zle_imp_le_bool n m : (n <= m) -> (n <=? m) = true.
-Proof.
- apply Z.leb_le.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Notation Zle_bool_refl := Z.leb_refl (only parsing).
 
 Lemma Zle_bool_antisym n m :
  (n <=? m) = true -> (m <=? n) = true -> n = m.
-Proof.
- rewrite !Z.leb_le. apply Z.le_antisymm.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zle_bool_trans n m p :
  (n <=? m) = true -> (m <=? p) = true -> (n <=? p) = true.
-Proof.
- rewrite !Z.leb_le. apply Z.le_trans.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Definition Zle_bool_total x y :
   { x <=? y = true } + { y <=? x = true }.
-Proof.
- case_eq (x <=? y); intros H.
- - left; trivial.
- - right. apply Z.leb_gt in H. now apply Z.leb_le, Z.lt_le_incl.
-Defined.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zle_bool_plus_mono n m p q :
  (n <=? m) = true ->
  (p <=? q) = true ->
  (n + p <=? m + q) = true.
-Proof.
- rewrite !Z.leb_le. apply Z.add_le_mono.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zone_pos : 1 <=? 0 = false.
-Proof.
- reflexivity.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zone_min_pos n : (n <=? 0) = false -> (1 <=? n) = true.
-Proof.
- rewrite Z.leb_le, Z.leb_gt. apply Z.le_succ_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** Properties in term of [iff] *)
 
 Lemma Zle_is_le_bool n m : (n <= m) <-> (n <=? m) = true.
-Proof.
- symmetry. apply Z.leb_le.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zge_is_le_bool n m : (n >= m) <-> (m <=? n) = true.
-Proof.
- Z.swap_greater. symmetry. apply Z.leb_le.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zlt_is_lt_bool n m : (n < m) <-> (n <? m) = true.
-Proof.
- symmetry. apply Z.ltb_lt.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zgt_is_gt_bool n m : (n > m) <-> (n >? m) = true.
-Proof.
- Z.swap_greater. rewrite Z.gtb_ltb. symmetry. apply Z.ltb_lt.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zlt_is_le_bool n m : (n < m) <-> (n <=? m - 1) = true.
-Proof.
- rewrite Z.leb_le. apply Z.lt_le_pred.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zgt_is_le_bool n m : (n > m) <-> (m <=? n - 1) = true.
-Proof.
- Z.swap_greater. rewrite Z.leb_le. apply Z.lt_le_pred.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** Properties of the deprecated [Zeq_bool] *)
 
 Lemma Zeq_is_eq_bool x y : x = y <-> Zeq_bool x y = true.
-Proof.
- unfold Zeq_bool.
- rewrite <- Z.compare_eq_iff. destruct Z.compare; now split.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zeq_bool_eq x y : Zeq_bool x y = true -> x = y.
-Proof.
- apply Zeq_is_eq_bool.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zeq_bool_neq x y : Zeq_bool x y = false -> x <> y.
-Proof.
- rewrite Zeq_is_eq_bool; now destruct Zeq_bool.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zeq_bool_if x y : if Zeq_bool x y then x=y else x<>y.
-Proof.
- generalize (Zeq_bool_eq x y) (Zeq_bool_neq x y).
- destruct Zeq_bool; auto.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.

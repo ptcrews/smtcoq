@@ -1,0 +1,544 @@
+1 subgoal
+  
+  a, b : Z
+  ============================
+  forall v3 : Z,
+  0 <= v3 ->
+  forall u1 u2 u3 v1 v2 : Z,
+  u1 * a + u2 * b = u3 ->
+  v1 * a + v2 * b = v3 ->
+  (forall d : Z, Zis_gcd u3 v3 d -> Zis_gcd a b d) -> Euclid
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  a, b : Z
+  ============================
+  Euclid
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  a, b : Z
+  ============================
+  (a | b) -> (a | - b)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  a, b : Z
+  ============================
+  (a | - b) -> (a | b)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  a, b : Z
+  ============================
+  (a | b) -> (- a | b)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  a, b : Z
+  ============================
+  (- a | b) -> (a | b)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  a, b : Z
+  ============================
+  (Z.abs a | b) -> (a | b)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  a, b : Z
+  ============================
+  (a | b) -> (Z.abs a | b)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  x, y : Z
+  ============================
+  x >= 0 -> x * y = 1 -> x = 1
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic.
+The fact in question: (= (* op_1 op_0) 1)
+ ).
+1 subgoal
+  
+  a, b : Z
+  ============================
+  (a | b) -> b <> 0 -> Z.abs a <= Z.abs b
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+a = b
+(Z.abs a) = (Z.abs b)
+if b = 0 then a else b = a
+1 subgoal
+  
+  ============================
+  forall a b : Z, b <> 0 -> a mod b = 0 -> (b | a)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall a b : Z, (b | a) -> a mod b = 0
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  a, b : Z
+  ============================
+  {(a | b)} + {~ (a | b)}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  x, y : Z
+  ============================
+  x < y -> y <> x
+The command has indeed failed with message:
+Anomaly "Uncaught exception Stdlib.Parsing.Parse_error."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  a, b : Z
+  ============================
+  0 < a -> (a | b) -> b = a * (b / a)
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  a, b, c : Z
+  ============================
+  0 < a -> (a | b) -> c * b / a = c * (b / a)
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  ============================
+  forall a b : Z, 0 <= a -> 0 < b -> (a | b) -> a <= b
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+a = b
+a = 0
+a = 1
+1 subgoal
+  
+  a, b : Z
+  ============================
+  1 < a -> 0 < b -> (a | b) -> 0 < b / a < b
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  a, b, c : Z
+  ============================
+  0 <= c < b -> (b | a - c) -> a mod b = c
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(Z.modulo a b) = c
+(Z.modulo a if b = 0 then a else b) = c
+(Z.modulo a if b = 0 then c else b) = c
+1 subgoal
+  
+  ============================
+  forall a b d : Z, Zis_gcd a b d -> Zis_gcd b a d
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall a : Z, Zis_gcd a 0 a
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall a : Z, Zis_gcd a 1 1
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall a : Z, Zis_gcd a a a
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall a b d : Z, Zis_gcd a (- b) d -> Zis_gcd b a d
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall a b d : Z, Zis_gcd a b d -> Zis_gcd b a (- d)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  a : Z
+  ============================
+  Zis_gcd 0 a (Z.abs a)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall a b c d : Z, Zis_gcd a b c -> Zis_gcd a b d -> c = d \/ c = - d
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+d = c
+d + c = 0
+1 = c && d = c
+1 subgoal
+  
+  ============================
+  forall a b d q : Z, Zis_gcd b (a - q * b) d -> Zis_gcd a b d
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall b d q r : Z, Zis_gcd r b d -> Zis_gcd b (b * q + r) d
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall a b d d' : Z, Zis_gcd a b d -> Zis_gcd a b d' -> d = d' \/ d = - d'
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+d' = d
+d' + d = 0
+1 = d && d' = d
+1 subgoal
+  
+  ============================
+  forall a b d : Z, Zis_gcd a b d -> Bezout a b d
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall a b c d : Z, Zis_gcd a b d -> Zis_gcd (c * a) (c * b) (c * d)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall a b : Z, rel_prime a b -> Bezout a b 1
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall a b : Z, Bezout a b 1 -> rel_prime a b
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall a b c : Z, (a | b * c) -> rel_prime a b -> (a | c)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall a b c : Z, rel_prime a b -> rel_prime a c -> rel_prime a (b * c)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall a b c d : Z,
+  rel_prime a b ->
+  rel_prime c d -> b > 0 -> d > 0 -> a * d = b * c -> a = c /\ b = d
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic.
+The fact in question: (= (* op_1 op_0) (* op_3 op_2))
+ ).
+1 subgoal
+  
+  ============================
+  forall a b g : Z,
+  b > 0 -> g >= 0 -> Zis_gcd a b g -> rel_prime (a / g) (b / g)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall a b : Z, rel_prime a b -> rel_prime b a
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall p q r : Z, rel_prime p q -> (r | p) -> rel_prime r q
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall n : Z, rel_prime 1 n
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall n : Z, 1 < n -> ~ rel_prime 0 n
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall p q : Z, 0 < q -> rel_prime p q -> rel_prime (p mod q) q
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall p q : Z, 0 < q -> rel_prime (p mod q) q -> rel_prime p q
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall a b : Z, 1 < b -> rel_prime a b -> a mod b <> 0
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(Z.modulo a b) = b
+(Z.modulo a b) = 1
+(Z.modulo a b) = 2
+1 subgoal
+  
+  ============================
+  forall p : Z,
+  prime p -> forall a : Z, (a | p) -> a = -1 \/ a = 1 \/ a = p \/ a = - p
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+p = a
+a = 1
+p + a = 0
+1 subgoal
+  
+  ============================
+  forall p : Z, prime p -> forall a : Z, ~ (p | a) -> rel_prime p a
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall a p : Z, prime p -> 1 <= a < p -> rel_prime a p
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall p : Z, prime p -> forall a b : Z, (p | a * b) -> (p | a) \/ (p | b)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  ~ prime 0
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  ~ prime 1
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  prime 2
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  prime 3
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p : Z
+  ============================
+  prime p -> 2 <= p
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+p = 2
+2 <= p
+1 + 2 = p
+1 subgoal
+  
+  x : Z
+  ============================
+  0 <= x -> x = 0 \/ x = 1 \/ 1 < x
+The command has indeed failed with message:
+Anomaly "Uncaught exception Stdlib.Parsing.Parse_error."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p : Z
+  ============================
+  prime' p <-> prime p
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall a : Z, ~ prime (a * a)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall p q : Z, prime p -> prime q -> (p | q) -> p = q
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+p = q
+1 = q && p = q
+q = 0 && p = q
+1 subgoal
+  
+  ============================
+  forall a b : Z, Zis_gcd a b (Z.gcd a b)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall x y : Z, {z : Z | Zis_gcd x y z /\ 0 <= z}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall p q r : Z, (p | q) -> (p | r) -> (p | Z.gcd q r)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall a b c : Z, 0 <= c -> Zis_gcd a b c -> Z.gcd a b = c
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(Z.gcd a b) = c
+(Z.gcd a if 0 <= c then b else a) = c
+(Z.gcd a if 0 <= c then b else c) = c
+1 subgoal
+  
+  ============================
+  forall a b : Z,
+  0 < Z.gcd a b -> 0 < b -> a / Z.gcd a b * b = a * (b / Z.gcd a b)
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic.
+The fact in question: (let ((_let_0 (op_2 op_1 op_0))) (= (* op_1 (op_3 op_0 _let_0)) (* op_0 (op_3 op_1 _let_0))))
+ ).

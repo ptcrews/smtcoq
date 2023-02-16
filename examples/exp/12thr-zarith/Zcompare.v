@@ -18,7 +18,8 @@
 
 Require Export BinPos BinInt.
 Require Import Lt Gt Plus Mult. (* Useless now, for compatibility only *)
-
+Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
+Require Import SMTCoq.SMTCoq.
 Local Open Scope Z_scope.
 
 (***************************)
@@ -38,78 +39,51 @@ Proof Z.lt_trans.
 
 Lemma Zcompare_Gt_trans :
   forall n m p:Z, (n ?= m) = Gt -> (m ?= p) = Gt -> (n ?= p) = Gt.
-Proof.
- intros n m p. change (n > m -> m > p -> n > p).
- Z.swap_greater. intros. now transitivity m.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** * Comparison and opposite *)
 
 Lemma Zcompare_opp n m : (n ?= m) = (- m ?= - n).
-Proof.
- symmetry. apply Z.compare_opp.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** * Comparison first-order specification *)
 
 Lemma Zcompare_Gt_spec n m : (n ?= m) = Gt ->  exists h, n + - m = Zpos h.
-Proof.
- rewrite Z.compare_sub. unfold Z.sub.
- destruct (n+-m) as [|p|p]; try discriminate. now exists p.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** * Comparison and addition *)
 
 Lemma Zcompare_plus_compat n m p : (p + n ?= p + m) = (n ?= m).
-Proof.
- apply Z.add_compare_mono_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zplus_compare_compat (r:comparison) (n m p q:Z) :
   (n ?= m) = r -> (p ?= q) = r -> (n + p ?= m + q) = r.
-Proof.
- rewrite (Z.compare_sub n), (Z.compare_sub p), (Z.compare_sub (n+p)).
- unfold Z.sub. rewrite Z.opp_add_distr. rewrite Z.add_shuffle1.
- destruct (n+-m), (p+-q); simpl; intros; now subst.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zcompare_succ_Gt n : (Z.succ n ?= n) = Gt.
-Proof.
- apply Z.lt_gt. apply Z.lt_succ_diag_r.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zcompare_Gt_not_Lt n m : (n ?= m) = Gt <-> (n ?= m+1) <> Lt.
-Proof.
- change (n > m <-> n >= m+1). Z.swap_greater. symmetry. apply Z.le_succ_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** * Successor and comparison *)
 
 Lemma Zcompare_succ_compat n m : (Z.succ n ?= Z.succ m) = (n ?= m).
-Proof.
- rewrite <- 2 Z.add_1_l. apply Z.add_compare_mono_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** * Multiplication and comparison *)
 
 Lemma Zcompare_mult_compat :
   forall (p:positive) (n m:Z), (Zpos p * n ?= Zpos p * m) = (n ?= m).
-Proof.
- intros p [|n|n] [|m|m]; simpl; trivial; now rewrite Pos.mul_compare_mono_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zmult_compare_compat_l n m p:
   p > 0 -> (n ?= m) = (p * n ?= p * m).
-Proof.
- intros; destruct p; try discriminate.
- symmetry. apply Zcompare_mult_compat.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zmult_compare_compat_r n m p :
   p > 0 -> (n ?= m) = (n * p ?= m * p).
-Proof.
- intros; rewrite 2 (Z.mul_comm _ p); now apply Zmult_compare_compat_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** * Relating [x ?= y] to [=], [<=], [<], [>=] or [>] *)
 
@@ -122,9 +96,7 @@ Lemma Zcompare_elim :
                        | Lt => c2
                        | Gt => c3
                      end.
-Proof.
- intros. case Z.compare_spec; trivial. now Z.swap_greater.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zcompare_eq_case :
   forall (c1 c2 c3:Prop) (n m:Z),
@@ -133,9 +105,7 @@ Lemma Zcompare_eq_case :
                      | Lt => c2
                      | Gt => c3
                    end.
-Proof.
- intros. subst. now rewrite Z.compare_refl.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zle_compare :
   forall n m:Z,
@@ -144,9 +114,7 @@ Lemma Zle_compare :
 		| Lt => True
 		| Gt => False
               end.
-Proof.
-  intros. case Z.compare_spec; trivial; Z.order.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zlt_compare :
   forall n m:Z,
@@ -155,9 +123,7 @@ Lemma Zlt_compare :
               | Lt => True
               | Gt => False
             end.
-Proof.
-  intros x y H; now rewrite H.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zge_compare :
   forall n m:Z,
@@ -166,9 +132,7 @@ Lemma Zge_compare :
 		| Lt => False
 		| Gt => True
               end.
-Proof.
-  intros. now case Z.compare_spec.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zgt_compare :
   forall n m:Z,
@@ -177,9 +141,7 @@ Lemma Zgt_compare :
                | Lt => False
                | Gt => True
              end.
-Proof.
-  intros x y H; now rewrite H.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** Compatibility notations *)
 

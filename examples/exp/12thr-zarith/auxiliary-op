@@ -1,0 +1,78 @@
+1 subgoal
+  
+  n, m : Z
+  ============================
+  n > m -> n + - m > 0
+1 subgoal
+  
+  n, m : Z
+  ============================
+  Zne n m -> Zne (n + - m) 0
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n, m : Z
+  ============================
+  n = m -> n + - m = 0
+The command has indeed failed with message:
+Anomaly "Uncaught exception Stdlib.Parsing.Parse_error."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n, m : Z
+  ============================
+  n <= m -> 0 <= m + - n
+The command has indeed failed with message:
+Anomaly "Uncaught exception Stdlib.Parsing.Parse_error."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= m + - n -> n <= m
+The command has indeed failed with message:
+Anomaly "Uncaught exception Stdlib.Parsing.Parse_error."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 < m + - n -> n < m
+The command has indeed failed with message:
+Anomaly "Uncaught exception Stdlib.Parsing.Parse_error."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n, m : Z
+  ============================
+  n < m -> 0 < m + - n
+The command has indeed failed with message:
+Anomaly "Uncaught exception Stdlib.Parsing.Parse_error."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n, m : Z
+  ============================
+  n < m -> 0 <= m + -1 + - n
+The command has indeed failed with message:
+Anomaly "Uncaught exception Stdlib.Parsing.Parse_error."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n, m : Z
+  ============================
+  n >= m -> 0 <= n + - m
+The command has indeed failed with message:
+Anomaly "Uncaught exception Stdlib.Parsing.Parse_error."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n, m : Z
+  ============================
+  n > m -> 0 <= n + -1 + - m
+The command has indeed failed with message:
+Anomaly "Uncaught exception Stdlib.Parsing.Parse_error."
+Please report at http://coq.inria.fr/bugs/.

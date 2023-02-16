@@ -1,0 +1,1145 @@
+1 subgoal
+  
+  n : nat
+  ============================
+  Z.of_N (N.of_nat n) = Z.of_nat n
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : N
+  ============================
+  Z.of_nat (N.to_nat n) = Z.of_N n
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p : positive
+  ============================
+  Z.of_nat (Pos.to_nat p) = Z.pos p
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p : positive
+  ============================
+  Z.of_N (N.pos p) = Z.pos p
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p : positive
+  ============================
+  N.to_nat (N.pos p) = Pos.to_nat p
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p : positive
+  ============================
+  N.of_nat (Pos.to_nat p) = N.pos p
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  N.to_nat (Z.to_N n) = Z.to_nat n
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  N.of_nat (Z.to_nat n) = Z.to_N n
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  N.to_nat (Z.abs_N n) = Z.abs_nat n
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  N.of_nat (Z.abs_nat n) = Z.abs_N n
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : N
+  ============================
+  Z.to_N (Z.of_N n) = n
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(Z.to_N (Z.of_N n)) = n
+if (Z.to_N 0) = n then (Z.of_N n) else 1 = 0
+if (Z.to_N 1) = n then (Z.of_N n) else 0 = 1
+1 subgoal
+  
+  n, m : N
+  ============================
+  Z.of_N n = Z.of_N m -> n = m
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+n = m
+(Z.of_N n) = 0 && n = m
+(Z.of_N n) = 1 && n = m
+1 subgoal
+  
+  n, m : N
+  ============================
+  Z.of_N n = Z.of_N m <-> n = m
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+n = m
+(Z.of_N m) + 1 = (Z.of_N n)
+(Z.of_N n) + 1 = (Z.of_N m)
+1 subgoal
+  
+  n : N
+  ============================
+  0 <= Z.of_N n
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(Z.of_N n) = 0
+(Z.of_N n) = 1
+0 <= (Z.of_N n)
+1 subgoal
+  
+  ============================
+  Z.of_N 0 = 0
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  p : positive
+  ============================
+  Z.of_N (N.pos p) = Z.pos p
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : N
+  ============================
+  (Z.of_N n ?= Z.of_N m) = (n ?= m)%N
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : N
+  ============================
+  (n <= m)%N <-> Z.of_N n <= Z.of_N m
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n, m : N
+  ============================
+  (n < m)%N <-> Z.of_N n < Z.of_N m
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n, m : N
+  ============================
+  (n >= m)%N <-> Z.of_N n >= Z.of_N m
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n, m : N
+  ============================
+  (n > m)%N <-> Z.of_N n > Z.of_N m
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  z : Z
+  ============================
+  Z.of_N (Z.abs_N z) = Z.abs z
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : N
+  ============================
+  Z.of_N (n + m) = Z.of_N n + Z.of_N m
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : N
+  ============================
+  Z.of_N (n * m) = Z.of_N n * Z.of_N m
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  n, m : N
+  ============================
+  Z.of_N (n - m) = Z.max 0 (Z.of_N n - Z.of_N m)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : N
+  ============================
+  (m <= n)%N -> Z.of_N (n - m) = Z.of_N n - Z.of_N m
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : N
+  ============================
+  Z.of_N (N.succ n) = Z.succ (Z.of_N n)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : N
+  ============================
+  Z.of_N (N.pred n) = Z.max 0 (Z.pred (Z.of_N n))
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : N
+  ============================
+  (0 < n)%N -> Z.of_N (N.pred n) = Z.pred (Z.of_N n)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : N
+  ============================
+  Z.of_N (N.min n m) = Z.min (Z.of_N n) (Z.of_N m)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : N
+  ============================
+  Z.of_N (N.max n m) = Z.max (Z.of_N n) (Z.of_N m)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : N
+  ============================
+  Z.of_N (n / m) = Z.of_N n / Z.of_N m
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : N
+  ============================
+  m <> 0%N -> Z.of_N (n mod m) = Z.of_N n mod Z.of_N m
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : N
+  ============================
+  Z.of_N (n / m) = Z.of_N n ÷ Z.of_N m
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : N
+  ============================
+  Z.of_N (n mod m) = Z.rem (Z.of_N n) (Z.of_N m)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : N
+  ============================
+  Z.of_N (N.div2 n) = Z.div2 (Z.of_N n)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : N
+  ============================
+  Z.of_N (N.div2 n) = Z.quot2 (Z.of_N n)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : N
+  ============================
+  Z.of_N (n ^ m) = Z.of_N n ^ Z.of_N m
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  a, n : N
+  ============================
+  Z.testbit (Z.of_N a) (Z.of_N n) = N.testbit a n
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  0 <= n -> Z.of_N (Z.to_N n) = n
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> Z.to_N n = Z.to_N m -> n = m
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+n = m
+n + m = 0
+n + m <= 0
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> Z.to_N n = Z.to_N m <-> n = m
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+n = m
+n + m = 0
+n + m <= 0
+1 subgoal
+  
+  ============================
+  Z.to_N 0 = 0%N
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(Z.to_N 0) = 0%N
+(Z.to_N if (Z.to_N 1) = 0%N then 0 else 1) = 0%N
+(Z.to_N if (Z.to_N 0) = 0%N then 1 else 0) = 0%N
+1 subgoal
+  
+  n : positive
+  ============================
+  Z.to_N (Z.pos n) = N.pos n
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+Z.to_N = N.pos
+if Z.to_N = N.pos then n else 1 = 0
+if Z.to_N = N.pos then n else 0 = 1
+1 subgoal
+  
+  n : positive
+  ============================
+  Z.to_N (Z.neg n) = 0%N
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(Z.to_N 0 - n) = 0%N
+(Z.to_N n) = 0%N && n = 0
+(Z.to_N 1) = 0%N && n + 1 = 0
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> Z.to_N (n + m) = (Z.to_N n + Z.to_N m)%N
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> Z.to_N (n * m) = (Z.to_N n * Z.to_N m)%N
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  n : Z
+  ============================
+  0 <= n -> Z.to_N (Z.succ n) = N.succ (Z.to_N n)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= m -> Z.to_N (n - m) = (Z.to_N n - Z.to_N m)%N
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  Z.to_N (Z.pred n) = N.pred (Z.to_N n)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> (Z.to_N n ?= Z.to_N m)%N = (n ?= m)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> n <= m <-> (Z.to_N n <= Z.to_N m)%N
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> n < m <-> (Z.to_N n < Z.to_N m)%N
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n, m : Z
+  ============================
+  Z.to_N (Z.min n m) = N.min (Z.to_N n) (Z.to_N m)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  Z.to_N (Z.max n m) = N.max (Z.to_N n) (Z.to_N m)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> Z.to_N (n / m) = (Z.to_N n / Z.to_N m)%N
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 < m -> Z.to_N (n mod m) = (Z.to_N n mod Z.to_N m)%N
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> Z.to_N (n ÷ m) = (Z.to_N n / Z.to_N m)%N
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> Z.to_N (Z.rem n m) = (Z.to_N n mod Z.to_N m)%N
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  Z.to_N (Z.div2 n) = N.div2 (Z.to_N n)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  Z.to_N (Z.quot2 n) = N.div2 (Z.to_N n)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> Z.to_N (n ^ m) = (Z.to_N n ^ Z.to_N m)%N
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  a : N
+  n : Z
+  ============================
+  0 <= n -> Z.testbit (Z.of_N a) n = N.testbit a (Z.to_N n)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  Z.abs_N n = Z.to_N (Z.abs n)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  0 <= n -> Z.abs_N n = Z.to_N n
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  Z.of_N (Z.abs_N n) = Z.abs n
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : N
+  ============================
+  Z.abs_N (Z.of_N n) = n
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(Z.abs_N (Z.of_N n)) = n
+if (Z.abs_N 0) = n then (Z.of_N n) else 1 = 0
+if (Z.abs_N 1) = n then (Z.of_N n) else 0 = 1
+1 subgoal
+  
+  ============================
+  Z.abs_N 0 = 0%N
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(Z.abs_N 0) = 0%N
+(Z.abs_N if (Z.abs_N 1) = 0%N then 0 else 1) = 0%N
+(Z.abs_N if (Z.abs_N 0) = 0%N then 1 else 0) = 0%N
+1 subgoal
+  
+  p : positive
+  ============================
+  Z.abs_N (Z.pos p) = N.pos p
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+Z.abs_N = N.pos
+if Z.abs_N = N.pos then p else 1 = 0
+if Z.abs_N = N.pos then p else 0 = 1
+1 subgoal
+  
+  p : positive
+  ============================
+  Z.abs_N (Z.neg p) = N.pos p
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  Z.abs_N (- n) = Z.abs_N n
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+n = 0
+if 0 <= n then 0 else 1 = n
+if n <= 1 then 0 else 1 = n
+1 subgoal
+  
+  n : Z
+  ============================
+  0 <= n -> Z.abs_N (Z.succ n) = N.succ (Z.abs_N n)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> Z.abs_N (n + m) = (Z.abs_N n + Z.abs_N m)%N
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  Z.abs_N (n * m) = (Z.abs_N n * Z.abs_N m)%N
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= m <= n -> Z.abs_N (n - m) = (Z.abs_N n - Z.abs_N m)%N
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  0 < n -> Z.abs_N (Z.pred n) = N.pred (Z.abs_N n)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> (Z.abs_N n ?= Z.abs_N m)%N = (n ?= m)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> n <= m <-> (Z.abs_N n <= Z.abs_N m)%N
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> n < m <-> (Z.abs_N n < Z.abs_N m)%N
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> Z.abs_N (Z.min n m) = N.min (Z.abs_N n) (Z.abs_N m)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> Z.abs_N (Z.max n m) = N.max (Z.abs_N n) (Z.abs_N m)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  Z.abs_N (n ÷ m) = (Z.abs_N n / Z.abs_N m)%N
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  Z.abs_N (Z.rem n m) = (Z.abs_N n mod Z.abs_N m)%N
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= m -> Z.abs_N (n ^ m) = (Z.abs_N n ^ Z.abs_N m)%N
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  Z.abs_N (Z.succ (Z.abs n)) = N.succ (Z.abs_N n)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  Z.abs_N (Z.abs n + Z.abs m) = (Z.abs_N n + Z.abs_N m)%N
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  Z.abs_N (Z.abs n * Z.abs m) = (Z.abs_N n * Z.abs_N m)%N
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  ============================
+  Z.of_nat 0 = 0
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : nat
+  ============================
+  Z.of_nat (S n) = Z.succ (Z.of_nat n)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : nat
+  ============================
+  0 <= Z.of_nat n
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(Z.of_nat n) = 0
+(Z.of_nat n) = 1
+0 <= (Z.of_nat n)
+1 subgoal
+  
+  n : nat
+  ============================
+  Z.to_nat (Z.of_nat n) = n
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(Z.to_nat (Z.of_nat n)) = n
+if (Z.to_nat 0) = n then (Z.of_nat n) else 1 = 0
+if (Z.to_nat 1) = n then (Z.of_nat n) else 0 = 1
+1 subgoal
+  
+  n, m : nat
+  ============================
+  Z.of_nat n = Z.of_nat m -> n = m
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+n = m
+(Z.of_nat n) = 0 && n = m
+(Z.of_nat n) = 1 && n = m
+1 subgoal
+  
+  n, m : nat
+  ============================
+  Z.of_nat n = Z.of_nat m <-> n = m
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+n = m
+(Z.of_nat m) + 1 = (Z.of_nat n)
+(Z.of_nat n) + 1 = (Z.of_nat m)
+1 subgoal
+  
+  n, m : nat
+  ============================
+  (Z.of_nat n ?= Z.of_nat m) = (n ?= m)%nat
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : nat
+  ============================
+  (n <= m)%nat <-> Z.of_nat n <= Z.of_nat m
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n, m : nat
+  ============================
+  (n < m)%nat <-> Z.of_nat n < Z.of_nat m
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n, m : nat
+  ============================
+  (n >= m)%nat <-> Z.of_nat n >= Z.of_nat m
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n, m : nat
+  ============================
+  (n > m)%nat <-> Z.of_nat n > Z.of_nat m
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  z : Z
+  ============================
+  Z.of_nat (Z.abs_nat z) = Z.abs z
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : nat
+  ============================
+  Z.of_nat (n + m) = Z.of_nat n + Z.of_nat m
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : nat
+  ============================
+  Z.of_nat (n * m) = Z.of_nat n * Z.of_nat m
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  n, m : nat
+  ============================
+  Z.of_nat (n - m) = Z.max 0 (Z.of_nat n - Z.of_nat m)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : nat
+  ============================
+  (m <= n)%nat -> Z.of_nat (n - m) = Z.of_nat n - Z.of_nat m
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : nat
+  ============================
+  Z.of_nat (Nat.pred n) = Z.max 0 (Z.pred (Z.of_nat n))
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : nat
+  ============================
+  (0 < n)%nat -> Z.of_nat (Nat.pred n) = Z.pred (Z.of_nat n)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : nat
+  ============================
+  Z.of_nat (Nat.min n m) = Z.min (Z.of_nat n) (Z.of_nat m)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : nat
+  ============================
+  Z.of_nat (Nat.max n m) = Z.max (Z.of_nat n) (Z.of_nat m)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  0 <= n -> Z.of_nat (Z.to_nat n) = n
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> Z.to_nat n = Z.to_nat m -> n = m
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+n = m
+n + m = 0
+n + m <= 0
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> Z.to_nat n = Z.to_nat m <-> n = m
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+n = m
+n + m = 0
+n + m <= 0
+1 subgoal
+  
+  ============================
+  Z.to_nat 0 = 0%nat
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(Z.to_nat 0) = 0%nat
+(Z.to_nat if (Z.to_nat 1) = 0%nat then 0 else 1) = 0%nat
+(Z.to_nat if (Z.to_nat 0) = 0%nat then 1 else 0) = 0%nat
+1 subgoal
+  
+  n : positive
+  ============================
+  Z.to_nat (Z.pos n) = Pos.to_nat n
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+Z.to_nat = Pos.to_nat
+if Z.to_nat = Pos.to_nat then n else 1 = 0
+if Z.to_nat = Pos.to_nat then n else 0 = 1
+1 subgoal
+  
+  n : positive
+  ============================
+  Z.to_nat (Z.neg n) = 0%nat
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(Z.to_nat 0 - n) = 0%nat
+(Z.to_nat n) = 0%nat && n = 0
+(Z.to_nat 1) = 0%nat && n + 1 = 0
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> Z.to_nat (n + m) = (Z.to_nat n + Z.to_nat m)%nat
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> Z.to_nat (n * m) = (Z.to_nat n * Z.to_nat m)%nat
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  n : Z
+  ============================
+  0 <= n -> Z.to_nat (Z.succ n) = S (Z.to_nat n)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= m -> Z.to_nat (n - m) = (Z.to_nat n - Z.to_nat m)%nat
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  Z.to_nat (Z.pred n) = Nat.pred (Z.to_nat n)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> (Z.to_nat n ?= Z.to_nat m)%nat = (n ?= m)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> n <= m <-> (Z.to_nat n <= Z.to_nat m)%nat
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> n < m <-> (Z.to_nat n < Z.to_nat m)%nat
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n, m : Z
+  ============================
+  Z.to_nat (Z.min n m) = Nat.min (Z.to_nat n) (Z.to_nat m)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  Z.to_nat (Z.max n m) = Nat.max (Z.to_nat n) (Z.to_nat m)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  Z.abs_nat n = Z.to_nat (Z.abs n)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  0 <= n -> Z.abs_nat n = Z.to_nat n
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  Z.of_nat (Z.abs_nat n) = Z.abs n
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : nat
+  ============================
+  Z.abs_nat (Z.of_nat n) = n
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(Z.abs_nat (Z.of_nat n)) = n
+if (Z.abs_nat 0) = n then (Z.of_nat n) else 1 = 0
+if (Z.abs_nat 1) = n then (Z.of_nat n) else 0 = 1
+1 subgoal
+  
+  ============================
+  Z.abs_nat 0 = 0%nat
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(Z.abs_nat 0) = 0%nat
+(Z.abs_nat if (Z.abs_nat 1) = 0%nat then 0 else 1) = 0%nat
+(Z.abs_nat if (Z.abs_nat 0) = 0%nat then 1 else 0) = 0%nat
+1 subgoal
+  
+  p : positive
+  ============================
+  Z.abs_nat (Z.pos p) = Pos.to_nat p
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+Z.abs_nat = Pos.to_nat
+if Z.abs_nat = Pos.to_nat then p else 1 = 0
+if Z.abs_nat = Pos.to_nat then p else 0 = 1
+1 subgoal
+  
+  p : positive
+  ============================
+  Z.abs_nat (Z.neg p) = Pos.to_nat p
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  0 <= n -> Z.abs_nat (Z.succ n) = S (Z.abs_nat n)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> Z.abs_nat (n + m) = (Z.abs_nat n + Z.abs_nat m)%nat
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  Z.abs_nat (n * m) = (Z.abs_nat n * Z.abs_nat m)%nat
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= m <= n -> Z.abs_nat (n - m) = (Z.abs_nat n - Z.abs_nat m)%nat
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  0 < n -> Z.abs_nat (Z.pred n) = Nat.pred (Z.abs_nat n)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> (Z.abs_nat n ?= Z.abs_nat m)%nat = (n ?= m)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> n <= m <-> (Z.abs_nat n <= Z.abs_nat m)%nat
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n -> 0 <= m -> n < m <-> (Z.abs_nat n < Z.abs_nat m)%nat
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n ->
+  0 <= m -> Z.abs_nat (Z.min n m) = Nat.min (Z.abs_nat n) (Z.abs_nat m)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  0 <= n ->
+  0 <= m -> Z.abs_nat (Z.max n m) = Nat.max (Z.abs_nat n) (Z.abs_nat m)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  Z.abs_nat (Z.succ (Z.abs n)) = S (Z.abs_nat n)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  Z.abs_nat (Z.abs n + Z.abs m) = (Z.abs_nat n + Z.abs_nat m)%nat
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n, m : Z
+  ============================
+  Z.abs_nat (Z.abs n * Z.abs m) = (Z.abs_nat n * Z.abs_nat m)%nat
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  n, m : nat
+  ============================
+  neq n m -> Zne (Z.of_nat n) (Z.of_nat m)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall n m : nat, (m > n)%nat -> Z.of_nat (n - m) = 0
+The command has indeed failed with message:
+Could not reconstruct abduct

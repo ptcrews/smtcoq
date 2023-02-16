@@ -14,25 +14,21 @@ Require Import BinInt.
 Require Import Zorder.
 Require Import Zcompare.
 Local Open Scope Z_scope.
-
+Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
+Require Import SMTCoq.SMTCoq.
 (* begin hide *)
 (* Trivial, to deprecate? *)
 Lemma Dcompare_inf : forall r:comparison, {r = Eq} + {r = Lt} + {r = Gt}.
-Proof.
-  intros r; induction r; auto.
-Defined.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 (* end hide *)
 
 Lemma Zcompare_rect (P:Type) (n m:Z) :
   ((n ?= m) = Eq -> P) -> ((n ?= m) = Lt -> P) -> ((n ?= m) = Gt -> P) -> P.
-Proof.
-  intros H1 H2 H3.
-  destruct (n ?= m); auto.
-Defined.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zcompare_rec (P:Set) (n m:Z) :
   ((n ?= m) = Eq -> P) -> ((n ?= m) = Lt -> P) -> ((n ?= m) = Gt -> P) -> P.
-Proof. apply Zcompare_rect. Defined.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Section decidability.
 
@@ -41,157 +37,62 @@ Section decidability.
   (** * Decidability of order on binary integers *)
 
   Definition Z_lt_dec : {x < y} + {~ x < y}.
-  Proof.
-    unfold Z.lt; case Z.compare; (now left) || (now right).
-  Defined.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
   Definition Z_le_dec : {x <= y} + {~ x <= y}.
-  Proof.
-    unfold Z.le; case Z.compare; (now left) || (right; tauto).
-  Defined.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
   Definition Z_gt_dec : {x > y} + {~ x > y}.
-  Proof.
-    unfold Z.gt; case Z.compare; (now left) || (now right).
-  Defined.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
   Definition Z_ge_dec : {x >= y} + {~ x >= y}.
-  Proof.
-    unfold Z.ge; case Z.compare; (now left) || (right; tauto).
-  Defined.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
   Definition Z_lt_ge_dec : {x < y} + {x >= y}.
-  Proof.
-    exact Z_lt_dec.
-  Defined.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
   Lemma Z_lt_le_dec : {x < y} + {y <= x}.
-  Proof.
-    elim Z_lt_ge_dec.
-    * now left.
-    * right; now apply Z.ge_le.
-  Defined.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
   Definition Z_le_gt_dec : {x <= y} + {x > y}.
-  Proof.
-    elim Z_le_dec; auto with arith.
-    intro. right. Z.swap_greater. now apply Z.nle_gt.
-  Defined.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
   Definition Z_gt_le_dec : {x > y} + {x <= y}.
-  Proof.
-    exact Z_gt_dec.
-  Defined.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
   Definition Z_ge_lt_dec : {x >= y} + {x < y}.
-  Proof.
-    elim Z_ge_dec; auto with arith.
-    intro. right. Z.swap_greater. now apply Z.lt_nge.
-  Defined.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
   Definition Z_le_lt_eq_dec : x <= y -> {x < y} + {x = y}.
-  Proof.
-    intro H.
-    apply (Zcompare_rec _ x y).
-    intro. right. elim (Z.compare_eq_iff x y); auto with arith.
-    intro. left. elim (Z.compare_eq_iff x y); auto with arith.
-    intro H1. absurd (x > y); auto with arith.
-  Defined.
+  Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 End decidability.
 
 (** * Cotransitivity of order on binary integers *)
 
 Lemma Zlt_cotrans : forall n m:Z, n < m -> forall p:Z, {n < p} + {p < m}.
-Proof.
-  intros x y H z.
-  case (Z_lt_ge_dec x z).
-  intro.
-  left.
-  assumption.
-  intro.
-  right.
-  apply (Z.le_lt_trans _ x).
-  apply Z.ge_le.
-  assumption.
-  assumption.
-Defined.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zlt_cotrans_pos : forall n m:Z, 0 < n + m -> {0 < n} + {0 < m}.
-Proof.
-  intros x y H.
-  case (Zlt_cotrans 0 (x + y) H x).
-  - now left.
-  - right.
-    apply (Z.add_lt_mono_l _ _ x).
-    now rewrite Z.add_0_r.
-Defined.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Zlt_cotrans_neg : forall n m:Z, n + m < 0 -> {n < 0} + {m < 0}.
-Proof.
-  intros x y H; case (Zlt_cotrans (x + y) 0 H x); intro Hxy;
-    [ right; apply (Z.add_lt_mono_l _ _ x); rewrite Z.add_0_r | left ];
-    assumption.
-Defined.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma not_Zeq_inf : forall n m:Z, n <> m -> {n < m} + {m < n}.
-Proof.
-  intros x y H.
-  case Z_lt_ge_dec with x y.
-  intro.
-  left.
-  assumption.
-  intro H0.
-  generalize (Z.ge_le _ _ H0).
-  intro H1.
-  case (Z_le_lt_eq_dec _ _ H1).
-  intro.
-  right.
-  assumption.
-  intro.
-  apply False_rec.
-  apply H.
-  symmetry .
-  assumption.
-Defined.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Z_dec : forall n m:Z, {n < m} + {n > m} + {n = m}.
-Proof.
-  intros x y.
-  case (Z_lt_ge_dec x y).
-  intro H.
-  left.
-  left.
-  assumption.
-  intro H.
-  generalize (Z.ge_le _ _ H).
-  intro H0.
-  case (Z_le_lt_eq_dec y x H0).
-  intro H1.
-  left.
-  right.
-  apply Z.lt_gt.
-  assumption.
-  intro.
-  right.
-  symmetry .
-  assumption.
-Defined.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 
 Lemma Z_dec' : forall n m:Z, {n < m} + {m < n} + {n = m}.
-Proof.
-  intros x y.
-  case (Z.eq_dec x y); intro H;
-    [ right; assumption | left; apply (not_Zeq_inf _ _ H) ].
-Defined.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (* begin hide *)
 (* To deprecate ? *)
 Corollary Z_zerop : forall x:Z, {x = 0} + {x <> 0}.
-Proof.
-  exact (fun x:Z => Z.eq_dec x 0).
-Defined.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Corollary Z_notzerop : forall (x:Z), {x <> 0} + {x = 0}.
 Proof (fun x => sumbool_not _ _ (Z_zerop x)).

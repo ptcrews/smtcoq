@@ -1,0 +1,276 @@
+1 subgoal
+  
+  z : Z
+  ============================
+  Zeven z <-> Z.Even z
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  z : Z
+  ============================
+  Zodd z <-> Z.Odd z
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n : Z
+  ============================
+  Z.even n = true <-> Zeven n
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n : Z
+  ============================
+  Z.odd n = true <-> Zodd n
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n : Z
+  ============================
+  Z.odd n = negb (Z.even n)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  Z.even n = negb (Z.odd n)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  {Zeven n} + {Zodd n}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n : Z
+  ============================
+  {Zeven n} + {~ Zeven n}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n : Z
+  ============================
+  {Zodd n} + {~ Zodd n}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n : Z
+  ============================
+  Zeven n -> ~ Zodd n
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n : Z
+  ============================
+  Zodd n -> ~ Zeven n
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n : Z
+  ============================
+  Zodd n -> Zeven (Z.succ n)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n : Z
+  ============================
+  Zeven n -> Zodd (Z.succ n)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n : Z
+  ============================
+  Zodd n -> Zeven (Z.pred n)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n : Z
+  ============================
+  Zeven n -> Zodd (Z.pred n)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n : Z
+  ============================
+  Zeven n -> n = 2 * Z.div2 n
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(Z.div2 n) + (Z.div2 n) = n
+(Z.div2 n) = n && n = 0
+(Z.div2 n) = 1 && n = 2
+1 subgoal
+  
+  n : Z
+  ============================
+  Zodd n -> n = 2 * Z.div2 n + 1
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  n = 2 * Z.quot2 n + (if Z.odd n then Z.sgn n else 0)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  Zeven n -> n = 2 * Z.quot2 n
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(Z.quot2 n) + (Z.quot2 n) = n
+(Z.quot2 n) = n && n = 0
+(Z.quot2 n) = 1 && n = 2
+1 subgoal
+  
+  n : Z
+  ============================
+  n >= 0 -> Zodd n -> n = 2 * Z.quot2 n + 1
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  n <= 0 -> Zodd n -> n = 2 * Z.quot2 n - 1
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  Z.quot2 (- n) = - Z.quot2 n
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  Z.quot2 n = n ÷ 2
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  n : Z
+  ============================
+  {y : Z | n = 2 * y} + {y : Z | n = 2 * y + 1}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n : Z
+  ============================
+  {p : Z * Z | let (x1, x2) := p in n = x1 + x2 /\ (x1 = x2 \/ x2 = x1 + 1)}
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n : Z
+  ============================
+  Zeven n -> exists m : Z, n = 2 * m
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  n : Z
+  ============================
+  Zodd n -> exists m : Z, n = 2 * m + 1
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p : Z
+  ============================
+  Zeven (2 * p)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  p : Z
+  ============================
+  Zodd (2 * p + 1)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  a, b : Z
+  ============================
+  Zeven a -> Zodd b -> Zodd (a + b)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  a, b : Z
+  ============================
+  Zeven a -> Zeven b -> Zeven (a + b)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  a, b : Z
+  ============================
+  Zodd a -> Zeven b -> Zodd (a + b)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.

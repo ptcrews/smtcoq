@@ -12,7 +12,8 @@
 Require Export BinNums.
 Require Import Eqdep_dec EqdepFacts RelationClasses Morphisms Setoid
  Equalities Orders OrdersFacts GenericMinMax Le Plus.
-
+Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
+Require Import SMTCoq.SMTCoq.
 Require Export BinPosDef.
 
 (**********************************************************************)
@@ -69,9 +70,7 @@ Notation "x < y <= z" := (x < y /\ y <= z) : positive_scope.
 (** ** Decidability of equality on binary positive numbers *)
 
 Lemma eq_dec : forall x y:positive, {x = y} + {x <> y}.
-Proof.
-  decide equality.
-Defined.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (**********************************************************************)
 (** * Properties of successor on binary positive numbers *)
@@ -79,83 +78,51 @@ Defined.
 (** ** Specification of [xI] in term of [succ] and [xO] *)
 
 Lemma xI_succ_xO p : p~1 = succ p~0.
-Proof.
-  reflexivity.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma succ_discr p : p <> succ p.
-Proof.
-  now destruct p.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Successor and double *)
 
 Lemma pred_double_spec p : pred_double p = pred (p~0).
-Proof.
-  reflexivity.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma succ_pred_double p : succ (pred_double p) = p~0.
-Proof.
-  induction p; simpl; now f_equal.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma pred_double_succ p : pred_double (succ p) = p~1.
-Proof.
-  induction p; simpl; now f_equal.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma double_succ p : (succ p)~0 = succ (succ p~0).
-Proof.
-  now destruct p.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma pred_double_xO_discr p : pred_double p <> p~0.
-Proof.
-  now destruct p.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Successor and predecessor *)
 
 Lemma succ_not_1 p : succ p <> 1.
-Proof.
-  now destruct p.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma pred_succ p : pred (succ p) = p.
-Proof.
-  destruct p; simpl; trivial. apply pred_double_succ.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma succ_pred_or p : p = 1 \/ succ (pred p) = p.
-Proof.
-  destruct p; simpl; auto.
-  right; apply succ_pred_double.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma succ_pred p : p <> 1 -> succ (pred p) = p.
-Proof.
-  destruct p; intros H; simpl; trivial.
-  apply succ_pred_double.
-  now destruct H.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Injectivity of successor *)
 
 Lemma succ_inj p q : succ p = succ q -> p = q.
-Proof.
-  revert q.
-  induction p as [p|p|]; intros [q|q| ] H; simpl in H; destr_eq H; f_equal; auto.
-  elim (succ_not_1 p); auto.
-  elim (succ_not_1 q); auto.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Predecessor to [N] *)
 
 Lemma pred_N_succ p : pred_N (succ p) = Npos p.
-Proof.
- destruct p; simpl; trivial. f_equal. apply pred_double_succ.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 
 (**********************************************************************)
@@ -164,144 +131,81 @@ Qed.
 (** ** Specification of [succ] in term of [add] *)
 
 Lemma add_1_r p : p + 1 = succ p.
-Proof.
-  now destruct p.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma add_1_l p : 1 + p = succ p.
-Proof.
-  now destruct p.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Specification of [add_carry] *)
 
 Theorem add_carry_spec p q : add_carry p q = succ (p + q).
-Proof.
-  revert q. induction p; intro q; destruct q; simpl; now f_equal.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Commutativity *)
 
 Theorem add_comm p q : p + q = q + p.
-Proof.
-  revert q. induction p; intro q; destruct q; simpl; f_equal; trivial.
-  rewrite 2 add_carry_spec; now f_equal.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Permutation of [add] and [succ] *)
 
 Theorem add_succ_r p q : p + succ q = succ (p + q).
-Proof.
-  revert q.
-  induction p; intro q; destruct q; simpl; f_equal;
-   auto using add_1_r; rewrite add_carry_spec; auto.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Theorem add_succ_l p q : succ p + q = succ (p + q).
-Proof.
-  rewrite add_comm, (add_comm p). apply add_succ_r.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** No neutral elements for addition *)
 Lemma add_no_neutral p q : q + p <> p.
-Proof.
-  revert q.
-  induction p as [p IHp|p IHp| ]; intros [q|q| ] H;
-   destr_eq H; apply (IHp q H).
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Simplification *)
 
 Lemma add_carry_add p q r s :
   add_carry p r = add_carry q s -> p + r = q + s.
-Proof.
-  intros H; apply succ_inj; now rewrite <- 2 add_carry_spec.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma add_reg_r p q r : p + r = q + r -> p = q.
-Proof.
-  revert p q. induction r.
-  intros [p|p| ] [q|q| ] H; simpl; destr_eq H; f_equal;
-   auto using add_carry_add; contradict H;
-   rewrite add_carry_spec, <- add_succ_r; auto using add_no_neutral.
-  intros [p|p| ] [q|q| ] H; simpl; destr_eq H; f_equal; auto;
-    contradict H; auto using add_no_neutral.
-  intros p q H. apply succ_inj. now rewrite <- 2 add_1_r.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma add_reg_l p q r : p + q = p + r -> q = r.
-Proof.
-  rewrite 2 (add_comm p). now apply add_reg_r.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma add_cancel_r p q r : p + r = q + r <-> p = q.
-Proof.
- split. apply add_reg_r. congruence.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma add_cancel_l p q r : r + p = r + q <-> p = q.
-Proof.
- split. apply add_reg_l. congruence.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma add_carry_reg_r p q r :
   add_carry p r = add_carry q r -> p = q.
-Proof.
- intros H. apply (add_reg_r _ _ r); now apply add_carry_add.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma add_carry_reg_l p q r :
   add_carry p q = add_carry p r -> q = r.
-Proof.
-  intros H; apply (add_reg_r _ _ p);
-  rewrite (add_comm r), (add_comm q); now apply add_carry_add.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Addition is associative *)
 
 Theorem add_assoc p q r : p + (q + r) = p + q + r.
-Proof.
-  revert q r. induction p.
-  intros [q|q| ] [r|r| ]; simpl; f_equal; trivial;
-    rewrite ?add_carry_spec, ?add_succ_r, ?add_succ_l, ?add_1_r;
-    f_equal; trivial.
-  intros [q|q| ] [r|r| ]; simpl; f_equal; trivial;
-    rewrite ?add_carry_spec, ?add_succ_r, ?add_succ_l, ?add_1_r;
-    f_equal; trivial.
-  intros q r; rewrite 2 add_1_l, add_succ_l; auto.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Commutation of addition and double *)
 
 Lemma add_xO p q : (p + q)~0 = p~0 + q~0.
-Proof.
-  now destruct p, q.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma add_xI_pred_double p q :
   (p + q)~0 = p~1 + pred_double q.
-Proof.
-  change (p~1) with (p~0 + 1).
-  now rewrite <- add_assoc, add_1_l, succ_pred_double.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma add_xO_pred_double p q :
   pred_double (p + q) = p~0 + pred_double q.
-Proof.
-  revert q. induction p as [p IHp| p IHp| ]; intro q; destruct q; simpl;
-   rewrite ?add_carry_spec, ?pred_double_succ, ?add_xI_pred_double;
-   try reflexivity.
-  rewrite IHp; auto.
-  rewrite <- succ_pred_double, <- add_1_l. reflexivity.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Miscellaneous *)
 
 Lemma add_diag p : p + p = p~0.
-Proof.
-  induction p as [p IHp| p IHp| ]; simpl;
-  now rewrite ?add_carry_spec, ?IHp.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (**********************************************************************)
 (** * Peano induction and recursion on binary positive positive numbers *)
@@ -322,17 +226,12 @@ end.
 Theorem peano_rect_succ (P:positive->Type) (a:P 1)
   (f:forall p, P p -> P (succ p)) (p:positive) :
   peano_rect P a f (succ p) = f _ (peano_rect P a f p).
-Proof.
- revert P a f. induction p as [p IHp|p IHp|]; trivial.
- intros. simpl. now rewrite IHp.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Theorem peano_rect_base (P:positive->Type) (a:P 1)
   (f:forall p, P p -> P (succ p)) :
   peano_rect P a f 1 = a.
-Proof.
-  trivial.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Definition peano_rec (P:positive->Set) := peano_rect P.
 
@@ -345,9 +244,7 @@ Definition peano_ind (P:positive->Prop) := peano_rect P.
 Theorem peano_case :
   forall P:positive -> Prop,
     P 1 -> (forall n:positive, P (succ n)) -> forall p:positive, P p.
-Proof.
-  intros; apply peano_ind; auto.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** Earlier, the Peano-like recursor was built and proved in a way due to
     Conor McBride, see "The view from the left" *)
@@ -386,38 +283,14 @@ Definition PeanoView_iter (P:positive->Type)
 Theorem eq_dep_eq_positive :
   forall (P:positive->Type) (p:positive) (x y:P p),
     eq_dep positive P p x p y -> x = y.
-Proof.
-  apply eq_dep_eq_dec.
-  decide equality.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Theorem PeanoViewUnique : forall p (q q':PeanoView p), q = q'.
-Proof.
-  intros p q q'.
-  induction q as [ | p q IHq ].
-  apply eq_dep_eq_positive.
-  cut (1=1). pattern 1 at 1 2 5, q'. destruct q' as [|p ?]. trivial.
-  destruct p; intros; discriminate.
-  trivial.
-  apply eq_dep_eq_positive.
-  cut (succ p=succ p). pattern (succ p) at 1 2 5, q'. destruct q' as [|? q'].
-  intro. destruct p; discriminate.
-  intro H. apply succ_inj in H.
-  generalize q'. rewrite H. intro q'0.
-  rewrite (IHq q'0).
-  trivial.
-  trivial.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma peano_equiv (P:positive->Type) (a:P 1) (f:forall p, P p -> P (succ p)) p :
    PeanoView_iter P a f p (peanoView p) = peano_rect P a f p.
-Proof.
-  revert P a f. induction p as [|p IHp] using peano_rect.
-  trivial.
-  intros; simpl. rewrite peano_rect_succ.
-  rewrite (PeanoViewUnique _ (peanoView (succ p)) (PeanoSucc _ (peanoView p))).
-  simpl; now f_equal.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (**********************************************************************)
 (** * Properties of multiplication on binary positive numbers *)
@@ -425,249 +298,148 @@ Qed.
 (** ** One is neutral for multiplication *)
 
 Lemma mul_1_l p : 1 * p = p.
-Proof.
-  reflexivity.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma mul_1_r p : p * 1 = p.
-Proof.
-  induction p; simpl; now f_equal.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Right reduction properties for multiplication *)
 
 Lemma mul_xO_r p q : p * q~0 = (p * q)~0.
-Proof.
-  induction p; simpl; f_equal; f_equal; trivial.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma mul_xI_r p q : p * q~1 = p + (p * q)~0.
-Proof.
-  induction p as [p IHp|p IHp| ]; simpl; f_equal; trivial.
-  now rewrite IHp, 2 add_assoc, (add_comm p).
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Commutativity of multiplication *)
 
 Theorem mul_comm p q : p * q = q * p.
-Proof.
-  induction q as [q IHq|q IHq| ]; simpl; rewrite <- ? IHq;
-  auto using mul_xI_r, mul_xO_r, mul_1_r.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Distributivity of multiplication over addition *)
 
 Theorem mul_add_distr_l p q r :
   p * (q + r) = p * q + p * r.
-Proof.
-  induction p as [p IHp|p IHp| ]; simpl.
-  rewrite IHp. set (m:=(p*q)~0). set (n:=(p*r)~0).
-  change ((p*q+p*r)~0) with (m+n).
-  rewrite 2 add_assoc; f_equal.
-  rewrite <- 2 add_assoc; f_equal.
-  apply add_comm.
-  f_equal; auto.
-  reflexivity.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Theorem mul_add_distr_r p q r :
   (p + q) * r = p * r + q * r.
-Proof.
-  rewrite 3 (mul_comm _ r); apply mul_add_distr_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Associativity of multiplication *)
 
 Theorem mul_assoc p q r : p * (q * r) = p * q * r.
-Proof.
-  induction p as [p IHp| p IHp | ]; simpl; rewrite ?IHp; trivial.
-  now rewrite mul_add_distr_r.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Successor and multiplication *)
 
 Lemma mul_succ_l p q : (succ p) * q = q + p * q.
-Proof.
-  induction p as [p IHp | p IHp | ]; simpl; trivial.
-  now rewrite IHp, add_assoc, add_diag, <-add_xO.
-  symmetry; apply add_diag.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma mul_succ_r p q : p * (succ q) = p + p * q.
-Proof.
-  rewrite mul_comm, mul_succ_l. f_equal. apply mul_comm.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Parity properties of multiplication *)
 
 Lemma mul_xI_mul_xO_discr p q r : p~1 * r <> q~0 * r.
-Proof.
-  induction r; try discriminate.
-  rewrite 2 mul_xO_r; intro H; destr_eq H; auto.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma mul_xO_discr p q : p~0 * q <> q.
-Proof.
-  induction q; try discriminate.
-  rewrite mul_xO_r; injection; auto.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Simplification properties of multiplication *)
 
 Theorem mul_reg_r p q r : p * r = q * r -> p = q.
-Proof.
-  revert q r.
-  induction p as [p IHp| p IHp| ]; intros [q|q| ] r H;
-    reflexivity || apply f_equal || exfalso.
-  apply IHp with (r~0). simpl in *.
-    rewrite 2 mul_xO_r. apply add_reg_l with (1:=H).
-  contradict H. apply mul_xI_mul_xO_discr.
-  contradict H. simpl. rewrite add_comm. apply add_no_neutral.
-  symmetry in H. contradict H. apply mul_xI_mul_xO_discr.
-  apply IHp with (r~0). simpl. now rewrite 2 mul_xO_r.
-  contradict H. apply mul_xO_discr.
-  symmetry in H. contradict H. simpl. rewrite add_comm.
-   apply add_no_neutral.
-  symmetry in H. contradict H. apply mul_xO_discr.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Theorem mul_reg_l p q r : r * p = r * q -> p = q.
-Proof.
-  rewrite 2 (mul_comm r). apply mul_reg_r.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma mul_cancel_r p q r : p * r = q * r <-> p = q.
-Proof.
- split. apply mul_reg_r. congruence.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma mul_cancel_l p q r : r * p = r * q <-> p = q.
-Proof.
- split. apply mul_reg_l. congruence.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Inversion of multiplication *)
 
 Lemma mul_eq_1_l p q : p * q = 1 -> p = 1.
-Proof.
-  now destruct p, q.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma mul_eq_1_r p q : p * q = 1 -> q = 1.
-Proof.
-  now destruct p, q.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Notation mul_eq_1 := mul_eq_1_l.
 
 (** ** Square *)
 
 Lemma square_xO p : p~0 * p~0 = (p*p)~0~0.
-Proof.
- simpl. now rewrite mul_comm.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma square_xI p : p~1 * p~1 = (p*p+p)~0~1.
-Proof.
- simpl. rewrite mul_comm. simpl. f_equal.
- rewrite add_assoc, add_diag. simpl. now rewrite add_comm.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Properties of [iter] *)
 
 Lemma iter_swap_gen A B (f:A->B)(g:A->A)(h:B->B) :
  (forall a, f (g a) = h (f a)) -> forall p a,
  f (iter g a p) = iter h (f a) p.
-Proof.
- intros H p; induction p as [p IHp|p IHp|]; simpl; intros; now rewrite ?H, ?IHp.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Theorem iter_swap :
   forall p (A:Type) (f:A -> A) (x:A),
     iter f (f x) p = f (iter f x p).
-Proof.
- intros. symmetry. now apply iter_swap_gen.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Theorem iter_succ :
   forall p (A:Type) (f:A -> A) (x:A),
     iter f x (succ p) = f (iter f x p).
-Proof.
- intro p; induction p as [p IHp|p IHp|]; intros; simpl; trivial.
- now rewrite !IHp, iter_swap.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Theorem iter_succ_r :
   forall p (A:Type) (f:A -> A) (x:A),
     iter f x (succ p) = iter f (f x) p.
-Proof.
- intros; now rewrite iter_succ, iter_swap.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Theorem iter_add :
   forall p q (A:Type) (f:A -> A) (x:A),
     iter f x (p+q) = iter f (iter f x q) p.
-Proof.
- intro p; induction p as [|p IHp] using peano_ind; intros.
- now rewrite add_1_l, iter_succ.
- now rewrite add_succ_l, !iter_succ, IHp.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Theorem iter_ind (A:Type) (f:A -> A) (a:A) (P:positive -> A -> Prop) :
     P 1 (f a) ->
     (forall p a', P p a' -> P (succ p) (f a')) ->
     forall p, P p (iter f a p).
-Proof.
- intros ? ? p; induction p as [|p IHp] using peano_ind; trivial.
- rewrite iter_succ; auto.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Theorem iter_invariant :
   forall (p:positive) (A:Type) (f:A -> A) (Inv:A -> Prop),
     (forall x:A, Inv x -> Inv (f x)) ->
     forall x:A, Inv x -> Inv (iter f x p).
-Proof.
- intros; apply iter_ind; auto.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Properties of power *)
 
 Lemma pow_1_r p : p^1 = p.
-Proof.
- unfold pow. simpl. now rewrite mul_comm.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma pow_succ_r p q : p^(succ q) = p * p^q.
-Proof.
- unfold pow. now rewrite iter_succ.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Properties of square *)
 
 Lemma square_spec p : square p = p * p.
-Proof.
- induction p as [p IHp|p IHp|].
- - rewrite square_xI. simpl. now rewrite IHp.
- - rewrite square_xO. simpl. now rewrite IHp.
- - trivial.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Properties of [sub_mask] *)
 
 Lemma sub_mask_succ_r p q :
   sub_mask p (succ q) = sub_mask_carry p q.
-Proof.
- revert q. induction p as [p ?|p ?|]; intro q; destruct q;
- simpl; f_equal; trivial; now destruct p.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Theorem sub_mask_carry_spec p q :
   sub_mask_carry p q = pred_mask (sub_mask p q).
-Proof.
-  revert q. induction p as [p IHp|p IHp|]; intro q; destruct q as [q|q|]; simpl;
-   try reflexivity; rewrite ?IHp;
-   destruct (sub_mask p q) as [|[r|r| ]|] || destruct p; auto.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Inductive SubMaskSpec (p q : positive) : mask -> Prop :=
  | SubIsNul : p = q -> SubMaskSpec p q IsNul
@@ -675,97 +447,40 @@ Inductive SubMaskSpec (p q : positive) : mask -> Prop :=
  | SubIsNeg : forall r, p + r = q -> SubMaskSpec p q IsNeg.
 
 Theorem sub_mask_spec p q : SubMaskSpec p q (sub_mask p q).
-Proof.
- revert q. induction p as [p IHp|p IHp|]; intro q; destruct q as [q|q|];
- simpl; try constructor; trivial.
- (* p~1 q~1 *)
- destruct (IHp q) as [|r|r]; subst; try now constructor.
-  now apply SubIsNeg with r~0.
- (* p~1 q~0 *)
- destruct (IHp q) as [|r|r]; subst; try now constructor.
-  apply SubIsNeg with (pred_double r). symmetry. apply add_xI_pred_double.
- (* p~0 q~1 *)
- rewrite sub_mask_carry_spec.
- destruct (IHp q) as [|r|r]; subst; try constructor.
-  now apply SubIsNeg with 1.
-  destruct r; simpl; try constructor; simpl.
-   now rewrite add_carry_spec, <- add_succ_r.
-   now rewrite add_carry_spec, <- add_succ_r, succ_pred_double.
-   now rewrite add_1_r.
-  now apply SubIsNeg with r~1.
- (* p~0 q~0 *)
- destruct (IHp q) as [|r|r]; subst; try now constructor.
-  now apply SubIsNeg with r~0.
- (* p~0 1 *)
- now rewrite add_1_l, succ_pred_double.
- (* 1 q~1 *)
- now apply SubIsNeg with q~0.
- (* 1 q~0 *)
- apply SubIsNeg with (pred_double q). now rewrite add_1_l, succ_pred_double.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Theorem sub_mask_nul_iff p q : sub_mask p q = IsNul <-> p = q.
-Proof.
- split.
- now case sub_mask_spec.
- intros <-. induction p as [p IHp|p IHp|]; simpl; now rewrite ?IHp.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Theorem sub_mask_diag p : sub_mask p p = IsNul.
-Proof.
-  now apply sub_mask_nul_iff.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma sub_mask_add p q r : sub_mask p q = IsPos r -> q + r = p.
-Proof.
- case sub_mask_spec; congruence.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma sub_mask_add_diag_l p q : sub_mask (p+q) p = IsPos q.
-Proof.
- case sub_mask_spec.
- intros H. rewrite add_comm in H. elim (add_no_neutral _ _ H).
- intros r H. apply add_cancel_l in H. now f_equal.
- intros r H. rewrite <- add_assoc, add_comm in H. elim (add_no_neutral _ _ H).
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma sub_mask_pos_iff p q r : sub_mask p q = IsPos r <-> q + r = p.
-Proof.
- split. apply sub_mask_add. intros <-; apply sub_mask_add_diag_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma sub_mask_add_diag_r p q : sub_mask p (p+q) = IsNeg.
-Proof.
- case sub_mask_spec; trivial.
- intros H. symmetry in H; rewrite add_comm in H. elim (add_no_neutral _ _ H).
- intros r H. rewrite <- add_assoc, add_comm in H. elim (add_no_neutral _ _ H).
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma sub_mask_neg_iff p q : sub_mask p q = IsNeg <-> exists r, p + r = q.
-Proof.
- split.
- case sub_mask_spec; try discriminate. intros r Hr _; now exists r.
- intros (r,<-). apply sub_mask_add_diag_r.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (*********************************************************************)
 (** * Properties of boolean comparisons *)
 
 Theorem eqb_eq p q : (p =? q) = true <-> p=q.
-Proof.
- revert q. induction p as [p IHp|p IHp|]; intro q; destruct q;
- simpl; rewrite ?IHp; split; congruence.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Theorem ltb_lt p q : (p <? q) = true <-> p < q.
-Proof.
-  unfold ltb, lt. destruct compare; easy'.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Theorem leb_le p q : (p <=? q) = true <-> p <= q.
-Proof.
-  unfold leb, le. destruct compare; easy'.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** More about [eqb] *)
 
@@ -785,15 +500,7 @@ Definition switch_Eq c c' :=
 
 Lemma compare_cont_spec p q c :
   compare_cont c p q = switch_Eq c (p ?= q).
-Proof.
-  unfold compare.
-  revert q c.
-  induction p as [p IHp|p IHp|]; intro q; destruct q as [q|q|]; simpl; trivial.
-  intros c.
-  rewrite 2 IHp. now destruct (compare_cont Eq p q).
-  intros c.
-  rewrite 2 IHp. now destruct (compare_cont Eq p q).
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** From this general result, we now describe particular cases
     of [compare_cont p q c = c'] :
@@ -804,77 +511,55 @@ Qed.
 
 Theorem compare_cont_Eq p q c :
  compare_cont c p q = Eq -> c = Eq.
-Proof.
-  rewrite compare_cont_spec. now destruct (p ?= q).
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma compare_cont_Lt_Gt p q :
   compare_cont Lt p q = Gt <-> p > q.
-Proof.
-  rewrite compare_cont_spec. unfold gt. destruct (p ?= q); now split.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma compare_cont_Lt_Lt p q :
   compare_cont Lt p q = Lt <-> p <= q.
-Proof.
-  rewrite compare_cont_spec. unfold le. destruct (p ?= q); easy'.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma compare_cont_Gt_Lt p q :
   compare_cont Gt p q = Lt <-> p < q.
-Proof.
-  rewrite compare_cont_spec. unfold lt. destruct (p ?= q); now split.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma compare_cont_Gt_Gt p q :
   compare_cont Gt p q = Gt <-> p >= q.
-Proof.
-  rewrite compare_cont_spec. unfold ge. destruct (p ?= q); easy'.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma compare_cont_Lt_not_Lt p q :
   compare_cont Lt p q <> Lt <-> p > q.
-Proof.
-  rewrite compare_cont_Lt_Lt.
-  unfold gt, le, compare.
-  now destruct compare_cont; split; try apply comparison_eq_stable.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma compare_cont_Lt_not_Gt p q :
   compare_cont Lt p q <> Gt <-> p <= q.
-Proof.
-  apply not_iff_compat, compare_cont_Lt_Gt.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma compare_cont_Gt_not_Lt p q :
   compare_cont Gt p q <> Lt <-> p >= q.
-Proof.
-  apply not_iff_compat, compare_cont_Gt_Lt.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma compare_cont_Gt_not_Gt p q :
   compare_cont Gt p q <> Gt <-> p < q.
-Proof.
-  rewrite compare_cont_Gt_Gt.
-  unfold ge, lt, compare.
-  now destruct compare_cont; split; try apply comparison_eq_stable.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** We can express recursive equations for [compare] *)
 
 Lemma compare_xO_xO p q : (p~0 ?= q~0) = (p ?= q).
-Proof. reflexivity. Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma compare_xI_xI p q : (p~1 ?= q~1) = (p ?= q).
-Proof. reflexivity. Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma compare_xI_xO p q :
  (p~1 ?= q~0) = switch_Eq Gt (p ?= q).
-Proof. exact (compare_cont_spec p q Gt). Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma compare_xO_xI p q :
  (p~0 ?= q~1) = switch_Eq Lt (p ?= q).
-Proof. exact (compare_cont_spec p q Lt). Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Hint Rewrite compare_xO_xO compare_xI_xI compare_xI_xO compare_xO_xI : compare.
 
@@ -891,66 +576,39 @@ Definition mask2cmp (p:mask) : comparison :=
  end.
 
 Lemma compare_sub_mask p q : (p ?= q) = mask2cmp (sub_mask p q).
-Proof.
-  revert q.
-  induction p as [p IHp| p IHp| ]; intros [q|q| ]; simpl; trivial;
-  specialize (IHp q); rewrite ?sub_mask_carry_spec;
-  destruct (sub_mask p q) as [|r|]; simpl in *;
-  try clear r; try destruct r; simpl; trivial;
-  simpl_compare; now rewrite IHp.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** Alternative characterisation of strict order in term of addition *)
 
 Lemma lt_iff_add p q : p < q <-> exists r, p + r = q.
-Proof.
- unfold "<". rewrite <- sub_mask_neg_iff, compare_sub_mask.
- destruct sub_mask; now split.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma gt_iff_add p q : p > q <-> exists r, q + r = p.
-Proof.
- unfold ">". rewrite compare_sub_mask.
- split.
- case_eq (sub_mask p q); try discriminate; intros r Hr _.
-  exists r. now apply sub_mask_pos_iff.
- intros (r,Hr). apply sub_mask_pos_iff in Hr. now rewrite Hr.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** Basic facts about [compare_cont] *)
 
 Theorem compare_cont_refl p c :
   compare_cont c p p = c.
-Proof.
-  now induction p.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma compare_cont_antisym p q c :
   CompOpp (compare_cont c p q) = compare_cont (CompOpp c) q p.
-Proof.
-  revert q c.
-  induction p as [p IHp|p IHp| ]; intros [q|q| ] c; simpl;
-   trivial; apply IHp.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** Basic facts about [compare] *)
 
 Lemma compare_eq_iff p q : (p ?= q) = Eq <-> p = q.
-Proof.
- rewrite compare_sub_mask, <- sub_mask_nul_iff.
- destruct sub_mask; now split.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma compare_antisym p q : (q ?= p) = CompOpp (p ?= q).
-Proof.
-  unfold compare. now rewrite compare_cont_antisym.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma compare_lt_iff p q : (p ?= q) = Lt <-> p < q.
-Proof. reflexivity. Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma compare_le_iff p q : (p ?= q) <> Gt <-> p <= q.
-Proof. reflexivity. Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** More properties about [compare] and boolean comparisons,
   including [compare_spec] and [lt_irrefl] and [lt_eq_cases]. *)
@@ -967,566 +625,300 @@ Definition le_lteq := lt_eq_cases.
   [lt] and [le]. *)
 
 Lemma gt_lt_iff p q : p > q <-> q < p.
-Proof.
- unfold lt, gt. now rewrite compare_antisym, CompOpp_iff.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma gt_lt p q : p > q -> q < p.
-Proof.
- apply gt_lt_iff.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma lt_gt p q : p < q -> q > p.
-Proof.
- apply gt_lt_iff.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma ge_le_iff p q : p >= q <-> q <= p.
-Proof.
- unfold le, ge. now rewrite compare_antisym, CompOpp_iff.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma ge_le p q : p >= q -> q <= p.
-Proof.
- apply ge_le_iff.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma le_ge p q : p <= q -> q >= p.
-Proof.
- apply ge_le_iff.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Comparison and the successor *)
 
 Lemma compare_succ_r p q :
   switch_Eq Gt (p ?= succ q) = switch_Eq Lt (p ?= q).
-Proof.
-  revert q.
-  induction p as [p IH|p IH| ]; intros [q|q| ]; simpl;
-   simpl_compare; rewrite ?IH; trivial;
-   (now destruct compare) || (now destruct p).
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma compare_succ_l p q :
   switch_Eq Lt (succ p ?= q) = switch_Eq Gt (p ?= q).
-Proof.
-  rewrite 2 (compare_antisym q). generalize (compare_succ_r q p).
-  now do 2 destruct compare.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Theorem lt_succ_r p q : p < succ q <-> p <= q.
-Proof.
-  unfold lt, le. generalize (compare_succ_r p q).
-  do 2 destruct compare; try discriminate; now split.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma lt_succ_diag_r p : p < succ p.
-Proof.
- rewrite lt_iff_add. exists 1. apply add_1_r.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma compare_succ_succ p q : (succ p ?= succ q) = (p ?= q).
-Proof.
- revert q.
- induction p as [p|p|]; intro q; destruct q as [q|q|];
- simpl; simpl_compare; trivial;
-  apply compare_succ_l || apply compare_succ_r ||
-  (now destruct p) || (now destruct q).
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** 1 is the least positive number *)
 
 Lemma le_1_l p : 1 <= p.
-Proof.
-  now destruct p.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma nlt_1_r p : ~ p < 1.
-Proof.
-  now destruct p.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma lt_1_succ p : 1 < succ p.
-Proof.
-  apply lt_succ_r, le_1_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Properties of the order *)
 
 Lemma le_nlt p q : p <= q <-> ~ q < p.
-Proof.
-  now rewrite <- ge_le_iff.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma lt_nle p q : p < q <-> ~ q <= p.
-Proof.
- intros. unfold lt, le. rewrite compare_antisym.
- destruct compare; split; auto; easy'.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma lt_le_incl p q : p<q -> p<=q.
-Proof.
-  intros. apply le_lteq. now left.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma lt_lt_succ n m : n < m -> n < succ m.
-Proof.
-  intros. now apply lt_succ_r, lt_le_incl.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma succ_lt_mono n m : n < m <-> succ n < succ m.
-Proof.
-  unfold lt. now rewrite compare_succ_succ.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma succ_le_mono n m : n <= m <-> succ n <= succ m.
-Proof.
-  unfold le. now rewrite compare_succ_succ.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma lt_trans n m p : n < m -> m < p -> n < p.
-Proof.
- rewrite 3 lt_iff_add. intros (r,Hr) (s,Hs).
- exists (r+s). now rewrite add_assoc, Hr, Hs.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Theorem lt_ind : forall (A : positive -> Prop) (n : positive),
   A (succ n) ->
     (forall m : positive, n < m -> A m -> A (succ m)) ->
       forall m : positive, n < m -> A m.
-Proof.
-  intros A n AB AS m. induction m using peano_ind; intros H.
-  elim (nlt_1_r _ H).
-  apply lt_succ_r, le_lteq in H. destruct H as [H|H]; subst; auto.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Instance lt_strorder : StrictOrder lt.
-Proof. split. exact lt_irrefl. exact lt_trans. Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Instance lt_compat : Proper (Logic.eq==>Logic.eq==>iff) lt.
-Proof. repeat red. intros. subst; auto. Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma lt_total p q : p < q \/ p = q \/ q < p.
-Proof.
- case (compare_spec p q); intuition.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma le_refl p : p <= p.
-Proof.
- intros. unfold le. now rewrite compare_refl.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma le_lt_trans n m p : n <= m -> m < p -> n < p.
-Proof.
- intros H H'. apply le_lteq in H. destruct H.
- now apply lt_trans with m. now subst.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma lt_le_trans n m p : n < m -> m <= p -> n < p.
-Proof.
- intros H H'. apply le_lteq in H'. destruct H'.
- now apply lt_trans with m. now subst.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma le_trans n m p : n <= m -> m <= p -> n <= p.
-Proof.
- intros H H'.
- apply le_lteq in H. destruct H.
- apply le_lteq; left. now apply lt_le_trans with m.
- now subst.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma le_succ_l n m : succ n <= m <-> n < m.
-Proof.
- rewrite <- lt_succ_r. symmetry. apply succ_lt_mono.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma le_antisym p q : p <= q -> q <= p -> p = q.
-Proof.
- rewrite le_lteq; destruct 1; auto.
- rewrite le_lteq; destruct 1; auto.
- elim (lt_irrefl p). now transitivity q.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Instance le_preorder : PreOrder le.
-Proof. split. exact le_refl. exact le_trans. Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Instance le_partorder : PartialOrder Logic.eq le.
-Proof.
- intros x y. change (x=y <-> x <= y <= x).
- split. intros; now subst.
- destruct 1; now apply le_antisym.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Comparison and addition *)
 
 Lemma add_compare_mono_l p q r : (p+q ?= p+r) = (q ?= r).
-Proof.
- revert q r. induction p using peano_ind; intros q r.
- rewrite 2 add_1_l. apply compare_succ_succ.
- now rewrite 2 add_succ_l, compare_succ_succ.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma add_compare_mono_r p q r : (q+p ?= r+p) = (q ?= r).
-Proof.
- rewrite 2 (add_comm _ p). apply add_compare_mono_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Order and addition *)
 
 Lemma lt_add_diag_r p q : p < p + q.
-Proof.
- rewrite lt_iff_add. now exists q.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma add_lt_mono_l p q r : q<r <-> p+q < p+r.
-Proof.
- unfold lt. rewrite add_compare_mono_l. apply iff_refl.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma add_lt_mono_r p q r : q<r <-> q+p < r+p.
-Proof.
- unfold lt. rewrite add_compare_mono_r. apply iff_refl.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma add_lt_mono p q r s : p<q -> r<s -> p+r<q+s.
-Proof.
- intros. apply lt_trans with (p+s).
- now apply add_lt_mono_l.
- now apply add_lt_mono_r.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma add_le_mono_l p q r : q<=r <-> p+q<=p+r.
-Proof.
- unfold le. rewrite add_compare_mono_l. apply iff_refl.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma add_le_mono_r p q r : q<=r <-> q+p<=r+p.
-Proof.
- unfold le. rewrite add_compare_mono_r. apply iff_refl.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma add_le_mono p q r s : p<=q -> r<=s -> p+r <= q+s.
-Proof.
- intros. apply le_trans with (p+s).
- now apply add_le_mono_l.
- now apply add_le_mono_r.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Comparison and multiplication *)
 
 Lemma mul_compare_mono_l p q r : (p*q ?= p*r) = (q ?= r).
-Proof.
- revert q r. induction p as [p IHp|p IHp|]; simpl; trivial.
- intros q r. specialize (IHp q r).
- destruct (compare_spec q r).
- subst. apply compare_refl.
- now apply add_lt_mono.
- now apply lt_gt, add_lt_mono, gt_lt.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma mul_compare_mono_r p q r : (q*p ?= r*p) = (q ?= r).
-Proof.
- rewrite 2 (mul_comm _ p). apply mul_compare_mono_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Order and multiplication *)
 
 Lemma mul_lt_mono_l p q r : q<r <-> p*q < p*r.
-Proof.
- unfold lt. rewrite mul_compare_mono_l. apply iff_refl.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma mul_lt_mono_r p q r : q<r <-> q*p < r*p.
-Proof.
- unfold lt. rewrite mul_compare_mono_r. apply iff_refl.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma mul_lt_mono p q r s : p<q -> r<s -> p*r < q*s.
-Proof.
- intros. apply lt_trans with (p*s).
- now apply mul_lt_mono_l.
- now apply mul_lt_mono_r.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma mul_le_mono_l p q r : q<=r <-> p*q<=p*r.
-Proof.
- unfold le. rewrite mul_compare_mono_l. apply iff_refl.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma mul_le_mono_r p q r : q<=r <-> q*p<=r*p.
-Proof.
- unfold le. rewrite mul_compare_mono_r. apply iff_refl.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma mul_le_mono p q r s : p<=q -> r<=s -> p*r <= q*s.
-Proof.
- intros. apply le_trans with (p*s).
- now apply mul_le_mono_l.
- now apply mul_le_mono_r.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma lt_add_r p q : p < p+q.
-Proof.
- induction q as [|q] using peano_ind.
- rewrite add_1_r. apply lt_succ_diag_r.
- apply lt_trans with (p+q); auto.
- apply add_lt_mono_l, lt_succ_diag_r.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma lt_not_add_l p q : ~ p+q < p.
-Proof.
- intro H. elim (lt_irrefl p).
- apply lt_trans with (p+q); auto using lt_add_r.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma pow_gt_1 n p : 1<n -> 1<n^p.
-Proof.
- intros H. induction p using peano_ind.
- now rewrite pow_1_r.
- rewrite pow_succ_r.
- apply lt_trans with (n*1).
- now rewrite mul_1_r.
- now apply mul_lt_mono_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (**********************************************************************)
 (** * Properties of subtraction on binary positive numbers *)
 
 Lemma sub_1_r p : sub p 1 = pred p.
-Proof.
-  now destruct p.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma pred_sub p : pred p = sub p 1.
-Proof.
-  symmetry. apply sub_1_r.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Theorem sub_succ_r p q : p - (succ q) = pred (p - q).
-Proof.
-  unfold sub; rewrite sub_mask_succ_r, sub_mask_carry_spec.
-  destruct (sub_mask p q) as [|[r|r| ]|]; auto.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Properties of subtraction without underflow *)
 
 Lemma sub_mask_pos' p q :
   q < p -> exists r, sub_mask p q = IsPos r /\ q + r = p.
-Proof.
- rewrite lt_iff_add. intros (r,Hr). exists r. split; trivial.
- now apply sub_mask_pos_iff.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma sub_mask_pos p q :
   q < p -> exists r, sub_mask p q = IsPos r.
-Proof.
- intros H. destruct (sub_mask_pos' p q H) as (r & Hr & _). now exists r.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Theorem sub_add p q : q < p -> (p-q)+q = p.
-Proof.
-  intros H. destruct (sub_mask_pos p q H) as (r,U).
-  unfold sub. rewrite U. rewrite add_comm. now apply sub_mask_add.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma add_sub p q : (p+q)-q = p.
-Proof.
- intros. apply add_reg_r with q.
- rewrite sub_add; trivial.
- rewrite add_comm. apply lt_add_r.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma mul_sub_distr_l p q r : r<q -> p*(q-r) = p*q-p*r.
-Proof.
- intros H.
- apply add_reg_r with (p*r).
- rewrite <- mul_add_distr_l.
- rewrite sub_add; trivial.
- symmetry. apply sub_add; trivial.
- now apply mul_lt_mono_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma mul_sub_distr_r p q r : q<p -> (p-q)*r = p*r-q*r.
-Proof.
- intros H. rewrite 3 (mul_comm _ r). now apply mul_sub_distr_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma sub_lt_mono_l p q r: q<p -> p<r -> r-p < r-q.
-Proof.
- intros Hqp Hpr.
- apply (add_lt_mono_r p).
- rewrite sub_add by trivial.
- apply le_lt_trans with ((r-q)+q).
- rewrite sub_add by (now apply lt_trans with p).
- apply le_refl.
- now apply add_lt_mono_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma sub_compare_mono_l p q r :
  q<p -> r<p -> (p-q ?= p-r) = (r ?= q).
-Proof.
- intros Hqp Hrp.
- case (compare_spec r q); intros H. subst. apply compare_refl.
- apply sub_lt_mono_l; trivial.
- apply lt_gt, sub_lt_mono_l; trivial.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma sub_compare_mono_r p q r :
  p<q -> p<r -> (q-p ?= r-p) = (q ?= r).
-Proof.
- intros. rewrite <- (add_compare_mono_r p), 2 sub_add; trivial.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma sub_lt_mono_r p q r : q<p -> r<q -> q-r < p-r.
-Proof.
- intros. unfold lt. rewrite sub_compare_mono_r; trivial.
- now apply lt_trans with q.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma sub_decr n m : m<n -> n-m < n.
-Proof.
- intros.
- apply add_lt_mono_r with m.
- rewrite sub_add; trivial.
- apply lt_add_r.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma add_sub_assoc p q r : r<q -> p+(q-r) = p+q-r.
-Proof.
- intros.
- apply add_reg_r with r.
- rewrite <- add_assoc, !sub_add; trivial.
- rewrite add_comm. apply lt_trans with q; trivial using lt_add_r.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma sub_add_distr p q r : q+r < p -> p-(q+r) = p-q-r.
-Proof.
- intros.
- assert (q < p)
-  by (apply lt_trans with (q+r); trivial using lt_add_r).
- rewrite (add_comm q r) in *.
- apply add_reg_r with (r+q).
- rewrite sub_add by trivial.
- rewrite add_assoc, !sub_add; trivial.
- apply (add_lt_mono_r q). rewrite sub_add; trivial.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma sub_sub_distr p q r : r<q -> q-r < p -> p-(q-r) = p+r-q.
-Proof.
- intros.
- apply add_reg_r with ((q-r)+r).
- rewrite add_assoc, !sub_add; trivial.
- rewrite <- (sub_add q r); trivial.
- now apply add_lt_mono_r.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** Recursive equations for [sub] *)
 
 Lemma sub_xO_xO n m : m<n -> n~0 - m~0 = (n-m)~0.
-Proof.
- intros H. unfold sub. simpl.
- now destruct (sub_mask_pos n m H) as (p, ->).
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma sub_xI_xI n m : m<n -> n~1 - m~1 = (n-m)~0.
-Proof.
- intros H. unfold sub. simpl.
- now destruct (sub_mask_pos n m H) as (p, ->).
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma sub_xI_xO n m : m<n -> n~1 - m~0 = (n-m)~1.
-Proof.
- intros H. unfold sub. simpl.
- now destruct (sub_mask_pos n m) as (p, ->).
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma sub_xO_xI n m : n~0 - m~1 = pred_double (n-m).
-Proof.
- unfold sub. simpl. rewrite sub_mask_carry_spec.
- now destruct (sub_mask n m) as [|[r|r|]|].
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** Properties of subtraction with underflow *)
 
 Lemma sub_mask_neg_iff' p q : sub_mask p q = IsNeg <-> p < q.
-Proof.
-  rewrite lt_iff_add. apply sub_mask_neg_iff.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma sub_mask_neg p q : p<q -> sub_mask p q = IsNeg.
-Proof.
-  apply sub_mask_neg_iff'.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma sub_le p q : p<=q -> p-q = 1.
-Proof.
-  unfold le, sub. rewrite compare_sub_mask.
-  destruct sub_mask; easy'.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma sub_lt p q : p<q -> p-q = 1.
-Proof.
-  intros. now apply sub_le, lt_le_incl.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma sub_diag p : p-p = 1.
-Proof.
-  unfold sub. now rewrite sub_mask_diag.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Results concerning [size] and [size_nat] *)
 
 Lemma size_nat_monotone p q : p<q -> (size_nat p <= size_nat q)%nat.
-Proof.
-  assert (le0 : forall n, (0<=n)%nat) by (intro n; induction n; auto).
-  assert (leS : forall n m, (n<=m -> S n <= S m)%nat) by (induction 1; auto).
-  revert q.
-  induction p as [p IHp|p IHp|]; intro q; destruct q as [q|q|];
-   simpl; intros H; auto; easy || apply leS;
-   red in H; simpl_compare_in H.
-  apply IHp. red. now destruct (p?=q).
-  destruct (compare_spec p q); subst; now auto.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma size_gt p : p < 2^(size p).
-Proof.
- induction p as [p IHp|p IHp|]; simpl; try rewrite pow_succ_r; try easy.
- apply le_succ_l in IHp. now apply le_succ_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma size_le p : 2^(size p) <= p~0.
-Proof.
- induction p as [p IHp|p IHp|]; simpl; try rewrite pow_succ_r; try easy.
- apply mul_le_mono_l.
- apply le_lteq; left. rewrite xI_succ_xO. apply lt_succ_r, IHp.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Properties of [min] and [max] *)
 
 (** First, the specification *)
 
 Lemma max_l : forall x y, y<=x -> max x y = x.
-Proof.
- intros x y H. unfold max. case compare_spec; auto.
- intros H'. apply le_nlt in H. now elim H.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma max_r : forall x y, x<=y -> max x y = y.
-Proof.
- unfold le, max. intros x y. destruct compare; easy'.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma min_l : forall x y, x<=y -> min x y = x.
-Proof.
- unfold le, min. intros x y. destruct compare; easy'.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma min_r : forall x y, y<=x -> min x y = y.
-Proof.
- intros x y H. unfold min. case compare_spec; auto.
- intros H'. apply le_nlt in H. now elim H'.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** We hence obtain all the generic properties of [min] and [max]. *)
 
@@ -1537,76 +929,48 @@ Ltac order := Private_Tac.order.
 (** Minimum, maximum and constant one *)
 
 Lemma max_1_l n : max 1 n = n.
-Proof.
- unfold max. case compare_spec; auto.
- intros H. apply lt_nle in H. elim H. apply le_1_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma max_1_r n : max n 1 = n.
-Proof. rewrite max_comm. apply max_1_l. Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma min_1_l n : min 1 n = 1.
-Proof.
- unfold min. case compare_spec; auto.
- intros H. apply lt_nle in H. elim H. apply le_1_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma min_1_r n : min n 1 = 1.
-Proof. rewrite min_comm. apply min_1_l. Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** Minimum, maximum and operations (consequences of monotonicity) *)
 
 Lemma succ_max_distr n m : succ (max n m) = max (succ n) (succ m).
-Proof.
- symmetry. apply max_monotone.
- intros x x'. apply succ_le_mono.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma succ_min_distr n m : succ (min n m) = min (succ n) (succ m).
-Proof.
- symmetry. apply min_monotone.
- intros x x'. apply succ_le_mono.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma add_max_distr_l n m p : max (p + n) (p + m) = p + max n m.
-Proof.
- apply max_monotone. intros x x'. apply add_le_mono_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma add_max_distr_r n m p : max (n + p) (m + p) = max n m + p.
-Proof.
- rewrite 3 (add_comm _ p). apply add_max_distr_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma add_min_distr_l n m p : min (p + n) (p + m) = p + min n m.
-Proof.
- apply min_monotone. intros x x'. apply add_le_mono_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma add_min_distr_r n m p : min (n + p) (m + p) = min n m + p.
-Proof.
- rewrite 3 (add_comm _ p). apply add_min_distr_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma mul_max_distr_l n m p : max (p * n) (p * m) = p * max n m.
-Proof.
- apply max_monotone. intros x x'. apply mul_le_mono_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma mul_max_distr_r n m p : max (n * p) (m * p) = max n m * p.
-Proof.
- rewrite 3 (mul_comm _ p). apply mul_max_distr_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma mul_min_distr_l n m p : min (p * n) (p * m) = p * min n m.
-Proof.
- apply min_monotone. intros x x'. apply mul_le_mono_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma mul_min_distr_r n m p : min (n * p) (m * p) = min n m * p.
-Proof.
- rewrite 3 (mul_comm _ p). apply mul_min_distr_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 
 (** ** Results concerning [iter_op] *)
@@ -1615,27 +979,18 @@ Lemma iter_op_succ : forall A (op:A->A->A),
  (forall x y z, op x (op y z) = op (op x y) z) ->
  forall p a,
  iter_op op (succ p) a = op a (iter_op op p a).
-Proof.
- intros A op H p; induction p as [p IHp|p IHp|]; simpl; intros; trivial.
- rewrite H. apply IHp.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Results about [of_nat] and [of_succ_nat] *)
 
 Lemma of_nat_succ (n:nat) : of_succ_nat n = of_nat (S n).
-Proof.
- induction n as [|n IHn]. trivial. simpl. f_equal. now rewrite IHn.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma pred_of_succ_nat (n:nat) : pred (of_succ_nat n) = of_nat n.
-Proof.
- destruct n. trivial. simpl pred. rewrite pred_succ. apply of_nat_succ.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma succ_of_nat (n:nat) : n<>O -> succ (of_nat n) = of_succ_nat n.
-Proof.
- rewrite of_nat_succ. destruct n; trivial. now destruct 1.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Correctness proofs for the square root function *)
 
@@ -1646,112 +1001,40 @@ Inductive SqrtSpec : positive*mask -> positive -> Prop :=
 Lemma sqrtrem_step_spec f g p x :
  (f=xO \/ f=xI) -> (g=xO \/ g=xI) ->
  SqrtSpec p x -> SqrtSpec (sqrtrem_step f g p) (g (f x)).
-Proof.
-intros Hf Hg [ s _ -> | s r _ -> Hr ].
-(* exact *)
-unfold sqrtrem_step.
-destruct Hf,Hg; subst; simpl; constructor; now rewrite ?square_xO.
-(* approx *)
-assert (Hfg : forall p q, g (f (p+q)) = p~0~0 + g (f q))
- by (intros; destruct Hf, Hg; now subst).
-unfold sqrtrem_step, leb.
-case compare_spec; [intros EQ | intros LT | intros GT].
-(* - EQ *)
-rewrite <- EQ, sub_mask_diag. constructor.
-destruct Hg; subst g; destr_eq EQ.
-destruct Hf; subst f; destr_eq EQ.
-subst. now rewrite square_xI.
-(* - LT *)
-destruct (sub_mask_pos' _ _ LT) as (y & -> & H). constructor.
-rewrite Hfg, <- H. now rewrite square_xI, add_assoc. clear Hfg.
-rewrite <- lt_succ_r in Hr. change (r < s~1) in Hr.
-rewrite <- lt_succ_r, (add_lt_mono_l (s~0~1)), H. simpl.
-rewrite add_carry_spec, add_diag. simpl.
-destruct Hf,Hg; subst; red; simpl_compare; now rewrite Hr.
-(* - GT *)
-constructor. now rewrite Hfg, square_xO. apply lt_succ_r, GT.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma sqrtrem_spec p : SqrtSpec (sqrtrem p) p.
-Proof.
-revert p. fix sqrtrem_spec 1.
- intro p; destruct p as [p|p|]; try destruct p; try (constructor; easy);
-  apply sqrtrem_step_spec; auto.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma sqrt_spec p :
  let s := sqrt p in s*s <= p < (succ s)*(succ s).
-Proof.
- simpl.
- assert (H:=sqrtrem_spec p).
- unfold sqrt in *. destruct sqrtrem as (s,rm); simpl.
- inversion_clear H; subst.
- (* exact *)
- split. reflexivity. apply mul_lt_mono; apply lt_succ_diag_r.
- (* approx *)
- split.
- apply lt_le_incl, lt_add_r.
- rewrite <- add_1_l, mul_add_distr_r, !mul_add_distr_l, !mul_1_r, !mul_1_l.
- rewrite add_assoc, (add_comm _ _). apply add_lt_mono_r.
- now rewrite <- add_assoc, add_diag, add_1_l, lt_succ_r.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** ** Correctness proofs for the gcd function *)
 
 Lemma divide_add_cancel_l p q r : (p | r) -> (p | q + r) -> (p | q).
-Proof.
- intros (s,Hs) (t,Ht).
- exists (t-s).
- rewrite mul_sub_distr_r.
- rewrite <- Hs, <- Ht.
- symmetry. apply add_sub.
- apply mul_lt_mono_r with p.
- rewrite <- Hs, <- Ht, add_comm.
- apply lt_add_r.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma divide_xO_xI p q r : (p | q~0) -> (p | r~1) -> (p | q).
-Proof.
- intros (s,Hs) (t,Ht).
- destruct p.
- destruct s as [s|s|]; try easy. simpl in Hs. destr_eq Hs. now exists s.
- rewrite mul_xO_r in Ht; discriminate.
- exists q; now rewrite mul_1_r.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma divide_xO_xO p q : (p~0|q~0) <-> (p|q).
-Proof.
- split; intros (r,H); simpl in *.
- rewrite mul_xO_r in H. destr_eq H. now exists r.
- exists r; simpl. rewrite mul_xO_r. f_equal; auto.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma divide_mul_l p q r : (p|q) -> (p|q*r).
-Proof.
- intros (s,H). exists (s*r).
- rewrite <- mul_assoc, (mul_comm r p), mul_assoc. now f_equal.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma divide_mul_r p q r : (p|r) -> (p|q*r).
-Proof.
- rewrite mul_comm. apply divide_mul_l.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** The first component of ggcd is gcd *)
 
 Lemma ggcdn_gcdn : forall n a b,
   fst (ggcdn n a b) = gcdn n a b.
-Proof.
- intro n; induction n as [|n IHn].
- simpl; auto.
- intros a b; destruct a, b; simpl; auto; try case compare_spec; simpl; trivial;
-  rewrite <- IHn; destruct ggcdn as (g,(u,v)); simpl; auto.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma ggcd_gcd : forall a b, fst (ggcd a b) = gcd a b.
-Proof.
- unfold ggcd, gcd. intros. apply ggcdn_gcdn.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** The other components of ggcd are indeed the correct factors. *)
 
@@ -1763,127 +1046,36 @@ Ltac destr_pggcdn IHn :=
 Lemma ggcdn_correct_divisors : forall n a b,
   let '(g,(aa,bb)) := ggcdn n a b in
   a = g*aa /\ b = g*bb.
-Proof.
- intro n; induction n as [|n IHn].
- simpl; auto.
- intros a b; destruct a, b;
-  simpl; auto; try case compare_spec; try destr_pggcdn IHn.
- (* Eq *)
- intros ->. now rewrite mul_comm.
- (* Lt *)
- intros (H',H) LT; split; auto.
- rewrite mul_add_distr_l, mul_xO_r, <- H, <- H'.
- simpl. f_equal. symmetry.
- rewrite add_comm. now apply sub_add.
- (* Gt *)
- intros (H',H) LT; split; auto.
- rewrite mul_add_distr_l, mul_xO_r, <- H, <- H'.
- simpl. f_equal. symmetry.
- rewrite add_comm. now apply sub_add.
- (* Then... *)
- intros (H,H'); split; auto. rewrite mul_xO_r, H'; auto.
- intros (H,H'); split; auto. rewrite mul_xO_r, H; auto.
- intros (H,H'); split; subst; auto.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma ggcd_correct_divisors : forall a b,
   let '(g,(aa,bb)) := ggcd a b in
   a=g*aa /\ b=g*bb.
-Proof.
- unfold ggcd. intros. apply ggcdn_correct_divisors.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** We can use this fact to prove a part of the gcd correctness *)
 
 Lemma gcd_divide_l : forall a b, (gcd a b | a).
-Proof.
- intros a b. rewrite <- ggcd_gcd. generalize (ggcd_correct_divisors a b).
- destruct ggcd as (g,(aa,bb)); simpl. intros (H,_). exists aa.
-  now rewrite mul_comm.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma gcd_divide_r : forall a b, (gcd a b | b).
-Proof.
- intros a b. rewrite <- ggcd_gcd. generalize (ggcd_correct_divisors a b).
- destruct ggcd as (g,(aa,bb)); simpl. intros (_,H). exists bb.
-  now rewrite mul_comm.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** We now prove directly that gcd is the greatest amongst common divisors *)
 
 Lemma gcdn_greatest : forall n a b, (size_nat a + size_nat b <= n)%nat ->
  forall p, (p|a) -> (p|b) -> (p|gcdn n a b).
-Proof.
- intro n; induction n as [|n IHn]; intros a b.
- destruct a, b; simpl; inversion 1.
- destruct a as [a|a|], b as [b|b|]; simpl; try case compare_spec; simpl; auto.
- (* Lt *)
- intros LT LE p Hp1 Hp2. apply IHn; clear IHn; trivial.
- apply le_S_n in LE. eapply Le.le_trans; [|eapply LE].
- rewrite plus_comm, <- plus_n_Sm, <- plus_Sn_m.
- apply plus_le_compat; trivial.
- apply size_nat_monotone, sub_decr, LT.
- apply divide_xO_xI with a; trivial.
- apply (divide_add_cancel_l p _ a~1); trivial.
- now rewrite <- sub_xI_xI, sub_add.
- (* Gt *)
- intros LT LE p Hp1 Hp2. apply IHn; clear IHn; trivial.
- apply le_S_n in LE. eapply Le.le_trans; [|eapply LE].
- apply plus_le_compat; trivial.
- apply size_nat_monotone, sub_decr, LT.
- apply divide_xO_xI with b; trivial.
- apply (divide_add_cancel_l p _ b~1); trivial.
- now rewrite <- sub_xI_xI, sub_add.
- (* a~1 b~0 *)
- intros LE p Hp1 Hp2. apply IHn; clear IHn; trivial.
- apply le_S_n in LE. simpl. now rewrite plus_n_Sm.
- apply divide_xO_xI with a; trivial.
- (* a~0 b~1 *)
- intros LE p Hp1 Hp2. apply IHn; clear IHn; trivial.
- simpl. now apply le_S_n.
- apply divide_xO_xI with b; trivial.
- (* a~0 b~0 *)
- intros LE p Hp1 Hp2.
- destruct p as [p|p|].
- change (gcdn n a b)~0 with (2*(gcdn n a b)).
- apply divide_mul_r.
- apply IHn; clear IHn.
- apply le_S_n in LE. apply le_Sn_le. now rewrite plus_n_Sm.
- apply divide_xO_xI with p; trivial. now exists 1.
- apply divide_xO_xI with p; trivial. now exists 1.
- apply divide_xO_xO.
- apply IHn; clear IHn.
- apply le_S_n in LE. apply le_Sn_le. now rewrite plus_n_Sm.
- now apply divide_xO_xO.
- now apply divide_xO_xO.
- exists (gcdn n a b)~0. now rewrite mul_1_r.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma gcd_greatest : forall a b p, (p|a) -> (p|b) -> (p|gcd a b).
-Proof.
- intros. apply gcdn_greatest; auto.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** As a consequence, the rests after division by gcd are relatively prime *)
 
 Lemma ggcd_greatest : forall a b,
  let (aa,bb) := snd (ggcd a b) in
  forall p, (p|aa) -> (p|bb) -> p=1.
-Proof.
- intros a b **. generalize (gcd_greatest a b) (ggcd_correct_divisors a b).
- rewrite <- ggcd_gcd. destruct ggcd as (g,(aa,bb)); simpl.
- intros H (EQa,EQb) p Hp1 Hp2; subst.
- assert (H' : (g*p | g)).
-  apply H.
-  destruct Hp1 as (r,Hr). exists r.
-   now rewrite mul_assoc, (mul_comm r g), <- mul_assoc, <- Hr.
-  destruct Hp2 as (r,Hr). exists r.
-   now rewrite mul_assoc, (mul_comm r g), <- mul_assoc, <- Hr.
- destruct H' as (q,H').
- rewrite (mul_comm g p), mul_assoc in H'.
- apply mul_eq_1 with q; rewrite mul_comm.
- now apply mul_reg_r with g.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 End Pos.
 
@@ -2066,9 +1258,9 @@ Notation Psize_pos_le := Pos.size_le (only parsing).
     (to preserve scopes for instance) *)
 
 Lemma Peqb_true_eq x y : Pos.eqb x y = true -> x=y.
-Proof. apply Pos.eqb_eq. Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 Lemma Pcompare_eq_Gt p q : (p ?= q) = Gt <-> p > q.
-Proof. reflexivity. Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 Lemma Pplus_one_succ_r p : Pos.succ p = p + 1.
 Proof (eq_sym (Pos.add_1_r p)).
 Lemma Pplus_one_succ_l p : Pos.succ p = 1 + p.
@@ -2087,19 +1279,10 @@ Lemma Pminus_mask_Gt p q :
   exists h : positive,
    Pos.sub_mask p q = IsPos h /\
    q + h = p /\ (h = 1 \/ Pos.sub_mask_carry p q = IsPos (Pos.pred h)).
-Proof.
- intros H. apply Pos.gt_lt in H.
- destruct (Pos.sub_mask_pos p q H) as (r & U).
- exists r. repeat split; trivial.
- now apply Pos.sub_mask_pos_iff.
- destruct (Pos.eq_dec r 1) as [EQ|NE]; [now left|right].
- rewrite Pos.sub_mask_carry_spec, U. destruct r; trivial. now elim NE.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma Pplus_minus : forall p q, p > q -> q+(p-q) = p.
-Proof.
- intros. rewrite Pos.add_comm. now apply Pos.sub_add, Pos.gt_lt.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** Discontinued results of little interest and little/zero use
     in user contributions:
@@ -2130,9 +1313,7 @@ Qed.
 (** Old stuff, to remove someday *)
 
 Lemma Dcompare : forall r:comparison, r = Eq \/ r = Lt \/ r = Gt.
-Proof.
-  intro r; destruct r; auto.
-Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (** Incompatibilities :
 
