@@ -697,7 +697,7 @@ Proof.
 Qed.
 
 Lemma lxor_spec a a' n :
- testbit (lxor a a') n = xorb (testbit a n) (testbit a' n).
+ testbit (Pos.lxor a a') n = xorb (testbit a n) (testbit a' n).
 Proof.
  destruct a, a'; simpl; trivial.
  now destruct Pos.testbit.
@@ -714,7 +714,7 @@ Proof.
 Qed.
 
 Lemma lor_spec a a' n :
- testbit (lor a a') n = (testbit a n) || (testbit a' n).
+ testbit (Pos.lor a a') n = (testbit a n) || (testbit a' n).
 Proof.
  destruct a, a'; simpl; trivial.
  now rewrite orb_false_r.
@@ -731,7 +731,7 @@ Proof.
 Qed.
 
 Lemma land_spec a a' n :
- testbit (land a a') n = (testbit a n) && (testbit a' n).
+ testbit (Pos.land a a') n = (testbit a n) && (testbit a' n).
 Proof.
  destruct a, a'; simpl; trivial.
  now rewrite andb_false_r.
@@ -758,7 +758,7 @@ Qed.
 (** Instantiation of generic properties of advanced functions
     (pow, sqrt, log2, div, gcd, ...) *)
 
-Include NExtraProp.
+(*Include NExtraProp.*)
 
 (** In generic statements, the predicates [lt] and [le] have been
   favored, whereas [gt] and [ge] don't even exist in the abstract
