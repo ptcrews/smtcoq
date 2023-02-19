@@ -1,0 +1,13 @@
+(sygus-grammar __internal_abduct
+((_Bool Bool) (_Int Int))
+((_Bool Bool ((Constant Bool) true false 
+  (= _Int _Int) 
+  (<= _Int _Int) 
+  (not _Bool) 
+  (and _Bool _Bool) 
+  (or _Bool _Bool) ))
+(_Int Int ((Constant Int) op_2 op_0 op_1 0 1 
+  (+ _Int _Int) 
+  (- _Int _Int) 
+  (ite _Bool _Int _Int) ))
+))
