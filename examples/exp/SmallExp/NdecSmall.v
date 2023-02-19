@@ -119,7 +119,7 @@ Qed.
 
 (** An inefficient boolean order on [N]. Please use [N.leb] instead now. *)
 
-Definition Nleb (a b:N) := leb (N.to_nat a) (N.to_nat b).
+Definition Nleb (a b:N) := Nat.leb (N.to_nat a) (N.to_nat b).
 
 Lemma Nleb_alt a b : Nleb a b = N.leb a b.
 Proof.

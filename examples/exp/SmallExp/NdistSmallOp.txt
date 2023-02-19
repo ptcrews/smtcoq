@@ -1,0 +1,120 @@
+1 subgoal
+  
+  ============================
+  forall d : natinf, ni_min (ni 0) d = ni 0
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(ni_min (ni 0) d) = (ni 0)
+(ni_min d d) = d && (ni 0) = d
+if (ni_min d d) = d then (ni 0) else d = (ni_min d d)
+1 subgoal
+  
+  ============================
+  forall d : natinf, ni_min d (ni 0) = ni 0
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(ni_min d (ni 0)) = (ni 0)
+(ni_min d d) = d && (ni 0) = d
+if (ni_min d d) = d then (ni 0) else d = (ni_min d d)
+1 subgoal
+  
+  ============================
+  forall d : natinf, ni_min infty d = d
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(ni_min infty d) = d
+(ni_min infty infty) = infty && infty = d
+(ni_min infty if (ni_min infty infty) = infty then infty else d) = d
+1 subgoal
+  
+  ============================
+  forall d : natinf, ni_min d infty = d
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(ni_min d infty) = d
+(ni_min d d) = d && d = infty
+(ni_min d if (ni_min d infty) = d then d else infty) = d
+1 subgoal
+  
+  ============================
+  forall d : natinf, ni_le d d
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall d d' : natinf, ni_le d d' -> ni_le d' d -> d = d'
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall d d' d'' : natinf, ni_le d d' -> ni_le d' d'' -> ni_le d d''
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall d d' : natinf, ni_le (ni_min d d') d'
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall d d' : natinf, ni_le d d' \/ ni_le d' d
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall m n : nat, m <= n -> ni_le (ni m) (ni n)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall m n : nat, ni_le (ni m) (ni n) -> m <= n
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall a : N, Npdist a a = infty
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a a' : N, Npdist a a' = infty -> a = a'
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+a = a'
+if (Npdist a a') = infty then a' else a = a
+(Npdist a a) = infty && a = a'
+1 subgoal
+  
+  ============================
+  forall a a' : N, Npdist a a' = Npdist a' a
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+a' = a
+(Npdist a a') = (Npdist a' a)
+if (Npdist a a') = (Npdist a' a) then a' else a = a'

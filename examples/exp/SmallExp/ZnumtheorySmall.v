@@ -176,7 +176,7 @@ Proof.
   assert (b <> 0) by now apply Z_lt_neq.
   replace a with ((a - c) + c) by ring.
   rewrite Z.add_mod; auto.
-  rewrite (Zdivide_mod (a-c) b); try rewrite Z.add_0_l; auto.
+  rewrite (Zdivide_mod (a - c) b); try rewrite Z.add_0_l; auto.
   rewrite Z.mod_mod; try apply Zmod_small; auto.
 Qed.
 
