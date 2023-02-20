@@ -431,14 +431,7 @@ let call_cvc4_abduct i env rt ro ra rf root lsmt =
 
   let proof =
     match check_sat cvc4 with
-    | Unsat ->
-      begin
-        try get_proof cvc4 (import_trace (Some root) lfsc_parse_one)
-        with
-        | Ast.CVC4Sat -> CoqInterface.error "CVC4 returned SAT"
-        | No_proof -> CoqInterface.error "CVC4 did not generate a proof"
-        | Failure s -> CoqInterface.error ("Importing of proof failed: " ^ s)
-      end
+    | Unsat -> CoqInterface.error "CVC4 returned UNSAT, try the smt tactic instead."
     | Sat -> call_cvc5_abduct i env rt ro ra rf root lsmt
   in
 
