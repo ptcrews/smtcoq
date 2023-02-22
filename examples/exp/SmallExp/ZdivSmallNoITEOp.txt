@@ -1,0 +1,539 @@
+1 subgoal
+  
+  N : Z
+  ============================
+  forall a : Z, a == a
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  N : Z
+  ============================
+  forall a b : Z, a == b -> b == a
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  N : Z
+  ============================
+  forall a b c : Z, a == b -> b == c -> a == c
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  N : Z
+  ============================
+  forall a : Z, a mod N == a
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  a, b : Z
+  ============================
+  b > 0 -> 0 <= a mod b < b
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  a, b : Z
+  ============================
+  b < 0 -> b < a mod b <= 0
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  a, b : Z
+  ============================
+  b > 0 -> a = b * (a / b) + a mod b
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  a, b : Z
+  ============================
+  b <> 0 -> a mod b = a - a / b * b
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  a, b : Z
+  ============================
+  b > 0 -> a mod b = a - a / b * b
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  ============================
+  forall b q1 q2 r1 r2 : Z,
+  Remainder r1 b ->
+  Remainder r2 b -> b * q1 + r1 = b * q2 + r2 -> q1 = q2 /\ r1 = r2
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  ============================
+  forall a b q r : Z, Remainder r b -> a = b * q + r -> q = a / b
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  ============================
+  forall a b q r : Z, 0 <= r < b -> a = b * q + r -> q = a / b
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  ============================
+  forall a b q r : Z, Remainder r b -> a = b * q + r -> r = a mod b
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  ============================
+  forall a b q r : Z, 0 <= r < b -> a = b * q + r -> r = a mod b
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  ============================
+  forall a : Z, 0 mod a = 0
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a : Z, a mod 0 = 0
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a : Z, 0 / a = 0
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a : Z, a / 0 = 0
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a : Z, a mod 1 = 0
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a : Z, a / 1 = a
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a : Z, 1 < a -> 1 / a = 0
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(Z.div 1 a) = 0
+(Z.div 1 a) = 0 || 1 = a
+(Z.div 1 a) = 0 || 0 = a
+1 subgoal
+  
+  ============================
+  forall a : Z, 1 < a -> 1 mod a = 1
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a : Z, a <> 0 -> a / a = 1
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a : Z, a mod a = 0
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a b : Z, (a * b) mod b = 0
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  ============================
+  forall a b : Z, b <> 0 -> a * b / b = a
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  ============================
+  forall a b : Z, b > 0 -> 0 <= a -> 0 <= a / b
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(Z.div a b) = 1
+(Z.div a b) = b
+(Z.div a b) = a
+1 subgoal
+  
+  ============================
+  forall a b : Z, b > 0 -> a >= 0 -> a / b >= 0
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(Z.div a b) = 1
+(Z.div a b) = b
+(Z.div a b) = a
+1 subgoal
+  
+  ============================
+  forall a b : Z, 0 <= a < b -> a / b = 0
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a n : Z, 0 <= a < n -> a mod n = a
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(Z.modulo a n) = a
+(Z.modulo 0 n) = 0 && a <= 0
+(Z.modulo a n) = 0 && a <= 0
+1 subgoal
+  
+  ============================
+  forall a b c : Z, c > 0 -> a >= b -> a / c >= b / c
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+a = b
+a <= b
+a = 1 && b = c
+1 subgoal
+  
+  ============================
+  forall a b c : Z, c > 0 -> a <= b -> a / c <= b / c
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+a = b
+b <= a
+a = b || c <= 0
+1 subgoal
+  
+  ============================
+  forall a b : Z, b > 0 -> b * (a / b) <= a
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic.
+The fact in question: (>= (+ op_1 (* (- 1) (* op_0 (op_2 op_1 op_0)))) 0)
+ ).
+1 subgoal
+  
+  ============================
+  forall a b : Z, b < 0 -> b * (a / b) >= a
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic.
+The fact in question: (>= (+ op_1 (* (- 1) (* op_0 (op_2 op_1 op_0)))) 1)
+ ).
+1 subgoal
+  
+  ============================
+  forall a b : Z, a = b * (a / b) -> a mod b = 0
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  ============================
+  forall a b : Z, b <> 0 -> a mod b = 0 -> a = b * (a / b)
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  ============================
+  forall a b : Z, 0 < b -> 0 <= a -> a mod b <= a
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(Z.modulo a b) = a
+(Z.modulo a b) = 0
+(Z.modulo a b) <= 0
+1 subgoal
+  
+  ============================
+  forall a b q : Z, 0 < b -> a < q * b -> a / b < q
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic.
+The fact in question: (>= (+ op_0 (* (- 1) (* op_1 op_2))) 0)
+ ).
+1 subgoal
+  
+  ============================
+  forall a b q : Z, 0 < b -> a <= q * b -> a / b <= q
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic.
+The fact in question: (>= (+ op_0 (* (- 1) (* op_1 op_2))) 1)
+ ).
+1 subgoal
+  
+  ============================
+  forall a b q : Z, 0 < b -> q * b <= a -> q <= a / b
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic.
+The fact in question: (>= (+ op_2 (* (- 1) (* op_0 op_1))) 0)
+ ).
+1 subgoal
+  
+  ============================
+  forall p q r : Z, 0 <= p -> 0 < q < r -> p / r <= p / q
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a b c : Z, (a + b * c) mod c = a mod c
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  ============================
+  forall a b c : Z, c <> 0 -> (a + b * c) / c = a / c + b
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  ============================
+  forall a b c : Z, b <> 0 -> (a * b + c) / b = a + c / b
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  ============================
+  forall a b : Z, - a / - b = a / b
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a b : Z, - a mod - b = - (a mod b)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a b : Z, a mod b = 0 -> - a mod b = 0
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+0 = a
+(Z.modulo a b) = a
+(Z.modulo 0 - a b) = 0
+1 subgoal
+  
+  ============================
+  forall a b : Z, a mod b <> 0 -> - a mod b = b - a mod b
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a b : Z, a mod b = 0 -> a mod - b = 0
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+b = 0
+(Z.modulo a b) = b
+(Z.modulo a b) + b = 0
+1 subgoal
+  
+  ============================
+  forall a b : Z, a mod b <> 0 -> a mod - b = a mod b - b
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a b : Z, a mod b = 0 -> - a / b = - (a / b)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a b : Z, a mod b <> 0 -> - a / b = - (a / b) - 1
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a b : Z, a mod b = 0 -> a / - b = - (a / b)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a b : Z, a mod b <> 0 -> a / - b = - (a / b) - 1
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a b c : Z, c <> 0 -> a * c / (b * c) = a / b
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  ============================
+  forall a n : Z, (a mod n) mod n = a mod n
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a b n : Z, (a * b) mod n = (a mod n * (b mod n)) mod n
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  ============================
+  forall a b n : Z, (a + b) mod n = (a mod n + b mod n) mod n
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a b n : Z, (a mod n + b) mod n = (a + b) mod n
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a b n : Z, (b + a mod n) mod n = (b + a) mod n
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a b n : Z, (a mod n - b) mod n = (a - b) mod n
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a b n : Z, (a - b mod n) mod n = (a - b) mod n
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a b n : Z, (a mod n * b) mod n = (a * b) mod n
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  ============================
+  forall a b n : Z, (b * (a mod n)) mod n = (b * a) mod n
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  ============================
+  forall a : Z, Z.div2 a = a / 2
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a : Z, a mod 2 = (if Z.odd a then 1 else 0)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a : Z, a mod 2 = (if Z.even a then 0 else 1)
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a : Z, Z.odd a = Zeq_bool (a mod 2) 1
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a : Z, Z.even a = Zeq_bool (a mod 2) 0
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a : Z, a > 0 -> a mod a = 0
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(Z.modulo a a) = 0
+(Z.modulo a a) = 0 || a = 0
+(Z.modulo a a) = 0 || a <= 0
+1 subgoal
+  
+  ============================
+  forall a : Z, a > 0 -> a / a = 1
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+(Z.div a a) = 1
+(Z.div a a) = a && a <= 1
+(Z.div 1 a) = a && a <= 1
+1 subgoal
+  
+  ============================
+  forall a b c : Z, c > 0 -> (a + b * c) / c = a / c + b
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  ============================
+  forall a b : Z, b > 0 -> a * b / b = a
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  ============================
+  forall a b c : Z, c > 0 -> (a + b * c) mod c = a mod c
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  ============================
+  forall a b : Z, b > 0 -> a = b * (a / b) -> a mod b = 0
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  ============================
+  forall a b : Z, b > 0 -> a mod b = 0 -> a = b * (a / b)
+The command has indeed failed with message:
+Solver error: (error A non-linear fact was asserted to arithmetic in a linear logic. ).
+1 subgoal
+  
+  ============================
+  forall a b : Z, b > 0 -> a mod b = 0 -> - a mod b = 0
+The command has indeed failed with message:
+cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
+
+0 = a
+(Z.modulo a b) = a
+0 = a || b <= 0
