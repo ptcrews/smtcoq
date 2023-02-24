@@ -812,8 +812,23 @@ Section Elts.
     - reflexivity.
     - destruct (eq_dec y z); destruct (eq_dec x z).
       + subst. auto. 
-      + subst. rewrite IHl. symmetry. cvc5_abduct 1. (* symmetry. apply remove_cons. *) admit.
-      + subst. rewrite IHl. (* symmetry. apply remove_cons. *) admit.
+      + subst. rewrite IHl.
+     (* cvc5_abduct_no_quant 3.
+        Before symmetry:
+        1. (z :: (remove x l)) = (remove x l)
+        2. (z :: (remove x l)) = (remove x l) || z = x
+        3. (remove z (z :: (remove x l))) = (remove z (remove x l))
+
+        After symmetry: 
+        1. (cons z (remove x l)) = (remove x l)
+        2. (remove z (cons z (remove x l))) = (remove z (remove x l))
+        3. (cons z (remove x l)) = (remove x l) || z = x 
+        
+        remove_cons: remove z (z :: remove x l) = remove z (remove x l) 
+        which is what 3 from before symmetry gives us. *)
+        symmetry. apply remove_cons.
+      + subst. rewrite IHl. (*cvc5_abduct_no_quant 3. Same as above *) 
+        apply remove_cons.
       + auto. simpl. destruct (eq_dec y z). tauto. rewrite IHl.
         destruct (eq_dec x z); tauto.
   Qed.  
