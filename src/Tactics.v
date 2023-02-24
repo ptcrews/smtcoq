@@ -39,6 +39,27 @@ Ltac get_hyps_acc acc :=
   | _ => acc
   end.
 
+Ltac get_hyps_acc_abd acc :=
+  match goal with
+  | [ H : ?P |- _ ] =>
+    let T := type of P in
+    lazymatch T with
+    | Prop =>
+      lazymatch P with
+      | id _ => fail
+      | forall _, _ => get_hyps_acc acc
+      | _ =>
+        let _ := match goal with _ => change P with (id P) in H end in
+        match acc with
+        | Some ?t => get_hyps_acc (Some (H, t))
+        | None => get_hyps_acc (Some H)
+        end
+      end
+    | _ => fail
+    end
+  | _ => acc
+  end.
+
 Ltac eliminate_id :=
   repeat match goal with
   | [ H : ?P |- _ ] =>
@@ -53,7 +74,10 @@ Ltac get_hyps :=
   let _ := match goal with _ => eliminate_id end in
   Hs.
 
-
+Ltac get_hyps_abd :=
+  let Hs := get_hyps_acc_abd (@None nat) in
+  let _ := match goal with _ => eliminate_id end in
+  Hs.
 (* Section Test. *)
 (*   Variable A : Type. *)
 (*   Hypothesis H1 : forall a:A, a = a. *)
@@ -175,7 +199,7 @@ Tactic Notation "verit_no_check"           :=
 Tactic Notation "cvc5_abduct" int_or_var(i) constr(h) :=
   intros; prop2bool;
   [ .. | prop2bool_hyps h;
-         [ .. | let Hs := get_hyps in
+         [ .. | let Hs := get_hyps_abd in
                 lazymatch Hs with
                 | Some ?Hs =>
                   prop2bool_hyps Hs;
@@ -186,7 +210,7 @@ Tactic Notation "cvc5_abduct" int_or_var(i) constr(h) :=
   ].
 Tactic Notation "cvc5_abduct" int_or_var(i)           :=
   intros; prop2bool;
-  [ .. | let Hs := get_hyps in
+  [ .. | let Hs := get_hyps_abd in
          lazymatch Hs with
          | Some ?Hs =>
            prop2bool_hyps Hs;

@@ -292,7 +292,7 @@ Section Facts.
   Proof.
     split; [apply app_inv_tail | now intros ->].
   Qed.
-(* HERE *)
+
   (************************)
   (** *** Facts about [In] *)
   (************************)
@@ -357,10 +357,10 @@ Section Facts.
   Theorem in_split : forall x (l:list A), In x l -> exists l1 l2, l = l1++x::l2.
   Proof.
   intros x l; induction l as [|a l IHl]; simpl; [destruct 1|destruct 1 as [?|H]].
-  subst a; auto.
-  exists [], l; auto.
-  destruct (IHl H) as (l1,(l2,H0)).
-  exists (a::l1), l2; simpl. apply f_equal. auto.
+  + subst a; auto. 
+    exists [], l; auto.
+  + destruct (IHl H) as (l1,(l2,H0)).
+    exists (a::l1), l2. simpl. apply f_equal. auto.
   Qed.
 
   Lemma in_elt : forall (x:A) l1 l2, In x (l1 ++ x :: l2).
@@ -373,8 +373,7 @@ Section Facts.
   Lemma in_elt_inv : forall (x y : A) l1 l2,
     In x (l1 ++ y :: l2) -> x = y \/ In x (l1 ++ l2).
   Proof.
-  intros x y l1 l2 Hin.
-  apply in_app_or in Hin.
+  intros x y l1 l2 Hin. apply in_app_or in Hin.
   destruct Hin as [Hin|[Hin|Hin]]; [right|left|right]; try apply in_or_app; intuition.
   Qed.
 
@@ -441,7 +440,7 @@ Section Elts.
 
   Lemma nth_in_or_default :
     forall (n:nat) (l:list A) (d:A), {In (nth n l d) l} + {nth n l d = d}.
-  Proof.
+  Proof. 
     intros n l d; revert n; induction l as [|? ? IHl].
     - intro n; right; destruct n; trivial.
     - intros [|n]; simpl.
@@ -472,7 +471,7 @@ Section Elts.
   Lemma nth_default_eq :
     forall n l (d:A), nth_default d l n = nth n l d.
   Proof.
-    unfold nth_default; intro n; induction n; intros [ | ] ?; simpl; auto.
+    unfold nth_default. intro n. induction n; intros [ | ] ?; simpl; auto.
   Qed.
 
   (** Results about [nth] *)
@@ -500,10 +499,12 @@ Section Elts.
 
   Lemma nth_overflow : forall l n d, length l <= n -> nth n l d = d.
   Proof.
-    intro l; induction l as [|? ? IHl]; intro n; destruct n;
+    intro l. induction l as [|? ? IHl].
+    + intro n; destruct n;
      simpl; intros d H; auto.
-    - inversion H.
-    - apply IHl; auto with arith.
+    + intro n; destruct n; simpl; intros d H; auto.
+      - inversion H.
+      - apply IHl; auto with arith.
   Qed.
 
   Lemma nth_indep :
@@ -534,7 +535,7 @@ Section Elts.
     nth (length l + n) (l ++ l') d = nth n l' d.
   Proof.
     intros.
-    rewrite app_nth2, minus_plus; trivial.
+    rewrite app_nth2. rewrite minus_plus. trivial.
     auto with arith.
   Qed.
 
@@ -671,8 +672,8 @@ Section Elts.
   end.
 
   Lemma last_last : forall l a d, last (l ++ [a]) d = a.
-  Proof.
-    intro l; induction l as [|? l IHl]; intros; [ reflexivity | ].
+  Proof. 
+    intro l. induction l as [|? l IHl]; intros; [ reflexivity | ].
     simpl; rewrite IHl.
     destruct l; reflexivity.
   Qed.
@@ -690,10 +691,10 @@ Section Elts.
     forall l d, l <> [] -> l = removelast l ++ [last l d].
   Proof.
     intro l; induction l as [|? l IHl].
-    destruct 1; auto.
-    intros d _.
-    destruct l as [|a0 l]; auto.
-    pattern (a0::l) at 1; rewrite IHl with d; auto; discriminate.
+    + destruct 1; auto.
+    + intros d _.
+      destruct l as [|a0 l]; auto.
+      pattern (a0::l) at 1; rewrite IHl with d; auto; discriminate.
   Qed.
 
   Lemma exists_last :
@@ -713,10 +714,10 @@ Section Elts.
     forall l l', l' <> [] -> removelast (l++l') = l ++ removelast l'.
   Proof.
     intro l; induction l as [|? l IHl].
-    simpl; auto.
-    simpl; intros l' H.
-    assert (l++l' <> []) as H0.
-    destruct l.
+    + simpl; auto.
+    + simpl; intros l' H.
+      assert (l++l' <> []) as H0.
+      destruct l.
     simpl; auto.
     simpl; discriminate.
     specialize (IHl l' H).
@@ -754,7 +755,7 @@ Section Elts.
   Proof.
     intros x l1; induction l1 as [|a l1 IHl1]; intros l2; simpl.
     - reflexivity.
-    - destruct (eq_dec x a).
+    -  destruct (eq_dec x a).
       + apply IHl1.
       + rewrite <- app_comm_cons; f_equal.
         apply IHl1.
@@ -809,20 +810,24 @@ Section Elts.
   Proof.
     intro l; induction l as [| z l IHl]; simpl; intros x y.
     - reflexivity.
-    - destruct (eq_dec y z); simpl; destruct (eq_dec x z); try rewrite IHl; auto.
-      + subst; symmetry; apply remove_cons.
-      + simpl; destruct (eq_dec y z); tauto.
-  Qed.
+    - destruct (eq_dec y z); destruct (eq_dec x z).
+      + subst. auto. 
+      + subst. rewrite IHl. symmetry. cvc5_abduct 1. (* symmetry. apply remove_cons. *) admit.
+      + subst. rewrite IHl. (* symmetry. apply remove_cons. *) admit.
+      + auto. simpl. destruct (eq_dec y z). tauto. rewrite IHl.
+        destruct (eq_dec x z); tauto.
+  Qed.  
 
   Lemma remove_remove_eq : forall l x, remove x (remove x l) = remove x l.
-  Proof. intros l x; now rewrite (notin_remove _ _ (remove_In l x)). Qed.
+  Proof. intros l x. now rewrite (notin_remove _ _ (remove_In l x)). Qed.
 
   Lemma remove_length_le : forall l x, length (remove x l) <= length l.
   Proof.
-    intro l; induction l as [|y l IHl]; simpl; intros x; trivial.
-    destruct (eq_dec x y); simpl.
-    - rewrite IHl; constructor; reflexivity.
-    - apply (proj1 (Nat.succ_le_mono _ _) (IHl x)).
+    intro l; induction l as [|y l IHl]. 
+    + simpl; intros x; trivial.
+    + simpl; intros x. destruct (eq_dec x y); simpl.
+      - rewrite IHl; constructor; reflexivity.
+      - apply (proj1 (Nat.succ_le_mono _ _) (IHl x)).
   Qed.
 
   Lemma remove_length_lt : forall l x, In x l -> length (remove x l) < length l.
