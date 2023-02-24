@@ -47,12 +47,14 @@ Ltac get_hyps_acc_abd acc :=
     | Prop =>
       lazymatch P with
       | id _ => fail
-      | forall _, _ => let _ := match goal with _ => change P with (id P) in H end in get_hyps_acc acc
+      | forall _, _ => 
+        let _ := match goal with _ => change P with (id P) in H end in 
+        get_hyps_acc_abd acc
       | _ =>
         let _ := match goal with _ => change P with (id P) in H end in
         match acc with
-        | Some ?t => get_hyps_acc (Some (H, t))
-        | None => get_hyps_acc (Some H)
+        | Some ?t => get_hyps_acc_abd (Some (H, t))
+        | None => get_hyps_acc_abd (Some H)
         end
       end
     | _ => fail
@@ -60,6 +62,8 @@ Ltac get_hyps_acc_abd acc :=
   | _ => acc
   end.
 
+(* Remove the id from every hypothesis, added by get_hyps 
+   to avoid matching them multiple times*)
 Ltac eliminate_id :=
   repeat match goal with
   | [ H : ?P |- _ ] =>
@@ -199,7 +203,7 @@ Tactic Notation "verit_no_check"           :=
 Tactic Notation "cvc5_abduct" int_or_var(i) constr(h) :=
   intros; prop2bool;
   [ .. | prop2bool_hyps h;
-         [ .. | let Hs := get_hyps_abd in
+         [ .. | let Hs := get_hyps in
                 lazymatch Hs with
                 | Some ?Hs =>
                   prop2bool_hyps Hs;
@@ -210,6 +214,28 @@ Tactic Notation "cvc5_abduct" int_or_var(i) constr(h) :=
   ].
 Tactic Notation "cvc5_abduct" int_or_var(i)           :=
   intros; prop2bool;
+  [ .. | let Hs := get_hyps in
+         lazymatch Hs with
+         | Some ?Hs =>
+           prop2bool_hyps Hs;
+           [ .. | cvc5_bool_abduct_base_auto i (Some Hs) ]
+         | None => cvc5_bool_abduct_base_auto i (@None nat)
+         end; vauto
+  ].
+  Tactic Notation "cvc5_abduct_no_quant" int_or_var(i) constr(h) :=
+  intros; prop2bool;
+  [ .. | prop2bool_hyps h;
+         [ .. | let Hs := get_hyps_abd in
+                lazymatch Hs with
+                | Some ?Hs =>
+                  prop2bool_hyps Hs;
+                  [ .. | cvc5_bool_abduct_base_auto i (Some (h, Hs)) ]
+                | None => cvc5_bool_abduct_base_auto i (Some h)
+                end; vauto
+         ]
+  ].
+Tactic Notation "cvc5_abduct_no_quant" int_or_var(i)           :=
+  intros; prop2bool;
   [ .. | let Hs := get_hyps_abd in
          lazymatch Hs with
          | Some ?Hs =>
@@ -218,7 +244,6 @@ Tactic Notation "cvc5_abduct" int_or_var(i)           :=
          | None => cvc5_bool_abduct_base_auto i (@None nat)
          end; vauto
   ].
-
 Ltac cvc4            := prop2bool; [ .. | cvc4_bool; bool2prop ].
 Ltac cvc4_no_check   := prop2bool; [ .. | cvc4_bool_no_check; bool2prop ].
 
