@@ -47,7 +47,7 @@ Ltac get_hyps_acc_abd acc :=
     | Prop =>
       lazymatch P with
       | id _ => fail
-      | forall _, _ => get_hyps_acc acc
+      | forall _, _ => let _ := match goal with _ => change P with (id P) in H end in get_hyps_acc acc
       | _ =>
         let _ := match goal with _ => change P with (id P) in H end in
         match acc with
