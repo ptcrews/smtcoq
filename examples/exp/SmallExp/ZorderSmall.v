@@ -35,13 +35,10 @@ Proof.
 Defined.
 
 Lemma Zle_gt_succ n m : n <= m -> Z.succ m > n.
-Proof. Show. cvc5_abduct 1. 
-(* cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
-(Z.succ m) = 1 + m *) 
-assert ((Z.succ m) = 1 + m). { unfold Z.succ. now rewrite Z.add_comm. } smt. Qed.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Theorem Ztrichotomy n m : n < m \/ n = m \/ n > m.
-Proof. Show. Fail (cvc5_abduct 3). Admditted.
+Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 (**********************************************************************)
 (** * Decidability of equality and order on Z *)
