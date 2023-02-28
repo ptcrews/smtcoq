@@ -1,0 +1,96 @@
+1 subgoal
+  
+  ============================
+  forall d : natinf, ni_min (ni 0) d = ni 0
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall d : natinf, ni_min d (ni 0) = ni 0
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall d : natinf, ni_min infty d = d
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall d : natinf, ni_min d infty = d
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall d : natinf, ni_le d d
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall d d' : natinf, ni_le d d' -> ni_le d' d -> d = d'
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall d d' d'' : natinf, ni_le d d' -> ni_le d' d'' -> ni_le d d''
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall d d' : natinf, ni_le (ni_min d d') d'
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall d d' : natinf, ni_le d d' \/ ni_le d' d
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall m n : nat, m <= n -> ni_le (ni m) (ni n)
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall m n : nat, ni_le (ni m) (ni n) -> m <= n
+The command has indeed failed with message:
+Anomaly
+"Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
+Please report at http://coq.inria.fr/bugs/.
+1 subgoal
+  
+  ============================
+  forall a : N, Npdist a a = infty
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a a' : N, Npdist a a' = infty -> a = a'
+The command has indeed failed with message:
+Could not reconstruct abduct
+1 subgoal
+  
+  ============================
+  forall a a' : N, Npdist a a' = Npdist a' a
+The command has indeed failed with message:
+Could not reconstruct abduct
