@@ -169,7 +169,7 @@ let export out_channel rt ro lsmt =
 
 exception Unknown
 
-let call_verit _ _ rt ro ra_quant rf_quant first lsmt =
+let call_verit _ _ _ rt ro ra_quant rf_quant first lsmt =
   let (filename, outchan) = Filename.open_temp_file "verit_coq" ".smt2" in
   export outchan rt ro lsmt;
   close_out outchan;
@@ -235,6 +235,6 @@ let tactic_gen vm_cast lcpl lcepl =
   let rf = VeritSyntax.rf in
   let ra_quant = VeritSyntax.ra_quant in
   let rf_quant = VeritSyntax.rf_quant in
-  SmtCommands.tactic call_verit 0 verit_logic rt ro ra rf ra_quant rf_quant vm_cast lcpl lcepl
+  SmtCommands.tactic call_verit 0 0 verit_logic rt ro ra rf ra_quant rf_quant vm_cast lcpl lcepl
 let tactic = tactic_gen vm_cast_true
 let tactic_no_check = tactic_gen (fun _ -> vm_cast_true_no_check)
