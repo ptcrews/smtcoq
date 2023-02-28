@@ -28,31 +28,31 @@ Notation Neqb_correct := N.eqb_refl (only parsing).
 Notation Neqb_comm := N.eqb_sym (only parsing).
 
 Lemma Peqb_complete p p' : Pos.eqb p p' = true -> p = p'.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Peqb_Pcompare p p' : Pos.eqb p p' = true -> Pos.compare p p' = Eq.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Pcompare_Peqb p p' : Pos.compare p p' = Eq -> Pos.eqb p p' = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Neqb_Ncompare n n' : N.eqb n n' = true -> N.compare n n' = Eq.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Ncompare_Neqb n n' : N.compare n n' = Eq -> N.eqb n n' = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Neqb_complete n n' : N.eqb n n' = true -> n = n'.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Nxor_eq_true n n' : N.lxor n n' = 0 -> N.eqb n n' = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Ltac eqb2eq := rewrite <- ?not_true_iff_false in *; rewrite ?N.eqb_eq in *.
 
 Lemma Nxor_eq_false n n' p :
   N.lxor n n' = N.pos p -> N.eqb n n' = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Nodd_not_double a :
   Nodd a -> forall a0, N.eqb (N.double a0) a = false.
@@ -63,7 +63,7 @@ Qed.
 
 Lemma Nnot_div2_not_double a a0 :
   N.eqb (N.div2 a) a0 = false -> N.eqb a (N.double a0) = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Neven_not_double_plus_one a :
   Neven a -> forall a0, N.eqb (N.succ_double a0) a = false.
@@ -74,28 +74,28 @@ Qed.
 
 Lemma Nnot_div2_not_double_plus_one a a0 :
   N.eqb (N.div2 a) a0 = false -> N.eqb (N.succ_double a0) a = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Nbit0_neq a a' :
   N.odd a = false -> N.odd a' = true -> N.eqb a a' = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Ndiv2_eq a a' :
   N.eqb a a' = true -> N.eqb (N.div2 a) (N.div2 a') = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Ndiv2_neq a a' :
   N.eqb (N.div2 a) (N.div2 a') = false -> N.eqb a a' = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Ndiv2_bit_eq a a' :
   N.odd a = N.odd a' -> N.div2 a = N.div2 a' -> a = a'.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Ndiv2_bit_neq a a' :
   N.eqb a a' = false ->
    N.odd a = N.odd a' -> N.eqb (N.div2 a) (N.div2 a') = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Nneq_elim a a' :
    N.eqb a a' = false ->
@@ -128,16 +128,16 @@ Proof.
 Qed.
 
 Lemma Nleb_Nle a b : Nleb a b = true <-> a <= b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Nleb_refl a : Nleb a a = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Nleb_antisym a b : Nleb a b = true -> Nleb b a = true -> a = b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Nleb_trans a b c : Nleb a b = true -> Nleb b c = true -> Nleb a c = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Nleb_ltb_trans a b c :
   Nleb a b = true -> Nleb c b = false -> Nleb c a = false.
@@ -243,33 +243,33 @@ Qed.
    this statement is in fact Nleb_Nle! *)
 
 Lemma Nltb_Ncompare a b : Nleb a b = false <-> N.compare a b = Gt.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Ncompare_Gt_Nltb a b : N.compare a b = Gt -> Nleb a b = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Ncompare_Lt_Nltb a b : N.compare a b = Lt -> Nleb b a = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 (* Old results about [N.min] *)
 
 Notation Nmin_choice := N.min_dec (only parsing).
 
 Lemma Nmin_le_1 a b : Nleb (N.min a b) a = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Nmin_le_2 a b : Nleb (N.min a b) b = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Nmin_le_3 a b c : Nleb a (N.min b c) = true -> Nleb a b = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Nmin_le_4 a b c : Nleb a (N.min b c) = true -> Nleb a c = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Nmin_le_5 a b c :
    Nleb a b = true -> Nleb a c = true -> Nleb a (N.min b c) = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Nmin_lt_3 a b c : Nleb (N.min b c) a = false -> Nleb b a = false.
 Proof.

@@ -49,22 +49,22 @@ Notation Zdivide_factor_r := Z.divide_factor_l (only parsing).
 Notation Zdivide_factor_l := Z.divide_factor_r (only parsing).
 
 Lemma Zdivide_opp_r a b : (a | b) -> (a | - b).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Zdivide_opp_r_rev a b : (a | - b) -> (a | b).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Zdivide_opp_l a b : (a | b) -> (- a | b).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Zdivide_opp_l_rev a b : (- a | b) -> (a | b).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Theorem Zdivide_Zabs_l a b : (Z.abs a | b) -> (a | b).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Theorem Zdivide_Zabs_inv_l a b : (a | b) -> (Z.abs a | b).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 #[global]
 Hint Resolve Z.divide_refl Z.divide_1_l Z.divide_0_r: zarith.
@@ -78,7 +78,7 @@ Hint Resolve Z.divide_add_r Zdivide_opp_r Zdivide_opp_r_rev Zdivide_opp_l
 (** Auxiliary result. *)
 
 Lemma Zmult_one x y : x >= 0 -> x * y = 1 -> x = 1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 (** Only [1] and [-1] divide [1]. *)
 
@@ -97,10 +97,10 @@ Qed.
 (** [Z.divide] can be expressed using [Z.modulo]. *)
 
 Lemma Zmod_divide : forall a b, b<>0 -> a mod b = 0 -> (b | a).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Zdivide_mod : forall a b, (b | a) -> a mod b = 0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 (** [Z.divide] is hence decidable *)
 
@@ -116,7 +116,7 @@ Proof.
 Defined.
 
 Lemma Z_lt_neq {x y: Z} : x < y -> y <> x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Theorem Zdivide_Zdiv_eq a b : 0 < a -> (a | b) ->  b = a * (b / a).
 Proof.
@@ -136,7 +136,7 @@ Qed.
 
 Theorem Zdivide_le: forall a b : Z,
  0 <= a -> 0 < b -> (a | b) ->  a <= b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Theorem Zdivide_Zdiv_lt_pos a b :
  1 < a -> 0 < b -> (a | b) ->  0 < b / a < b .
@@ -196,22 +196,22 @@ Inductive Zis_gcd (a b g:Z) : Prop :=
 (** Trivial properties of [gcd] *)
 
 Lemma Zis_gcd_sym : forall a b d, Zis_gcd a b d -> Zis_gcd b a d.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Zis_gcd_0 : forall a, Zis_gcd a 0 a.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Zis_gcd_1 : forall a, Zis_gcd a 1 1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Zis_gcd_refl : forall a, Zis_gcd a a a.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Zis_gcd_minus : forall a b d, Zis_gcd a (- b) d -> Zis_gcd b a d.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Zis_gcd_opp : forall a b d, Zis_gcd a b d -> Zis_gcd b a (- d).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma Zis_gcd_0_abs a : Zis_gcd 0 a (Z.abs a).
 Proof.
@@ -384,7 +384,7 @@ Definition rel_prime (a b:Z) : Prop := Zis_gcd a b 1.
     only if there exist [u] and [v] such that [ua+vb = 1]. *)
 
 Lemma rel_prime_bezout : forall a b:Z, rel_prime a b -> Bezout a b 1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma bezout_rel_prime : forall a b:Z, Bezout a b 1 -> rel_prime a b.
 Proof.
@@ -662,7 +662,7 @@ Proof.
 Qed.
 
 Lemma not_prime_0: ~ prime 0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Lemma not_prime_1: ~ prime 1.
 Proof.
@@ -697,7 +697,7 @@ Proof.
 Qed.
 
 Theorem prime_ge_2 p : prime p ->  2 <= p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Definition prime' p := 1<p /\ (forall n, 1<n<p -> ~ (n|p)).
 
@@ -788,7 +788,7 @@ Qed.
 
 Theorem Zdivide_Zgcd: forall p q r : Z,
  (p | q) -> (p | r) -> (p | Z.gcd q r).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Theorem Zis_gcd_gcd: forall a b c : Z,
  0 <= c ->  Zis_gcd a b c -> Z.gcd a b = c.
@@ -836,7 +836,7 @@ Proof.
 Qed.
 
 Lemma Zgcd_ass a b c : Z.gcd (Z.gcd a b) c = Z.gcd a (Z.gcd b c).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
 Notation Zgcd_Zabs := Z.gcd_abs_l (only parsing).
 Notation Zgcd_0 := Z.gcd_0_r (only parsing).
