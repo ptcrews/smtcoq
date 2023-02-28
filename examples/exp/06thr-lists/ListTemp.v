@@ -831,7 +831,7 @@ Section Elts.
         apply remove_cons.
       + auto. simpl. destruct (eq_dec y z). tauto. rewrite IHl.
         destruct (eq_dec x z); tauto.
-  Qed.  
+  Qed.
 
   Lemma remove_remove_eq : forall l x, remove x (remove x l) = remove x l.
   Proof. intros l x. now rewrite (notin_remove _ _ (remove_In l x)). Qed.
@@ -841,10 +841,10 @@ Section Elts.
     intro l; induction l as [|y l IHl]. 
     + simpl; intros x; trivial.
     + simpl; intros x. destruct (eq_dec x y); simpl.
-      - rewrite IHl; constructor; reflexivity.
+      - rewrite IHl. constructor. reflexivity.
       - apply (proj1 (Nat.succ_le_mono _ _) (IHl x)).
   Qed.
-
+(* HERE *)
   Lemma remove_length_lt : forall l x, In x l -> length (remove x l) < length l.
   Proof.
     intro l; induction l as [|y l IHl]; simpl; intros x Hin.
