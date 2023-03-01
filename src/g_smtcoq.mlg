@@ -10,7 +10,7 @@
 (**************************************************************************)
 
 
-DECLARE PLUGIN "smtcoq_plugin"
+DECLARE PLUGIN "coq-smtcoq.smtcoq"
 
 {
 
@@ -84,23 +84,25 @@ END
 
 let lemmas_list = Summary.ref ~name:"Selected lemmas" []
 
-let cache_lemmas (_, lems) =
+let cache_lemmas lems =
   lemmas_list := lems
 
 let declare_lemmas : CoqInterface.constr_expr list -> Libobject.obj =
   let open Libobject in
-  declare_object
+  let obj : (CoqInterface.constr_expr list, CoqInterface.constr_expr list) object_declaration =
     {
       (default_object "LEMMAS") with
       cache_function = cache_lemmas;
       load_function = (fun _ -> cache_lemmas);
     }
+  in
+  declare_object obj
 
 let add_lemmas lems =
-  Lib.add_anonymous_leaf (declare_lemmas (lems @ !lemmas_list))
+  Lib.add_leaf (declare_lemmas (lems @ !lemmas_list))
 
 let clear_lemmas () =
-  Lib.add_anonymous_leaf (declare_lemmas [])
+  Lib.add_leaf (declare_lemmas [])
 
 let get_lemmas () = !lemmas_list
 
@@ -113,8 +115,10 @@ END
 
 
 TACTIC EXTEND Tactic_verit
-| [ "verit_bool_base" constr(lpl) ] -> { Verit.tactic lpl (get_lemmas ()) }
-| [ "verit_bool_no_check_base" constr(lpl) ] -> { Verit.tactic_no_check lpl (get_lemmas ()) }
+| [ "verit_bool_base" constr(lpl) ] -> { Verit.tactic None lpl (get_lemmas ()) }
+| [ "verit_bool_no_check_base" constr(lpl) ] -> { Verit.tactic_no_check None lpl (get_lemmas ()) }
+| [ "verit_bool_base_timeout" constr(lpl) int_or_var(timeout) ] -> { Verit.tactic (Some timeout) lpl (get_lemmas ()) }
+| [ "verit_bool_no_check_base_timeout" constr(lpl) int_or_var(timeout) ] -> { Verit.tactic_no_check (Some timeout) lpl (get_lemmas ()) }
 END
 
 TACTIC EXTEND Tactic_cvc4

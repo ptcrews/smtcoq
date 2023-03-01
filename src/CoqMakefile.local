@@ -1,6 +1,6 @@
 ########################################################################
 ##   This file is intended to developers: please do not use it        ##
-## directly, rather use the "configure.sh" script.                    ##
+## directly                                                           ##
 ########################################################################
 
 
@@ -29,7 +29,7 @@ cleanall::
 
 CAMLLEX = $(CAMLBIN)ocamllex
 CAMLYACC = $(CAMLBIN)ocamlyacc
-CAMLPKGS += -package num
+CAMLPKGS += -package num,coq-core.plugins.micromega
 
 merlin-hook::
 	$(HIDE)echo 'PKG num' >> .merlin

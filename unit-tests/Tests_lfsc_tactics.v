@@ -10,10 +10,8 @@
 (**************************************************************************)
 
 
-Add Rec LoadPath "../src" as SMTCoq.
-
 Require Import SMTCoq.
-Require Import Bool PArray Int63 List ZArith Logic.
+Require Import Bool PArray Uint63 List ZArith Logic.
 
 Local Open Scope Z_scope.
 
@@ -203,7 +201,7 @@ End LIA.
 
 Section PR.
 
- Local Open Scope int63_scope.
+ Local Open Scope uint63_scope.
 
 (* Simple connectors *)
 
@@ -360,9 +358,9 @@ Qed.
 
 (** The same goal above with a, b and c are concrete terms *)
 Goal forall i j k,
-  let a := i == j in
-  let b := j == k in
-  let c := k == i in
+  let a := i =? j in
+  let b := j =? k in
+  let c := k =? i in
   (a || b || c) && ((negb a) || (negb b) || (negb c)) && ((negb a) || b) && ((negb b) || c) && ((negb c) || a) = false.
 Proof using.
   smt.
@@ -584,14 +582,14 @@ Qed.
 
 (* With concrete terms *)
 Goal forall i j,
-  let a := i == j in
+  let a := i =? j in
   a && (negb a) = false.
 Proof using.
   smt.
 Qed.
 
 Goal forall i j,
-  let a := i == j in
+  let a := i =? j in
   a || (negb a) = true.
 Proof using.
   smt.

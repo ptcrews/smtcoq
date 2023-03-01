@@ -79,12 +79,17 @@ let import_trace ra_quant rf_quant filename first lsmt =
        let cfirst = ref (VeritSyntax.get_clause !first_num) in
        let confl = ref (VeritSyntax.get_clause !confl_num) in
        let re_hash = Form.hash_hform (Atom.hash_hatom ra_quant) rf_quant in
+
        begin match first with
        | None -> ()
        | Some _ ->
           let init_index = VeritSyntax.init_index lsmt re_hash in
           let cf, lr = order_roots init_index !cfirst in
           cfirst := cf;
+
+          (* Adding quantifier-free lemmas used as inputs in the final
+             certificate, using the ForallInst rule (which simply proves
+             lemma -> lemma) *)
           let to_add = VeritSyntax.qf_to_add (List.tl lr) in
           let to_add =
             (match first, !cfirst.value with
@@ -92,10 +97,13 @@ let import_trace ra_quant rf_quant filename first lsmt =
                  let cfirst_value = !cfirst.value in
                  !cfirst.value <- root.value;
                  [Other (ImmFlatten (root, fl)), cfirst_value, !cfirst]
-             | _ -> []) @ to_add in
-       match to_add with
-       | [] -> ()
-       | _  -> confl := add_scertifs to_add !cfirst end;
+             | _ -> []) @ to_add
+          in
+          match to_add with
+            | [] -> ()
+            | _  -> confl := add_scertifs to_add !cfirst
+       end;
+
        select !confl;
        occur !confl;
        (alloc !cfirst, !confl)
@@ -169,7 +177,7 @@ let export out_channel rt ro lsmt =
 
 exception Unknown
 
-let call_verit _ _ _ rt ro ra_quant rf_quant first lsmt =
+let call_verit timeout _ _ _ rt ro ra_quant rf_quant first lsmt =
   let (filename, outchan) = Filename.open_temp_file "verit_coq" ".smt2" in
   export outchan rt ro lsmt;
   close_out outchan;
@@ -177,6 +185,11 @@ let call_verit _ _ _ rt ro ra_quant rf_quant first lsmt =
   let wname, woc = Filename.open_temp_file "warnings_verit" ".log" in
   close_out woc;
   let command = "veriT --proof-prune --proof-merge --proof-with-sharing --cnf-definitional --disable-ackermann --input=smtlib2 --proof=" ^ logfilename ^ " " ^ filename ^ " 2> " ^ wname in
+  let command = 
+    match timeout with
+      | Some i -> "timeout "^(string_of_int i)^" "^command
+      | None -> command
+  in
   Format.eprintf "%s@." command;
   let t0 = Sys.time () in
   let exit_code = Sys.command command in
@@ -202,7 +215,7 @@ let call_verit _ _ _ rt ro ra_quant rf_quant first lsmt =
           CoqInterface.error ("veriT failed with the error: " ^ l)
       done
     with End_of_file -> () in
-
+  if exit_code = 124 (*code for timeout*) then (close_in win; Sys.remove wname; let _ = CoqInterface.anomaly "veriT timed out" in ());
   try
     if exit_code <> 0 then CoqInterface.warning "verit-non-zero-exit-code" ("Verit.call_verit: command " ^ command ^ " exited with code " ^ string_of_int exit_code);
     raise_warnings_errors ();
@@ -217,7 +230,7 @@ let call_verit _ _ _ rt ro ra_quant rf_quant first lsmt =
 let verit_logic =
   SL.of_list [LUF; LLia]
 
-let tactic_gen vm_cast lcpl lcepl =
+let tactic_gen vm_cast timeout lcpl lcepl =
   (* Transform the tuple of lemmas given by the user into a list *)
   let lcpl =
     let lcpl = EConstr.Unsafe.to_constr lcpl in
@@ -235,6 +248,7 @@ let tactic_gen vm_cast lcpl lcepl =
   let rf = VeritSyntax.rf in
   let ra_quant = VeritSyntax.ra_quant in
   let rf_quant = VeritSyntax.rf_quant in
-  SmtCommands.tactic call_verit 0 0 verit_logic rt ro ra rf ra_quant rf_quant vm_cast lcpl lcepl
+  SmtCommands.tactic (call_verit timeout) 0 0 verit_logic rt ro ra rf ra_quant rf_quant vm_cast lcpl lcepl
 let tactic = tactic_gen vm_cast_true
 let tactic_no_check = tactic_gen (fun _ -> vm_cast_true_no_check)
+

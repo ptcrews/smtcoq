@@ -1,6 +1,6 @@
 ########################################################################
 ##   This file is intended to developers: please do not use it        ##
-## directly, rather use the "configure.sh" script.                    ##
+## directly                                                           ##
 ########################################################################
 
 
@@ -8,11 +8,13 @@
 
 ########################################################################
 ## To generate the Makefile:                                          ##
-##   coq_makefile -f Make -o Makefile                                 ##
+##   coq_makefile -f _CoqProject -o Makefile                          ##
 ##   sed -i 's/^CAMLDONTLINK=unix,str$/CAMLDONTLINK=num,str,unix,dynlink,threads/' Makefile ##
 ## WARNING: DO NOT FORGET THE SECOND LINE (see PR#62)                 ##
 ########################################################################
 
+
+META.coq-smtcoq
 
 -R . SMTCoq
 
@@ -70,7 +72,6 @@ trace/coqInterface.mli
 ../3rdparty/alt-ergo/smtlib2_parse.ml
 ../3rdparty/alt-ergo/smtlib2_parse.mli
 ../3rdparty/alt-ergo/smtlib2_lex.ml
-../3rdparty/alt-ergo/smtlib2_lex.mli
 ../3rdparty/alt-ergo/smtlib2_ast.ml
 ../3rdparty/alt-ergo/smtlib2_ast.mli
 ../3rdparty/alt-ergo/smtlib2_util.ml
@@ -89,7 +90,6 @@ smtlib2/sExprLexer.ml
 verit/veritParser.ml
 verit/veritParser.mli
 verit/veritLexer.ml
-verit/veritLexer.mli
 verit/verit.ml
 verit/verit.mli
 verit/veritSyntax.ml

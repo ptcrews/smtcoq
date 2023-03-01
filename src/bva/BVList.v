@@ -10,7 +10,7 @@
 (**************************************************************************)
 
 
-Require Import List Bool NArith Psatz Int63 Nnat ZArith.
+Require Import List Bool NArith Psatz Uint63 Nnat ZArith.
 Require Import Misc.
 Require Import ProofIrrelevance.
 Import ListNotations.
@@ -436,12 +436,12 @@ Lemma bv_mk_eq l1 l2 : bv_eq l1 l2 = beq_list l1 l2.
 Proof.
   unfold bv_eq, size, bits.
   case_eq (Nat.eqb (length l1) (length l2)); intro Heq.
-  - now rewrite (EqNat.beq_nat_true _ _ Heq), N.eqb_refl.
+  - rewrite Nat.eqb_eq in Heq. now rewrite Heq, N.eqb_refl.
   - replace (N.of_nat (length l1) =? N.of_nat (length l2)) with false.
     * revert l2 Heq. induction l1 as [ |b1 l1 IHl1]; intros [ |b2 l2]; simpl in *; auto.
       intro Heq. now rewrite <- (IHl1 _ Heq), andb_false_r.
     * symmetry. rewrite N.eqb_neq. intro H. apply Nat2N.inj in H. rewrite H in Heq.
-      rewrite <- EqNat.beq_nat_refl in Heq. discriminate.
+      rewrite Nat.eqb_refl in Heq. discriminate.
 Qed.
 
 Definition bv_concat (a b: bitvector) : bitvector := b ++ a.
@@ -665,7 +665,7 @@ Fixpoint mult_bool_step_k_h (a b: list bool) (c: bool) (k: Z) : list bool :=
     | ai :: a' , nil => ai :: mult_bool_step_k_h a' b c k
   end.
 
-Local Open Scope int63_scope.
+Local Open Scope uint63_scope.
 
 Fixpoint top_k_bools (a: list bool) (k: int) : list bool :=
   if (k =? 0) then nil

@@ -43,11 +43,11 @@ val mkArrow : types -> types -> constr
 val pr_constr_env : Environ.env -> constr -> Pp.t
 val pr_constr : constr -> Pp.t
 
-val mkUConst : constr -> Evd.side_effects Declare.proof_entry
-val mkTConst : constr -> constr -> types -> Evd.side_effects Declare.proof_entry
+val mkUConst : constr -> Declare.proof_entry
+val mkTConst : constr -> constr -> types -> Declare.proof_entry
 val declare_new_type : id -> types
 val declare_new_variable : id -> types -> constr
-val declare_constant : id -> Evd.side_effects Declare.proof_entry -> Names.Constant.t
+val declare_constant : id -> Declare.proof_entry -> Names.Constant.t
 
 type cast_kind
 val vmcast : cast_kind
@@ -98,6 +98,7 @@ val set_evars_tac : constr -> tactic
 (* Other differences between the two versions of Coq *)
 type constr_expr = Constrexpr.constr_expr
 val error : string -> 'a
+val anomaly : string -> 'a
 val warning : string -> string -> unit
 val destruct_rel_decl : (constr, types) Context.Rel.Declaration.pt -> name * types
 val interp_constr : Environ.env -> Evd.evar_map -> constr_expr -> constr
