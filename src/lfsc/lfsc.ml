@@ -344,16 +344,6 @@ let string_logic ro f =
     (if SL.mem LBitvectors l then "BV" else "")
     (if SL.mem LLia l then "LIA" else "")
 
-let string_logic_quant ro f =
-  let l = SL.union (Op.logic_ro ro) (Form.logic f) in
-  if SL.is_empty l then "SAT"
-  else
-    sprintf "%s%s%s%s"
-    (if SL.mem LArrays l then "A" else "")
-    (if SL.mem LUF l || SL.mem LLia l then "UF" else "")
-    (if SL.mem LBitvectors l then "BV" else "")
-    (if SL.mem LLia l then "LIA" else "")
-
 let call_cvc5_abduct i j env rt ro ra rf root lsmt =
     let open Smtlib2_solver in
     let fl = Form.neg (snd root) in
@@ -365,7 +355,7 @@ let call_cvc5_abduct i j env rt ro ra rf root lsmt =
   
     set_option cvc5 "print-success" true;
     set_option cvc5 "produce-assignments" true;
-    set_logic cvc5 (string_logic_quant ro fl);
+    set_logic cvc5 (string_logic ro fl);
   
     List.iter (fun (i,t) ->
       let s = "Tindex_"^(string_of_int i) in
@@ -416,7 +406,7 @@ let call_cvc4_abduct i j env rt ro ra rf root lsmt =
   set_option cvc4 "print-success" true;
   set_option cvc4 "produce-assignments" true;
   set_option cvc4 "produce-proofs" true;
-  set_logic cvc4 (string_logic_quant ro fl);
+  set_logic cvc4 (string_logic ro fl);
 
   (* Declare sorts *)
   List.iter (fun (i,t) ->
