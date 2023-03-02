@@ -10,7 +10,6 @@
 
 Require Setoid.
 Require Import PeanoNat Le Gt Minus Bool Lt.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 
 Set Implicit Arguments.

@@ -3,7 +3,6 @@
 From mathcomp Require Import ssreflect ssrfun ssrbool eqtype ssrnat seq choice.
 From mathcomp Require Import ssrAC div fintype path bigop order finset fingroup.
 From mathcomp Require Import ssralg poly.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 (******************************************************************************)
 (* This file defines some classes to manipulate number structures, i.e        *)

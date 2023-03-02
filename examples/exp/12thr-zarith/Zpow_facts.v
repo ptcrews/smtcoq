@@ -11,7 +11,6 @@
 Require Import ZArith_base ZArithRing Lia Zcomplements Zdiv Znumtheory.
 Require Export Zpower.
 Local Open Scope Z_scope.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 (** Properties of the power function over [Z] *)
 

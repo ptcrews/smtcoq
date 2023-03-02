@@ -18,7 +18,6 @@
 
 Require Import BinPos BinInt Decidable Zcompare.
 Require Import Arith_base. (* Useless now, for compatibility only *)
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 Local Open Scope Z_scope.
 

@@ -9,7 +9,6 @@
 (************************************************************************)
 
 Require Import Bool ZMulOrder NZParity.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 (** Some more properties of [even] and [odd]. *)
 

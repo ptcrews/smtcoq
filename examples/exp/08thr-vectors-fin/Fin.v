@@ -9,7 +9,6 @@
 (************************************************************************)
 
 Require Arith_base.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 (** [fin n] is a convenient way to represent \[1 .. n\]
 

@@ -9,7 +9,6 @@
 (************************************************************************)
 
 Require Import ZAxioms ZMulOrder ZSgnAbs NZDiv.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 (** * Euclidean Division for integers, Euclid convention
 

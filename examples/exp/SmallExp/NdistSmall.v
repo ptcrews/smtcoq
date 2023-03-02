@@ -12,7 +12,6 @@ Require Import Min.
 Require Import BinPos.
 Require Import BinNat.
 Require Import Ndigits.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 (** An ultrametric distance over [N] numbers *)
 

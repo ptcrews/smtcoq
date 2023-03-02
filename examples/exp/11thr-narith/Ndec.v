@@ -16,7 +16,6 @@ Require Import BinNat.
 Require Import Pnat.
 Require Import Nnat.
 Require Import Ndigits.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 
 Local Open Scope N_scope.

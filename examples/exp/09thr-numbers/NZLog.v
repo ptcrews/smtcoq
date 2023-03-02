@@ -11,7 +11,6 @@
 (** Base-2 Logarithm *)
 
 Require Import NZAxioms NZMulOrder NZPow.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 (** Interface of a log2 function, then its specification on naturals *)
 

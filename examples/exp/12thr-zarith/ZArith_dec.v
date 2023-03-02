@@ -14,7 +14,6 @@ Require Import BinInt.
 Require Import Zorder.
 Require Import Zcompare.
 Local Open Scope Z_scope.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 (* begin hide *)
 (* Trivial, to deprecate? *)

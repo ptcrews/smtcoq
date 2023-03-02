@@ -10,7 +10,6 @@
 (************************************************************************)
 
 Require Import BinPos PeanoNat.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 (** Properties of the injection from binary positive numbers
     to Peano natural numbers *)

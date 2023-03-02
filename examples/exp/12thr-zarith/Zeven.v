@@ -16,7 +16,6 @@
     for results already present in BinInt.Z. *)
 
 Require Import BinInt.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 Open Scope Z_scope.
 

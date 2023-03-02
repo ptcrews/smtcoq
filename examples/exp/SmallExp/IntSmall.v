@@ -20,7 +20,6 @@ Require Import BinInt.
 Declare Scope Int_scope.
 Delimit Scope Int_scope with I.
 Local Open Scope Int_scope.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 (** * A specification of integers *)
 

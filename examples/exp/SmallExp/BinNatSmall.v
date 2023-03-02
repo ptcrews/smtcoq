@@ -12,7 +12,6 @@ Require Export BinNums.
 Require Import BinPos RelationClasses Morphisms Setoid
  Equalities OrdersFacts GenericMinMax Bool NAxioms NMaxMin NProperties.
 Require BinNatDef.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 (**********************************************************************)
 (** * Binary natural numbers, operations and properties *)

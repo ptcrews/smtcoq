@@ -3,7 +3,6 @@
 From mathcomp Require Import ssreflect ssrfun ssrbool eqtype ssrnat seq div.
 From mathcomp Require Import fintype bigop finset prime fingroup.
 From mathcomp Require Import ssralg finalg countalg.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 (******************************************************************************)
 (*  Definition of the additive group and ring Zp, represented as 'I_p         *)

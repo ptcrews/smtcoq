@@ -11,7 +11,6 @@
 (** Properties of the greatest common divisor *)
 
 Require Import ZAxioms ZMulOrder ZSgnAbs NZGcd.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 Module Type ZGcdProp
  (Import A : ZAxiomsSig')

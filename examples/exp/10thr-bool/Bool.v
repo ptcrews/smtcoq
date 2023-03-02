@@ -15,7 +15,6 @@ Inductive bool : Set := true : bool | false : bool
  *)
 
 (** Most of the lemmas in this file are trivial by case analysis *)
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 Ltac destr_bool :=
  intros; destruct_all bool; simpl in *; trivial; try discriminate.

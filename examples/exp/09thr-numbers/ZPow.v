@@ -11,7 +11,6 @@
 (** Properties of the power function *)
 
 Require Import Bool ZAxioms ZMulOrder ZParity ZSgnAbs NZPow.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 Module Type ZPowProp
  (Import A : ZAxiomsSig')

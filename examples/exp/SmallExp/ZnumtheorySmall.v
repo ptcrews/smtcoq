@@ -13,7 +13,6 @@ Require Import ZArithRing.
 Require Import Zcomplements.
 Require Import Zdiv.
 Require Import Wf_nat.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 (** For compatibility reasons, this Open Scope isn't local as it should *)
 

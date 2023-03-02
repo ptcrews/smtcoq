@@ -37,7 +37,6 @@ Require Import Minus.
 Require Export Lt.
 Require Export Le.
 Require Export Gt.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 (****************************************************************)
 (* Complements sur plus et mult *)

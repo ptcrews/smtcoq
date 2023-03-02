@@ -9,7 +9,6 @@
 (************************************************************************)
 
 Require Import ZAxioms ZMulOrder ZSgnAbs ZGcd ZDivTrunc ZDivFloor.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 (** * Least Common Multiple *)
 

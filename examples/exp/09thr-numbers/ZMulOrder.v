@@ -11,7 +11,6 @@
 (************************************************************************)
 
 Require Export ZAddOrder.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 Module Type ZMulOrderProp (Import Z : ZAxiomsMiniSig').
 Include ZAddOrderProp Z.

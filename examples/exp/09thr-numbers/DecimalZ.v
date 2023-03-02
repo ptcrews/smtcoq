@@ -14,7 +14,6 @@
     are bijections. *)
 
 Require Import Decimal DecimalFacts DecimalPos DecimalN ZArith.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 Lemma of_to (z:Z) : Z.of_int (Z.to_int z) = z.
 Proof. Show. Fail (cvc5_abduct 3). Admitted.

@@ -12,7 +12,6 @@ Set Implicit Arguments.
 
 Require Export Notations.
 Require Import Ltac.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 Notation "A -> B" := (forall (_ : A), B) : type_scope.
 

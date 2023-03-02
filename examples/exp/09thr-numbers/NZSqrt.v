@@ -11,7 +11,6 @@
 (** Square Root Function *)
 
 Require Import NZAxioms NZMulOrder.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 (** Interface of a sqrt function, then its specification on naturals *)
 

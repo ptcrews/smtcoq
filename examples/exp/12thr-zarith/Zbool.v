@@ -14,7 +14,6 @@ Require Import Zorder.
 Require Import Zcompare.
 Require Import ZArith_dec.
 Require Import Sumbool.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 Local Open Scope Z_scope.
 

@@ -15,7 +15,6 @@
 
 Require Export ZArith_base.
 Require Import Zbool ZArithRing Zcomplements Setoid Morphisms.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 Local Open Scope Z_scope.
 

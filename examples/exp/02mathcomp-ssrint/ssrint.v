@@ -3,7 +3,6 @@
 From mathcomp Require Import ssreflect ssrfun ssrbool eqtype ssrnat choice seq.
 From mathcomp Require Import fintype finfun bigop order ssralg countalg ssrnum.
 From mathcomp Require Import poly.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 (******************************************************************************)
 (* This file develops a basic theory of signed integers, defining:            *)

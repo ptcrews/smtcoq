@@ -11,7 +11,6 @@
 (** Properties of [abs] and [sgn] *)
 
 Require Import ZMulOrder.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 (** Since we already have [max], we could have defined [abs]. *)
 

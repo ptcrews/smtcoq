@@ -10,7 +10,6 @@
 
 Require Import
  Bool ZAxioms ZMulOrder ZPow ZDivFloor ZSgnAbs ZParity NZLog.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 (** Derived properties of bitwise operations *)
 

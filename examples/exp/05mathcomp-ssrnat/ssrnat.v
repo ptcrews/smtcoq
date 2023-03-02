@@ -4,7 +4,6 @@ From mathcomp Require Import ssreflect ssrfun ssrbool eqtype.
 Require Import BinNat.
 Require BinPos Ndec.
 Require Export Ring.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 (******************************************************************************)
 (* A version of arithmetic on nat (natural numbers) that is better suited to  *)

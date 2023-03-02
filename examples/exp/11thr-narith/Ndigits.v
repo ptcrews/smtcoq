@@ -13,7 +13,6 @@ Require Import Bool Morphisms Setoid Bvector BinPos BinNat PeanoNat Pnat Nnat
 
 Local Open Scope N_scope.
 Local Open Scope program_scope.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 (** This file is mostly obsolete, see directly [BinNat] now. *)
 

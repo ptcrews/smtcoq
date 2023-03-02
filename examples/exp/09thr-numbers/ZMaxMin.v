@@ -9,7 +9,6 @@
 (************************************************************************)
 
 Require Import ZAxioms ZMulOrder GenericMinMax.
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 (** * Properties of minimum and maximum specific to integer numbers *)
 

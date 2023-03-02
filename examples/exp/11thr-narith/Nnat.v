@@ -11,7 +11,6 @@
 Require Import BinPos BinNat PeanoNat Pnat.
 
 (** * Conversions from [N] to [nat] *)
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/abduction-arjunvish-smtcoq/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 Module N2Nat.
 
