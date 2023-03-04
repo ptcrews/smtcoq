@@ -151,7 +151,9 @@ Qed.
 (** Particular cases of the previous result *)
 
 Lemma pos_sub_diag p : pos_sub p p = 0.
-Proof.
+Proof. intros. 
+(* cvc5_abduct 1.
+   (pos_sub p p) + p = p *)
  now rewrite pos_sub_spec, Pos.compare_refl.
 Qed.
 
@@ -182,61 +184,46 @@ Module Import Private_BootStrap.
 (** ** Operations and constants *)
 
 Lemma add_0_r n : n + 0 = n.
-Proof. 
-(* smt.
-   CVC4 returned sat. Here is the model:
-    n := 0
-    BinInt.Z.eqb := fun _ _ => false
-
-   SMT File for cvc4:
-    (set-option :print-success true)
-    (set-option :produce-assignments true)
-    (set-option :produce-proofs true)
-    (set-logic QF_UFLIA)
-    (declare-fun op_1 (Int Int ) Bool)
-    (declare-fun op_0 () Int)
-    (assert (not (op_1 (+ op_0 0) op_0)))
-    (check-sat)
-    (get-model)
-
-   verit_bool.
-    Anomaly
-    "Uncaught exception Failure("Verit.tactic: can only deal with equality   
-    over bool")."
-    Please report at http://coq.inria.fr/bugs/. *)
+Proof. smt. Qed.
+(* Proof.
  now destruct n.
-Qed.
+Qed. *)
 
 Lemma mul_0_r n : n * 0 = 0.
-Proof.
+Proof. smt. Qed.
+(* Proof.
  now destruct n.
-Qed.
+Qed. *)
 
 Lemma mul_1_l n : 1 * n = n.
-Proof.
+Proof. smt. Qed.
+(* Proof.
  now destruct n.
-Qed.
+Qed. *)
 
 (** ** Addition is commutative *)
 
 Lemma add_comm n m : n + m = m + n.
-Proof.
+Proof. smt. Qed.
+(* Proof.
  destruct n, m; simpl; trivial; now rewrite Pos.add_comm.
-Qed.
+Qed. *)
 
 (** ** Opposite distributes over addition *)
 
 Lemma opp_add_distr n m : - (n + m) = - n + - m.
-Proof.
+Proof. smt. Qed. 
+(* Proof.
  destruct n, m; simpl; trivial using pos_sub_opp.
-Qed.
+Qed. *)
 
 (** ** Opposite is injective *)
 
 Lemma opp_inj n m : -n = -m -> n = m.
-Proof.
+Proof. smt. Qed.
+(* Proof.
  destruct n, m; simpl; intros H; destr_eq H; now f_equal.
-Qed.
+Qed. *)
 
 (** ** Addition is associative *)
 
@@ -269,7 +256,8 @@ Qed.
 Local Arguments add !x !y.
 
 Lemma add_assoc_pos p n m : pos p + (n + m) = pos p + n + m.
-Proof.
+Proof. smt. Qed.
+(* Proof.
  destruct n as [|n|n], m as [|m|m]; simpl; trivial.
  - now rewrite Pos.add_assoc.
  - symmetry. apply pos_sub_add.
@@ -277,22 +265,24 @@ Proof.
  - now rewrite <- pos_sub_add, add_comm, <- pos_sub_add, Pos.add_comm.
  - apply opp_inj. rewrite !opp_add_distr, !pos_sub_opp.
    rewrite add_comm, Pos.add_comm. apply pos_sub_add.
-Qed.
+Qed. *)
 
 Lemma add_assoc n m p : n + (m + p) = n + m + p.
-Proof.
+Proof. smt. Qed.
+(* Proof. 
  destruct n.
  - trivial.
  - apply add_assoc_pos.
  - apply opp_inj. rewrite !opp_add_distr. simpl. apply add_assoc_pos.
-Qed.
+Qed. *)
 
 (** ** Opposite is inverse for addition *)
 
 Lemma add_opp_diag_r n : n + - n = 0.
-Proof.
+Proof. smt. Qed.
+(* Proof.
  destruct n; simpl; trivial; now rewrite pos_sub_diag.
-Qed.
+Qed. *)
 
 (** ** Multiplication and Opposite *)
 
@@ -332,70 +322,90 @@ End Private_BootStrap.
 
 Lemma one_succ : 1 = succ 0.
 Proof.
+(* cvc5_abduct 1 1. 
+   1 = (succ 0) *)
 reflexivity.
 Qed.
 
 Lemma two_succ : 2 = succ 1.
 Proof.
+(* cvc5_abduct 1 1.
+   1 = (succ 1) - 1 *)
 reflexivity.
 Qed.
 
 (** ** Specification of addition *)
 
 Lemma add_0_l n : 0 + n = n.
-Proof.
- now destruct n.
-Qed.
+Proof. smt. Qed.
 
 Lemma add_succ_l n m : succ n + m = succ (n + m).
-Proof.
+Proof. 
+(* cvc5_abduct 1.
+    m + m = m *)
  unfold succ. now rewrite 2 (add_comm _ 1), add_assoc.
 Qed.
 
 (** ** Specification of opposite *)
 
 Lemma opp_0 : -0 = 0.
-Proof.
+Proof. smt. Qed.
+(* Proof.
  reflexivity.
-Qed.
+Qed. *)
 
 Lemma opp_succ n : -(succ n) = pred (-n).
-Proof.
+Proof. unfold succ, pred. smt. Qed.
+(* Proof.
  unfold succ, pred. apply opp_add_distr.
-Qed.
+Qed. *)
 
 (** ** Specification of successor and predecessor *)
 
 Local Arguments pos_sub : simpl nomatch.
 
 Lemma succ_pred n : succ (pred n) = n.
-Proof.
+Proof. 
+(* cvc5_abduct 1 1.
+   n = (succ (pred n)) *)
+unfold succ, pred. smt. Qed.
+(* Proof.
  unfold succ, pred. now rewrite <- add_assoc, add_opp_diag_r, add_0_r.
-Qed.
+Qed. *)
 
 Lemma pred_succ n : pred (succ n) = n.
-Proof.
- unfold succ, pred. now rewrite <- add_assoc, add_opp_diag_r, add_0_r.
+Proof. 
+ (* cvc5_abduct 1 1.
+    n = (pred (succ n)) *)
+  unfold succ, pred. smt.
 Qed.
+(* Proof. 
+ unfold succ, pred. now rewrite <- add_assoc, add_opp_diag_r, add_0_r.
+Qed. *)
 
 (** ** Specification of subtraction *)
 
 Lemma sub_0_r n : n - 0 = n.
-Proof.
+Proof. smt. Qed.
+(* Proof.
  apply add_0_r.
-Qed.
+Qed. *)
 
 Lemma sub_succ_r n m : n - succ m = pred (n - m).
-Proof.
- unfold sub, succ, pred. now rewrite opp_add_distr, add_assoc.
+Proof. 
+  unfold succ, pred. smt.
 Qed.
+(* Proof.
+ unfold sub, succ, pred. now rewrite opp_add_distr, add_assoc.
+Qed. *)
 
 (** ** Specification of multiplication *)
 
 Lemma mul_0_l n : 0 * n = 0.
-Proof.
+Proof. smt. Qed.
+(* Proof.
  reflexivity.
-Qed.
+Qed. *)
 
 Lemma mul_succ_l n m : succ n * m = n * m + m.
 Proof.
@@ -405,23 +415,27 @@ Qed.
 (** ** Specification of comparisons and order *)
 
 Lemma eqb_eq n m : (n =? m) = true <-> n = m.
-Proof.
+Proof. smt. Qed.
+(* Proof.
  destruct n, m; simpl; try (now split); rewrite Pos.eqb_eq;
  split; (now injection 1) || (intros; now f_equal).
-Qed.
+Qed. *)
 
 Lemma ltb_lt n m : (n <? m) = true <-> n < m.
+(* equality over bool prob *)
 Proof.
  unfold ltb, lt. destruct compare; easy'.
 Qed.
 
 Lemma leb_le n m : (n <=? m) = true <-> n <= m.
+(* equality over bool prob *)
 Proof.
  unfold leb, le. destruct compare; easy'.
 Qed.
+(* Here *)
 
 Lemma compare_eq_iff n m : (n ?= m) = Eq <-> n = m.
-Proof.
+Proof. cvc5_abduct 1 2.
 destruct n, m; simpl; rewrite ?CompOpp_iff, ?Pos.compare_eq_iff;
  split; congruence.
 Qed.
