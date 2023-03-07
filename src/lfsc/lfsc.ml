@@ -347,7 +347,7 @@ let string_logic ro f =
 let call_cvc5_abduct i j env rt ro ra rf root lsmt =
     let open Smtlib2_solver in
     let fl = Form.neg (snd root) in
-    let solver_call = match j with
+    let solver_call = (match j with
                      | 1 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0"; "--sygus-enum=fast"; "--sygus-core-connective"; "--sygus-rewrite=none" |] 
                      | 2 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0"; "--sygus-enum=fast"; "--sygus-rewrite=none" |] 
                      | 3 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0"; "--sygus-enum=fast"; "--sygus-core-connective" |] 
@@ -359,9 +359,8 @@ let call_cvc5_abduct i j env rt ro ra rf root lsmt =
                      | 9 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0"; "--sygus-core-connective"; "--sygus-rewrite=none" |] 
                      | 10 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0"; "--sygus-rewrite=none" |] 
                      | 11 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0"; "--sygus-core-connective" |] 
-                     | _ -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0"; |] in
+                     | _ -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0" |]) in
     let cvc5 = create solver_call in
-  
     set_option cvc5 "print-success" true;
     set_option cvc5 "produce-assignments" true;
     set_logic cvc5 (string_logic ro fl);
@@ -408,13 +407,11 @@ let call_cvc4_abduct i j env rt ro ra rf root lsmt =
   let cvc4 = create [|
       "cvc4";
       "--lang"; "smt2";
-      "--proof";
       "--simplification=none"; "--fewer-preprocessing-holes";
       "--no-bv-eq"; "--no-bv-ineq"; "--no-bv-algebraic"; "--dag-thresh=0" |] in
 
   set_option cvc4 "print-success" true;
   set_option cvc4 "produce-assignments" true;
-  set_option cvc4 "produce-proofs" true;
   set_logic cvc4 (string_logic ro fl);
 
   (* Declare sorts *)
