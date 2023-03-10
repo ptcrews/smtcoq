@@ -56,6 +56,7 @@ for i in f1lines:
     aproofbody = []
     length = 0
 f1.close()
+f2.close()
 
 print("Total number of proofs is " + str(totalproofs))
 print("Total number of proofs with < 5 lines is " + str(totalsmallproofs))
