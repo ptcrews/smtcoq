@@ -31,12 +31,17 @@ def updateRes(ind, o):
 
 def writeCSV(l,f):
   line = ""
-  for i in l:
-    line += (str(i) + ",")
-  line += "\n"
-  f.write(line)
+  if(l != ["", "", "", "", "", "", "", "", "", "", "", "", ""]):
+    for i in l:
+      line += (str(i) + ",")
+    line += "\n"
+    f.write(line)
 
-fipname = "ZorderAllOp.txt" #input('Enter file (with relative path) to search: ')
+def writeCSV2(l,f):
+  for i in l:
+    writeCSV(i, f)
+
+fipname = "ZorderSmallAllOp.txt" #input('Enter file (with relative path) to search: ')
 f1 = open(fipname, "r")
 f1lines = f1.readlines()
 print("Total number of lines in input file is " + str(len(f1lines)))
@@ -66,9 +71,8 @@ foundAbd = False  # For some configuration, has cvc5 been successful?
 gettingAbd = False# Are we getting the 3 abducts?
 abdCtr = 0        # Rotates within [0-3]
 goalLine = False  # Am I in a line with the goal?
-# Store each row for the CSV:
-abds = ["", "", "", "", "", "", "", "", "", "", "", "", ""]
-abdStr = ""
+# Store each row for the CSV, or combo of 3 rows for successful rows:
+abds = [["", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", ""]]
 optCurrCnt = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 for j in f1lines:
   i = re.sub('\n', '', j)
@@ -154,21 +158,17 @@ for j in f1lines:
         gettingAbd = True
   #Save goal
   if goalLine:
-    writeCSV(abds, f2)
-    abds = [i, "", "", "", "", "", "", "", "", "", "", "", ""]
+    writeCSV2(abds, f2)
+    abds = [[i, "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", ""]]
     goalLine = False
   if re.search(r'====',i):
     goalLine = True
   #Save abducts
   if gettingAbd:
-    if(abdCtr < 2):
-      abdStr = abdStr + i + " | "
+    abds[abdCtr][optCurr] = i
     if(abdCtr == 2):
-      abdStr = abdStr + i
-      abds[optCurr] = abdStr
-      abdStr = ""
       gettingAbd = False
-      abdCtr = 0
+      abdCtr = -1
     abdCtr += 1
 f1.close()
 
