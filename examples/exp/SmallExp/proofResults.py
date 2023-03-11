@@ -31,7 +31,7 @@ def updateRes(ind, o):
 
 def writeCSV(l,f):
   line = ""
-  if(l != ["", "", "", "", "", "", "", "", "", "", "", "", ""]):
+  if(l != ["", "", "", "", "", "", "", "", "", "", "", "", "", ""]):
     for i in l:
       line += (str(i) + ",")
     line += "\n"
@@ -41,16 +41,16 @@ def writeCSV2(l,f):
   for i in l:
     writeCSV(i, f)
 
-fipname = "ZorderSmallAllOp.txt" #input('Enter file (with relative path) to search: ')
+fipname = input('Enter file (with relative path) to search: ')
 f1 = open(fipname, "r")
 f1lines = f1.readlines()
 print("Total number of lines in input file is " + str(len(f1lines)))
 
-fabdopname = "ZorderAllAbds.csv" #input('Enter file name for abducts output: ')
+fabdopname = input('Enter file name for abducts output: ')
 f2 = open(fabdopname, "w")
-f2.write("Goal, Abducts 1, Abducts 2, Abducts 3, Abducts 4, Abducts 5, Abducts 6, Abducts 7, Abducts 8, Abducts 9, Abducts 10, Abducts 11, Abducts 12 \n")
+f2.write("#, Goal, Abducts 1, Abducts 2, Abducts 3, Abducts 4, Abducts 5, Abducts 6, Abducts 7, Abducts 8, Abducts 9, Abducts 10, Abducts 11, Abducts 12 \n")
 #number of goals in the file
-numgoals = 0
+numGoals = 0
 #for each config, [# get-abd successes, # smt successes, # non-bool equality failures, # abd reconstructr failures, # atom unexp type failure, # non-linear failure]
 op1 = [0, 0, 0, 0, 0, 0]
 op2 = [0, 0, 0, 0, 0, 0]
@@ -72,13 +72,15 @@ gettingAbd = False# Are we getting the 3 abducts?
 abdCtr = 0        # Rotates within [0-3]
 goalLine = False  # Am I in a line with the goal?
 # Store each row for the CSV, or combo of 3 rows for successful rows:
-abds = [["", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", ""]]
+abds = [["", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
+        ["", "", "", "", "", "", "", "", "", "", "", "", "", ""]]
 optCurrCnt = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 for j in f1lines:
   i = re.sub('\n', '', j)
   #Goal count
   if re.fullmatch(r'1 goal', i):
-    numgoals += 1
+    numGoals += 1
   #Identify cvc5 configuration
   if re.fullmatch(r'\"option 1\"%string', i):
     optCurr = 1
@@ -159,20 +161,24 @@ for j in f1lines:
   #Save goal
   if goalLine:
     writeCSV2(abds, f2)
-    abds = [[i, "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", ""], ["", "", "", "", "", "", "", "", "", "", "", "", ""]]
+    abds = [[str(numGoals), i, "", "", "", "", "", "", "", "", "", "", "", ""], 
+            ["", "", "", "", "", "", "", "", "", "", "", "", "", ""], 
+            ["", "", "", "", "", "", "", "", "", "", "", "", "", ""]]
     goalLine = False
   if re.search(r'====',i):
     goalLine = True
   #Save abducts
   if gettingAbd:
-    abds[abdCtr][optCurr] = i
+    abds[abdCtr][optCurr+1] = i
     if(abdCtr == 2):
       gettingAbd = False
       abdCtr = -1
     abdCtr += 1
+writeCSV2(abds, f2)
+f2.close()
 f1.close()
 
-fcntopname = "ZorderAllCnts.csv" #input('Enter file name for count output: ')
+fcntopname = input('Enter file name for count output: ')
 f3 = open(fcntopname, "w")
 f3.write("Option, # get-abd successes, # smt successes, # non-bool equality failures, # abd reconstructr failures, # atom unexp type failures, # non-linear failures\n")
 f3.write("1," + str(op1[0]) + "," + str(op1[1]) + "," + str(op1[2]) + "," + str(op1[3]) + "," + str(op1[4]) + "," + str(op1[5]) + "\n")
@@ -187,8 +193,9 @@ f3.write("9," + str(op9[0]) + "," + str(op9[1]) + "," + str(op9[2]) + "," + str(
 f3.write("10," + str(op10[0]) + "," + str(op10[1]) + "," + str(op10[2]) + "," + str(op10[3]) + "," + str(op10[4]) + "," + str(op10[5]) + "\n")
 f3.write("11," + str(op11[0]) + "," + str(op11[1]) + "," + str(op11[2]) + "," + str(op11[3]) + "," + str(op11[4]) + "," + str(op11[5]) + "\n")
 f3.write("12," + str(op12[0]) + "," + str(op12[1]) + "," + str(op12[2]) + "," + str(op12[3]) + "," + str(op12[4]) + "," + str(op12[5]) + "\n")
+f3.close()
 print("Sanity checks:")
-print("Total number of goals is " + str(numgoals))
+print("Total number of goals is " + str(numGoals))
 print("Total number of goals from option 1 is " + str(optCurrCnt[0]))
 print("Total number of goals from option 2 is " + str(optCurrCnt[1]))
 print("Total number of goals from option 3 is " + str(optCurrCnt[2]))
@@ -213,5 +220,3 @@ print("Sum of option 09 goals is " + str(op9[0] + op9[1] + op9[2] + op9[3] + op9
 print("Sum of option 10 goals is " + str(op10[0] + op10[1] + op10[2] + op10[3] + op10[4] + op10[5]))
 print("Sum of option 11 goals is " + str(op11[0] + op11[1] + op11[2] + op11[3] + op11[4] + op11[5]))
 print("Sum of option 12 goals is " + str(op12[0] + op12[1] + op12[2] + op12[3] + op12[4] + op12[5]))
-f2.close()
-f3.close()

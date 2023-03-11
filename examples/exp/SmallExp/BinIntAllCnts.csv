@@ -1,0 +1,13 @@
+Option, # get-abd successes, # smt successes, # non-bool equality failures, # abd reconstructr failures, # atom unexp type failures, # non-linear failures
+1,27,40,56,40,0,11
+2,1,40,56,66,0,11
+3,27,40,56,40,0,11
+4,3,40,56,64,0,11
+5,25,40,56,42,0,11
+6,3,40,56,64,0,11
+7,22,40,56,45,0,11
+8,1,40,56,66,0,11
+9,25,40,56,42,0,11
+10,3,40,56,64,0,11
+11,22,40,56,45,0,11
+12,1,40,56,66,0,11
