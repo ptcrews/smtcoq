@@ -1,0 +1,13 @@
+Option, # get-abd successes, # smt successes, # non-bool equality failures, # abd reconstructr failures, # atom unexp type failures, # non-linear failures
+1,19,33,3,7,0,28
+2,14,33,3,12,0,28
+3,22,33,3,4,0,28
+4,15,33,3,11,0,28
+5,20,33,3,6,0,28
+6,13,33,3,13,0,28
+7,23,33,3,3,0,28
+8,16,33,3,10,0,28
+9,20,33,3,6,0,28
+10,13,33,3,13,0,28
+11,23,33,3,3,0,28
+12,16,33,3,10,0,28
