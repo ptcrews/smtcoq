@@ -33,7 +33,7 @@ def writeCSV(l,f):
   line = ""
   if(l != ["", "", "", "", "", "", "", "", "", "", "", "", "", ""]):
     for i in l:
-      line += (str(i) + ",")
+      line += (str(i) + "`")
     line += "\n"
     f.write(line)
 
@@ -48,7 +48,7 @@ print("Total number of lines in input file is " + str(len(f1lines)))
 
 fabdopname = input('Enter file name for abducts output: ')
 f2 = open(fabdopname, "w")
-f2.write("#, Goal, Abducts 1, Abducts 2, Abducts 3, Abducts 4, Abducts 5, Abducts 6, Abducts 7, Abducts 8, Abducts 9, Abducts 10, Abducts 11, Abducts 12 \n")
+f2.write("#` Goal` Abducts 1` Abducts 2` Abducts 3` Abducts 4` Abducts 5` Abducts 6` Abducts 7` Abducts 8` Abducts 9` Abducts 10` Abducts 11` Abducts 12 \n")
 #number of goals in the file
 numGoals = 0
 #for each config, [# get-abd successes, # smt successes, # non-bool equality failures, # abd reconstructr failures, # atom unexp type failure, # non-linear failure]
@@ -180,19 +180,19 @@ f1.close()
 
 fcntopname = input('Enter file name for count output: ')
 f3 = open(fcntopname, "w")
-f3.write("Option, # get-abd successes, # smt successes, # non-bool equality failures, # abd reconstructr failures, # atom unexp type failures, # non-linear failures\n")
-f3.write("1," + str(op1[0]) + "," + str(op1[1]) + "," + str(op1[2]) + "," + str(op1[3]) + "," + str(op1[4]) + "," + str(op1[5]) + "\n")
-f3.write("2," + str(op2[0]) + "," + str(op2[1]) + "," + str(op2[2]) + "," + str(op2[3]) + "," + str(op2[4]) + "," + str(op2[5]) + "\n")
-f3.write("3," + str(op3[0]) + "," + str(op3[1]) + "," + str(op3[2]) + "," + str(op3[3]) + "," + str(op3[4]) + "," + str(op3[5]) + "\n")
-f3.write("4," + str(op4[0]) + "," + str(op4[1]) + "," + str(op4[2]) + "," + str(op4[3]) + "," + str(op4[4]) + "," + str(op4[5]) + "\n")
-f3.write("5," + str(op5[0]) + "," + str(op5[1]) + "," + str(op5[2]) + "," + str(op5[3]) + "," + str(op5[4]) + "," + str(op5[5]) + "\n")
-f3.write("6," + str(op6[0]) + "," + str(op6[1]) + "," + str(op6[2]) + "," + str(op6[3]) + "," + str(op6[4]) + "," + str(op6[5]) + "\n")
-f3.write("7," + str(op7[0]) + "," + str(op7[1]) + "," + str(op7[2]) + "," + str(op7[3]) + "," + str(op7[4]) + "," + str(op7[5]) + "\n")
-f3.write("8," + str(op8[0]) + "," + str(op8[1]) + "," + str(op8[2]) + "," + str(op8[3]) + "," + str(op8[4]) + "," + str(op8[5]) + "\n")
-f3.write("9," + str(op9[0]) + "," + str(op9[1]) + "," + str(op9[2]) + "," + str(op9[3]) + "," + str(op9[4]) + "," + str(op9[5]) + "\n")
-f3.write("10," + str(op10[0]) + "," + str(op10[1]) + "," + str(op10[2]) + "," + str(op10[3]) + "," + str(op10[4]) + "," + str(op10[5]) + "\n")
-f3.write("11," + str(op11[0]) + "," + str(op11[1]) + "," + str(op11[2]) + "," + str(op11[3]) + "," + str(op11[4]) + "," + str(op11[5]) + "\n")
-f3.write("12," + str(op12[0]) + "," + str(op12[1]) + "," + str(op12[2]) + "," + str(op12[3]) + "," + str(op12[4]) + "," + str(op12[5]) + "\n")
+f3.write("Option, # goals, # get-abd successes, # get-abd success %, # smt successes, #smt sucess %, # non-bool equality failures, # abd reconstructr failures, # atom unexp type failures, # non-linear failures\n")
+f3.write("1," + str(numGoals) + "," + str(op1[0]) + ",="+str(op1[0])+"/"+str(numGoals) + "," + str(op1[1]) + ",="+str(op1[1])+"/"+str(numGoals) + "," + str(op1[2]) + "," + str(op1[3]) + "," + str(op1[4]) + "," + str(op1[5]) + "\n")
+f3.write("2," + str(numGoals) + "," + str(op2[0]) + ",="+str(op2[0])+"/"+str(numGoals) + "," + str(op2[1]) + ",="+str(op2[1])+"/"+str(numGoals) + "," + str(op2[2]) + "," + str(op2[3]) + "," + str(op2[4]) + "," + str(op2[5]) + "\n")
+f3.write("3," + str(numGoals) + "," + str(op3[0]) + ",="+str(op3[0])+"/"+str(numGoals) + "," + str(op3[1]) + ",="+str(op3[1])+"/"+str(numGoals) + "," + str(op3[2]) + "," + str(op3[3]) + "," + str(op3[4]) + "," + str(op3[5]) + "\n")
+f3.write("4," + str(numGoals) + "," + str(op4[0]) + ",="+str(op4[0])+"/"+str(numGoals) + "," + str(op4[1]) + ",="+str(op4[1])+"/"+str(numGoals) + "," + str(op4[2]) + "," + str(op4[3]) + "," + str(op4[4]) + "," + str(op4[5]) + "\n")
+f3.write("5," + str(numGoals) + "," + str(op5[0]) + ",="+str(op5[0])+"/"+str(numGoals) + "," + str(op5[1]) + ",="+str(op5[1])+"/"+str(numGoals) + "," + str(op5[2]) + "," + str(op5[3]) + "," + str(op5[4]) + "," + str(op5[5]) + "\n")
+f3.write("6," + str(numGoals) + "," + str(op6[0]) + ",="+str(op6[0])+"/"+str(numGoals) + "," + str(op6[1]) + ",="+str(op6[1])+"/"+str(numGoals) + "," + str(op6[2]) + "," + str(op6[3]) + "," + str(op6[4]) + "," + str(op6[5]) + "\n")
+f3.write("7," + str(numGoals) + "," + str(op7[0]) + ",="+str(op7[0])+"/"+str(numGoals) + "," + str(op7[1]) + ",="+str(op7[1])+"/"+str(numGoals) + "," + str(op7[2]) + "," + str(op7[3]) + "," + str(op7[4]) + "," + str(op7[5]) + "\n")
+f3.write("8," + str(numGoals) + "," + str(op8[0]) + ",="+str(op8[0])+"/"+str(numGoals) + "," + str(op8[1]) + ",="+str(op8[1])+"/"+str(numGoals) + "," + str(op8[2]) + "," + str(op8[3]) + "," + str(op8[4]) + "," + str(op8[5]) + "\n")
+f3.write("9," + str(numGoals) + "," + str(op9[0]) + ",="+str(op9[0])+"/"+str(numGoals) + "," + str(op9[1]) + ",="+str(op9[1])+"/"+str(numGoals) + "," + str(op9[2]) + "," + str(op9[3]) + "," + str(op9[4]) + "," + str(op9[5]) + "\n")
+f3.write("10," + str(numGoals) + "," + str(op10[0]) + ",="+str(op10[0])+"/"+str(numGoals) + "," + str(op10[1]) + ",="+str(op10[1])+"/"+str(numGoals) + "," + str(op10[2]) + "," + str(op10[3]) + "," + str(op10[4]) + "," + str(op10[5]) + "\n")
+f3.write("11," + str(numGoals) + "," + str(op11[0]) + ",="+str(op11[0])+"/"+str(numGoals) + "," + str(op11[1]) + ",="+str(op11[1])+"/"+str(numGoals) + "," + str(op11[2]) + "," + str(op11[3]) + "," + str(op11[4]) + "," + str(op11[5]) + "\n")
+f3.write("12," + str(numGoals) + "," + str(op12[0]) + ",="+str(op12[0])+"/"+str(numGoals) + "," + str(op12[1]) + ",="+str(op12[1])+"/"+str(numGoals) + "," + str(op12[2]) + "," + str(op12[3]) + "," + str(op12[4]) + "," + str(op12[5]) + "\n")
 f3.close()
 print("Sanity checks:")
 print("Total number of goals is " + str(numGoals))
