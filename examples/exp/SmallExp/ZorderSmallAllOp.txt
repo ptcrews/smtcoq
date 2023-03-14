@@ -1297,6 +1297,7 @@ n <= (Z.succ n) && (Z.succ m) <= m && (Z.succ -1) = n
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 7"%string
 	 : string
 The command has indeed failed with message:
@@ -1328,6 +1329,7 @@ n <= (Z.succ n) && (Z.succ m) <= m && (Z.succ -1) = n
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 11"%string
 	 : string
 The command has indeed failed with message:
@@ -1364,6 +1366,7 @@ n = (Z.succ n) && n = -2 && m <= (Z.succ 0) && m = 0 - 0
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 3"%string
 	 : string
 The command has indeed failed with message:
@@ -1395,6 +1398,7 @@ The goal is invalid, but one of the following hypotheses would allow cvc5 to pro
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 7"%string
 	 : string
 The command has indeed failed with message:
@@ -1426,6 +1430,7 @@ The goal is invalid, but one of the following hypotheses would allow cvc5 to pro
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 11"%string
 	 : string
 The command has indeed failed with message:
@@ -1462,6 +1467,7 @@ m = (Z.succ m) && n = (Z.succ n) && m = n + m
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 3"%string
 	 : string
 The command has indeed failed with message:
@@ -1475,6 +1481,7 @@ m <= (Z.succ m) && n = (Z.succ n)
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 5"%string
 	 : string
 The command has indeed failed with message:
@@ -1488,6 +1495,7 @@ n + -3 = -1 && (Z.succ m) = n && (Z.succ -3) = -1 && (Z.succ n) = -1
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 7"%string
 	 : string
 The command has indeed failed with message:
@@ -1519,6 +1527,7 @@ n + -3 = -1 && (Z.succ m) = n && (Z.succ -3) = -1 && (Z.succ n) = -1
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 11"%string
 	 : string
 The command has indeed failed with message:
@@ -1546,10 +1555,12 @@ The goal is invalid, but one of the following hypotheses would allow cvc5 to pro
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 2"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 3"%string
 	 : string
 The command has indeed failed with message:
@@ -1563,6 +1574,7 @@ n <= m
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 5"%string
 	 : string
 The command has indeed failed with message:
@@ -1576,6 +1588,7 @@ n <= -1 + m
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 7"%string
 	 : string
 The command has indeed failed with message:
@@ -1589,6 +1602,7 @@ n <= m
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 9"%string
 	 : string
 The command has indeed failed with message:
@@ -1602,6 +1616,7 @@ n <= -1 + m
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 11"%string
 	 : string
 The command has indeed failed with message:
@@ -1615,6 +1630,7 @@ n <= m
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 1 goal
   
   n, m : Z
@@ -1624,10 +1640,12 @@ Could not reconstruct abduct
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 2"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 3"%string
 	 : string
 The command has indeed failed with message:
@@ -1641,6 +1659,7 @@ m <= n
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 5"%string
 	 : string
 The command has indeed failed with message:
@@ -1654,6 +1673,7 @@ m <= n + -3
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 7"%string
 	 : string
 The command has indeed failed with message:
@@ -1667,6 +1687,7 @@ m <= n
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 9"%string
 	 : string
 The command has indeed failed with message:
@@ -1680,6 +1701,7 @@ m <= n + -3
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 11"%string
 	 : string
 The command has indeed failed with message:
@@ -1693,6 +1715,7 @@ m <= n
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 1 goal
   
   n, m : Z
@@ -1711,6 +1734,7 @@ n <= m
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 3"%string
 	 : string
 The command has indeed failed with message:
@@ -1724,6 +1748,7 @@ n <= m
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 5"%string
 	 : string
 The command has indeed failed with message:
@@ -1737,6 +1762,7 @@ n + m <= (Z.succ n) && (Z.succ m) <= n + -3 && n - m = m
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 7"%string
 	 : string
 The command has indeed failed with message:
@@ -1750,6 +1776,7 @@ n <= m
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 9"%string
 	 : string
 The command has indeed failed with message:
@@ -1763,6 +1790,7 @@ n + m <= (Z.succ n) && (Z.succ m) <= n + -3 && n - m = m
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 11"%string
 	 : string
 The command has indeed failed with message:
@@ -1776,6 +1804,7 @@ n <= m
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 1 goal
   
   n : Z
@@ -1794,6 +1823,7 @@ n = -2 && 0 = (Z.succ n)
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 3"%string
 	 : string
 The command has indeed failed with message:
@@ -1807,6 +1837,7 @@ n = -1 && 0 = (Z.succ n)
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 5"%string
 	 : string
 The command has indeed failed with message:
@@ -1820,6 +1851,7 @@ n + n <= n + -2 && (Z.succ n) = -1
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 7"%string
 	 : string
 The command has indeed failed with message:
@@ -1833,6 +1865,7 @@ n <= (Z.succ n) && (not (Z.succ n) = n) && (Z.succ -2) = n && n = -1
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 9"%string
 	 : string
 The command has indeed failed with message:
@@ -1846,6 +1879,7 @@ n + n <= n + -2 && (Z.succ n) = -1
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 11"%string
 	 : string
 The command has indeed failed with message:
@@ -1859,6 +1893,7 @@ n <= (Z.succ n) && (not (Z.succ n) = n) && (Z.succ -2) = n && n = -1
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 1 goal
   
   n : Z
@@ -1877,6 +1912,7 @@ n = -2 && 0 = (Z.succ n)
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 3"%string
 	 : string
 The command has indeed failed with message:
@@ -1890,6 +1926,7 @@ n = -1 && 0 = (Z.succ n)
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 5"%string
 	 : string
 The command has indeed failed with message:
@@ -1903,6 +1940,7 @@ n + n <= n + -2 && (Z.succ n) = -1
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 7"%string
 	 : string
 The command has indeed failed with message:
@@ -1916,6 +1954,7 @@ n <= (Z.succ n) && (not (Z.succ n) = n) && (Z.succ -2) = n && n = -1
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 9"%string
 	 : string
 The command has indeed failed with message:
@@ -1929,6 +1968,7 @@ n + n <= n + -2 && (Z.succ n) = -1
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 11"%string
 	 : string
 The command has indeed failed with message:
@@ -1942,6 +1982,7 @@ n <= (Z.succ n) && (not (Z.succ n) = n) && (Z.succ -2) = n && n = -1
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 1 goal
   
   n, m : Z
@@ -2290,6 +2331,7 @@ The goal is invalid, but one of the following hypotheses would allow cvc5 to pro
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 2"%string
 	 : string
 The command has indeed failed with message:
@@ -2398,6 +2440,7 @@ n <= m
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 2"%string
 	 : string
 The command has indeed failed with message:
@@ -2741,18 +2784,22 @@ m <= (Z.succ m) && m <= (Z.pred m) && n <= m
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 3"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 4"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 5"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 6"%string
 	 : string
 The command has indeed failed with message:
@@ -2766,14 +2813,17 @@ n <= (Z.pred m) + -3
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 8"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 9"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 10"%string
 	 : string
 The command has indeed failed with message:
@@ -2787,10 +2837,12 @@ n <= (Z.pred m) + -3
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 12"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 1 goal
   
   n, m : Z
@@ -2809,46 +2861,57 @@ m <= (Z.succ m) && m <= (Z.pred m) && n <= m
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 3"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 4"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 5"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 6"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 7"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 8"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 9"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 10"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 11"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 12"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 1 goal
   
   n : Z
@@ -3128,6 +3191,7 @@ The goal is invalid, but one of the following hypotheses would allow cvc5 to pro
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 7"%string
 	 : string
 The command has indeed failed with message:
@@ -3159,6 +3223,7 @@ The goal is invalid, but one of the following hypotheses would allow cvc5 to pro
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 11"%string
 	 : string
 The command has indeed failed with message:
@@ -3185,26 +3250,32 @@ p + q = 3
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 2"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 3"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 4"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 5"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 6"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 7"%string
 	 : string
 The command has indeed failed with message:
@@ -3218,14 +3289,17 @@ p <= p + p + -2
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 9"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 10"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 11"%string
 	 : string
 The command has indeed failed with message:
@@ -3239,6 +3313,7 @@ p <= p + p + -2
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 1 goal
   
   ============================
@@ -3283,34 +3358,42 @@ p = 1
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 6"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 7"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 8"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 9"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 10"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 11"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 12"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 1 goal
   
   ============================
@@ -3319,26 +3402,32 @@ Could not reconstruct abduct
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 2"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 3"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 4"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 5"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 6"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 7"%string
 	 : string
 The command has indeed failed with message:
@@ -3352,14 +3441,17 @@ p <= p + p + -2
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 9"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 10"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 11"%string
 	 : string
 The command has indeed failed with message:
@@ -3373,6 +3465,7 @@ p <= p + p + -2
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 1 goal
   
   ============================
@@ -3381,10 +3474,12 @@ Could not reconstruct abduct
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 2"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 3"%string
 	 : string
 The command has indeed failed with message:
@@ -3398,10 +3493,12 @@ The goal is invalid, but one of the following hypotheses would allow cvc5 to pro
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 5"%string
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 6"%string
 	 : string
 The command has indeed failed with message:
@@ -3433,6 +3530,7 @@ The goal is invalid, but one of the following hypotheses would allow cvc5 to pro
 	 : string
 The command has indeed failed with message:
 Could not reconstruct abduct
+
 "option 10"%string
 	 : string
 The command has indeed failed with message:

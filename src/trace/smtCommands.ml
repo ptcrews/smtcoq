@@ -1003,4 +1003,4 @@ let abduct_string env rt ro ra rf =
   function
   | List [Atom "define-fun"; Atom "A"; List []; _; expr] ->
       smt2_sexpr_to_coq_string env t_i ra rf expr
-  | _ -> CoqInterface.error ("Could not reconstruct abduct")
+  | _ -> CoqInterface.error ("Could not reconstruct abduct\n")

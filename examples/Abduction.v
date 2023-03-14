@@ -56,8 +56,11 @@ Qed.
 (* #2 Commutativity *)
 Section Comm.
 Variable f : Z -> Z -> Z.
-Goal forall (x y : Z), (f x y) >= 0 -> (f y x) >= 0.
-Proof.
+Axiom comm_f : forall x y, f x y = f y x.
+Goal forall (x y z : Z), x = y + 1 -> (f y z) = f z (x - 1).
+Proof. intros. assert (comm_inst : f z y = f y z). { apply comm_f. }
+smt.
+Qed.
   (* cvc5_abduct 5. *)
   (* cvc5 returned SAT. The goal is invalid, but one of the
      following hypotheses would allow cvc5 to prove the goal:
@@ -79,7 +82,7 @@ Qed.
 
 (* Possible usage *)
 Variables (x y z : Z).
-Theorem commf : forall x y, f x y = f y x.
+
 Admitted.
 Variable H : f x y >= 0.
 Goal f y x >= 0.

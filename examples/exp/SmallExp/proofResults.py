@@ -148,11 +148,13 @@ for j in f1lines:
   #Increment counter to check result
   if resLine:
     resCtr += 1
-    if resCtr == 5:
-      if re.search(r'goal is invalid', i):
+    if resCtr == 4:
+      if re.search(r'cvc5 returned SAT.', i):
         foundAbd = True
       else:
         foundAbd = False
+        resLine = False
+        resCtr = 0
     if resCtr == 6:
       resCtr = 0
       resLine = False
