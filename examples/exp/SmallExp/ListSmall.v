@@ -100,19 +100,119 @@ Section Facts.
   Qed.
 
   Lemma hd_error_some_nil l (a:A) : hd_error l = Some a -> l <> nil.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Theorem length_zero_iff_nil (l : list A):
     length l = 0 <-> l=[].
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   (** *** Head and tail *)
 
   Theorem hd_error_nil : hd_error (@nil A) = None.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Theorem hd_error_cons (l : list A) (x : A) : hd_error (x::l) = Some x.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
 
   (**************************)
@@ -131,32 +231,182 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
   (** Concat with [nil] *)
   Theorem app_nil_l (l:list A) : [] ++ l = l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Theorem app_nil_r (l:list A) : l ++ [] = l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   (* begin hide *)
   (* Deprecated *)
   Theorem app_nil_end (l:list A) : l = l ++ [].
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
   (* end hide *)
 
   (** [app] is associative *)
   Theorem app_assoc (l m n:list A) : l ++ m ++ n = (l ++ m) ++ n.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   (* begin hide *)
   (* Deprecated *)
   Theorem app_assoc_reverse (l m n:list A) : (l ++ m) ++ n = l ++ m ++ n.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
   #[local]
   Hint Resolve app_assoc_reverse : core.
   (* end hide *)
 
   (** [app] commutes with [cons] *)
   Theorem app_comm_cons (x y:list A) (a:A) : a :: (x ++ y) = (a :: x) ++ y.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   (** Facts deduced from the result of a concatenation *)
 
@@ -214,12 +464,62 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
   Lemma app_inj_tail :
     forall (x y:list A) (a b:A), x ++ [a] = y ++ [b] -> x = y /\ a = b.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   (** Compatibility with other operations *)
 
   Lemma app_length : forall l l' : list A, length (l++l') = length l + length l'.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma last_length : forall (l : list A) a, length (l ++ a :: nil) = S (length l).
   Proof.
@@ -237,7 +537,32 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
   Lemma app_inv_head:
    forall l l1 l2 : list A, l ++ l1 = l ++ l2 -> l1 = l2.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma app_inv_tail:
     forall l l1 l2 : list A, l1 ++ l = l2 ++ l -> l1 = l2.
@@ -256,7 +581,32 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
   Lemma app_inv_tail_iff:
     forall l l1 l2 : list A, l1 ++ l = l2 ++ l <-> l1 = l2.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   (************************)
   (** *** Facts about [In] *)
@@ -266,17 +616,117 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
   (** Characterization of [In] *)
 
   Theorem in_eq : forall (a:A) (l:list A), In a (a :: l).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Theorem in_cons : forall (a b:A) (l:list A), In b l -> In b (a :: l).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Theorem not_in_cons (x a : A) (l : list A):
     ~ In x (a::l) <-> x<>a /\ ~ In x l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Theorem in_nil : forall a:A, ~ In a [].
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma in_app_or : forall (l m:list A) (a:A), In a (l ++ m) -> In a l \/ In a m.
   Proof.
@@ -307,7 +757,32 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
   Qed.
 
   Lemma in_app_iff : forall l l' (a:A), In a (l++l') <-> In a l \/ In a l'.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Theorem in_split : forall x (l:list A), In x l -> exists l1 l2, l = l1++x::l2.
   Proof.
@@ -335,7 +810,32 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
   (** Inversion *)
   Lemma in_inv : forall (a b:A) (l:list A), In b (a :: l) -> a = b \/ In b l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   (** Decidability of [In] *)
   Theorem in_dec :
@@ -407,7 +907,32 @@ Section Elts.
   Lemma nth_S_cons :
     forall (n:nat) (l:list A) (d a:A),
       In (nth n l d) l -> In (nth (S n) (a :: l) d) (a :: l).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Fixpoint nth_error (l:list A) (n:nat) {struct n} : option A :=
     match n, l with
@@ -424,7 +949,32 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
   Lemma nth_default_eq :
     forall n l (d:A), nth_default d l n = nth n l d.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   (** Results about [nth] *)
 
@@ -696,7 +1246,32 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
     end.
 
   Lemma remove_cons : forall x l, remove x (x :: l) = remove x l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma remove_app : forall x l1 l2,
     remove x (l1 ++ l2) = remove x l1 ++ remove x l2.
@@ -764,7 +1339,32 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
   Qed.
 
   Lemma remove_remove_eq : forall l x, remove x (remove x l) = remove x l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma remove_length_le : forall l x, length (remove x l) <= length l.
   Proof.
@@ -807,10 +1407,60 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
   Qed.
 
   Theorem count_occ_not_In l x : ~ In x l <-> count_occ l x = 0.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma count_occ_nil x : count_occ [] x = 0.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Theorem count_occ_inv_nil l :
     (forall x:A, count_occ l x = 0) <-> l = [].
@@ -824,11 +1474,61 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
   Lemma count_occ_cons_eq l x y :
     x = y -> count_occ (x::l) y = S (count_occ l y).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma count_occ_cons_neq l x y :
     x <> y -> count_occ (x::l) y = count_occ l y.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
 End Elts.
 
@@ -969,7 +1669,32 @@ Section ListOps.
       P [] ->
       (forall (a:A) (l:list A), P (rev l) -> P (rev (a :: l))) ->
       forall l:list A, P (rev l).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
     Theorem rev_ind : forall P:list A -> Prop,
       P [] ->
@@ -999,10 +1724,60 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
   end.
 
   Lemma concat_nil : concat nil = nil.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma concat_cons : forall x l, concat (cons x l) = x ++ concat l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma concat_app : forall l1 l2, concat (l1 ++ l2) = concat l1 ++ concat l2.
   Proof.
@@ -1036,7 +1811,32 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
   Hypothesis eq_dec : forall (x y : A), {x = y}+{x <> y}.
 
   Lemma list_eq_dec : forall l l':list A, {l = l'} + {l <> l'}.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
 End ListOps.
 
@@ -1059,25 +1859,175 @@ Section Map.
     end.
 
   Lemma map_cons (x:A)(l:list A) : map (x::l) = (f x) :: (map l).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma in_map :
     forall (l:list A) (x:A), In x l -> In (f x) (map l).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma in_map_iff : forall l y, In y (map l) <-> exists x, f x = y /\ In x l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma map_length : forall l, length (map l) = length l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma map_nth : forall l d n,
     nth n (map l) (f d) = f (nth n l d).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma map_nth_error : forall n l d,
     nth_error l n = Some d -> nth_error (map l) n = Some (f d).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma map_app : forall l l',
     map (l++l') = (map l)++(map l').
@@ -1101,7 +2051,32 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
   Qed.
 
   Lemma map_eq_nil : forall l, map l = [] -> l = [].
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma map_eq_cons : forall l l' b,
     map l = b :: l' -> exists a tl, l = a :: tl /\ f a = b /\ map tl = l'.
@@ -1203,7 +2178,32 @@ Qed.
 
 Lemma map_id : forall (A :Type) (l : list A),
   map (fun x => x) l = l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
 Lemma map_map : forall (A B C:Type)(f:A->B)(g:B->C) l,
   map g (map f l) = map (fun x => g (f x)) l.
@@ -1221,19 +2221,94 @@ Qed.
 
 Lemma ext_in_map :
   forall (A B : Type)(f g:A->B) l, map f l = map g l -> forall a, In a l -> f a = g a.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
 Arguments ext_in_map [A B f g l].
 
 Lemma map_ext_in_iff :
    forall (A B : Type)(f g:A->B) l, map f l = map g l <-> forall a, In a l -> f a = g a.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
 Arguments map_ext_in_iff {A B f g l}.
 
 Lemma map_ext :
   forall (A B : Type)(f g:A->B), (forall a, f a = g a) -> forall l, map f l = map g l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
 Lemma flat_map_ext : forall (A B : Type)(f g : A -> list B),
   (forall a, f a = g a) -> forall l, flat_map f l = flat_map g l.
@@ -1499,13 +2574,63 @@ End Fold_Right_Recursor.
     partition l = (l1, l2) ->
     f a = true ->
     partition (a::l) = (a::l1, l2).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Theorem partition_cons2 a l l1 l2:
     partition l = (l1, l2) ->
     f a=false ->
     partition (a::l) = (l1, a::l2).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Theorem partition_length l l1 l2:
     partition l = (l1, l2) ->
@@ -1567,19 +2692,119 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
     Lemma filter_ext_in : forall (f g : A -> bool) (l : list A),
       (forall a, In a l -> f a = g a) -> filter f l = filter g l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
     Lemma ext_in_filter : forall (f g : A -> bool) (l : list A),
       filter f l = filter g l -> (forall a, In a l -> f a = g a).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
     Lemma filter_ext_in_iff : forall (f g : A -> bool) (l : list A),
       filter f l = filter g l <-> (forall a, In a l -> f a = g a).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
     Lemma filter_ext : forall (f g : A -> bool),
       (forall a, f a = g a) -> forall l, filter f l = filter g l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
     (** Remove by filtering *)
 
@@ -1816,7 +3041,32 @@ Section length_order.
   Variables l m n : list A.
 
   Lemma lel_refl : lel l l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma lel_trans : lel l m -> lel m n -> lel l n.
   Proof.
@@ -1826,13 +3076,88 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
   Qed.
 
   Lemma lel_cons_cons : lel l m -> lel (a :: l) (b :: m).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma lel_cons : lel l m -> lel l (b :: m).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma lel_tail : lel (a :: l) (b :: m) -> lel l m.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma lel_nil : forall l':list A, lel l' nil -> nil = l'.
   Proof.
@@ -1861,7 +3186,32 @@ Section SetIncl.
   Hint Unfold incl : core.
 
   Lemma incl_nil_l : forall l, incl nil l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma incl_l_nil : forall l, incl l nil -> l = nil.
   Proof.
@@ -1871,25 +3221,150 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
   Qed.
 
   Lemma incl_refl : forall l:list A, incl l l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
   #[local]
   Hint Resolve incl_refl : core.
 
   Lemma incl_tl : forall (a:A) (l m:list A), incl l m -> incl l (a :: m).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
   #[local]
   Hint Immediate incl_tl : core.
 
   Lemma incl_tran : forall l m n:list A, incl l m -> incl m n -> incl l n.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma incl_appl : forall l m n:list A, incl l n -> incl l (n ++ m).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
   #[local]
   Hint Immediate incl_appl : core.
 
   Lemma incl_appr : forall l m n:list A, incl l n -> incl l (m ++ n).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
   #[local]
   Hint Immediate incl_appr : core.
 
@@ -1946,7 +3421,32 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
   Qed.
 
   Lemma incl_filter f l : incl (filter f l) l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma remove_incl (eq_dec : forall x y : A, {x = y} + {x <> y}) : forall l1 l2 x,
     incl l1 l2 -> incl (remove eq_dec x l1) (remove eq_dec x l2).
@@ -1988,13 +3488,88 @@ Section Cutting.
     end.
 
   Lemma firstn_nil n: firstn n [] = [].
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma firstn_cons n a l: firstn (S n) (a::l) = a :: (firstn n l).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma firstn_all l: firstn (length l) l = l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma firstn_all2 n: forall (l:list A), (length l) <= n -> firstn n l = l.
   Proof. induction n as [|k iHk].
@@ -2006,7 +3581,32 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
   Qed.
 
   Lemma firstn_O l: firstn 0 l = [].
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma firstn_le_length n: forall l:list A, length (firstn n l) <= n.
   Proof.
@@ -2072,23 +3672,173 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
   Lemma firstn_skipn_comm : forall m n l,
   firstn m (skipn n l) = skipn n (firstn (n + m) l).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma skipn_firstn_comm : forall m n l,
   skipn m (firstn n l) = firstn (n - m) (skipn m l).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma skipn_O : forall l, skipn 0 l = l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma skipn_nil : forall n, skipn n ([] : list A) = [].
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma skipn_cons n a l: skipn (S n) (a::l) = skipn n l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma skipn_all : forall l, skipn (length l) l = nil.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
 #[deprecated(since="8.12",note="Use skipn_all instead.")] Notation skipn_none := skipn_all.
 
@@ -2107,7 +3857,32 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
   Qed.
 
   Lemma firstn_length : forall n l, length (firstn n l) = min n (length l).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma skipn_length n :
     forall l, length (skipn n l) = length l - n.
@@ -2119,7 +3894,32 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
   Lemma skipn_app n : forall l1 l2,
     skipn n (l1 ++ l2) = (skipn n l1) ++ (skipn (n - length l1) l2).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma firstn_skipn_rev: forall x l,
       firstn x l = rev (skipn (length l - x) (rev l)).
@@ -2133,7 +3933,32 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
   Lemma firstn_rev: forall x l,
     firstn x (rev l) = rev (skipn (length l - x) l).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma skipn_rev: forall x l,
       skipn x (rev l) = rev (firstn (length l - x) l).
@@ -2257,7 +4082,32 @@ Section Add.
     | Add_cons x l l' : Add a l l' -> Add a (x::l) (x::l').
 
   Lemma Add_app a l1 l2 : Add a (l1++l2) (l1++a::l2).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma Add_split a l l' :
     Add a l l' -> exists l1 l2, l = l1++l2 /\ l' = l1++a::l2.
@@ -2270,10 +4120,60 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
   Lemma Add_in a l l' : Add a l l' ->
    forall x, In x l' <-> In x (a::l).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma Add_length a l l' : Add a l l' -> length l' = S (length l).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma Add_inv a l : In a l -> exists l', Add a l' l.
   Proof.
@@ -2318,13 +4218,88 @@ Section ReDun.
 
   Lemma NoDup_remove l l' a :
     NoDup (l++a::l') -> NoDup (l++l') /\ ~In a (l++l').
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma NoDup_remove_1 l l' a : NoDup (l++a::l') -> NoDup (l++l').
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma NoDup_remove_2 l l' a : NoDup (l++a::l') -> ~In a (l++l').
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Theorem NoDup_cons_iff a l:
     NoDup (a::l) <-> ~ In a l /\ NoDup l.
@@ -2382,7 +4357,32 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
   Qed.
 
   Lemma nodup_incl l1 l2 : incl l1 (nodup l2) <-> incl l1 l2.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma NoDup_nodup l: NoDup (nodup l).
   Proof.
@@ -2554,10 +4554,60 @@ Section NatSeq.
     end.
 
   Lemma cons_seq : forall len start, start :: seq (S start) len = seq start (S len).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma seq_length : forall len start, length (seq start len) = len.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma seq_nth : forall len start n d,
     n < len -> nth n (seq start len) d = start+n.
@@ -2655,11 +4705,61 @@ Section Exists_Forall.
     Qed.
 
     Lemma Exists_nil : Exists nil <-> False.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
     Lemma Exists_cons x l:
       Exists (x::l) <-> P x \/ Exists l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
     Lemma Exists_app l1 l2 :
       Exists (l1 ++ l2) <-> Exists l1 \/ Exists l2.
@@ -2691,7 +4791,32 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
     Lemma Exists_fold_right l :
       Exists l <-> fold_right (fun x => or (P x)) False l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
     Lemma incl_Exists l1 l2 : incl l1 l2 -> Exists l1 -> Exists l2.
     Proof.
@@ -2730,10 +4855,60 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
     Qed.
 
     Lemma Forall_inv : forall (a:A) l, Forall (a :: l) -> P a.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
     Theorem Forall_inv_tail : forall (a:A) l, Forall (a :: l) -> Forall l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
     Lemma Forall_app l1 l2 :
       Forall (l1 ++ l2) <-> Forall l1 /\ Forall l2.
@@ -2744,7 +4919,32 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
     Qed.
 
     Lemma Forall_elt a l1 l2 : Forall (l1 ++ a :: l2) -> P a.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
     Lemma Forall_rev l : Forall l -> Forall (rev l).
     Proof.
@@ -2754,7 +4954,32 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
     Lemma Forall_rect : forall (Q : list A -> Type),
       Q [] -> (forall b l, P b -> Q (b :: l)) -> forall l, Forall l -> Q l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
     Lemma Forall_dec :
       (forall x:A, {P x} + { ~ P x }) ->
@@ -2771,7 +4996,32 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
     Lemma Forall_fold_right l :
       Forall l <-> fold_right (fun x => and (P x)) True l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
     Lemma incl_Forall l1 l2 : incl l2 l1 -> Forall l1 -> Forall l2.
     Proof.
@@ -2784,7 +5034,32 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
   Lemma map_ext_Forall B : forall (f g : A -> B) l,
     Forall (fun x => f x = g x) l -> map f l = map g l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Theorem Exists_impl : forall (P Q : A -> Prop), (forall a : A, P a -> Q a) ->
     forall l, Exists P l -> Exists Q l.
@@ -2814,19 +5089,119 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
   Lemma Forall_impl : forall (P Q : A -> Prop), (forall a, P a -> Q a) ->
     forall l, Forall P l -> Forall Q l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma Forall_and : forall (P Q : A -> Prop) l,
     Forall P l -> Forall Q l -> Forall (fun x => P x /\ Q x) l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma Forall_and_inv : forall (P Q : A -> Prop) l,
     Forall (fun x => P x /\ Q x) l -> Forall P l /\ Forall Q l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma Forall_Exists_neg (P:A->Prop)(l:list A) :
     Forall (fun x => ~ P x) l <-> ~(Exists P l).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma Exists_Forall_neg (P:A->Prop)(l:list A) :
     (forall x, P x \/ ~P x) ->
@@ -2865,7 +5240,32 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
   Lemma incl_Forall_in_iff l l' :
     incl l l' <-> Forall (fun x => In x l') l.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
 End Exists_Forall.
 
@@ -2940,7 +5340,32 @@ Section Forall2.
   Hint Constructors Forall2 : core.
 
   Theorem Forall2_refl : Forall2 [] [].
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Theorem Forall2_app_inv_l : forall l1 l2 l',
     Forall2 (l1 ++ l2) l' ->
@@ -2966,7 +5391,32 @@ Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
 
   Theorem Forall2_app : forall l1 l2 l1' l2',
     Forall2 l1 l1' -> Forall2 l2 l2' -> Forall2 (l1 ++ l2) (l1' ++ l2').
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 End Forall2.
 
 #[global]
@@ -3037,11 +5487,61 @@ Section Repeat.
 
   Theorem repeat_length x n:
     length (repeat x n) = n.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Theorem repeat_spec n x y:
     In y (repeat x n) -> y=x.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show.
+  Check "option 1"%string.
+  Fail (cvc5_abduct 3 1).
+  Check "option 2"%string.
+  Fail (cvc5_abduct 3 2).
+  Check "option 3"%string.
+  Fail (cvc5_abduct 3 3).
+  Check "option 4"%string.
+  Fail (cvc5_abduct 3 4).
+  Check "option 5"%string.
+  Fail (cvc5_abduct 3 5).
+  Check "option 6"%string.
+  Fail (cvc5_abduct 3 6).
+  Check "option 7"%string.
+  Fail (cvc5_abduct 3 7).
+  Check "option 8"%string.
+  Fail (cvc5_abduct 3 8).
+  Check "option 9"%string.
+  Fail (cvc5_abduct 3 9).
+  Check "option 10"%string.
+  Fail (cvc5_abduct 3 10).
+  Check "option 11"%string.
+  Fail (cvc5_abduct 3 11).
+  Check "option 12"%string.
+  Fail (cvc5_abduct 3 12). 
+Admitted.
 
   Lemma repeat_cons n a :
     a :: repeat a n = repeat a n ++ (a :: nil).
