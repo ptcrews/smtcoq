@@ -46,12 +46,10 @@ Defined.
 (* Pass *)
 Lemma Zle_gt_succ n m : n <= m -> Z.succ m > n.
 Proof. (* Timeout 20 (time cvc5_abduct 1).  
-Finished failing transaction in 1.885 secs (0.004u,0.008s) (failure)
+Tactic call ran for 1.074 secs (0.u,0.022s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
 (Z.succ m) = 1 + m
-(Z.succ m) = n + 1
-n + 1 <= (Z.succ m)
 *)
 assert ((Z.succ m) = 1 + m). { unfold Z.succ. smt. }
 smt.
