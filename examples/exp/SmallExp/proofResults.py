@@ -38,7 +38,7 @@ abds = [["", "", ""],
 for j in f1lines:
   i = re.sub('\n', '', j)
   #Goal count
-  if re.fullmatch(r'1 subgoal', i):
+  if re.fullmatch(r'1 goal', i):
     numGoals += 1
     resLine = False
   #Identify case
@@ -57,15 +57,15 @@ for j in f1lines:
   if re.search(r'non-linear fact', i):
     op[5] += 1
 
-  
+
   #Get goal and abducts
   
   #Increment counter to check result
   if resLine:
     resCtr += 1
-    if resCtr == 3:
+    if resCtr == 2:
       gettingAbd = True
-      
+  
   #Save goal
   if goalLine:
     writeCSV2(abds, f2)
