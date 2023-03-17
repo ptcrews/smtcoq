@@ -17,11 +17,11 @@
     for results already present in BinInt.Z. *)
 
 (* 
-94 Goals
+93 Goals
 33 Solved by smt
-28 non-linear goals
+30 non-linear goals
 4 non-bool
-We solve 13/29 of the remaining goals.
+We solve 13/26 of the remaining goals.
 *)
 (* Coq-8.16
    cvc5 grammar without ITE *)
@@ -36,7 +36,7 @@ Local Open Scope Z_scope.
 
 (** * Trichotomy *)
 
-(* Fail *)
+(* Non-bool *)
 Theorem Ztrichotomy_inf n m : {n < m} + {n = m} + {n > m}.
 Proof.
   unfold ">", "<". generalize (Z.compare_eq n m).
@@ -57,6 +57,7 @@ assert ((Z.succ m) = 1 + m). { unfold Z.succ. smt. }
 smt.
 Qed.
 
+(* smt *)
 Theorem Ztrichotomy n m : n < m \/ n = m \/ n > m.
 Proof. smt. Qed.
 
@@ -67,27 +68,28 @@ Notation dec_eq := Z.eq_decidable (only parsing).
 Notation dec_Zle := Z.le_decidable (only parsing).
 Notation dec_Zlt := Z.lt_decidable (only parsing).
 
-(* Fail *)
+(* Non-bool *)
 Theorem dec_Zne n m : decidable (Zne n m).
 Proof. (* Timeout 20 (time cvc5_abduct 1). 
 "Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
 *)
 Admitted.
 
-(* Fail *)
+(* Non-bool *)
 Theorem dec_Zgt n m : decidable (n > m).
 Proof. (* Timeout 20 (time cvc5_abduct 1). 
 "Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
 *)
 Admitted.
 
-(* Fail *)
+(* Non-bool *)
 Theorem dec_Zge n m : decidable (n >= m).
 Proof. (* Timeout 20 (time cvc5_abduct 1). 
 "Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
 *)
 Admitted.
 
+(* smt *)
 Theorem not_Zeq n m : n <> m -> n < m \/ m < n.
 Proof. smt. Qed.
 
@@ -101,27 +103,35 @@ Register not_Zeq as plugins.omega.not_Zeq.
 Notation Zgt_iff_lt := Z.gt_lt_iff (only parsing).
 Notation Zge_iff_le := Z.ge_le_iff (only parsing).
 
+(* smt *)
 Lemma Zle_not_lt n m : n <= m -> ~ m < n.
 Proof. smt. Qed.
 
+(* smt *)
 Lemma Zlt_not_le n m : n < m -> ~ m <= n.
 Proof. smt. Qed.
 
+(* smt *)
 Lemma Zle_not_gt n m : n <= m -> ~ n > m.
 Proof. smt. Qed.
 
+(* smt *)
 Lemma Zgt_not_le n m : n > m -> ~ n <= m.
 Proof. smt. Qed.
 
+(* smt *)
 Lemma Znot_ge_lt n m : ~ n >= m -> n < m.
 Proof. smt. Qed.
 
+(* smt *)
 Lemma Znot_lt_ge n m : ~ n < m -> n >= m.
 Proof. smt. Qed.
 
+(* smt *)
 Lemma Znot_gt_le n m: ~ n > m -> n <= m.
 Proof. smt. Qed.
 
+(* smt *)
 Lemma Znot_le_gt n m : ~ n <= m -> n > m.
 Proof. smt. Qed.
 
@@ -155,6 +165,7 @@ Notation Zle_antisym := Z.le_antisymm (only parsing).
 
 Notation Zlt_asym := Z.lt_asymm (only parsing).
 
+(* smt *)
 Lemma Zgt_asym n m : n > m -> ~ m > n.
 Proof. smt. Qed.
 
@@ -162,6 +173,7 @@ Proof. smt. Qed.
 
 Notation Zlt_not_eq := Z.lt_neq (only parsing).
 
+(* smt *)
 Lemma Zgt_irrefl n : ~ n > n.
 Proof. smt. Qed.
 
@@ -170,6 +182,7 @@ Proof. smt. Qed.
 Notation Zlt_le_weak := Z.lt_le_incl (only parsing).
 Notation Zle_lt_or_eq_iff := Z.lt_eq_cases (only parsing).
 
+(* smt *)
 Lemma Zle_lt_or_eq n m : n <= m -> n < m \/ n = m.
 Proof. smt. Qed.
 
@@ -179,19 +192,23 @@ Notation Zle_or_lt := Z.le_gt_cases (only parsing).
 
 (** Transitivity of strict orders *)
 
+(* smt *)
 Lemma Zgt_trans n m p : n > m -> m > p -> n > p.
 Proof. smt. Qed.
 
 (** Mixed transitivity *)
 
+(* smt *)
 Lemma Zle_gt_trans n m p : m <= n -> m > p -> n > p.
 Proof. smt. Qed.
 
+(* smt *)
 Lemma Zgt_le_trans n m p : n > m -> p <= m -> n > p.
 Proof. smt. Qed.
 
 (** Transitivity of large orders *)
 
+(* smt *)
 Lemma Zge_trans n m p : n >= m -> m >= p -> n >= p.
 Proof. smt. Qed.
 
@@ -516,21 +533,27 @@ Notation Zplus_le_lt_compat := Z.add_le_lt_mono (only parsing).
 Notation Zplus_le_compat := Z.add_le_mono (only parsing).
 Notation Zplus_lt_compat := Z.add_lt_mono (only parsing).
 
+(* smt *)
 Lemma Zplus_gt_compat_l n m p : n > m -> p + n > p + m.
 Proof. smt. Qed.
 
+(* smt *)
 Lemma Zplus_gt_compat_r n m p : n > m -> n + p > m + p.
 Proof. smt. Qed.
 
+(* smt *)
 Lemma Zplus_le_compat_l n m p : n <= m -> p + n <= p + m.
 Proof. smt. Qed.
 
+(* smt *)
 Lemma Zplus_le_compat_r n m p : n <= m -> n + p <= m + p.
 Proof. smt. Qed.
 
+(* smt *)
 Lemma Zplus_lt_compat_l n m p : n < m -> p + n < p + m.
 Proof. smt. Qed.
 
+(* smt *)
 Lemma Zplus_lt_compat_r n m p : n < m -> n + p < m + p.
 Proof. smt. Qed.
 
@@ -540,21 +563,27 @@ Notation Zplus_le_0_compat := Z.add_nonneg_nonneg (only parsing).
 
 (** Simplification of addition wrt to order *)
 
+(* smt *)
 Lemma Zplus_le_reg_l n m p : p + n <= p + m -> n <= m.
 Proof. smt. Qed.
 
+(* smt *)
 Lemma Zplus_le_reg_r n m p : n + p <= m + p -> n <= m.
 Proof. smt. Qed.
 
+(* smt *)
 Lemma Zplus_lt_reg_l n m p : p + n < p + m -> n < m.
 Proof. smt. Qed.
 
+(* smt *)
 Lemma Zplus_lt_reg_r n m p : n + p < m + p -> n < m.
 Proof. smt. Qed.
 
+(* smt *)
 Lemma Zplus_gt_reg_l n m p : p + n > p + m -> n > m.
 Proof. smt. Qed.
 
+(* smt *)
 Lemma Zplus_gt_reg_r n m p : n + p > m + p -> n > m.
 Proof. smt. Qed.
 
@@ -562,6 +591,7 @@ Proof. smt. Qed.
 (** Compatibility of multiplication by a positive wrt to order *)
 
 Definition mult := Z.mul.
+(* NIA *)
 Lemma Zmult_le_compat_r n m p : n <= m -> 0 <= p -> mult n p <= mult m p.
 Proof. intros. (* Timeout 20 (time cvc5_abduct 3).
 Tactic call ran for 0.469 secs (0.007u,0.02s) (failure)
@@ -572,6 +602,7 @@ m <= n
 p + m <= n *)
 Admitted.
 
+(* NIA *)
 Lemma Zmult_le_compat_l n m p : n <= m -> 0 <= p -> mult p n <= mult p m.
 Proof. intros.  (* Timeout 20 (time cvc5_abduct 6).
 Tactic call ran for 11.531 secs (0.018u,0.016s) (failure)
@@ -585,15 +616,19 @@ p + p + m = n
 p + p + m <= n *) 
 Admitted.
 
+(* NIA *)
 Lemma Zmult_lt_compat_r n m p : 0 < p -> n < m -> mult n p < mult m p.
 Proof. intros. (* Timeout 20 (time cvc5_abduct 1). *) Admitted.
 
+(* NIA *)
 Lemma Zmult_gt_compat_r n m p : p > 0 -> n > m -> mult n p > mult m p.
 Proof. intros. (* Timeout 20 (time cvc5_abduct 1). *) Admitted.
 
+(* NIA *)
 Lemma Zmult_gt_0_lt_compat_r n m p : p > 0 -> n < m -> mult n p < mult m p.
 Proof. intros. (* Timeout 20 (time cvc5_abduct 1). *) Admitted.
 
+(* NIA *)
 Lemma Zmult_gt_0_le_compat_r n m p : p > 0 -> n <= m -> mult n p <= mult m p.
 Proof. intros. (* Timeout 20 (time cvc5_abduct 3). 
 Tactic call ran for 3.167 secs (0.008u,0.022s) (failure)
@@ -604,6 +639,7 @@ m <= n
 p <= 0 || m <= n *)
 Admitted.
 
+(* NIA *)
 Lemma Zmult_lt_0_le_compat_r n m p : 0 < p -> n <= m -> mult n p <= mult m p.
 Proof. intros. (* Timeout 20 (time cvc5_abduct 4).
 Tactic call ran for 5.979 secs (0.004u,0.02s) (failure)
@@ -615,15 +651,19 @@ p = 0 || m <= n
 p <= 0 || m <= n *)
 Admitted.
 
+(* NIA *)
 Lemma Zmult_gt_0_lt_compat_l n m p : p > 0 -> n < m -> mult p n < mult p m.
 Proof. intros. (* Timeout 20 (time cvc5_abduct 1). *) Admitted.
 
+(* NIA *)
 Lemma Zmult_lt_compat_l n m p : 0 < p -> n < m -> mult p n < mult p m.
 Proof. intros. (* Timeout 20 (time cvc5_abduct 1). *) Admitted.
 
+(* NIA *)
 Lemma Zmult_gt_compat_l n m p : p > 0 -> n > m -> mult p n > mult p m.
 Proof. intros. (* (Timeout 20 (time cvc5_abduct 1). *) Admitted.
 
+(* NIA *)
 Lemma Zmult_ge_compat_r n m p : n >= m -> p >= 0 -> mult n p >= mult m p.
 Proof. intros. (* Timeout 20 (time cvc5_abduct 9).
 Tactic call ran for 18.841 secs (0.u,0.061s) (failure)
@@ -639,6 +679,7 @@ p + p + n <= m
 (mult m p) <= (mult n p) *)
 Admitted.
 
+(* NIA *)
 Lemma Zmult_ge_compat_l n m p : n >= m -> p >= 0 -> mult p n >= mult p m.
 Proof. intros. (* Timeout 20 (time cvc5_abduct 7). 
 Tactic call ran for 9.265 secs (0.008u,0.027s) (failure)
@@ -653,31 +694,39 @@ p + n + p <= m
 (mult p n) = (mult p m) *)
 Admitted.
 
+(* NIA *)
 Lemma Zmult_ge_compat n m p q :
   n >= p -> m >= q -> p >= 0 -> q >= 0 -> mult n m >= mult p q.
 Proof. intros. Admitted.
 
+(* NIA *)
 Lemma Zmult_le_compat n m p q :
   n <= p -> m <= q -> 0 <= n -> 0 <= m ->mult n m <= mult p q.
 Proof. intros. Admitted.
 
 (** Simplification of multiplication by a positive wrt to being positive *)
 
+(* NIA *)
 Lemma Zmult_gt_0_lt_reg_r n m p : p > 0 -> mult n p < mult m p -> n < m.
 Proof. intros. Admitted.
 
+(* NIA *)
 Lemma Zmult_lt_reg_r n m p : 0 < p -> mult n p < mult m p -> n < m.
 Proof. intros. Admitted.
 
+(* NIA *)
 Lemma Zmult_le_reg_r n m p : p > 0 -> mult n p <= mult m p -> n <= m.
 Proof. intros. Admitted.
 
+(* NIA *)
 Lemma Zmult_lt_0_le_reg_r n m p : 0 < p -> mult n p <= mult m p -> n <= m.
 Proof. intros. Admitted.
 
+(* NIA *)
 Lemma Zmult_ge_reg_r n m p : p > 0 -> mult n p >= mult m p -> n >= m.
 Proof. Admitted.
 
+(* NIA *)
 Lemma Zmult_gt_reg_r n m p : p > 0 -> mult n p > mult m p -> n > m.
 Proof. intros. (* Timeout 20 (time cvc5_abduct 6).
 Tactic call ran for 7.902 secs (0.u,0.035s) (failure)
@@ -691,10 +740,12 @@ p + p + m <= n
 p <= 0 || m <= n *)
 Admitted.
 
+(* NIA *)
 Lemma Zmult_lt_compat n m p q :
   0 <= n < p -> 0 <= m < q -> mult n m < mult p q.
 Proof. Admitted.
 
+(* NIA *)
 Lemma Zmult_lt_compat2 n m p q :
   0 < n <= p -> 0 < m < q -> mult n m < mult p q.
 Proof.
@@ -710,11 +761,13 @@ Notation Zmult_le_0_compat := Z.mul_nonneg_nonneg (only parsing).
 Notation Zmult_lt_0_compat := Z.mul_pos_pos (only parsing).
 Notation Zmult_lt_O_compat := Z.mul_pos_pos (only parsing).
 
+(* NIA *)
 Lemma Zmult_gt_0_compat n m : n > 0 -> m > 0 -> mult n m > 0.
 Proof. Admitted.
 
 (* To remove someday ... *)
 
+(* NIA *)
 Lemma Zmult_gt_0_le_0_compat n m : n > 0 -> 0 <= m -> 0 <= mult m n.
 Proof.
  Z.swap_greater. intros. apply Z.mul_nonneg_nonneg. trivial.
@@ -723,24 +776,30 @@ Qed.
 
 (** Simplification of multiplication by a positive wrt to being positive *)
 
+(* NIA *)
 Lemma Zmult_le_0_reg_r n m : n > 0 -> 0 <= mult m n -> 0 <= m.
 Proof. Admitted.
 
+(* NIA *)
 Lemma Zmult_lt_0_reg_r n m : 0 < n -> 0 < mult m n -> 0 < m.
 Proof. Admitted.
 
+(* NIA *)
 Lemma Zmult_gt_0_lt_0_reg_r n m : n > 0 -> 0 < mult m n -> 0 < m.
 Proof. Admitted.
 
+(* NIA *)
 Lemma Zmult_gt_0_reg_l n m : n > 0 -> mult n m > 0 -> m > 0.
 Proof. Admitted.
 
 (** ** Square *)
 (** Simplification of square wrt order *)
 
+(* NIA *)
 Lemma Zlt_square_simpl n m : 0 <= n -> mult m m < mult n n -> m < n.
 Proof. Admitted.
 
+(* NIA *)
 Lemma Zgt_square_simpl n m : n >= 0 -> mult n n > mult m m -> n > m.
 Proof. Admitted.
 
@@ -750,15 +809,19 @@ Notation Zle_plus_swap := Z.le_add_le_sub_r (only parsing).
 Notation Zlt_plus_swap := Z.lt_add_lt_sub_r (only parsing).
 Notation Zlt_minus_simpl_swap := Z.lt_sub_pos (only parsing).
 
+(* smt *)
 Lemma Zeq_plus_swap n m p : n + p = m <-> n = m - p.
 Proof. smt. Qed.
 
+(* smt *)
 Lemma Zlt_0_minus_lt n m : 0 < n - m -> m < n.
 Proof. smt. Qed.
 
+(* smt *)
 Lemma Zle_0_minus_le n m : 0 <= n - m -> m <= n.
 Proof. smt. Qed.
 
+(* smt *)
 Lemma Zle_minus_le_0 n m : m <= n -> 0 <= n - m.
 Proof. smt. Qed.
 
