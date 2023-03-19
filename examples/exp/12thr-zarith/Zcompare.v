@@ -38,51 +38,51 @@ Proof Z.lt_trans.
 
 Lemma Zcompare_Gt_trans :
   forall n m p:Z, (n ?= m) = Gt -> (m ?= p) = Gt -> (n ?= p) = Gt.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** * Comparison and opposite *)
 
 Lemma Zcompare_opp n m : (n ?= m) = (- m ?= - n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** * Comparison first-order specification *)
 
 Lemma Zcompare_Gt_spec n m : (n ?= m) = Gt ->  exists h, n + - m = Zpos h.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** * Comparison and addition *)
 
 Lemma Zcompare_plus_compat n m p : (p + n ?= p + m) = (n ?= m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zplus_compare_compat (r:comparison) (n m p q:Z) :
   (n ?= m) = r -> (p ?= q) = r -> (n + p ?= m + q) = r.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zcompare_succ_Gt n : (Z.succ n ?= n) = Gt.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zcompare_Gt_not_Lt n m : (n ?= m) = Gt <-> (n ?= m+1) <> Lt.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** * Successor and comparison *)
 
 Lemma Zcompare_succ_compat n m : (Z.succ n ?= Z.succ m) = (n ?= m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** * Multiplication and comparison *)
 
 Lemma Zcompare_mult_compat :
   forall (p:positive) (n m:Z), (Zpos p * n ?= Zpos p * m) = (n ?= m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zmult_compare_compat_l n m p:
   p > 0 -> (n ?= m) = (p * n ?= p * m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zmult_compare_compat_r n m p :
   p > 0 -> (n ?= m) = (n * p ?= m * p).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** * Relating [x ?= y] to [=], [<=], [<], [>=] or [>] *)
 
@@ -95,7 +95,7 @@ Lemma Zcompare_elim :
                        | Lt => c2
                        | Gt => c3
                      end.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zcompare_eq_case :
   forall (c1 c2 c3:Prop) (n m:Z),
@@ -104,7 +104,7 @@ Lemma Zcompare_eq_case :
                      | Lt => c2
                      | Gt => c3
                    end.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zle_compare :
   forall n m:Z,
@@ -113,7 +113,7 @@ Lemma Zle_compare :
 		| Lt => True
 		| Gt => False
               end.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zlt_compare :
   forall n m:Z,
@@ -122,7 +122,7 @@ Lemma Zlt_compare :
               | Lt => True
               | Gt => False
             end.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zge_compare :
   forall n m:Z,
@@ -131,7 +131,7 @@ Lemma Zge_compare :
 		| Lt => False
 		| Gt => True
               end.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zgt_compare :
   forall n m:Z,
@@ -140,7 +140,7 @@ Lemma Zgt_compare :
                | Lt => False
                | Gt => True
              end.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** Compatibility notations *)
 

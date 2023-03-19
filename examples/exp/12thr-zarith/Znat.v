@@ -44,34 +44,34 @@ Local Open Scope Z_scope.
 *)
 
 Lemma nat_N_Z n : Z.of_N (N.of_nat n) = Z.of_nat n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma N_nat_Z n : Z.of_nat (N.to_nat n) = Z.of_N n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma positive_nat_Z p : Z.of_nat (Pos.to_nat p) = Zpos p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma positive_N_Z p : Z.of_N (Npos p) = Zpos p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma positive_N_nat p : N.to_nat (Npos p) = Pos.to_nat p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma positive_nat_N p : N.of_nat (Pos.to_nat p) = Npos p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Z_N_nat n : N.to_nat (Z.to_N n) = Z.to_nat n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Z_nat_N n : N.of_nat (Z.to_nat n) = Z.to_N n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zabs_N_nat n : N.to_nat (Z.abs_N n) = Z.abs_nat n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zabs_nat_N n : N.of_nat (Z.abs_nat n) = Z.abs_N n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 
 (** * Conversions between [Z] and [N] *)
@@ -83,100 +83,100 @@ Module N2Z.
     See [Z2N.id] below for the dual equation. *)
 
 Lemma id n : Z.to_N (Z.of_N n) = n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Z.of_N] is hence injective *)
 
 Lemma inj n m : Z.of_N n = Z.of_N m -> n = m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_iff n m : Z.of_N n = Z.of_N m <-> n = m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Z.of_N] produce non-negative integers *)
 
 Lemma is_nonneg n : 0 <= Z.of_N n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Z.of_N], basic equations *)
 
 Lemma inj_0 : Z.of_N 0 = 0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_pos p : Z.of_N (Npos p) = Zpos p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Z.of_N] and usual operations. *)
 
 Lemma inj_compare n m : (Z.of_N n ?= Z.of_N m) = (n ?= m)%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_le n m : (n<=m)%N <-> Z.of_N n <= Z.of_N m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_lt n m : (n<m)%N <-> Z.of_N n < Z.of_N m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_ge n m : (n>=m)%N <-> Z.of_N n >= Z.of_N m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_gt n m : (n>m)%N <-> Z.of_N n > Z.of_N m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_abs_N z : Z.of_N (Z.abs_N z) = Z.abs z.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_add n m : Z.of_N (n+m) = Z.of_N n + Z.of_N m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_mul n m : Z.of_N (n*m) = Z.of_N n * Z.of_N m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_sub_max n m : Z.of_N (n-m) = Z.max 0 (Z.of_N n - Z.of_N m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_sub n m : (m<=n)%N -> Z.of_N (n-m) = Z.of_N n - Z.of_N m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_succ n : Z.of_N (N.succ n) = Z.succ (Z.of_N n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_pred_max n : Z.of_N (N.pred n) = Z.max 0 (Z.pred (Z.of_N n)).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_pred n : (0<n)%N -> Z.of_N (N.pred n) = Z.pred (Z.of_N n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_min n m : Z.of_N (N.min n m) = Z.min (Z.of_N n) (Z.of_N m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_max n m : Z.of_N (N.max n m) = Z.max (Z.of_N n) (Z.of_N m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_div n m : Z.of_N (n/m) = Z.of_N n / Z.of_N m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_mod n m : (m<>0)%N -> Z.of_N (n mod m) = (Z.of_N n) mod (Z.of_N m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_quot n m : Z.of_N (n/m) = Z.of_N n ÷ Z.of_N m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_rem n m : Z.of_N (n mod m) = Z.rem (Z.of_N n) (Z.of_N m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_div2 n : Z.of_N (N.div2 n) = Z.div2 (Z.of_N n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_quot2 n : Z.of_N (N.div2 n) = Z.quot2 (Z.of_N n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_pow n m : Z.of_N (n^m) = (Z.of_N n)^(Z.of_N m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_testbit a n :
  Z.testbit (Z.of_N a) (Z.of_N n) = N.testbit a n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End N2Z.
 
@@ -187,86 +187,86 @@ Module Z2N.
     See [N2Z.id] above for the dual equation. *)
 
 Lemma id n : 0<=n -> Z.of_N (Z.to_N n) = n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Z.to_N] is hence injective for non-negative integers. *)
 
 Lemma inj n m : 0<=n -> 0<=m -> Z.to_N n = Z.to_N m -> n = m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_iff n m : 0<=n -> 0<=m -> (Z.to_N n = Z.to_N m <-> n = m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Z.to_N], basic equations *)
 
 Lemma inj_0 : Z.to_N 0 = 0%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_pos n : Z.to_N (Zpos n) = Npos n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_neg n : Z.to_N (Zneg n) = 0%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Z.to_N] and operations *)
 
 Lemma inj_add n m : 0<=n -> 0<=m -> Z.to_N (n+m) = (Z.to_N n + Z.to_N m)%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_mul n m : 0<=n -> 0<=m -> Z.to_N (n*m) = (Z.to_N n * Z.to_N m)%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_succ n : 0<=n -> Z.to_N (Z.succ n) = N.succ (Z.to_N n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_sub n m : 0<=m -> Z.to_N (n - m) = (Z.to_N n - Z.to_N m)%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_pred n : Z.to_N (Z.pred n) = N.pred (Z.to_N n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_compare n m : 0<=n -> 0<=m ->
  (Z.to_N n ?= Z.to_N m)%N = (n ?= m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_le n m : 0<=n -> 0<=m -> (n<=m <-> (Z.to_N n <= Z.to_N m)%N).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_lt n m : 0<=n -> 0<=m -> (n<m <-> (Z.to_N n < Z.to_N m)%N).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_min n m : Z.to_N (Z.min n m) = N.min (Z.to_N n) (Z.to_N m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_max n m : Z.to_N (Z.max n m) = N.max (Z.to_N n) (Z.to_N m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_div n m : 0<=n -> 0<=m -> Z.to_N (n/m) = (Z.to_N n / Z.to_N m)%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_mod n m : 0<=n -> 0<m ->
  Z.to_N (n mod m) = ((Z.to_N n) mod (Z.to_N m))%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_quot n m : 0<=n -> 0<=m -> Z.to_N (n÷m) = (Z.to_N n / Z.to_N m)%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_rem n m :0<=n -> 0<=m ->
  Z.to_N (Z.rem n m) = ((Z.to_N n) mod (Z.to_N m))%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_div2 n : Z.to_N (Z.div2 n) = N.div2 (Z.to_N n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_quot2 n : Z.to_N (Z.quot2 n) = N.div2 (Z.to_N n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_pow n m : 0<=n -> 0<=m -> Z.to_N (n^m) = ((Z.to_N n)^(Z.to_N m))%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_testbit a n : 0<=n ->
  Z.testbit (Z.of_N a) n = N.testbit a (Z.to_N n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End Z2N.
 
@@ -276,87 +276,87 @@ Module Zabs2N.
     to [N]. *)
 
 Lemma abs_N_spec n : Z.abs_N n = Z.to_N (Z.abs n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma abs_N_nonneg n : 0<=n -> Z.abs_N n = Z.to_N n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma id_abs n : Z.of_N (Z.abs_N n) = Z.abs n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma id n : Z.abs_N (Z.of_N n) = n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Z.abs_N], basic equations *)
 
 Lemma inj_0 : Z.abs_N 0 = 0%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_pos p : Z.abs_N (Zpos p) = Npos p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_neg p : Z.abs_N (Zneg p) = Npos p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Z.abs_N] and usual operations, with non-negative integers *)
 
 Lemma inj_opp n : Z.abs_N (-n) = Z.abs_N n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_succ n : 0<=n -> Z.abs_N (Z.succ n) = N.succ (Z.abs_N n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_add n m : 0<=n -> 0<=m -> Z.abs_N (n+m) = (Z.abs_N n + Z.abs_N m)%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_mul n m : Z.abs_N (n*m) = (Z.abs_N n * Z.abs_N m)%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_sub n m : 0<=m<=n -> Z.abs_N (n-m) = (Z.abs_N n - Z.abs_N m)%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_pred n : 0<n -> Z.abs_N (Z.pred n) = N.pred (Z.abs_N n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_compare n m : 0<=n -> 0<=m ->
  (Z.abs_N n ?= Z.abs_N m)%N = (n ?= m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_le n m : 0<=n -> 0<=m -> (n<=m <-> (Z.abs_N n <= Z.abs_N m)%N).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_lt n m : 0<=n -> 0<=m -> (n<m <-> (Z.abs_N n < Z.abs_N m)%N).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_min n m : 0<=n -> 0<=m ->
  Z.abs_N (Z.min n m) = N.min (Z.abs_N n) (Z.abs_N m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_max n m : 0<=n -> 0<=m ->
  Z.abs_N (Z.max n m) = N.max (Z.abs_N n) (Z.abs_N m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_quot n m : Z.abs_N (n÷m) = ((Z.abs_N n) / (Z.abs_N m))%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_rem n m : Z.abs_N (Z.rem n m) = ((Z.abs_N n) mod (Z.abs_N m))%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_pow n m : 0<=m -> Z.abs_N (n^m) = ((Z.abs_N n)^(Z.abs_N m))%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Z.abs_N] and usual operations, statements with [Z.abs] *)
 
 Lemma inj_succ_abs n : Z.abs_N (Z.succ (Z.abs n)) = N.succ (Z.abs_N n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_add_abs n m :
  Z.abs_N (Z.abs n + Z.abs m) = (Z.abs_N n + Z.abs_N m)%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_mul_abs n m :
  Z.abs_N (Z.abs n * Z.abs m) = (Z.abs_N n * Z.abs_N m)%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End Zabs2N.
 
@@ -368,82 +368,82 @@ Module Nat2Z.
 (** [Z.of_nat], basic equations *)
 
 Lemma inj_0 : Z.of_nat 0 = 0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_succ n : Z.of_nat (S n) = Z.succ (Z.of_nat n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Register inj_succ as num.Nat2Z.inj_succ.
 
 (** [Z.of_N] produce non-negative integers *)
 
 Lemma is_nonneg n : 0 <= Z.of_nat n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Z.of_nat] is a bijection between [nat] and non-negative [Z],
     with [Z.to_nat] (or [Z.abs_nat]) as reciprocal.
     See [Z2Nat.id] below for the dual equation. *)
 
 Lemma id n : Z.to_nat (Z.of_nat n) = n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Z.of_nat] is hence injective *)
 
 Lemma inj n m : Z.of_nat n = Z.of_nat m -> n = m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_iff n m : Z.of_nat n = Z.of_nat m <-> n = m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Z.of_nat] and usual operations *)
 
 Lemma inj_compare n m : (Z.of_nat n ?= Z.of_nat m) = (n ?= m)%nat.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_le n m : (n<=m)%nat <-> Z.of_nat n <= Z.of_nat m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_lt n m : (n<m)%nat <-> Z.of_nat n < Z.of_nat m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_ge n m : (n>=m)%nat <-> Z.of_nat n >= Z.of_nat m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_gt n m : (n>m)%nat <-> Z.of_nat n > Z.of_nat m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_abs_nat z : Z.of_nat (Z.abs_nat z) = Z.abs z.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_add n m : Z.of_nat (n+m) = Z.of_nat n + Z.of_nat m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Register inj_add as num.Nat2Z.inj_add.
 
 Lemma inj_mul n m : Z.of_nat (n*m) = Z.of_nat n * Z.of_nat m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Register inj_mul as num.Nat2Z.inj_mul.
 
 Lemma inj_sub_max n m : Z.of_nat (n-m) = Z.max 0 (Z.of_nat n - Z.of_nat m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_sub n m : (m<=n)%nat -> Z.of_nat (n-m) = Z.of_nat n - Z.of_nat m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Register inj_sub as num.Nat2Z.inj_sub.
 
 Lemma inj_pred_max n : Z.of_nat (Nat.pred n) = Z.max 0 (Z.pred (Z.of_nat n)).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_pred n : (0<n)%nat -> Z.of_nat (Nat.pred n) = Z.pred (Z.of_nat n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_min n m : Z.of_nat (Nat.min n m) = Z.min (Z.of_nat n) (Z.of_nat m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_max n m : Z.of_nat (Nat.max n m) = Z.max (Z.of_nat n) (Z.of_nat m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End Nat2Z.
 
@@ -454,61 +454,61 @@ Module Z2Nat.
     See [nat2Z.id] above for the dual equation. *)
 
 Lemma id n : 0<=n -> Z.of_nat (Z.to_nat n) = n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Z.to_nat] is hence injective for non-negative integers. *)
 
 Lemma inj n m : 0<=n -> 0<=m -> Z.to_nat n = Z.to_nat m -> n = m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_iff n m : 0<=n -> 0<=m -> (Z.to_nat n = Z.to_nat m <-> n = m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Z.to_nat], basic equations *)
 
 Lemma inj_0 : Z.to_nat 0 = O.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_pos n : Z.to_nat (Zpos n) = Pos.to_nat n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_neg n : Z.to_nat (Zneg n) = O.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Z.to_nat] and operations *)
 
 Lemma inj_add n m : 0<=n -> 0<=m ->
  Z.to_nat (n+m) = (Z.to_nat n + Z.to_nat m)%nat.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_mul n m : 0<=n -> 0<=m ->
  Z.to_nat (n*m) = (Z.to_nat n * Z.to_nat m)%nat.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_succ n : 0<=n -> Z.to_nat (Z.succ n) = S (Z.to_nat n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_sub n m : 0<=m -> Z.to_nat (n - m) = (Z.to_nat n - Z.to_nat m)%nat.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_pred n : Z.to_nat (Z.pred n) = Nat.pred (Z.to_nat n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_compare n m : 0<=n -> 0<=m ->
  (Z.to_nat n ?= Z.to_nat m)%nat = (n ?= m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_le n m : 0<=n -> 0<=m -> (n<=m <-> (Z.to_nat n <= Z.to_nat m)%nat).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_lt n m : 0<=n -> 0<=m -> (n<m <-> (Z.to_nat n < Z.to_nat m)%nat).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_min n m : Z.to_nat (Z.min n m) = Nat.min (Z.to_nat n) (Z.to_nat m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_max n m : Z.to_nat (Z.max n m) = Nat.max (Z.to_nat n) (Z.to_nat m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End Z2Nat.
 
@@ -518,77 +518,77 @@ Module Zabs2Nat.
     to [nat]. *)
 
 Lemma abs_nat_spec n : Z.abs_nat n = Z.to_nat (Z.abs n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma abs_nat_nonneg n : 0<=n -> Z.abs_nat n = Z.to_nat n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma id_abs n : Z.of_nat (Z.abs_nat n) = Z.abs n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma id n : Z.abs_nat (Z.of_nat n) = n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Z.abs_nat], basic equations *)
 
 Lemma inj_0 : Z.abs_nat 0 = 0%nat.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_pos p : Z.abs_nat (Zpos p) = Pos.to_nat p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_neg p : Z.abs_nat (Zneg p) = Pos.to_nat p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Z.abs_nat] and usual operations, with non-negative integers *)
 
 Lemma inj_succ n : 0<=n -> Z.abs_nat (Z.succ n) = S (Z.abs_nat n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_add n m : 0<=n -> 0<=m ->
  Z.abs_nat (n+m) = (Z.abs_nat n + Z.abs_nat m)%nat.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_mul n m : Z.abs_nat (n*m) = (Z.abs_nat n * Z.abs_nat m)%nat.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_sub n m : 0<=m<=n ->
  Z.abs_nat (n-m) = (Z.abs_nat n - Z.abs_nat m)%nat.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_pred n : 0<n -> Z.abs_nat (Z.pred n) = Nat.pred (Z.abs_nat n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_compare n m : 0<=n -> 0<=m ->
  (Z.abs_nat n ?= Z.abs_nat m)%nat = (n ?= m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_le n m : 0<=n -> 0<=m -> (n<=m <-> (Z.abs_nat n <= Z.abs_nat m)%nat).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_lt n m : 0<=n -> 0<=m -> (n<m <-> (Z.abs_nat n < Z.abs_nat m)%nat).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_min n m : 0<=n -> 0<=m ->
  Z.abs_nat (Z.min n m) = Nat.min (Z.abs_nat n) (Z.abs_nat m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_max n m : 0<=n -> 0<=m ->
  Z.abs_nat (Z.max n m) = Nat.max (Z.abs_nat n) (Z.abs_nat m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Z.abs_nat] and usual operations, statements with [Z.abs] *)
 
 Lemma inj_succ_abs n : Z.abs_nat (Z.succ (Z.abs n)) = S (Z.abs_nat n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_add_abs n m :
  Z.abs_nat (Z.abs n + Z.abs m) = (Z.abs_nat n + Z.abs_nat m)%nat.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_mul_abs n m :
  Z.abs_nat (Z.abs n * Z.abs m) = (Z.abs_nat n * Z.abs_nat m)%nat.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End Zabs2Nat.
 
@@ -598,7 +598,7 @@ End Zabs2Nat.
 Definition neq (x y:nat) := x <> y.
 
 Lemma inj_neq n m : neq n m -> Zne (Z.of_nat n) (Z.of_nat m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zpos_P_of_succ_nat n : Zpos (Pos.of_succ_nat n) = Z.succ (Z.of_nat n).
 Proof (Nat2Z.inj_succ n).
@@ -682,6 +682,6 @@ Notation Zabs_N_mult_abs := Zabs2N.inj_mul_abs (only parsing).
 Notation Zabs_N_mult := Zabs2N.inj_mul (only parsing).
 
 Theorem inj_minus2 : forall n m:nat, (m > n)%nat -> Z.of_nat (n - m) = 0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Register inj_minus2 as plugins.omega.inj_minus2.

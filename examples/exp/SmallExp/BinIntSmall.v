@@ -1411,87 +1411,87 @@ Lemma inj_leb x y : 0 < x -> 0 < y ->
  (x <=? y) = (Z.to_pos x <=? Z.to_pos y)%positive.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 
 Lemma inj_ltb x y : 0 < x -> 0 < y ->
  (x <? y) = (Z.to_pos x <? Z.to_pos y)%positive.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 
 Lemma inj_eqb x y : 0 < x -> 0 < y ->
  (x =? y) = (Z.to_pos x =? Z.to_pos y)%positive.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 
 Lemma inj_max x y :
@@ -1517,58 +1517,58 @@ Qed.
 Lemma inj_sqrt x : Z.to_pos (Z.sqrt x) = Pos.sqrt (Z.to_pos x).
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 
 Lemma inj_gcd x y : 0 < x -> 0 < y ->
  Z.to_pos (Z.gcd x y) = Pos.gcd (Z.to_pos x) (Z.to_pos y).
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 
 End Z2Pos.
@@ -1652,1218 +1652,1218 @@ Notation SYM3 lem := (fun n m p => eq_sym (lem n m p)).
 Lemma Zplus_assoc_reverse : forall n m p, n+m+p = n+(m+p).
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zplus_succ_r_reverse : forall n m, Z.succ (n+m) = n+Z.succ m.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zplus_0_r_reverse : forall n, n = n + 0.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zplus_eq_compat : forall n m p q, n=m -> p=q -> n+p=m+q.Proof. Show.
 Check "option 1"%string.
-Fail (cvc5_abduct 3 1).
+Fail (abduce 3 1).
 Check "option 2"%string.
-Fail (cvc5_abduct 3 2).
+Fail (abduce 3 2).
 Check "option 3"%string.
-Fail (cvc5_abduct 3 3).
+Fail (abduce 3 3).
 Check "option 4"%string.
-Fail (cvc5_abduct 3 4).
+Fail (abduce 3 4).
 Check "option 5"%string.
-Fail (cvc5_abduct 3 5).
+Fail (abduce 3 5).
 Check "option 6"%string.
-Fail (cvc5_abduct 3 6).
+Fail (abduce 3 6).
 Check "option 7"%string.
-Fail (cvc5_abduct 3 7).
+Fail (abduce 3 7).
 Check "option 8"%string.
-Fail (cvc5_abduct 3 8).
+Fail (abduce 3 8).
 Check "option 9"%string.
-Fail (cvc5_abduct 3 9).
+Fail (abduce 3 9).
 Check "option 10"%string.
-Fail (cvc5_abduct 3 10).
+Fail (abduce 3 10).
 Check "option 11"%string.
-Fail (cvc5_abduct 3 11).
+Fail (abduce 3 11).
 Check "option 12"%string.
-Fail (cvc5_abduct 3 12). 
+Fail (abduce 3 12). 
 Admitted.
 Lemma Zsucc_pred : forall n, n = Z.succ (Z.pred n).
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zpred_succ : forall n, n = Z.pred (Z.succ n).
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zsucc_eq_compat : forall n m, n = m -> Z.succ n = Z.succ m.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zminus_0_l_reverse : forall n, n = n - 0.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zminus_diag_reverse : forall n, 0 = n-n.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zminus_succ_l : forall n m, Z.succ (n - m) = Z.succ n - m.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zplus_minus_eq : forall n m p, n = m + p -> p = n - m.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zplus_succ_r_reverse : forall n m, Z.succ (n+m) = n+Z.succ m.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Notation Zplus_succ_r := Zplus_succ_r_reverse (only parsing).
 Lemma Zplus_0_r_reverse : forall n, n = n + 0.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zplus_eq_compat : forall n m p q, n=m -> p=q -> n+p=m+q.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zsucc_pred : forall n, n = Z.succ (Z.pred n).
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zpred_succ : forall n, n = Z.pred (Z.succ n).
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zsucc_eq_compat : forall n m, n = m -> Z.succ n = Z.succ m.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zminus_0_l_reverse : forall n, n = n - 0.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zminus_diag_reverse : forall n, 0 = n-n.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zminus_succ_l : forall n m, Z.succ (n - m) = Z.succ n - m.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zplus_minus_eq : forall n m p, n = m + p -> p = n - m.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zplus_minus : forall n m, n + (m - n) = m.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zminus_plus_simpl_l : forall n m p, p + n - (p + m) = n - m.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zminus_plus_simpl_l_reverse : forall n m p, n - m = p + n - (p + m).
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zminus_plus_simpl_r : forall n m p, n + p - (m + p) = n - m.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zeq_minus : forall n m, n = m -> n - m = 0.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zminus_eq : forall n m, n - m = 0 -> n = m.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zmult_0_r_reverse : forall n, 0 = n * 0.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zmult_assoc_reverse : forall n m p, n * m * p = n * (m * p).
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zmult_integral : forall n m, n * m = 0 -> n = 0 \/ m = 0.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zmult_integral_l : forall n m, n <> 0 -> m * n = 0 -> m = 0.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zopp_mult_distr_l : forall n m, - (n * m) = - n * m.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zopp_mult_distr_r : forall n m, - (n * m) = n * - m.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zmult_minus_distr_l : forall n m p, p * (n - m) = p * n - p * m.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zmult_succ_r_reverse : forall n m, n * m + n = n * Z.succ m.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zmult_succ_l_reverse : forall n m, n * m + m = Z.succ n * m.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zpos_eq : forall p q, p = q -> Z.pos p = Z.pos q.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 
 Lemma Zopp_mult_distr_l : forall n m, - (n * m) = - n * m.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zopp_mult_distr_r : forall n m, - (n * m) = n * - m.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zmult_minus_distr_l : forall n m p, p * (n - m) = p * n - p * m.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zmult_succ_r_reverse : forall n m, n * m + n = n * Z.succ m.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zmult_succ_l_reverse : forall n m, n * m + m = Z.succ n * m.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zpos_eq : forall p q, p = q -> Z.pos p = Z.pos q.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma Zpos_eq_iff : forall p q, p = q <-> Z.pos p = Z.pos q.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 Lemma ZL0 : 2%nat = (1 + 1)%nat.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 
 #[global]
@@ -2897,83 +2897,83 @@ Ltac elim_compare com1 com2 :=
 Lemma ZL0 : 2%nat = (1 + 1)%nat.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 
 Lemma Zplus_diag_eq_mult_2 n : n + n = n * 2.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.
 
 Lemma Z_eq_mult n m : m = 0 -> m * n = 0.
 Proof. Show.
   Check "option 1"%string.
-  Fail (cvc5_abduct 3 1).
+  Fail (abduce 3 1).
   Check "option 2"%string.
-  Fail (cvc5_abduct 3 2).
+  Fail (abduce 3 2).
   Check "option 3"%string.
-  Fail (cvc5_abduct 3 3).
+  Fail (abduce 3 3).
   Check "option 4"%string.
-  Fail (cvc5_abduct 3 4).
+  Fail (abduce 3 4).
   Check "option 5"%string.
-  Fail (cvc5_abduct 3 5).
+  Fail (abduce 3 5).
   Check "option 6"%string.
-  Fail (cvc5_abduct 3 6).
+  Fail (abduce 3 6).
   Check "option 7"%string.
-  Fail (cvc5_abduct 3 7).
+  Fail (abduce 3 7).
   Check "option 8"%string.
-  Fail (cvc5_abduct 3 8).
+  Fail (abduce 3 8).
   Check "option 9"%string.
-  Fail (cvc5_abduct 3 9).
+  Fail (abduce 3 9).
   Check "option 10"%string.
-  Fail (cvc5_abduct 3 10).
+  Fail (abduce 3 10).
   Check "option 11"%string.
-  Fail (cvc5_abduct 3 11).
+  Fail (abduce 3 11).
   Check "option 12"%string.
-  Fail (cvc5_abduct 3 12). 
+  Fail (abduce 3 12). 
 Admitted.

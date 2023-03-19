@@ -23,37 +23,37 @@ Module Type ZPowProp
 (** A particular case of [pow_add_r], with no precondition *)
 
 Lemma pow_twice_r a b : a^(2*b) == a^b * a^b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** Parity of power *)
 
 Lemma even_pow : forall a b, 0<b -> even (a^b) = even a.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma odd_pow : forall a b, 0<b -> odd (a^b) = odd a.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** Properties of power of negative numbers *)
 
 Lemma pow_opp_even : forall a b, Even b -> (-a)^b == a^b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma pow_opp_odd : forall a b, Odd b -> (-a)^b == -(a^b).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma pow_even_abs : forall a b, Even b -> a^b == (abs a)^b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma pow_even_nonneg : forall a b, Even b -> 0 <= a^b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma pow_odd_abs_sgn : forall a b, Odd b -> a^b == sgn a * (abs a)^b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma pow_odd_sgn : forall a b, 0<=b -> Odd b -> sgn (a^b) == sgn a.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma abs_pow : forall a b, abs (a^b) == (abs a)^b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End ZPowProp.

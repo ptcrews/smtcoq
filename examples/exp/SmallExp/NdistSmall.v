@@ -125,28 +125,28 @@ Proof.
 Qed.
 
 Lemma ni_min_O_l : forall d:natinf, ni_min (ni 0) d = ni 0.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma ni_min_O_r : forall d:natinf, ni_min d (ni 0) = ni 0.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma ni_min_inf_l : forall d:natinf, ni_min infty d = d.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma ni_min_inf_r : forall d:natinf, ni_min d infty = d.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Definition ni_le (d d':natinf) := ni_min d d' = d.
 
 Lemma ni_le_refl : forall d:natinf, ni_le d d.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma ni_le_antisym : forall d d':natinf, ni_le d d' -> ni_le d' d -> d = d'.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma ni_le_trans :
  forall d d' d'':natinf, ni_le d d' -> ni_le d' d'' -> ni_le d d''.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma ni_le_min_1 : forall d d':natinf, ni_le (ni_min d d') d.
 Proof.
@@ -155,7 +155,7 @@ Proof.
 Qed.
 
 Lemma ni_le_min_2 : forall d d':natinf, ni_le (ni_min d d') d'.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma ni_min_case : forall d d':natinf, ni_min d d' = d \/ ni_min d d' = d'.
 Proof.
@@ -169,7 +169,7 @@ Proof.
 Qed.
 
 Lemma ni_le_total : forall d d':natinf, ni_le d d' \/ ni_le d' d.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma ni_le_min_induc :
  forall d d' dm:natinf,
@@ -188,10 +188,10 @@ Proof.
 Qed.
 
 Lemma le_ni_le : forall m n:nat, m <= n -> ni_le (ni m) (ni n).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma ni_le_le : forall m n:nat, ni_le (ni m) (ni n) -> m <= n.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma Nplength_lb :
  forall (a:N) (n:nat),
@@ -234,15 +234,15 @@ Definition Npdist (a a':N) := Nplength (N.lxor a a').
     $pd(a,a')=infty$ iff $a=a'$: *)
 
 Lemma Npdist_eq_1 : forall a:N, Npdist a a = infty.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma Npdist_eq_2 : forall a a':N, Npdist a a' = infty -> a = a'.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 (** $d$ is a distance, so $d(a,a')=d(a',a)$: *)
 
 Lemma Npdist_comm : forall a a':N, Npdist a a' = Npdist a' a.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 (** $d$ is an ultrametric distance, that is, not only $d(a,a')\leq
     d(a,a'')+d(a'',a')$,

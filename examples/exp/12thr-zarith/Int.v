@@ -115,22 +115,22 @@ Module MoreInt (Import I:Int).
   Local Notation int := I.t.
 
   Lemma eqb_eq n p : (n =? p) = true <-> n == p.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Lemma eqb_neq n p : (n =? p) = false <-> ~(n == p).
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Lemma ltb_lt n p : (n <? p) = true <-> n < p.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Lemma ltb_nlt n p : (n <? p) = false <-> ~(n < p).
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Lemma leb_le n p : (n <=? p) = true <-> n <= p.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Lemma leb_nle n p : (n <=? p) = false <-> ~(n <= p).
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   (** A magic (but costly) tactic that goes from [int] back to the [Z]
       friendly world ... *)
@@ -353,16 +353,16 @@ Module MoreInt (Import I:Int).
     end.
 
   Lemma norm_ei_correct (e:ExprI) : ez2z (norm_ei e) = i2z (ei2i e).
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Lemma norm_ez_correct (e:ExprZ) : ez2z (norm_ez e) = ez2z e.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Lemma norm_ep_correct (e:ExprP) : ep2p (norm_ep e) <-> ep2p e.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Lemma norm_ep_correct2 (e:ExprP) : ep2p (norm_ep e) -> ep2p e.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Ltac i2z_refl :=
     i2z_gen;
@@ -400,32 +400,32 @@ Module Z_as_Int <: Int.
 
   Definition eq_dec := Z.eq_dec.
   Definition gt_le_dec i j : {i > j} + { i <= j }.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
   Definition ge_lt_dec i j : {i >= j} + { i < j }.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Definition i2z : t -> Z := fun n => n.
-  Lemma i2z_eq n p : i2z n = i2z p -> n = p. Proof. Show. Fail (cvc5_abduct 3). Admitted.
-  Lemma i2z_0 : i2z _0 = 0.  Proof. Show. Fail (cvc5_abduct 3). Admitted.
-  Lemma i2z_1 : i2z _1 = 1.  Proof. Show. Fail (cvc5_abduct 3). Admitted.
-  Lemma i2z_2 : i2z _2 = 2.  Proof. Show. Fail (cvc5_abduct 3). Admitted.
-  Lemma i2z_3 : i2z _3 = 3.  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Lemma i2z_eq n p : i2z n = i2z p -> n = p. Proof. Show. Fail (abduce 3). Admitted.
+  Lemma i2z_0 : i2z _0 = 0.  Proof. Show. Fail (abduce 3). Admitted.
+  Lemma i2z_1 : i2z _1 = 1.  Proof. Show. Fail (abduce 3). Admitted.
+  Lemma i2z_2 : i2z _2 = 2.  Proof. Show. Fail (abduce 3). Admitted.
+  Lemma i2z_3 : i2z _3 = 3.  Proof. Show. Fail (abduce 3). Admitted.
   Lemma i2z_add n p : i2z (n + p) = i2z n + i2z p.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
   Lemma i2z_opp n : i2z (- n) = - i2z n.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
   Lemma i2z_sub n p : i2z (n - p) = i2z n - i2z p.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
   Lemma i2z_mul n p : i2z (n * p) = i2z n * i2z p.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
   Lemma i2z_max n p : i2z (max n p) = Z.max (i2z n) (i2z p).
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
   Lemma i2z_eqb n p : eqb n p = Z.eqb (i2z n) (i2z p).
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
   Lemma i2z_leb n p : leb n p = Z.leb (i2z n) (i2z p).
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
   Lemma i2z_ltb n p : ltb n p = Z.ltb (i2z n) (i2z p).
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   (** Compatibility notations for Coq v8.4 *)
   Notation plus := add (only parsing).

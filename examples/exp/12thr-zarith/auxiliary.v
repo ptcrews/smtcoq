@@ -24,45 +24,45 @@ Local Open Scope Z_scope.
 (** * Moving terms from one side to the other of an inequality *)
 
 Theorem Zne_left n m : Zne n m -> Zne (n + - m) 0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem Zegal_left n m : n = m -> n + - m = 0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem Zle_left n m : n <= m -> 0 <= m + - n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem Zle_left_rev n m : 0 <= m + - n -> n <= m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem Zlt_left_rev n m : 0 < m + - n -> n < m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem Zlt_left_lt n m : n < m -> 0 < m + - n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem Zlt_left n m : n < m -> 0 <= m + -1 + - n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem Zge_left n m : n >= m -> 0 <= n + - m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem Zgt_left n m : n > m -> 0 <= n + -1 + - m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem Zgt_left_gt n m : n > m -> n + - m > 0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem Zgt_left_rev n m : n + - m > 0 -> n > m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem Zle_mult_approx n m p :
   n > 0 -> p > 0 -> 0 <= m -> 0 <= m * n + p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem Zmult_le_approx n m p :
   n > 0 -> n > p -> 0 <= m * n + p -> 0 <= m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Register Zegal_left as plugins.omega.Zegal_left.
 Register Zne_left as plugins.omega.Zne_left.

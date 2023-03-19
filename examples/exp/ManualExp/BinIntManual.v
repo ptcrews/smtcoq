@@ -152,7 +152,7 @@ Qed.
 
 Lemma pos_sub_diag p : pos_sub p p = 0.
 Proof. intros. 
-(* cvc5_abduct 1.
+(* abduce 1.
    (pos_sub p p) + p = p *)
  now rewrite pos_sub_spec, Pos.compare_refl.
 Qed.
@@ -322,14 +322,14 @@ End Private_BootStrap.
 
 Lemma one_succ : 1 = succ 0.
 Proof.
-(* cvc5_abduct 1 1. 
+(* abduce 1 1. 
    1 = (succ 0) *)
 reflexivity.
 Qed.
 
 Lemma two_succ : 2 = succ 1.
 Proof.
-(* cvc5_abduct 1 1.
+(* abduce 1 1.
    1 = (succ 1) - 1 *)
 reflexivity.
 Qed.
@@ -341,7 +341,7 @@ Proof. smt. Qed.
 
 Lemma add_succ_l n m : succ n + m = succ (n + m).
 Proof. 
-(* cvc5_abduct 1.
+(* abduce 1.
     m + m = m *)
  unfold succ. now rewrite 2 (add_comm _ 1), add_assoc.
 Qed.
@@ -366,7 +366,7 @@ Local Arguments pos_sub : simpl nomatch.
 
 Lemma succ_pred n : succ (pred n) = n.
 Proof. 
-(* cvc5_abduct 1 1.
+(* abduce 1 1.
    n = (succ (pred n)) *)
 unfold succ, pred. smt. Qed.
 (* Proof.
@@ -375,7 +375,7 @@ Qed. *)
 
 Lemma pred_succ n : pred (succ n) = n.
 Proof. 
- (* cvc5_abduct 1 1.
+ (* abduce 1 1.
     n = (pred (succ n)) *)
   unfold succ, pred. smt.
 Qed.
@@ -435,7 +435,7 @@ Qed.
 (* Here *)
 
 Lemma compare_eq_iff n m : (n ?= m) = Eq <-> n = m.
-Proof. cvc5_abduct 1 2.
+Proof. abduce 1 2.
 destruct n, m; simpl; rewrite ?CompOpp_iff, ?Pos.compare_eq_iff;
  split; congruence.
 Qed.

@@ -20,16 +20,16 @@ Require Import SMTCoq.SMTCoq.
     primality. *)
 
 Lemma Zpower_pos_1_r x : Z.pow_pos x 1 = x.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma Zpower_pos_1_l p : Z.pow_pos 1 p = 1.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma Zpower_pos_0_l p : Z.pow_pos 0 p = 0.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma Zpower_pos_pos x p : 0 < x -> 0 < Z.pow_pos x p.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Notation Zpower_1_r := Z.pow_1_r (only parsing).
 Notation Zpower_1_l := Z.pow_1_l (only parsing).
@@ -45,24 +45,24 @@ Notation Zpower_le_monotone2 := Z.pow_le_mono_r (only parsing).
 
 Theorem Zpower_le_monotone a b c :
  0 < a -> 0 <= b <= c -> a^b <= a^c.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Theorem Zpower_lt_monotone a b c :
  1 < a -> 0 <= b < c -> a^b < a^c.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Theorem Zpower_gt_1 x y : 1 < x -> 0 < y -> 1 < x^y.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Theorem Zmult_power p q r : 0 <= r -> (p*q)^r = p^r * q^r.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 #[global]
 Hint Resolve Z.pow_nonneg Z.pow_pos_nonneg : zarith.
 
 Theorem Zpower_le_monotone3 a b c :
  0 <= c -> 0 <= a <= b -> a^c <= b^c.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma Zpower_le_monotone_inv a b c :
   1 < a -> 0 < b -> a^b <= a^c -> b <= c.
@@ -75,10 +75,10 @@ Qed.
 Notation Zpower_nat_Zpower := Zpower_nat_Zpower (only parsing).
 
 Theorem Zpower2_lt_lin n : 0 <= n -> n < 2^n.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Theorem Zpower2_le_lin n : 0 <= n -> n <= 2^n.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma Zpower2_Psize n p :
   Zpos p < 2^(Z.of_nat n) <-> (Pos.size_nat p <= n)%nat.

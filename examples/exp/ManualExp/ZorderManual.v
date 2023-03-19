@@ -180,7 +180,7 @@ Hint Resolve Z.le_trans: zarith.
 
 Lemma Zsucc_le_compat n m : m <= n -> Z.succ m <= Z.succ n.
 Proof. 
- (* cvc5_abduct_no_quant 4.
+ (* abduce_no_quant 4.
     n = m
     n <= m
     (Z.succ n) = (Z.succ m)
@@ -191,11 +191,11 @@ Qed.
 (* PASS *)
 Lemma Zsucc_lt_compat n m : n < m -> Z.succ n < Z.succ m.
 Proof. (* unfold Z.succ. smt. *)
- (* cvc5_abduct_no_quant 3. (sygus-enum=default)
+ (* abduce_no_quant 3. (sygus-enum=default)
     (Z.succ n) + 1 = (Z.succ m)
     (Z.succ n) + 1 <= (Z.succ m)
     (Z.succ m) + n = (Z.succ n) + m *)
- (* cvc5_abduct_no_quant 1. (sygus-enum=fast)
+ (* abduce_no_quant 1. (sygus-enum=fast)
     (not (Z.succ m) <= (Z.succ n)) *)
   assert ((Z.succ m) + n = (Z.succ n) + m). { unfold Z.succ. smt. }
   smt.
@@ -203,7 +203,7 @@ Qed.
 
 Lemma Zsucc_gt_compat n m : m > n -> Z.succ m > Z.succ n.
 Proof.
- (* cvc5_abduct_no_quant 2.
+ (* abduce_no_quant 2.
     (not (Z.succ m) <= (Z.succ n)) *)
   Z.swap_greater. apply Z.succ_lt_mono.
 Qed.
@@ -215,14 +215,14 @@ Hint Resolve Zsucc_le_compat: zarith.
 
 Lemma Zsucc_gt_reg n m : Z.succ m > Z.succ n -> m > n.
 Proof.
- (* cvc5_abduct_no_quant 1.
+ (* abduce_no_quant 1.
     n <= m *)
   Z.swap_greater. apply Z.succ_lt_mono.
 Qed.
 
 Lemma Zsucc_le_reg n m : Z.succ m <= Z.succ n -> m <= n.
 Proof. 
- (* cvc5_abduct_no_quant 2.
+ (* abduce_no_quant 2.
     m = n
     m <= n *)
   apply Z.succ_le_mono.
@@ -230,7 +230,7 @@ Qed.
 
 Lemma Zsucc_lt_reg n m : Z.succ n < Z.succ m -> n < m.
 Proof. 
- (* cvc5_abduct_no_quant 1. 
+ (* abduce_no_quant 1. 
     n <= m *)
   apply Z.succ_lt_mono.
 Qed.
@@ -242,14 +242,14 @@ Notation Zlt_pred := Z.lt_pred_l (only parsing).
 
 Lemma Zgt_succ n : Z.succ n > n.
 Proof. 
- (* cvc5_abduct_no_quant 1.
+ (* abduce_no_quant 1.
     (not (Z.succ n) <= n) *)
   Z.swap_greater. apply Z.lt_succ_diag_r.
 Qed.
 
 Lemma Znot_le_succ n : ~ Z.succ n <= n.
 Proof.
- (* cvc5_abduct_no_quant 1.
+ (* abduce_no_quant 1.
     (not (Z.succ n) <= n) *)
   apply Z.lt_nge, Z.lt_succ_diag_r.
 Qed.
@@ -258,7 +258,7 @@ Qed.
 
 Lemma Zgt_le_succ n m : m > n -> Z.succ n <= m.
 Proof.
- (* cvc5_abduct_no_quant 1.
+ (* abduce_no_quant 1.
     n = (Z.succ n) *)
   Z.swap_greater. apply Z.le_succ_l.
 Qed.
@@ -266,7 +266,7 @@ Qed.
 (* PASS *)
 Lemma Zle_gt_succ n m : n <= m -> Z.succ m > n.
 Proof. 
- (* cvc5_abduct 3.
+ (* abduce 3.
     (Z.succ m) = 1 + m
     (Z.succ m) = n + 1
     n + 1 <= (Z.succ m) *)
@@ -277,7 +277,7 @@ Qed.
 (* PASS *)
 Lemma Zle_lt_succ n m : n <= m -> n < Z.succ m.
 Proof.
- (* cvc5_abduct 3.
+ (* abduce 3.
     (Z.succ m) = 1 + m
     (Z.succ m) = n + 1
     n + 1 <= (Z.succ m) *)
@@ -288,7 +288,7 @@ Qed.
 (* PASS *)
 Lemma Zlt_le_succ n m : n < m -> Z.succ n <= m.
 Proof.
- (* cvc5_abduct 3.
+ (* abduce 3.
     (Z.succ n) <= n
     (Z.succ n) <= m
     (Z.succ n) = n + 1 *)
@@ -299,7 +299,7 @@ Qed.
 (* PASS *)
 Lemma Zgt_succ_le n m : Z.succ m > n -> n <= m.
 Proof.
- (* cvc5_abduct 3.
+ (* abduce 3.
     n <= m
     (Z.succ m) <= m
     (Z.succ m) = m + 1 *)
@@ -315,7 +315,7 @@ Qed.
 (* Pass *)
 Lemma Zle_succ_gt n m : Z.succ n <= m -> m > n.
 Proof.
- (* cvc5_abduct 3.
+ (* abduce 3.
     n + 1 <= m
     n + 1 = (Z.succ n)
     n + 1 <= (Z.succ n) *)
@@ -332,7 +332,7 @@ Notation Zle_le_succ := Z.le_le_succ_r (only parsing).
 (* Pass *)
 Lemma Zle_succ_le n m : Z.succ n <= m -> n <= m.
 Proof.
- (* cvc5_abduct 3.
+ (* abduce 3.
     n <= m
     n <= (Z.succ n)
     1 <= (Z.succ n) && m + n = 1 *)
@@ -349,7 +349,7 @@ Hint Resolve Z.le_le_succ_r: zarith.
 (* PASS *)
 Lemma Zgt_succ_pred n m : m > Z.succ n -> Z.pred m > n.
 Proof.
- (* cvc5_abduct 2.
+ (* abduce 2.
     (Z.pred m) = n + 1
     n + 1 <= (Z.pred m) *)
   intros. assert (n + 1 <= (Z.pred m)). 
@@ -359,7 +359,7 @@ Qed.
 
 Lemma Zlt_succ_pred n m : Z.succ n < m -> n < Z.pred m.
 Proof.
- (* cvc5_abduct 2.
+ (* abduce 2.
     (Z.pred m) = 1 + n
     1 + n <= (Z.pred m) *)
   intros. assert (1 + n <= (Z.pred m)). 
@@ -371,7 +371,7 @@ Qed.
 (* PASS *)
 Lemma Zlt_0_le_0_pred n : 0 < n -> 0 <= Z.pred n.
 Proof.
- (* cvc5_abduct 4.
+ (* abduce 4.
     1 <= (Z.pred n)
     n <= (Z.pred n)
     0 <= (Z.pred n)
@@ -383,7 +383,7 @@ Qed.
 (* PASS *)
 Lemma Zgt_0_le_0_pred n : n > 0 -> 0 <= Z.pred n.
 Proof.
- (* cvc5_abduct 3.
+ (* abduce 3.
     1 <= (Z.pred n)
     n <= (Z.pred n)
     0 <= (Z.pred n) *)
@@ -416,7 +416,7 @@ Qed.
 
 Lemma Zle_0_nat : forall n:nat, 0 <= Z.of_nat n.
 Proof. 
- (* cvc5_abduct 3.
+ (* abduce 3.
     (Z.of_nat n) = 1
     (Z.of_nat n) = 0
     0 <= (Z.of_nat n) *)
@@ -431,7 +431,7 @@ Hint Immediate Z.eq_le_incl: zarith.
 (* PASS *)
 Lemma Zgt_succ_gt_or_eq n m : Z.succ n > m -> n > m \/ m = n.
 Proof. 
- (* cvc5_abduct 3.
+ (* abduce 3.
     m <= n
     (Z.succ n) <= n
     (Z.succ n) = n + 1 *)

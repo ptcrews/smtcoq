@@ -45,7 +45,7 @@ Defined.
 
 (* Pass *)
 Lemma Zle_gt_succ n m : n <= m -> Z.succ m > n.
-Proof. (* Timeout 20 (time cvc5_abduct 1).  
+Proof. (* Timeout 20 (time abduce 1).  
 Tactic call ran for 1.074 secs (0.u,0.022s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -68,21 +68,21 @@ Notation dec_Zlt := Z.lt_decidable (only parsing).
 
 (* Non-bool *)
 Theorem dec_Zne n m : decidable (Zne n m).
-Proof. (* Timeout 20 (time cvc5_abduct 1). 
+Proof. (* Timeout 20 (time abduce 1). 
 "Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
 *)
 Admitted.
 
 (* Non-bool *)
 Theorem dec_Zgt n m : decidable (n > m).
-Proof. (* Timeout 20 (time cvc5_abduct 1). 
+Proof. (* Timeout 20 (time abduce 1). 
 "Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
 *)
 Admitted.
 
 (* Non-bool *)
 Theorem dec_Zge n m : decidable (n >= m).
-Proof. (* Timeout 20 (time cvc5_abduct 1). 
+Proof. (* Timeout 20 (time abduce 1). 
 "Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")."
 *)
 Admitted.
@@ -221,7 +221,7 @@ Hint Resolve Z.le_trans: zarith.
 
 (* Fail *)
 Lemma Zsucc_le_compat n m : m <= n -> Z.succ m <= Z.succ n.
-Proof. (* Timeout 20 (time cvc5_abduct 2). 
+Proof. (* Timeout 20 (time abduce 2). 
 Finished failing transaction in 3.469 secs (0.007u,0.019s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -231,12 +231,12 @@ Admitted.
 
 (* Fail *)
 Lemma Zsucc_lt_compat n m : n < m -> Z.succ n < Z.succ m.
-Proof. (* Timeout 20 (time cvc5_abduct 1). *)
+Proof. (* Timeout 20 (time abduce 1). *)
 Admitted.
 
 (* Fail *)
 Lemma Zsucc_gt_compat n m : m > n -> Z.succ m > Z.succ n.
-Proof. (* Timeout 20 (time cvc5_abduct 1). *)
+Proof. (* Timeout 20 (time abduce 1). *)
 Admitted.
 
 #[global]
@@ -246,7 +246,7 @@ Hint Resolve Zsucc_le_compat: zarith.
 
 (* Fail *)
 Lemma Zsucc_gt_reg n m : Z.succ m > Z.succ n -> m > n.
-Proof. (* Timeout 20 (time cvc5_abduct 1).
+Proof. (* Timeout 20 (time abduce 1).
 Tactic call ran for 0.329 secs (0.007u,0.012s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -255,7 +255,7 @@ Admitted.
 
 (* Fail *)
 Lemma Zsucc_le_reg n m : Z.succ m <= Z.succ n -> m <= n.
-Proof. (* Timeout 20 (time cvc5_abduct 1).
+Proof. (* Timeout 20 (time abduce 1).
 Tactic call ran for 0.283 secs (0.01u,0.008s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -264,7 +264,7 @@ Admitted.
 
 (* Fail *)
 Lemma Zsucc_lt_reg n m : Z.succ n < Z.succ m -> n < m.
-Proof. (* Timeout 20 (time cvc5_abduct 2). 
+Proof. (* Timeout 20 (time abduce 2). 
 Tactic call ran for 0.263 secs (0.008u,0.012s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -278,7 +278,7 @@ Notation Zlt_pred := Z.lt_pred_l (only parsing).
 
 (* Pass *)
 Lemma Zgt_succ n : Z.succ n > n.
-Proof. (* Timeout 20 (time cvc5_abduct 1). 
+Proof. (* Timeout 20 (time abduce 1). 
 Tactic call ran for 1.029 secs (0.u,0.016s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -288,7 +288,7 @@ Qed.
 
 (* Pass *)
 Lemma Znot_le_succ n : ~ Z.succ n <= n.
-Proof. (* Timeout 20 (time cvc5_abduct 1).
+Proof. (* Timeout 20 (time abduce 1).
 Tactic call ran for 1.072 secs (0.007u,0.012s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -302,7 +302,7 @@ Qed.
 
 (* Pass *)
 Lemma Zgt_le_succ n m : m > n -> Z.succ n <= m.
-Proof. (* Timeout 20 (time cvc5_abduct 4).
+Proof. (* Timeout 20 (time abduce 4).
 Tactic call ran for 1.505 secs (0.002u,0.019s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -316,7 +316,7 @@ Qed.
 
 (* Pass *)
 Lemma Zle_lt_succ n m : n <= m -> n < Z.succ m.
-Proof. (* Timeout 20 (time cvc5_abduct 1).
+Proof. (* Timeout 20 (time abduce 1).
 Tactic call ran for 0.997 secs (0.003u,0.012s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -327,7 +327,7 @@ Qed.
 
 (* Pass *)
 Lemma Zlt_le_succ n m : n < m -> Z.succ n <= m.
-Proof. (* Timeout 20 (time cvc5_abduct 3).
+Proof. (* Timeout 20 (time abduce 3).
 Tactic call ran for 7.262 secs (0.004u,0.016s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -340,7 +340,7 @@ Qed.
 
 (* Pass *)
 Lemma Zgt_succ_le n m : Z.succ m > n -> n <= m.
-Proof. (* Timeout 20 (time cvc5_abduct 3).
+Proof. (* Timeout 20 (time abduce 3).
 Tactic call ran for 5.341 secs (0.004u,0.016s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -353,7 +353,7 @@ Qed.
 
 (* Pass *)
 Lemma Zlt_succ_le n m : n < Z.succ m -> n <= m.
-Proof. (* Timeout 20 (time cvc5_abduct 4).
+Proof. (* Timeout 20 (time abduce 4).
 Tactic call ran for 1.724 secs (0.007u,0.012s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -367,7 +367,7 @@ Qed.
 
 (* Pass *)
 Lemma Zle_succ_gt n m : Z.succ n <= m -> m > n.
-Proof. (* Timeout 20 (time cvc5_abduct 2).
+Proof. (* Timeout 20 (time abduce 2).
 Tactic call ran for 1.365 secs (0.004u,0.016s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -385,7 +385,7 @@ Notation Zle_le_succ := Z.le_le_succ_r (only parsing).
 
 (* Pass *)
 Lemma Zle_succ_le n m : Z.succ n <= m -> n <= m.
-Proof. (* Timeout 20 (time cvc5_abduct 2).
+Proof. (* Timeout 20 (time abduce 2).
 Tactic call ran for 0.739 secs (0.001u,0.018s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -404,7 +404,7 @@ Hint Resolve Z.le_le_succ_r: zarith.
 
 (* Pass *)
 Lemma Zgt_succ_pred n m : m > Z.succ n -> Z.pred m > n.
-Proof. (* Timeout 20 (time cvc5_abduct 2).
+Proof. (* Timeout 20 (time abduce 2).
 Tactic call ran for 5.603 secs (0.004u,0.016s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -412,7 +412,7 @@ The goal is invalid, but one of the following hypotheses would allow cvc5 to pro
 n + 1 <= (Z.pred m) *)
 intros.
 assert (n + 1 <= (Z.pred m)). 
-{ unfold Z.pred. (* Timeout 20 (time cvc5_abduct 3).
+{ unfold Z.pred. (* Timeout 20 (time abduce 3).
 Tactic call ran for 3.167 secs (0.012u,0.012s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -425,7 +425,7 @@ Qed.
 
 (* Fail *)
 Lemma Zlt_succ_pred n m : Z.succ n < m -> n < Z.pred m.
-Proof. (* Timeout 20 (time cvc5_abduct 2).
+Proof. (* Timeout 20 (time abduce 2).
 Tactic call ran for 10.642 secs (0.001u,0.02s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -437,7 +437,7 @@ Admitted.
 
 (* Pass *)
 Lemma Zlt_0_le_0_pred n : 0 < n -> 0 <= Z.pred n.
-Proof. (* Timeout 20 (time cvc5_abduct 4).
+Proof. (* Timeout 20 (time abduce 4).
 Tactic call ran for 1.588 secs (0.008u,0.012s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -453,7 +453,7 @@ Qed.
 
 (* Fail *)
 Lemma Zle_neg_pos : forall p q:positive, Zneg p <= Zpos q.
-Proof. (* Timeout 20 (time cvc5_abduct 3).
+Proof. (* Timeout 20 (time abduce 3).
 Tactic call ran for 0.746 secs (0.004u,0.012s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -464,7 +464,7 @@ Admitted.
 
 (* Fail *)
 Lemma Zgt_pos_0 : forall p:positive, Zpos p > 0.
-Proof. (* Timeout 20 (time cvc5_abduct 2).
+Proof. (* Timeout 20 (time abduce 2).
 Tactic call ran for 0.366 secs (0.002u,0.012s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -475,7 +475,7 @@ Admitted.
 (* Fail *)
 (* weaker but useful (in [Z.pow] for instance) *)
 Lemma Zle_0_pos : forall p:positive, 0 <= Zpos p.
-Proof. (* Timeout 20 (time cvc5_abduct 3).
+Proof. (* Timeout 20 (time abduce 3).
 Tactic call ran for 0.384 secs (0.u,0.015s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -486,7 +486,7 @@ Admitted.
 
 (* Fail *)
 Lemma Zlt_neg_0 : forall p:positive, Zneg p < 0.
-Proof. (* Timeout 20 (time cvc5_abduct 2). 
+Proof. (* Timeout 20 (time abduce 2). 
 Tactic call ran for 0.386 secs (0.005u,0.01s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -496,7 +496,7 @@ Admitted.
 
 (* Fail *)
 Lemma Zle_0_nat : forall n:nat, 0 <= Z.of_nat n.
-Proof. (* Timeout 20 (time cvc5_abduct 3). 
+Proof. (* Timeout 20 (time abduce 3). 
 Tactic call ran for 0.338 secs (0.003u,0.012s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -512,7 +512,7 @@ Hint Immediate Z.eq_le_incl: zarith.
 
 (* Pass *)
 Lemma Zgt_succ_gt_or_eq n m : Z.succ n > m -> n > m \/ m = n.
-Proof. (* Timeout 20 (time cvc5_abduct 3).
+Proof. (* Timeout 20 (time abduce 3).
 Tactic call ran for 5.57 secs (0.013u,0.016s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -591,7 +591,7 @@ Proof. smt. Qed.
 Definition mult := Z.mul.
 (* NIA *)
 Lemma Zmult_le_compat_r n m p : n <= m -> 0 <= p -> mult n p <= mult m p.
-Proof. intros. (* Timeout 20 (time cvc5_abduct 3).
+Proof. intros. (* Timeout 20 (time abduce 3).
 Tactic call ran for 0.469 secs (0.007u,0.02s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -602,7 +602,7 @@ Admitted.
 
 (* NIA *)
 Lemma Zmult_le_compat_l n m p : n <= m -> 0 <= p -> mult p n <= mult p m.
-Proof. intros.  (* Timeout 20 (time cvc5_abduct 6).
+Proof. intros.  (* Timeout 20 (time abduce 6).
 Tactic call ran for 11.531 secs (0.018u,0.016s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -616,19 +616,19 @@ Admitted.
 
 (* NIA *)
 Lemma Zmult_lt_compat_r n m p : 0 < p -> n < m -> mult n p < mult m p.
-Proof. intros. (* Timeout 20 (time cvc5_abduct 1). *) Admitted.
+Proof. intros. (* Timeout 20 (time abduce 1). *) Admitted.
 
 (* NIA *)
 Lemma Zmult_gt_compat_r n m p : p > 0 -> n > m -> mult n p > mult m p.
-Proof. intros. (* Timeout 20 (time cvc5_abduct 1). *) Admitted.
+Proof. intros. (* Timeout 20 (time abduce 1). *) Admitted.
 
 (* NIA *)
 Lemma Zmult_gt_0_lt_compat_r n m p : p > 0 -> n < m -> mult n p < mult m p.
-Proof. intros. (* Timeout 20 (time cvc5_abduct 1). *) Admitted.
+Proof. intros. (* Timeout 20 (time abduce 1). *) Admitted.
 
 (* NIA *)
 Lemma Zmult_gt_0_le_compat_r n m p : p > 0 -> n <= m -> mult n p <= mult m p.
-Proof. intros. (* Timeout 20 (time cvc5_abduct 3). 
+Proof. intros. (* Timeout 20 (time abduce 3). 
 Tactic call ran for 3.167 secs (0.008u,0.022s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -639,7 +639,7 @@ Admitted.
 
 (* NIA *)
 Lemma Zmult_lt_0_le_compat_r n m p : 0 < p -> n <= m -> mult n p <= mult m p.
-Proof. intros. (* Timeout 20 (time cvc5_abduct 4).
+Proof. intros. (* Timeout 20 (time abduce 4).
 Tactic call ran for 5.979 secs (0.004u,0.02s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -651,19 +651,19 @@ Admitted.
 
 (* NIA *)
 Lemma Zmult_gt_0_lt_compat_l n m p : p > 0 -> n < m -> mult p n < mult p m.
-Proof. intros. (* Timeout 20 (time cvc5_abduct 1). *) Admitted.
+Proof. intros. (* Timeout 20 (time abduce 1). *) Admitted.
 
 (* NIA *)
 Lemma Zmult_lt_compat_l n m p : 0 < p -> n < m -> mult p n < mult p m.
-Proof. intros. (* Timeout 20 (time cvc5_abduct 1). *) Admitted.
+Proof. intros. (* Timeout 20 (time abduce 1). *) Admitted.
 
 (* NIA *)
 Lemma Zmult_gt_compat_l n m p : p > 0 -> n > m -> mult p n > mult p m.
-Proof. intros. (* (Timeout 20 (time cvc5_abduct 1). *) Admitted.
+Proof. intros. (* (Timeout 20 (time abduce 1). *) Admitted.
 
 (* NIA *)
 Lemma Zmult_ge_compat_r n m p : n >= m -> p >= 0 -> mult n p >= mult m p.
-Proof. intros. (* Timeout 20 (time cvc5_abduct 9).
+Proof. intros. (* Timeout 20 (time abduce 9).
 Tactic call ran for 18.841 secs (0.u,0.061s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -679,7 +679,7 @@ Admitted.
 
 (* NIA *)
 Lemma Zmult_ge_compat_l n m p : n >= m -> p >= 0 -> mult p n >= mult p m.
-Proof. intros. (* Timeout 20 (time cvc5_abduct 7). 
+Proof. intros. (* Timeout 20 (time abduce 7). 
 Tactic call ran for 9.265 secs (0.008u,0.027s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
@@ -726,7 +726,7 @@ Proof. Admitted.
 
 (* NIA *)
 Lemma Zmult_gt_reg_r n m p : p > 0 -> mult n p > mult m p -> n > m.
-Proof. intros. (* Timeout 20 (time cvc5_abduct 6).
+Proof. intros. (* Timeout 20 (time abduce 6).
 Tactic call ran for 7.902 secs (0.u,0.035s) (failure)
 cvc5 returned SAT.
 The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:

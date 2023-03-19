@@ -127,7 +127,7 @@ match n with
 end.
 
 Theorem peano_rect_base P a f : peano_rect P a f 0 = a.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Theorem peano_rect_succ P a f n :
  peano_rect P a f (succ n) = f n (peano_rect P a f n).
@@ -142,18 +142,18 @@ Definition peano_ind (P : N -> Prop) := peano_rect P.
 Definition peano_rec (P : N -> Set) := peano_rect P.
 
 Theorem peano_rec_base P a f : peano_rec P a f 0 = a.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Theorem peano_rec_succ P a f n :
  peano_rec P a f (succ n) = f n (peano_rec P a f n).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 (** Generic induction / recursion *)
 
 Theorem bi_induction :
   forall A : N -> Prop, Proper (Logic.eq==>iff) A ->
     A 0 -> (forall n, A n <-> A (succ n)) -> forall n : N, A n.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Definition recursion {A} : A -> (N -> A -> A) -> N -> A :=
   peano_rect (fun _ => A).
@@ -168,7 +168,7 @@ unfold recursion in *. rewrite 2 peano_rect_succ. now apply Ef.
 Qed.
 
 Theorem recursion_0 {A} (a:A) (f:N->A->A) : recursion a f 0 = a.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Theorem recursion_succ {A} (Aeq : relation A) (a : A) (f : N -> A -> A):
  Aeq a a -> Proper (Logic.eq==>Aeq==>Aeq) f ->
@@ -182,10 +182,10 @@ Qed.
 (** Specification of constants *)
 
 Lemma one_succ : 1 = succ 0.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma two_succ : 2 = succ 1.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Definition pred_0 : pred 0 = 0.
 Proof. reflexivity. Qed.
@@ -193,40 +193,40 @@ Proof. reflexivity. Qed.
 (** Properties of mixed successor and predecessor. *)
 
 Lemma pos_pred_spec p : Pos.pred_N p = pred (pos p).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma succ_pos_spec n : pos (succ_pos n) = succ n.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma pos_pred_succ n : Pos.pred_N (succ_pos n) = n.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma succ_pos_pred p : succ (Pos.pred_N p) = pos p.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 (** Properties of successor and predecessor *)
 
 Theorem pred_succ n : pred (succ n) = n.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Theorem pred_sub n : pred n = sub n 1.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Theorem succ_0_discr n : succ n <> 0.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 (** Specification of addition *)
 
 Theorem add_0_l n : 0 + n = n.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Theorem add_succ_l n m : succ n + m = succ (n + m).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 (** Specification of subtraction. *)
 
 Theorem sub_0_r n : n - 0 = n.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Theorem sub_succ_r n m : n - succ m = pred (n - m).
 Proof.
@@ -239,7 +239,7 @@ Qed.
 (** Specification of multiplication *)
 
 Theorem mul_0_l n : 0 * n = 0.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Theorem mul_succ_l n m : (succ n) * m = n * m + m.
 Proof.
@@ -256,24 +256,24 @@ rewrite Pos.eqb_eq. split; intro H. now subst. now destr_eq H.
 Qed.
 
 Lemma ltb_lt n m : (n <? m) = true <-> n < m.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma leb_le n m : (n <=? m) = true <-> n <= m.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 (** Basic properties of comparison *)
 
 Theorem compare_eq_iff n m : (n ?= m) = Eq <-> n = m.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Theorem compare_lt_iff n m : (n ?= m) = Lt <-> n < m.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Theorem compare_le_iff n m : (n ?= m) <> Gt <-> n <= m.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Theorem compare_antisym n m : (m ?= n) = CompOpp (n ?= m).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 (** Some more advanced properties of comparison and orders,
     including [compare_spec] and [lt_irrefl] and [lt_eq_cases]. *)
@@ -283,7 +283,7 @@ Include BoolOrderFacts.
 (** Specification of minimum and maximum *)
 
 Theorem min_l n m : n <= m -> min n m = n.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Theorem min_r n m : m <= n -> min n m = m.
 Proof.
@@ -298,7 +298,7 @@ case compare_spec; auto. now destruct 2.
 Qed.
 
 Theorem max_r n m : n <= m -> max n m = m.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 (** Specification of lt and le. *)
 
@@ -319,19 +319,19 @@ Include NBasicProp <+ UsualMinMaxLogicalProperties <+ UsualMinMaxDecProperties.
 (** Properties of [double] and [succ_double] *)
 
 Lemma double_spec n : double n = 2 * n.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma succ_double_spec n : succ_double n = 2 * n + 1.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma double_add n m : double (n+m) = double n + double m.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma succ_double_add n m : succ_double (n+m) = double n + succ_double m.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma double_mul n m : double (n*m) = double n * m.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma succ_double_mul n m :
  succ_double n * m = double n * m + m.
@@ -341,16 +341,16 @@ Proof.
 Qed.
 
 Lemma div2_double n : div2 (double n) = n.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma div2_succ_double n : div2 (succ_double n) = n.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma double_inj n m : double n = double m -> n = m.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma succ_double_inj n m : succ_double n = succ_double m -> n = m.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma succ_double_lt n m : n<m -> succ_double n < double m.
 Proof.
@@ -359,26 +359,26 @@ Proof.
 Qed.
 
 Lemma double_lt_mono n m : n < m -> double n < double m.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma double_le_mono n m : n <= m -> double n <= double m.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma succ_double_lt_mono n m : n < m -> succ_double n < succ_double m.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma succ_double_le_mono n m : n <= m -> succ_double n <= succ_double m.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 (** 0 is the least natural number *)
 
 Theorem compare_0_r n : (n ?= 0) <> Lt.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 (** Specifications of power *)
 
 Lemma pow_0_r n : n ^ 0 = 1.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma pow_succ_r n p : 0<=p -> n^(succ p) = n * n^p.
 Proof.
@@ -387,20 +387,20 @@ Proof.
 Qed.
 
 Lemma pow_neg_r n p : p<0 -> n^p = 0.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 (** Specification of square *)
 
 Lemma square_spec n : square n = n * n.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 (** Specification of Base-2 logarithm *)
 
 Lemma size_log2 n : n<>0 -> size n = succ (log2 n).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma size_gt n : n < 2^(size n).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma size_le n : 2^(size n) <= succ_double n.
 Proof.
@@ -422,7 +422,7 @@ Proof.
 Qed.
 
 Lemma log2_nonpos n : n<=0 -> log2 n = 0.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 (** Specification of parity functions *)
 
@@ -522,7 +522,7 @@ Proof.
 Qed.
 
 Theorem mod_bound_pos a b : 0<=a -> 0<b -> 0 <= a mod b < b.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 (** Specification of square root *)
 
@@ -543,10 +543,10 @@ Qed.
 
 Lemma sqrt_spec n : 0<=n ->
  let s := sqrt n in s*s <= n < (succ s)*(succ s).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma sqrt_neg n : n<0 -> sqrt n = 0.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 (** Specification of gcd *)
 
@@ -603,17 +603,17 @@ Proof.
 Qed.
 
 Lemma gcd_nonneg a b : 0 <= gcd a b.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 (** Specification of bitwise functions *)
 
 (** Correctness proofs for [testbit]. *)
 
 Lemma testbit_even_0 a : testbit (2*a) 0 = false.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma testbit_odd_0 a : testbit (2*a+1) 0 = true.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma testbit_succ_r_div2 a n : 0<=n ->
  testbit a (succ n) = testbit (div2 a) n.
@@ -624,24 +624,24 @@ Qed.
 
 Lemma testbit_odd_succ a n : 0<=n ->
  testbit (2*a+1) (succ n) = testbit a n.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma testbit_even_succ a n : 0<=n ->
  testbit (2*a) (succ n) = testbit a n.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma testbit_neg_r a n : n<0 -> testbit a n = false.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 (** Correctness proofs for shifts *)
 
 Lemma shiftr_succ_r a n :
  shiftr a (succ n) = div2 (shiftr a n).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma shiftl_succ_r a n :
  shiftl a (succ n) = double (shiftl a n).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma shiftr_spec a n m : 0<=m ->
  testbit (shiftr a n) m = testbit a (m+n).
@@ -765,22 +765,22 @@ Qed.
   here the bare minimal results to related them with [lt] and [le]. *)
 
 Lemma gt_lt_iff n m : n > m <-> m < n.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma gt_lt n m : n > m -> m < n.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma lt_gt n m : n < m -> m > n.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma ge_le_iff n m : n >= m <-> m <= n.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma ge_le n m : n >= m -> m <= n.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Lemma le_ge n m : n <= m -> m >= n.
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 (** Auxiliary results about right shift on positive numbers,
     used in BinInt *)
@@ -842,7 +842,7 @@ Qed.
 Theorem iter_swap :
   forall n (A:Type) (f:A -> A) (x:A),
     iter n f (f x) = f (iter n f x).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Theorem iter_succ :
   forall n (A:Type) (f:A -> A) (x:A),
@@ -855,7 +855,7 @@ Qed.
 Theorem iter_succ_r :
   forall n (A:Type) (f:A -> A) (x:A),
     iter (succ n) f x = iter n f (f x).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 Theorem iter_add :
   forall p q (A:Type) (f:A -> A) (x:A),
@@ -878,7 +878,7 @@ Theorem iter_invariant :
   forall (n:N) (A:Type) (f:A -> A) (Inv:A -> Prop),
     (forall x:A, Inv x -> Inv (f x)) ->
     forall x:A, Inv x -> Inv (iter n f x).
-Proof. Show. Fail (cvc5_abduct 3 2). Admitted.
+Proof. Show. Fail (abduce 3 2). Admitted.
 
 End N.
 

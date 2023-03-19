@@ -105,17 +105,17 @@ Fixpoint of_nat_lt {p n : nat} : p < n -> t n :=
   end.
 
 Lemma of_nat_ext {p}{n} (h h' : p < n) : of_nat_lt h = of_nat_lt h'.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma of_nat_to_nat_inv {m} (p : t m) : of_nat_lt (proj2_sig (to_nat p)) = p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma to_nat_of_nat {p}{n} (h : p < n) : to_nat (of_nat_lt h) = exist _ p h.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma to_nat_inj {n} (p q : t n) :
  proj1_sig (to_nat p) = proj1_sig (to_nat q) -> p = q.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 
 (** [weak p f] answers a function witch is the identity for the p{^  th} first
@@ -137,13 +137,13 @@ Fixpoint L {m} n (p : t m) : t (m + n) :=
   match p with |F1 => F1 |FS p' => FS (L n p') end.
 
 Lemma L_sanity {m} n (p : t m) : proj1_sig (to_nat (L n p)) = proj1_sig (to_nat p).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
  
 (** The p{^ th} element of [fin m] viewed as the p{^ th} element of
 [fin (n + m)]
 Really really inefficient !!! *)
 Definition L_R {m} n (p : t m) : t (n + m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** The p{^ th} element of [fin m] viewed as the (n + p){^ th} element of
 [fin (n + m)] *)
@@ -151,7 +151,7 @@ Fixpoint R {m} n (p : t m) : t (n + m) :=
   match n with |0 => p |S n' => FS (R n' p) end.
 
 Lemma R_sanity {m} n (p : t m) : proj1_sig (to_nat (R n p)) = n + proj1_sig (to_nat p).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Fixpoint depair {m n} (o : t m) (p : t n) : t (m * n) :=
 match o with
@@ -161,7 +161,7 @@ end.
 
 Lemma depair_sanity {m n} (o : t m) (p : t n) :
   proj1_sig (to_nat (depair o p)) = n * (proj1_sig (to_nat o)) + (proj1_sig (to_nat p)).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Fixpoint eqb {m n} (p : t m) (q : t n) :=
 match p, q with
@@ -172,13 +172,13 @@ match p, q with
 end.
 
 Lemma eqb_nat_eq : forall m n (p : t m) (q : t n), eqb p q = true -> m = n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma eqb_eq : forall n (p q : t n), eqb p q = true <-> p = q.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma eq_dec {n} (x y : t n): {x = y} + {x <> y}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition cast: forall {m} (v: t m) {n}, m = n -> t n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.

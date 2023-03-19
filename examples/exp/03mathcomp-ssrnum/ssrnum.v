@@ -134,7 +134,7 @@ Local Open Scope order_scope.
 Local Open Scope ring_scope.
 Import Order.TTheory GRing.Theory.
 
-Fact ring_display : unit. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Fact ring_display : unit. Proof. Show. Fail (abduce 3). Admitted.
 
 Module Num.
 
@@ -412,13 +412,13 @@ Notation real := Rreal.
 
 Module Keys. Section Keys.
 Variable R : numDomainType.
-Fact Rpos_key : pred_key (@pos R). Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Fact Rpos_key : pred_key (@pos R). Proof. Show. Fail (abduce 3). Admitted.
 Definition Rpos_keyed := KeyedQualifier Rpos_key.
-Fact Rneg_key : pred_key (@real R). Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Fact Rneg_key : pred_key (@real R). Proof. Show. Fail (abduce 3). Admitted.
 Definition Rneg_keyed := KeyedQualifier Rneg_key.
-Fact Rnneg_key : pred_key (@nneg R). Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Fact Rnneg_key : pred_key (@nneg R). Proof. Show. Fail (abduce 3). Admitted.
 Definition Rnneg_keyed := KeyedQualifier Rnneg_key.
-Fact Rreal_key : pred_key (@real R). Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Fact Rreal_key : pred_key (@real R). Proof. Show. Fail (abduce 3). Admitted.
 Definition Rreal_keyed := KeyedQualifier Rreal_key.
 End Keys. End Keys.
 
@@ -1171,16 +1171,16 @@ Variables (R : numDomainType) (V : normedZmodType R).
 Implicit Types (l : R) (x y : V).
 
 Lemma ler_norm_add x y : `|x + y| <= `|x| + `|y|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normr0_eq0 x : `|x| = 0 -> x = 0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normrMn x n : `|x *+ n| = `|x| *+ n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normrN x : `|- x| = `|x|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End NormedZmodule.
 
@@ -1191,74 +1191,74 @@ Implicit Types x y : R.
 (* Lemmas from the signature *)
 
 Lemma addr_gt0 x y : 0 < x -> 0 < y -> 0 < x + y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ger_leVge x y : 0 <= x -> 0 <= y -> (x <= y) || (y <= x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normrM : {morph norm : x y / (x : R) * y}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_def x y : (x <= y) = (`|y - x| == y - x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* Basic consequences (just enough to get predicate closure properties). *)
 
 Lemma ger0_def x : (0 <= x) = (`|x| == x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma subr_ge0 x y : (0 <= x - y) = (y <= x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma oppr_ge0 x : (0 <= - x) = (x <= 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler01 : 0 <= 1 :> R.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
-Lemma ltr01 : 0 < 1 :> R. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma ltr01 : 0 < 1 :> R. Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma le0r x : (0 <= x) = (x == 0) || (0 < x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma addr_ge0 x y : 0 <= x -> 0 <= y -> 0 <= x + y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma pmulr_rgt0 x y : 0 < x -> (0 < x * y) = (0 < y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* Closure properties of the real predicates. *)
 
-Lemma posrE x : (x \is pos) = (0 < x). Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma nnegrE x : (x \is nneg) = (0 <= x). Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma realE x : (x \is real) = (0 <= x) || (x <= 0). Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma posrE x : (x \is pos) = (0 < x). Proof. Show. Fail (abduce 3). Admitted.
+Lemma nnegrE x : (x \is nneg) = (0 <= x). Proof. Show. Fail (abduce 3). Admitted.
+Lemma realE x : (x \is real) = (0 <= x) || (x <= 0). Proof. Show. Fail (abduce 3). Admitted.
 
 Fact pos_divr_closed : divr_closed (@pos R).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Canonical pos_mulrPred := MulrPred pos_divr_closed.
 Canonical pos_divrPred := DivrPred pos_divr_closed.
 
 Fact nneg_divr_closed : divr_closed (@nneg R).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Canonical nneg_mulrPred := MulrPred nneg_divr_closed.
 Canonical nneg_divrPred := DivrPred nneg_divr_closed.
 
 Fact nneg_addr_closed : addr_closed (@nneg R).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Canonical nneg_addrPred := AddrPred nneg_addr_closed.
 Canonical nneg_semiringPred := SemiringPred nneg_divr_closed.
 
 Fact real_oppr_closed : oppr_closed (@real R).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Canonical real_opprPred := OpprPred real_oppr_closed.
 
 Fact real_addr_closed : addr_closed (@real R).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Canonical real_addrPred := AddrPred real_addr_closed.
 Canonical real_zmodPred := ZmodPred real_oppr_closed.
 
 Fact real_divr_closed : divr_closed (@real R).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Canonical real_mulrPred := MulrPred real_divr_closed.
 Canonical real_smulrPred := SmulrPred real_divr_closed.
 Canonical real_divrPred := DivrPred real_divr_closed.
@@ -1270,19 +1270,19 @@ Canonical real_divringPred := DivringPred real_divr_closed.
 End NumDomain.
 
 Lemma num_real (R : realDomainType) (x : R) : x \is real.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Fact archi_bound_subproof (R : archiFieldType) : archimedean_axiom R.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Section RealClosed.
 Variable R : rcfType.
 
-Lemma poly_ivt : real_closed_axiom R. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma poly_ivt : real_closed_axiom R. Proof. Show. Fail (abduce 3). Admitted.
 
 Fact sqrtr_subproof (x : R) :
   exists2 y, 0 <= y & (if 0 <= x then y ^+ 2 == x else y == 0) : bool.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End RealClosed.
 
@@ -1344,82 +1344,82 @@ Definition normrN V (x : V) : `|- x| = `|x| := normrN x.
 
 (* Predicate definitions. *)
 
-Lemma posrE x : (x \is pos) = (0 < x). Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma negrE x : (x \is neg) = (x < 0). Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma nnegrE x : (x \is nneg) = (0 <= x). Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma realE x : (x \is real) = (0 <= x) || (x <= 0). Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma posrE x : (x \is pos) = (0 < x). Proof. Show. Fail (abduce 3). Admitted.
+Lemma negrE x : (x \is neg) = (x < 0). Proof. Show. Fail (abduce 3). Admitted.
+Lemma nnegrE x : (x \is nneg) = (0 <= x). Proof. Show. Fail (abduce 3). Admitted.
+Lemma realE x : (x \is real) = (0 <= x) || (x <= 0). Proof. Show. Fail (abduce 3). Admitted.
 
 (* General properties of <= and < *)
 
-Lemma lt0r x : (0 < x) = (x != 0) && (0 <= x). Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma le0r x : (0 <= x) = (x == 0) || (0 < x). Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma lt0r x : (0 < x) = (x != 0) && (0 <= x). Proof. Show. Fail (abduce 3). Admitted.
+Lemma le0r x : (0 <= x) = (x == 0) || (0 < x). Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lt0r_neq0 (x : R) : 0 < x -> x != 0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr0_neq0 (x : R) : x < 0 -> x != 0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma pmulr_rgt0 x y : 0 < x -> (0 < x * y) = (0 < y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma pmulr_rge0 x y : 0 < x -> (0 <= x * y) = (0 <= y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* Integer comparisons and characteristic 0. *)
-Lemma ler01 : 0 <= 1 :> R. Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma ltr01 : 0 < 1 :> R. Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma ler0n n : 0 <= n%:R :> R. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma ler01 : 0 <= 1 :> R. Proof. Show. Fail (abduce 3). Admitted.
+Lemma ltr01 : 0 < 1 :> R. Proof. Show. Fail (abduce 3). Admitted.
+Lemma ler0n n : 0 <= n%:R :> R. Proof. Show. Fail (abduce 3). Admitted.
 Hint Resolve ler01 ltr01 ler0n : core.
 Lemma ltr0Sn n : 0 < n.+1%:R :> R.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Lemma ltr0n n : (0 < n%:R :> R) = (0 < n)%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Hint Resolve ltr0Sn : core.
 
 Lemma pnatr_eq0 n : (n%:R == 0 :> R) = (n == 0)%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma char_num : [char R] =i pred0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* Properties of the norm. *)
 
-Lemma ger0_def x : (0 <= x) = (`|x| == x). Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma ger0_def x : (0 <= x) = (`|x| == x). Proof. Show. Fail (abduce 3). Admitted.
 Lemma normr_idP {x} : reflect (`|x| = x) (0 <= x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma ger0_norm x : 0 <= x -> `|x| = x. Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma normr1 : `|1 : R| = 1. Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma normr_nat n : `|n%:R : R| = n%:R. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
+Lemma ger0_norm x : 0 <= x -> `|x| = x. Proof. Show. Fail (abduce 3). Admitted.
+Lemma normr1 : `|1 : R| = 1. Proof. Show. Fail (abduce 3). Admitted.
+Lemma normr_nat n : `|n%:R : R| = n%:R. Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normr_prod I r (P : pred I) (F : I -> R) :
   `|\prod_(i <- r | P i) F i| = \prod_(i <- r | P i) `|F i|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normrX n x : `|x ^+ n| = `|x| ^+ n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normr_unit : {homo (@norm R R) : x / x \is a GRing.unit}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normrV : {in GRing.unit, {morph (@norm R R) : x / x ^-1}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normrN1 : `|-1 : R| = 1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma big_real x0 op I (P : pred I) F (s : seq I) :
   {in real &, forall x y, op x y \is real} -> x0 \is real ->
   {in P, forall i, F i \is real} -> \big[op/x0]_(i <- s | P i) F i \is real.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sum_real I (P : pred I) (F : I -> R) (s : seq I) :
   {in P, forall i, F i \is real} -> \sum_(i <- s | P i) F i \is real.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma prod_real I (P : pred I) (F : I -> R) (s : seq I) :
   {in P, forall i, F i \is real} -> \prod_(i <- s | P i) F i \is real.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Section NormedZmoduleTheory.
 
@@ -1427,29 +1427,29 @@ Variable V : normedZmodType R.
 Implicit Types (v w : V).
 
 Lemma normr0 : `|0 : V| = 0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normr0P v : reflect (`|v| = 0) (v == 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition normr_eq0 v := sameP (`|v| =P 0) (normr0P v).
 
 Lemma distrC v w : `|v - w| = `|w - v|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normr_id v : `| `|v| | = `|v|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
-Lemma normr_ge0 v : 0 <= `|v|. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma normr_ge0 v : 0 <= `|v|. Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normr_le0 v : `|v| <= 0 = (v == 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normr_lt0 v : `|v| < 0 = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normr_gt0 v : `|v| > 0 = (v != 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition normrE := (normr_id, normr0, normr1, normrN1, normr_ge0, normr_eq0,
   normr_lt0, normr_le0, normr_gt0, normrN).
@@ -1457,23 +1457,23 @@ Definition normrE := (normr_id, normr0, normr1, normrN1, normr_ge0, normr_eq0,
 End NormedZmoduleTheory.
 
 Lemma ler0_def x : (x <= 0) = (`|x| == - x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler0_norm x : x <= 0 -> `|x| = - x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition gtr0_norm x (hx : 0 < x) := ger0_norm (ltW hx).
 Definition ltr0_norm x (hx : x < 0) := ler0_norm (ltW hx).
 
 (* Comparision to 0 of a difference *)
 
-Lemma subr_ge0 x y : (0 <= y - x) = (x <= y). Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma subr_ge0 x y : (0 <= y - x) = (x <= y). Proof. Show. Fail (abduce 3). Admitted.
 Lemma subr_gt0 x y : (0 < y - x) = (x < y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Lemma subr_le0  x y : (y - x <= 0) = (y <= x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Lemma subr_lt0  x y : (y - x < 0) = (y < x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition subr_lte0 := (subr_le0, subr_lt0).
 Definition subr_gte0 := (subr_ge0, subr_gt0).
@@ -1481,26 +1481,26 @@ Definition subr_cp0 := (subr_lte0, subr_gte0).
 
 (* Comparability in a numDomain *)
 
-Lemma comparable0r x : (0 >=< x)%R = (x \is Num.real). Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma comparable0r x : (0 >=< x)%R = (x \is Num.real). Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma comparabler0 x : (x >=< 0)%R = (x \is Num.real).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma subr_comparable0 x y : (x - y >=< 0)%R = (x >=< y)%R.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma comparablerE x y : (x >=< y)%R = (x - y \is Num.real).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma  comparabler_trans : transitive (comparable : rel R).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* Ordered ring properties. *)
 
 Definition lter01 := (ler01, ltr01).
 
 Lemma addr_ge0 x y : 0 <= x -> 0 <= y -> 0 <= x + y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End NumIntegralDomainTheory.
 
@@ -1512,7 +1512,7 @@ Arguments normr0P {R V v}.
 #[global] Hint Extern 0 (is_true (0 <= norm _)) => apply: normr_ge0 : core.
 
 Lemma normr_nneg (R : numDomainType) (x : R) : `|x| \is Num.nneg.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 #[global] Hint Resolve normr_nneg : core.
 
 Section NumDomainOperationTheory.
@@ -1523,106 +1523,106 @@ Implicit Types x y z t : R.
 (* Comparision and opposite. *)
 
 Lemma ler_opp2 : {mono -%R : x y /~ x <= y :> R}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Hint Resolve ler_opp2 : core.
 Lemma ltr_opp2 : {mono -%R : x y /~ x < y :> R}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Hint Resolve ltr_opp2 : core.
 Definition lter_opp2 := (ler_opp2, ltr_opp2).
 
 Lemma ler_oppr x y : (x <= - y) = (y <= - x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_oppr x y : (x < - y) = (y < - x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lter_oppr := (ler_oppr, ltr_oppr).
 
 Lemma ler_oppl x y : (- x <= y) = (- y <= x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_oppl x y : (- x < y) = (- y < x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lter_oppl := (ler_oppl, ltr_oppl).
 
 Lemma oppr_ge0 x : (0 <= - x) = (x <= 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma oppr_gt0 x : (0 < - x) = (x < 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition oppr_gte0 := (oppr_ge0, oppr_gt0).
 
 Lemma oppr_le0 x : (- x <= 0) = (0 <= x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma oppr_lt0 x : (- x < 0) = (0 < x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma gtr_opp x : 0 < x -> - x < x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition oppr_lte0 := (oppr_le0, oppr_lt0).
 Definition oppr_cp0 := (oppr_gte0, oppr_lte0).
 Definition lter_oppE := (oppr_cp0, lter_opp2).
 
 Lemma ge0_cp x : 0 <= x -> (- x <= 0) * (- x <= x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma gt0_cp x : 0 < x ->
   (0 <= x) * (- x <= 0) * (- x <= x) * (- x < 0) * (- x < x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma le0_cp x : x <= 0 -> (0 <= - x) * (x <= - x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lt0_cp x :
   x < 0 -> (x <= 0) * (0 <= - x) * (x <= - x) * (0 < - x) * (x < - x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* Properties of the real subset. *)
 
 Lemma ger0_real x : 0 <= x -> x \is real.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler0_real x : x <= 0 -> x \is real.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma gtr0_real x : 0 < x -> x \is real.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr0_real x : x < 0 -> x \is real.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
-Lemma real0 : 0 \is @real R. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma real0 : 0 \is @real R. Proof. Show. Fail (abduce 3). Admitted.
 Hint Resolve real0 : core.
 
-Lemma real1 : 1 \is @real R. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma real1 : 1 \is @real R. Proof. Show. Fail (abduce 3). Admitted.
 Hint Resolve real1 : core.
 
-Lemma realn n : n%:R \is @real R. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma realn n : n%:R \is @real R. Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_leVge x y : x <= 0 -> y <= 0 -> (x <= y) || (y <= x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_leVge x y : x \is real -> y \is real -> (x <= y) || (y <= x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_comparable x y : x \is real -> y \is real -> x >=< y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma realB : {in real &, forall x y, x - y \is real}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma realN : {mono (@GRing.opp R) : x /  x \is real}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma realBC x y : (x - y \is real) = (y - x \is real).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma realD : {in real &, forall x y, x + y \is real}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* dichotomy and trichotomy *)
 
@@ -1648,23 +1648,23 @@ Variant comparer x y : R -> R -> R -> R -> R -> R ->
 Lemma real_leP x y : x \is real -> y \is real ->
   ler_xor_gt x y (min y x) (min x y) (max y x) (max x y)
                  `|x - y| `|y - x| (x <= y) (y < x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_ltP x y : x \is real -> y \is real ->
   ltr_xor_ge x y (min y x) (min x y) (max y x) (max x y)
              `|x - y| `|y - x| (y <= x) (x < y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_ltNge : {in real &, forall x y, (x < y) = ~~ (y <= x)}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_leNgt : {in real &, forall x y, (x <= y) = ~~ (y < x)}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_ltgtP x y : x \is real -> y \is real ->
   comparer x y (min y x) (min x y) (max y x) (max x y) `|x - y| `|y - x|
                (y == x) (x == y) (x >= y) (x <= y) (x > y) (x < y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Variant ger0_xor_lt0 (x : R) : R -> R -> R -> R -> R ->
     bool -> bool -> Set :=
@@ -1685,89 +1685,89 @@ Variant comparer0 x : R -> R -> R -> R -> R ->
 Lemma real_ge0P x : x \is real -> ger0_xor_lt0 x
    (min 0 x) (min x 0) (max 0 x) (max x 0)
   `|x| (x < 0) (0 <= x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_le0P x : x \is real -> ler0_xor_gt0 x
   (min 0 x) (min x 0) (max 0 x) (max x 0)
   `|x| (0 < x) (x <= 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_ltgt0P x : x \is real ->
   comparer0 x (min 0 x) (min x 0) (max 0 x) (max x 0)
             `|x| (0 == x) (x == 0) (x <= 0) (0 <= x) (x < 0) (x > 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma max_real : {in real &, forall x y, max x y \is real}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma min_real : {in real &, forall x y, min x y \is real}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma bigmax_real I x0 (r : seq I) (P : pred I) (f : I -> R):
   x0 \is real -> {in P, forall i : I, f i \is real} ->
   \big[max/x0]_(i <- r | P i) f i \is real.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma bigmin_real I x0 (r : seq I) (P : pred I) (f : I -> R):
   x0 \is real -> {in P, forall i : I, f i \is real} ->
   \big[min/x0]_(i <- r | P i) f i \is real.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_neqr_lt : {in real &, forall x y, (x != y) = (x < y) || (y < x)}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_sub_real x y : x <= y -> y - x \is real.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ger_sub_real x y : x <= y -> x - y \is real.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_real y x : x <= y -> (x \is real) = (y \is real).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ger_real x y : y <= x -> (x \is real) = (y \is real).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
-Lemma ger1_real x : 1 <= x -> x \is real. Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma ler1_real x : x <= 1 -> x \is real. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma ger1_real x : 1 <= x -> x \is real. Proof. Show. Fail (abduce 3). Admitted.
+Lemma ler1_real x : x <= 1 -> x \is real. Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Nreal_leF x y : y \is real -> x \notin real -> (x <= y) = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Nreal_geF x y : y \is real -> x \notin real -> (y <= x) = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Nreal_ltF x y : y \is real -> x \notin real -> (x < y) = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Nreal_gtF x y : y \is real -> x \notin real -> (y < x) = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* real wlog *)
 
 Lemma real_wlog_ler P :
     (forall a b, P b a -> P a b) -> (forall a b, a <= b -> P a b) ->
   forall a b : R, a \is real -> b \is real -> P a b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_wlog_ltr P :
     (forall a, P a a) -> (forall a b, (P b a -> P a b)) ->
     (forall a b, a < b -> P a b) ->
   forall a b : R, a \is real -> b \is real -> P a b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* Monotony of addition *)
 Lemma ler_add2l x : {mono +%R x : y z / y <= z}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_add2r x : {mono +%R^~ x : y z / y <= z}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_add2l x : {mono +%R x : y z / y < z}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_add2r x : {mono +%R^~ x : y z / y < z}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition ler_add2 := (ler_add2l, ler_add2r).
 Definition ltr_add2 := (ltr_add2l, ltr_add2r).
@@ -1775,790 +1775,790 @@ Definition lter_add2 := (ler_add2, ltr_add2).
 
 (* Addition, subtraction and transitivity *)
 Lemma ler_add x y z t : x <= y -> z <= t -> x + z <= y + t.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_lt_add x y z t : x <= y -> z < t -> x + z < y + t.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_le_add x y z t : x < y -> z <= t -> x + z < y + t.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_add x y z t : x < y -> z < t -> x + z < y + t.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_sub x y z t : x <= y -> t <= z -> x - z <= y - t.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_lt_sub x y z t : x <= y -> t < z -> x - z < y - t.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_le_sub x y z t : x < y -> t <= z -> x - z < y - t.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_sub x y z t : x < y -> t < z -> x - z < y - t.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_subl_addr x y z : (x - y <= z) = (x <= z + y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_subl_addr x y z : (x - y < z) = (x < z + y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_subr_addr x y z : (x <= y - z) = (x + z <= y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_subr_addr x y z : (x < y - z) = (x + z < y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition ler_sub_addr := (ler_subl_addr, ler_subr_addr).
 Definition ltr_sub_addr := (ltr_subl_addr, ltr_subr_addr).
 Definition lter_sub_addr := (ler_sub_addr, ltr_sub_addr).
 
 Lemma ler_subl_addl x y z : (x - y <= z) = (x <= y + z).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_subl_addl x y z : (x - y < z) = (x < y + z).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_subr_addl x y z : (x <= y - z) = (z + x <= y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_subr_addl x y z : (x < y - z) = (z + x < y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition ler_sub_addl := (ler_subl_addl, ler_subr_addl).
 Definition ltr_sub_addl := (ltr_subl_addl, ltr_subr_addl).
 Definition lter_sub_addl := (ler_sub_addl, ltr_sub_addl).
 
 Lemma ler_addl x y : (x <= x + y) = (0 <= y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_addl x y : (x < x + y) = (0 < y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_addr x y : (x <= y + x) = (0 <= y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_addr x y : (x < y + x) = (0 < y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ger_addl x y : (x + y <= x) = (y <= 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma gtr_addl x y : (x + y < x) = (y < 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ger_addr x y : (y + x <= x) = (y <= 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma gtr_addr x y : (y + x < x) = (y < 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition cpr_add := (ler_addl, ler_addr, ger_addl, ger_addl,
                        ltr_addl, ltr_addr, gtr_addl, gtr_addl).
 
 (* Addition with left member knwon to be positive/negative *)
 Lemma ler_paddl y x z : 0 <= x -> y <= z -> y <= x + z.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_paddl y x z : 0 <= x -> y < z -> y < x + z.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_spaddl y x z : 0 < x -> y <= z -> y < x + z.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_spsaddl y x z : 0 < x -> y < z -> y < x + z.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_naddl y x z : x <= 0 -> y <= z -> x + y <= z.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_naddl y x z : x <= 0 -> y < z -> x + y < z.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_snaddl y x z : x < 0 -> y <= z -> x + y < z.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_snsaddl y x z : x < 0 -> y < z -> x + y < z.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* Addition with right member we know positive/negative *)
 Lemma ler_paddr y x z : 0 <= x -> y <= z -> y <= z + x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_paddr y x z : 0 <= x -> y < z -> y < z + x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_spaddr y x z : 0 < x -> y <= z -> y < z + x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_spsaddr y x z : 0 < x -> y < z -> y < z + x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_naddr y x z : x <= 0 -> y <= z -> y + x <= z.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_naddr y x z : x <= 0 -> y < z -> y + x < z.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_snaddr y x z : x < 0 -> y <= z -> y + x < z.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_snsaddr y x z : x < 0 -> y < z -> y + x < z.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* x and y have the same sign and their sum is null *)
 Lemma paddr_eq0 (x y : R) :
   0 <= x -> 0 <= y -> (x + y == 0) = (x == 0) && (y == 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma naddr_eq0 (x y : R) :
   x <= 0 -> y <= 0 -> (x + y == 0) = (x == 0) && (y == 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma addr_ss_eq0 (x y : R) :
     (0 <= x) && (0 <= y) || (x <= 0) && (y <= 0) ->
   (x + y == 0) = (x == 0) && (y == 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* big sum and ler *)
 Lemma sumr_ge0 I (r : seq I) (P : pred I) (F : I -> R) :
   (forall i, P i -> (0 <= F i)) -> 0 <= \sum_(i <- r | P i) (F i).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_sum I (r : seq I) (P : pred I) (F G : I -> R) :
     (forall i, P i -> F i <= G i) ->
   \sum_(i <- r | P i) F i <= \sum_(i <- r | P i) G i.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_sum_nat (m n : nat) (F G : nat -> R) :
   (forall i, (m <= i < n)%N -> F i <= G i) ->
   \sum_(m <= i < n) F i <= \sum_(m <= i < n) G i.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma psumr_eq0 (I : eqType) (r : seq I) (P : pred I) (F : I -> R) :
     (forall i, P i -> 0 <= F i) ->
   (\sum_(i <- r | P i) (F i) == 0) = (all (fun i => (P i) ==> (F i == 0)) r).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* :TODO: Cyril : See which form to keep *)
 Lemma psumr_eq0P (I : finType) (P : pred I) (F : I -> R) :
      (forall i, P i -> 0 <= F i) -> \sum_(i | P i) F i = 0 ->
   (forall i, P i -> F i = 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma psumr_neq0 (I : eqType) (r : seq I) (P : pred I) (F : I -> R) :
     (forall i, P i -> 0 <= F i) ->
   (\sum_(i <- r | P i) (F i) != 0) = (has (fun i => P i && (0 < F i)) r).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma psumr_neq0P (I : finType) (P : pred I) (F : I -> R) :
      (forall i, P i -> 0 <= F i) -> \sum_(i | P i) F i <> 0 ->
   (exists i, P i && (0 < F i)).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* mulr and ler/ltr *)
 
 Lemma ler_pmul2l x : 0 < x -> {mono *%R x : x y / x <= y}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_pmul2l x : 0 < x -> {mono *%R x : x y / x < y}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lter_pmul2l := (ler_pmul2l, ltr_pmul2l).
 
 Lemma ler_pmul2r x : 0 < x -> {mono *%R^~ x : x y / x <= y}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_pmul2r x : 0 < x -> {mono *%R^~ x : x y / x < y}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lter_pmul2r := (ler_pmul2r, ltr_pmul2r).
 
 Lemma ler_nmul2l x : x < 0 -> {mono *%R x : x y /~ x <= y}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_nmul2l x : x < 0 -> {mono *%R x : x y /~ x < y}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lter_nmul2l := (ler_nmul2l, ltr_nmul2l).
 
 Lemma ler_nmul2r x : x < 0 -> {mono *%R^~ x : x y /~ x <= y}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_nmul2r x : x < 0 -> {mono *%R^~ x : x y /~ x < y}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lter_nmul2r := (ler_nmul2r, ltr_nmul2r).
 
 Lemma ler_wpmul2l x : 0 <= x -> {homo *%R x : y z / y <= z}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_wpmul2r x : 0 <= x -> {homo *%R^~ x : y z / y <= z}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_wnmul2l x : x <= 0 -> {homo *%R x : y z /~ y <= z}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_wnmul2r x : x <= 0 -> {homo *%R^~ x : y z /~ y <= z}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* Binary forms, for backchaining. *)
 
 Lemma ler_pmul x1 y1 x2 y2 :
   0 <= x1 -> 0 <= x2 -> x1 <= y1 -> x2 <= y2 -> x1 * x2 <= y1 * y2.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_pmul x1 y1 x2 y2 :
   0 <= x1 -> 0 <= x2 -> x1 < y1 -> x2 < y2 -> x1 * x2 < y1 * y2.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* complement for x *+ n and <= or < *)
 
 Lemma ler_pmuln2r n : (0 < n)%N -> {mono (@GRing.natmul R)^~ n : x y / x <= y}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_pmuln2r n : (0 < n)%N -> {mono (@GRing.natmul R)^~ n : x y / x < y}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma pmulrnI n : (0 < n)%N -> injective ((@GRing.natmul R)^~ n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma eqr_pmuln2r n : (0 < n)%N -> {mono (@GRing.natmul R)^~ n : x y / x == y}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma pmulrn_lgt0 x n : (0 < n)%N -> (0 < x *+ n) = (0 < x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma pmulrn_llt0 x n : (0 < n)%N -> (x *+ n < 0) = (x < 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma pmulrn_lge0 x n : (0 < n)%N -> (0 <= x *+ n) = (0 <= x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma pmulrn_lle0 x n : (0 < n)%N -> (x *+ n <= 0) = (x <= 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_wmuln2r x y n : x < y -> (x *+ n < y *+ n) = (0 < n)%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_wpmuln2r n : (0 < n)%N -> {homo (@GRing.natmul R)^~ n : x y / x < y}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_wmuln2r n : {homo (@GRing.natmul R)^~ n : x y / x <= y}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma mulrn_wge0 x n : 0 <= x -> 0 <= x *+ n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma mulrn_wle0 x n : x <= 0 -> x *+ n <= 0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_muln2r n x y : (x *+ n <= y *+ n) = ((n == 0%N) || (x <= y)).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_muln2r n x y : (x *+ n < y *+ n) = ((0 < n)%N && (x < y)).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma eqr_muln2r n x y : (x *+ n == y *+ n) = (n == 0)%N || (x == y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* More characteristic zero properties. *)
 
 Lemma mulrn_eq0 x n : (x *+ n == 0) = ((n == 0)%N || (x == 0)).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma eqNr x : (- x == x) = (x == 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma mulrIn x : x != 0 -> injective (GRing.natmul x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_wpmuln2l x :
   0 <= x -> {homo (@GRing.natmul R x) : m n / (m <= n)%N >-> m <= n}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_wnmuln2l x :
   x <= 0 -> {homo (@GRing.natmul R x) : m n / (n <= m)%N >-> m <= n}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma mulrn_wgt0 x n : 0 < x -> 0 < x *+ n = (0 < n)%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma mulrn_wlt0 x n : x < 0 -> x *+ n < 0 = (0 < n)%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_pmuln2l x :
   0 < x -> {mono (@GRing.natmul R x) : m n / (m <= n)%N >-> m <= n}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_pmuln2l x :
   0 < x -> {mono (@GRing.natmul R x) : m n / (m < n)%N >-> m < n}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_nmuln2l x :
   x < 0 -> {mono (@GRing.natmul R x) : m n / (n <= m)%N >-> m <= n}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_nmuln2l x :
   x < 0 -> {mono (@GRing.natmul R x) : m n / (n < m)%N >-> m < n}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_nat m n : (m%:R <= n%:R :> R) = (m <= n)%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_nat m n : (m%:R < n%:R :> R) = (m < n)%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma eqr_nat m n : (m%:R == n%:R :> R) = (m == n)%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma pnatr_eq1 n : (n%:R == 1 :> R) = (n == 1)%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lern0 n : (n%:R <= 0 :> R) = (n == 0%N).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltrn0 n : (n%:R < 0 :> R) = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
-Lemma ler1n n : 1 <= n%:R :> R = (1 <= n)%N. Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma ltr1n n : 1 < n%:R :> R = (1 < n)%N. Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma lern1 n : n%:R <= 1 :> R = (n <= 1)%N. Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma ltrn1 n : n%:R < 1 :> R = (n < 1)%N. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma ler1n n : 1 <= n%:R :> R = (1 <= n)%N. Proof. Show. Fail (abduce 3). Admitted.
+Lemma ltr1n n : 1 < n%:R :> R = (1 < n)%N. Proof. Show. Fail (abduce 3). Admitted.
+Lemma lern1 n : n%:R <= 1 :> R = (n <= 1)%N. Proof. Show. Fail (abduce 3). Admitted.
+Lemma ltrn1 n : n%:R < 1 :> R = (n < 1)%N. Proof. Show. Fail (abduce 3). Admitted.
 
-Lemma ltrN10 : -1 < 0 :> R. Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma lerN10 : -1 <= 0 :> R. Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma ltr10 : 1 < 0 :> R = false. Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma ler10 : 1 <= 0 :> R = false. Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma ltr0N1 : 0 < -1 :> R = false. Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma ler0N1 : 0 <= -1 :> R = false. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma ltrN10 : -1 < 0 :> R. Proof. Show. Fail (abduce 3). Admitted.
+Lemma lerN10 : -1 <= 0 :> R. Proof. Show. Fail (abduce 3). Admitted.
+Lemma ltr10 : 1 < 0 :> R = false. Proof. Show. Fail (abduce 3). Admitted.
+Lemma ler10 : 1 <= 0 :> R = false. Proof. Show. Fail (abduce 3). Admitted.
+Lemma ltr0N1 : 0 < -1 :> R = false. Proof. Show. Fail (abduce 3). Admitted.
+Lemma ler0N1 : 0 <= -1 :> R = false. Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma pmulrn_rgt0 x n : 0 < x -> 0 < x *+ n = (0 < n)%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma pmulrn_rlt0 x n : 0 < x -> x *+ n < 0 = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma pmulrn_rge0 x n : 0 < x -> 0 <= x *+ n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma pmulrn_rle0 x n : 0 < x -> x *+ n <= 0 = (n == 0)%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma nmulrn_rgt0 x n : x < 0 -> 0 < x *+ n = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma nmulrn_rge0 x n : x < 0 -> 0 <= x *+ n = (n == 0)%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma nmulrn_rle0 x n : x < 0 -> x *+ n <= 0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* (x * y) compared to 0 *)
 (* Remark : pmulr_rgt0 and pmulr_rge0 are defined above *)
 
 (* x positive and y right *)
 Lemma pmulr_rlt0 x y : 0 < x -> (x * y < 0) = (y < 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma pmulr_rle0 x y : 0 < x -> (x * y <= 0) = (y <= 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* x positive and y left *)
 Lemma pmulr_lgt0 x y : 0 < x -> (0 < y * x) = (0 < y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma pmulr_lge0 x y : 0 < x -> (0 <= y * x) = (0 <= y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma pmulr_llt0 x y : 0 < x -> (y * x < 0) = (y < 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma pmulr_lle0 x y : 0 < x -> (y * x <= 0) = (y <= 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* x negative and y right *)
 Lemma nmulr_rgt0 x y : x < 0 -> (0 < x * y) = (y < 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma nmulr_rge0 x y : x < 0 -> (0 <= x * y) = (y <= 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma nmulr_rlt0 x y : x < 0 -> (x * y < 0) = (0 < y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma nmulr_rle0 x y : x < 0 -> (x * y <= 0) = (0 <= y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* x negative and y left *)
 Lemma nmulr_lgt0 x y : x < 0 -> (0 < y * x) = (y < 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma nmulr_lge0 x y : x < 0 -> (0 <= y * x) = (y <= 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma nmulr_llt0 x y : x < 0 -> (y * x < 0) = (0 < y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma nmulr_lle0 x y : x < 0 -> (y * x <= 0) = (0 <= y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* weak and symmetric lemmas *)
 Lemma mulr_ge0 x y : 0 <= x -> 0 <= y -> 0 <= x * y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma mulr_le0 x y : x <= 0 -> y <= 0 -> 0 <= x * y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma mulr_ge0_le0 x y : 0 <= x -> y <= 0 -> x * y <= 0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma mulr_le0_ge0 x y : x <= 0 -> 0 <= y -> x * y <= 0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* mulr_gt0 with only one case *)
 
 Lemma mulr_gt0 x y : 0 < x -> 0 < y -> 0 < x * y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* and reverse direction *)
 
 Lemma mulr_ge0_gt0 x y : 0 <= x -> 0 <= y -> (0 < x * y) = (0 < x) && (0 < y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* Iterated products *)
 
 Lemma prodr_ge0 I r (P : pred I) (E : I -> R) :
   (forall i, P i -> 0 <= E i) -> 0 <= \prod_(i <- r | P i) E i.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma prodr_gt0 I r (P : pred I) (E : I -> R) :
   (forall i, P i -> 0 < E i) -> 0 < \prod_(i <- r | P i) E i.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_prod I r (P : pred I) (E1 E2 : I -> R) :
     (forall i, P i -> 0 <= E1 i <= E2 i) ->
   \prod_(i <- r | P i) E1 i <= \prod_(i <- r | P i) E2 i.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_prod I r (P : pred I) (E1 E2 : I -> R) :
     has P r -> (forall i, P i -> 0 <= E1 i < E2 i) ->
   \prod_(i <- r | P i) E1 i < \prod_(i <- r | P i) E2 i.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_prod_nat (E1 E2 : nat -> R) (n m : nat) :
    (m < n)%N -> (forall i, (m <= i < n)%N -> 0 <= E1 i < E2 i) ->
   \prod_(m <= i < n) E1 i < \prod_(m <= i < n) E2 i.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* real of mul *)
 
 Lemma realMr x y : x != 0 -> x \is real -> (x * y \is real) = (y \is real).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma realrM x y : y != 0 -> y \is real -> (x * y \is real) = (x \is real).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma realM : {in real &, forall x y, x * y \is real}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma realrMn x n : (n != 0)%N -> (x *+ n \is real) = (x \is real).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* ler/ltr and multiplication between a positive/negative *)
 
 Lemma ger_pmull x y : 0 < y -> (x * y <= y) = (x <= 1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma gtr_pmull x y : 0 < y -> (x * y < y) = (x < 1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ger_pmulr x y : 0 < y -> (y * x <= y) = (x <= 1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma gtr_pmulr x y : 0 < y -> (y * x < y) = (x < 1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_pmull x y : 0 < y -> (y <= x * y) = (1 <= x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_pmull x y : 0 < y -> (y < x * y) = (1 < x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_pmulr x y : 0 < y -> (y <= y * x) = (1 <= x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_pmulr x y : 0 < y -> (y < y * x) = (1 < x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ger_nmull x y : y < 0 -> (x * y <= y) = (1 <= x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma gtr_nmull x y : y < 0 -> (x * y < y) = (1 < x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ger_nmulr x y : y < 0 -> (y * x <= y) = (1 <= x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma gtr_nmulr x y : y < 0 -> (y * x < y) = (1 < x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_nmull x y : y < 0 -> (y <= x * y) = (x <= 1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_nmull x y : y < 0 -> (y < x * y) = (x < 1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_nmulr x y : y < 0 -> (y <= y * x) = (x <= 1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_nmulr x y : y < 0 -> (y < y * x) = (x < 1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* ler/ltr and multiplication between a positive/negative
    and a exterior (1 <= _) or interior (0 <= _ <= 1) *)
 
 Lemma ler_pemull x y : 0 <= y -> 1 <= x -> y <= x * y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_nemull x y : y <= 0 -> 1 <= x -> x * y <= y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_pemulr x y : 0 <= y -> 1 <= x -> y <= y * x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_nemulr x y : y <= 0 -> 1 <= x -> y * x <= y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_pimull x y : 0 <= y -> x <= 1 -> x * y <= y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_nimull x y : y <= 0 -> x <= 1 -> y <= x * y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_pimulr x y : 0 <= y -> x <= 1 -> y * x <= y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_nimulr x y : y <= 0 -> x <= 1 -> y <= y * x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma mulr_ile1 x y : 0 <= x -> 0 <= y -> x <= 1 -> y <= 1 -> x * y <= 1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma mulr_ilt1 x y : 0 <= x -> 0 <= y -> x < 1 -> y < 1 -> x * y < 1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition mulr_ilte1 := (mulr_ile1, mulr_ilt1).
 
 Lemma mulr_ege1 x y : 1 <= x -> 1 <= y -> 1 <= x * y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma mulr_egt1 x y : 1 < x -> 1 < y -> 1 < x * y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Definition mulr_egte1 := (mulr_ege1, mulr_egt1).
 Definition mulr_cp1 := (mulr_ilte1, mulr_egte1).
 
 (* ler and ^-1 *)
 
 Lemma invr_gt0 x : (0 < x^-1) = (0 < x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma invr_ge0 x : (0 <= x^-1) = (0 <= x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma invr_lt0 x : (x^-1 < 0) = (x < 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma invr_le0 x : (x^-1 <= 0) = (x <= 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition invr_gte0 := (invr_ge0, invr_gt0).
 Definition invr_lte0 := (invr_le0, invr_lt0).
 
 Lemma divr_ge0 x y : 0 <= x -> 0 <= y -> 0 <= x / y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma divr_gt0 x y : 0 < x -> 0 < y -> 0 < x / y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma realV : {mono (@GRing.inv R) : x / x \is real}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* ler and exprn *)
 Lemma exprn_ge0 n x : 0 <= x -> 0 <= x ^+ n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma realX n : {in real, forall x, x ^+ n \is real}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma exprn_gt0 n x : 0 < x -> 0 < x ^+ n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition exprn_gte0 := (exprn_ge0, exprn_gt0).
 
 Lemma exprn_ile1 n x : 0 <= x -> x <= 1 -> x ^+ n <= 1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma exprn_ilt1 n x : 0 <= x -> x < 1 -> x ^+ n < 1 = (n != 0%N).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition exprn_ilte1 := (exprn_ile1, exprn_ilt1).
 
 Lemma exprn_ege1 n x : 1 <= x -> 1 <= x ^+ n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma exprn_egt1 n x : 1 < x -> 1 < x ^+ n = (n != 0%N).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition exprn_egte1 := (exprn_ege1, exprn_egt1).
 Definition exprn_cp1 := (exprn_ilte1, exprn_egte1).
 
 Lemma ler_iexpr x n : (0 < n)%N -> 0 <= x -> x <= 1 -> x ^+ n <= x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_iexpr x n : 0 < x -> x < 1 -> (x ^+ n < x) = (1 < n)%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lter_iexpr := (ler_iexpr, ltr_iexpr).
 
 Lemma ler_eexpr x n : (0 < n)%N -> 1 <= x -> x <= x ^+ n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_eexpr x n : 1 < x -> (x < x ^+ n) = (1 < n)%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lter_eexpr := (ler_eexpr, ltr_eexpr).
 Definition lter_expr := (lter_iexpr, lter_eexpr).
 
 Lemma ler_wiexpn2l x :
   0 <= x -> x <= 1 -> {homo (GRing.exp x) : m n / (n <= m)%N >-> m <= n}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_weexpn2l x :
   1 <= x -> {homo (GRing.exp x) : m n / (m <= n)%N >-> m <= n}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ieexprn_weq1 x n : 0 <= x -> (x ^+ n == 1) = ((n == 0%N) || (x == 1)).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ieexprIn x : 0 < x -> x != 1 -> injective (GRing.exp x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_iexpn2l x :
   0 < x -> x < 1 -> {mono (GRing.exp x) : m n / (n <= m)%N >-> m <= n}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_iexpn2l x :
   0 < x -> x < 1 -> {mono (GRing.exp x) : m n / (n < m)%N >-> m < n}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lter_iexpn2l := (ler_iexpn2l, ltr_iexpn2l).
 
 Lemma ler_eexpn2l x :
   1 < x -> {mono (GRing.exp x) : m n / (m <= n)%N >-> m <= n}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_eexpn2l x :
   1 < x -> {mono (GRing.exp x) : m n / (m < n)%N >-> m < n}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lter_eexpn2l := (ler_eexpn2l, ltr_eexpn2l).
 
 Lemma ltr_expn2r n x y : 0 <= x -> x < y ->  x ^+ n < y ^+ n = (n != 0%N).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_expn2r n : {in nneg & , {homo ((@GRing.exp R)^~ n) : x y / x <= y}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lter_expn2r := (ler_expn2r, ltr_expn2r).
 
 Lemma ltr_wpexpn2r n :
   (0 < n)%N -> {in nneg & , {homo ((@GRing.exp R)^~ n) : x y / x < y}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_pexpn2r n :
   (0 < n)%N -> {in nneg & , {mono ((@GRing.exp R)^~ n) : x y / x <= y}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_pexpn2r n :
   (0 < n)%N -> {in nneg & , {mono ((@GRing.exp R)^~ n) : x y / x < y}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lter_pexpn2r := (ler_pexpn2r, ltr_pexpn2r).
 
 Lemma pexpIrn n : (0 < n)%N -> {in nneg &, injective ((@GRing.exp R)^~ n)}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* expr and ler/ltr *)
 Lemma expr_le1 n x : (0 < n)%N -> 0 <= x -> (x ^+ n <= 1) = (x <= 1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma expr_lt1 n x : (0 < n)%N -> 0 <= x -> (x ^+ n < 1) = (x < 1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition expr_lte1 := (expr_le1, expr_lt1).
 
 Lemma expr_ge1 n x : (0 < n)%N -> 0 <= x -> (1 <= x ^+ n) = (1 <= x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma expr_gt1 n x : (0 < n)%N -> 0 <= x -> (1 < x ^+ n) = (1 < x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition expr_gte1 := (expr_ge1, expr_gt1).
 
 Lemma pexpr_eq1 x n : (0 < n)%N -> 0 <= x -> (x ^+ n == 1) = (x == 1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma pexprn_eq1 x n : 0 <= x -> (x ^+ n == 1) = (n == 0%N) || (x == 1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma eqr_expn2 n x y :
   (0 < n)%N -> 0 <= x -> 0 <= y -> (x ^+ n == y ^+ n) = (x == y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sqrp_eq1 x : 0 <= x -> (x ^+ 2 == 1) = (x == 1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sqrn_eq1 x : x <= 0 -> (x ^+ 2 == 1) = (x == -1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_sqr : {in nneg &, {mono (fun x => x ^+ 2) : x y / x <= y}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_sqr : {in nneg &, {mono (fun x => x ^+ 2) : x y / x < y}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_pinv :
   {in [pred x in GRing.unit | 0 < x] &, {mono (@GRing.inv R) : x y /~ x <= y}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_ninv :
   {in [pred x in GRing.unit | x < 0] &, {mono (@GRing.inv R) : x y /~ x <= y}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_pinv :
   {in [pred x in GRing.unit | 0 < x] &, {mono (@GRing.inv R) : x y /~ x < y}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_ninv :
   {in [pred x in GRing.unit | x < 0] &, {mono (@GRing.inv R) : x y /~ x < y}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma invr_gt1 x : x \is a GRing.unit -> 0 < x -> (1 < x^-1) = (x < 1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma invr_ge1 x : x \is a GRing.unit -> 0 < x -> (1 <= x^-1) = (x <= 1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition invr_gte1 := (invr_ge1, invr_gt1).
 
 Lemma invr_le1 x (ux : x \is a GRing.unit) (hx : 0 < x) :
   (x^-1 <= 1) = (1 <= x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma invr_lt1 x (ux : x \is a GRing.unit) (hx : 0 < x) : (x^-1 < 1) = (1 < x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition invr_lte1 := (invr_le1, invr_lt1).
 Definition invr_cp1 := (invr_gte1, invr_lte1).
@@ -2566,74 +2566,74 @@ Definition invr_cp1 := (invr_gte1, invr_lte1).
 (* max and min *)
 
 Lemma addr_min_max x y : min x y + max x y = x + y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma addr_max_min x y : max x y + min x y = x + y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma minr_to_max x y : min x y = x + y - max x y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma maxr_to_min x y : max x y = x + y - min x y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_oppr_max : {in real &, {morph -%R : x y / max x y >-> min x y : R}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_oppr_min : {in real &, {morph -%R : x y / min x y >-> max x y : R}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_addr_minl : {in real & real & real, @left_distributive R R +%R min}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_addr_minr : {in real & real & real, @right_distributive R R +%R min}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_addr_maxl : {in real & real & real, @left_distributive R R +%R max}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_addr_maxr : {in real & real & real, @right_distributive R R +%R max}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma minr_pmulr x y z : 0 <= x -> x * min y z = min (x * y) (x * z).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma maxr_pmulr x y z : 0 <= x -> x * max y z = max (x * y) (x * z).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_maxr_nmulr x y z : x <= 0 -> y \is real -> z \is real ->
   x * max y z = min (x * y) (x * z).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_minr_nmulr x y z :  x <= 0 -> y \is real -> z \is real ->
   x * min y z = max (x * y) (x * z).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma minr_pmull x y z : 0 <= x -> min y z * x = min (y * x) (z * x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma maxr_pmull x y z : 0 <= x -> max y z * x = max (y * x) (z * x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_minr_nmull x y z : x <= 0 -> y \is real -> z \is real ->
   min y z * x = max (y * x) (z * x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_maxr_nmull x y z : x <= 0 -> y \is real -> z \is real ->
   max y z * x = min (y * x) (z * x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_maxrN x : x \is real -> max x (- x) = `|x|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_maxNr x : x \is real -> max (- x) x = `|x|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_minrN x : x \is real -> min x (- x) = - `|x|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_minNr x : x \is real ->  min (- x) x = - `|x|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Section RealDomainArgExtremum.
 
@@ -2642,17 +2642,17 @@ Context (P : pred I) (F : I -> R) (Pi0 : P i0).
 Hypothesis F_real : {in P, forall i, F i \is real}.
 
 Lemma real_arg_minP : extremum_spec <=%R P F [arg min_(i < i0 | P i) F i].
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_arg_maxP : extremum_spec >=%R P F [arg max_(i > i0 | P i) F i].
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End RealDomainArgExtremum.
 
 (* norm *)
 
 Lemma real_ler_norm x : x \is real -> x <= `|x|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* norm + add *)
 
@@ -2661,36 +2661,36 @@ Section NormedZmoduleTheory.
 Variable V : normedZmodType R.
 Implicit Types (u v w : V).
 
-Lemma normr_real v : `|v| \is real. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma normr_real v : `|v| \is real. Proof. Show. Fail (abduce 3). Admitted.
 Hint Resolve normr_real : core.
 
 Lemma ler_norm_sum I r (G : I -> V) (P : pred I):
   `|\sum_(i <- r | P i) G i| <= \sum_(i <- r | P i) `|G i|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_norm_sub v w : `|v - w| <= `|v| + `|w|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_dist_add u v w : `|v - w| <= `|v - u| + `|u - w|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_sub_norm_add v w : `|v| - `|w| <= `|v + w|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_sub_dist v w : `|v| - `|w| <= `|v - w|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_dist_dist v w : `| `|v| - `|w| | <= `|v - w|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_dist_norm_add v w : `| `|v| - `|w| | <= `|v + w|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_nnorml v x : x < 0 -> `|v| <= x = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_nnorml v x : x <= 0 -> `|v| < x = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lter_nnormr := (ler_nnorml, ltr_nnorml).
 
@@ -2699,381 +2699,381 @@ End NormedZmoduleTheory.
 Hint Extern 0 (is_true (norm _ \is real)) => apply: normr_real : core.
 
 Lemma real_ler_norml x y : x \is real -> (`|x| <= y) = (- y <= x <= y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_ler_normlP x y :
   x \is real -> reflect ((-x <= y) * (x <= y)) (`|x| <= y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Arguments real_ler_normlP {x y}.
 
 Lemma real_eqr_norml x y :
   x \is real -> (`|x| == y) = ((x == y) || (x == -y)) && (0 <= y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_eqr_norm2 x y :
   x \is real -> y \is real -> (`|x| == `|y|) = (x == y) || (x == -y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_ltr_norml x y : x \is real -> (`|x| < y) = (- y < x < y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition real_lter_norml := (real_ler_norml, real_ltr_norml).
 
 Lemma real_ltr_normlP x y :
   x \is real -> reflect ((-x < y) * (x < y)) (`|x| < y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Arguments real_ltr_normlP {x y}.
 
 Lemma real_ler_normr x y : y \is real -> (x <= `|y|) = (x <= y) || (x <= - y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_ltr_normr x y : y \is real -> (x < `|y|) = (x < y) || (x < - y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition real_lter_normr := (real_ler_normr, real_ltr_normr).
 
 Lemma real_ltr_normlW x y : x \is real -> `|x| < y -> x < y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_ltrNnormlW x y : x \is real -> `|x| < y -> - y < x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_ler_normlW x y : x \is real -> `|x| <= y -> x <= y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_lerNnormlW x y : x \is real -> `|x| <= y -> - y <= x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_ler_distl x y e :
   x - y \is real -> (`|x - y| <= e) = (y - e <= x <= y + e).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_ltr_distl x y e :
   x - y \is real -> (`|x - y| < e) = (y - e < x < y + e).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition real_lter_distl := (real_ler_distl, real_ltr_distl).
 
 Lemma real_ltr_distl_addr x y e : x - y \is real -> `|x - y| < e -> x < y + e.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_ler_distl_addr x y e : x - y \is real -> `|x - y| <= e -> x <= y + e.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_ltr_distlC_addr x y e : x - y \is real -> `|x - y| < e -> y < x + e.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_ler_distlC_addr x y e : x - y \is real -> `|x - y| <= e -> y <= x + e.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_ltr_distl_subl x y e : x - y \is real -> `|x - y| < e -> x - e < y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_ler_distl_subl x y e : x - y \is real -> `|x - y| <= e -> x - e <= y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_ltr_distlC_subl x y e : x - y \is real -> `|x - y| < e -> y - e < x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_ler_distlC_subl x y e : x - y \is real -> `|x - y| <= e -> y - e <= x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* GG: pointless duplication }-( *)
-Lemma eqr_norm_id x : (`|x| == x) = (0 <= x). Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma eqr_normN x : (`|x| == - x) = (x <= 0). Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma eqr_norm_id x : (`|x| == x) = (0 <= x). Proof. Show. Fail (abduce 3). Admitted.
+Lemma eqr_normN x : (`|x| == - x) = (x <= 0). Proof. Show. Fail (abduce 3). Admitted.
 Definition eqr_norm_idVN := =^~ (ger0_def, ler0_def).
 
 Lemma real_exprn_even_ge0 n x : x \is real -> ~~ odd n -> 0 <= x ^+ n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_exprn_even_gt0 n x :
   x \is real -> ~~ odd n -> (0 < x ^+ n) = (n == 0)%N || (x != 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_exprn_even_le0 n x :
   x \is real -> ~~ odd n -> (x ^+ n <= 0) = (n != 0%N) && (x == 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_exprn_even_lt0 n x :
   x \is real -> ~~ odd n -> (x ^+ n < 0) = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_exprn_odd_ge0 n x :
   x \is real -> odd n -> (0 <= x ^+ n) = (0 <= x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_exprn_odd_gt0 n x : x \is real -> odd n -> (0 < x ^+ n) = (0 < x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_exprn_odd_le0 n x : x \is real -> odd n -> (x ^+ n <= 0) = (x <= 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_exprn_odd_lt0 n x : x \is real -> odd n -> (x ^+ n < 0) = (x < 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* GG: Could this be a better definition of "real" ? *)
 Lemma realEsqr x : (x \is real) = (0 <= x ^+ 2).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_normK x : x \is real -> `|x| ^+ 2 = x ^+ 2.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* Binary sign ((-1) ^+ s). *)
 
 Lemma normr_sign s : `|(-1) ^+ s : R| = 1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normrMsign s x : `|(-1) ^+ s * x| = `|x|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma signr_gt0 (b : bool) : (0 < (-1) ^+ b :> R) = ~~ b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma signr_lt0 (b : bool) : ((-1) ^+ b < 0 :> R) = b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma signr_ge0 (b : bool) : (0 <= (-1) ^+ b :> R) = ~~ b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma signr_le0 (b : bool) : ((-1) ^+ b <= 0 :> R) = b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* This actually holds for char R != 2. *)
 Lemma signr_inj : injective (fun b : bool => (-1) ^+ b : R).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* Ternary sign (sg). *)
 
 Lemma sgr_def x : sg x = (-1) ^+ (x < 0)%R *+ (x != 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma neqr0_sign x : x != 0 -> (-1) ^+ (x < 0)%R = sgr x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma gtr0_sg x : 0 < x -> sg x = 1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr0_sg x : x < 0 -> sg x = -1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
-Lemma sgr0 : sg 0 = 0 :> R. Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma sgr1 : sg 1 = 1 :> R. Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma sgrN1 : sg (-1) = -1 :> R. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma sgr0 : sg 0 = 0 :> R. Proof. Show. Fail (abduce 3). Admitted.
+Lemma sgr1 : sg 1 = 1 :> R. Proof. Show. Fail (abduce 3). Admitted.
+Lemma sgrN1 : sg (-1) = -1 :> R. Proof. Show. Fail (abduce 3). Admitted.
 Definition sgrE := (sgr0, sgr1, sgrN1).
 
 Lemma sqr_sg x : sg x ^+ 2 = (x != 0)%:R.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma mulr_sg_eq1 x y : (sg x * y == 1) = (x != 0) && (sg x == y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma mulr_sg_eqN1 x y : (sg x * sg y == -1) = (x != 0) && (sg x == - sg y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sgr_eq0 x : (sg x == 0) = (x == 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sgr_odd n x : x != 0 -> (sg x) ^+ n = (sg x) ^+ (odd n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sgrMn x n : sg (x *+ n) = (n != 0%N)%:R * sg x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sgr_nat n : sg n%:R = (n != 0%N)%:R :> R.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sgr_id x : sg (sg x) = sg x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sgr_lt0 x : (sg x < 0) = (x < 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sgr_le0 x : (sgr x <= 0) = (x <= 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* sign and norm *)
 
 Lemma realEsign x : x \is real -> x = (-1) ^+ (x < 0)%R * `|x|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma realNEsign x : x \is real -> - x = (-1) ^+ (0 < x)%R * `|x|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_normrEsign (x : R) (xR : x \is real) : `|x| = (-1) ^+ (x < 0)%R * x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* GG: pointless duplication... *)
 Lemma real_mulr_sign_norm x : x \is real -> (-1) ^+ (x < 0)%R * `|x| = x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_mulr_Nsign_norm x : x \is real -> (-1) ^+ (0 < x)%R * `|x| = - x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma realEsg x : x \is real -> x = sgr x * `|x|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normr_sg x : `|sg x| = (x != 0)%:R.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sgr_norm x : sg `|x| = (x != 0)%:R.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* leif *)
 
 Lemma leif_nat_r m n C : (m%:R <= n%:R ?= iff C :> R) = (m <= n ?= iff C)%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma leif_subLR x y z C : (x - y <= z ?= iff C) = (x <= z + y ?= iff C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma leif_subRL x y z C : (x <= y - z ?= iff C) = (x + z <= y ?= iff C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma leif_add x1 y1 C1 x2 y2 C2 :
     x1 <= y1 ?= iff C1 -> x2 <= y2 ?= iff C2 ->
   x1 + x2 <= y1 + y2 ?= iff C1 && C2.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma leif_sum (I : finType) (P C : pred I) (E1 E2 : I -> R) :
     (forall i, P i -> E1 i <= E2 i ?= iff C i) ->
   \sum_(i | P i) E1 i <= \sum_(i | P i) E2 i ?= iff [forall (i | P i), C i].
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma leif_0_sum (I : finType) (P C : pred I) (E : I -> R) :
     (forall i, P i -> 0 <= E i ?= iff C i) ->
   0 <= \sum_(i | P i) E i ?= iff [forall (i | P i), C i].
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_leif_norm x : x \is real -> x <= `|x| ?= iff (0 <= x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma leif_pmul x1 x2 y1 y2 C1 C2 :
     0 <= x1 -> 0 <= x2 -> x1 <= y1 ?= iff C1 -> x2 <= y2 ?= iff C2 ->
   x1 * x2 <= y1 * y2 ?= iff (y1 * y2 == 0) || C1 && C2.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma leif_nmul x1 x2 y1 y2 C1 C2 :
     y1 <= 0 -> y2 <= 0 -> x1 <= y1 ?= iff C1 -> x2 <= y2 ?= iff C2 ->
   y1 * y2 <= x1 * x2 ?= iff (x1 * x2 == 0) || C1 && C2.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma leif_pprod (I : finType) (P C : pred I) (E1 E2 : I -> R) :
     (forall i, P i -> 0 <= E1 i) ->
     (forall i, P i -> E1 i <= E2 i ?= iff C i) ->
   let pi E := \prod_(i | P i) E i in
   pi E1 <= pi E2 ?= iff (pi E2 == 0) || [forall (i | P i), C i].
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* lteif *)
 
 Lemma subr_lteifr0 C x y : (y - x < 0 ?<= if C) = (y < x ?<= if C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma subr_lteif0r C x y : (0 < y - x ?<= if C) = (x < y ?<= if C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition subr_lteif0 := (subr_lteifr0, subr_lteif0r).
 
 Lemma lteif01 C : 0 < 1 ?<= if C :> R.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lteif_oppl C x y : - x < y ?<= if C = (- y < x ?<= if C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lteif_oppr C x y : x < - y ?<= if C = (y < - x ?<= if C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lteif_0oppr C x : 0 < - x ?<= if C = (x < 0 ?<= if C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lteif_oppr0 C x : - x < 0 ?<= if C = (0 < x ?<= if C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lteif_opp2 C : {mono -%R : x y /~ x < y ?<= if C :> R}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lteif_oppE := (lteif_0oppr, lteif_oppr0, lteif_opp2).
 
 Lemma lteif_add2l C x : {mono +%R x : y z / y < z ?<= if C}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lteif_add2r C x : {mono +%R^~ x : y z / y < z ?<= if C}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lteif_add2 := (lteif_add2l, lteif_add2r).
 
 Lemma lteif_subl_addr C x y z : (x - y < z ?<= if C) = (x < z + y ?<= if C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lteif_subr_addr C x y z : (x < y - z ?<= if C) = (x + z < y ?<= if C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lteif_sub_addr := (lteif_subl_addr, lteif_subr_addr).
 
 Lemma lteif_subl_addl C x y z : (x - y < z ?<= if C) = (x < y + z ?<= if C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lteif_subr_addl C x y z : (x < y - z ?<= if C) = (z + x < y ?<= if C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lteif_sub_addl := (lteif_subl_addl, lteif_subr_addl).
 
 Lemma lteif_pmul2l C x : 0 < x -> {mono *%R x : y z / y < z ?<= if C}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lteif_pmul2r C x : 0 < x -> {mono *%R^~ x : y z / y < z ?<= if C}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lteif_nmul2l C x : x < 0 -> {mono *%R x : y z /~ y < z ?<= if C}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lteif_nmul2r C x : x < 0 -> {mono *%R^~ x : y z /~ y < z ?<= if C}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lteif_nnormr C x y : y < 0 ?<= if ~~ C -> (`|x| < y ?<= if C) = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_lteifNE x y C : x \is Num.real -> y \is Num.real ->
   x < y ?<= if ~~ C = ~~ (y < x ?<= if C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_lteif_norml C x y :
   x \is Num.real ->
   (`|x| < y ?<= if C) = ((- y < x ?<= if C) && (x < y ?<= if C)).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_lteif_normr C x y :
   y \is Num.real ->
   (x < `|y| ?<= if C) = ((x < y ?<= if C) || (x < - y ?<= if C)).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_lteif_distl C x y e :
   x - y \is real ->
   (`|x - y| < e ?<= if C) = (y - e < x ?<= if C) && (x < y + e ?<= if C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* Mean inequalities. *)
 
 Lemma real_leif_mean_square_scaled x y :
   x \is real -> y \is real -> x * y *+ 2 <= x ^+ 2 + y ^+ 2 ?= iff (x == y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_leif_AGM2_scaled x y :
   x \is real -> y \is real -> x * y *+ 4 <= (x + y) ^+ 2 ?= iff (x == y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma leif_AGM_scaled (I : finType) (A : {pred I}) (E : I -> R) (n := #|A|) :
     {in A, forall i, 0 <= E i *+ n} ->
   \prod_(i in A) (E i *+ n) <= (\sum_(i in A) E i) ^+ n
                             ?= iff [forall i in A, forall j in A, E i == E j].
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* Polynomial bound. *)
 
 Implicit Type p : {poly R}.
 
 Lemma poly_disk_bound p b : {ub | forall x, `|x| <= b -> `|p.[x]| <= ub}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End NumDomainOperationTheory.
 
@@ -3092,37 +3092,37 @@ Implicit Types (m n p : nat) (x y z : R) (u v w : R').
 
 Lemma real_mono :
   {homo f : x y / x < y} -> {in real &, {mono f : x y / x <= y}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_nmono :
   {homo f : x y /~ x < y} -> {in real &, {mono f : x y /~ x <= y}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_mono_in :
     {in D &, {homo f : x y / x < y}} ->
   {in [pred x in D | x \is real] &, {mono f : x y / x <= y}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_nmono_in :
     {in D &, {homo f : x y /~ x < y}} ->
   {in [pred x in D | x \is real] &, {mono f : x y /~ x <= y}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma realn_mono : {homo f' : x y / x < y >-> (x < y)} ->
   {in real &, {mono f' : x y / x <= y >-> (x <= y)}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma realn_nmono : {homo f' : x y / y < x >-> (x < y)} ->
   {in real &, {mono f' : x y / y <= x >-> (x <= y)}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma realn_mono_in : {in D &, {homo f' : x y / x < y >-> (x < y)}} ->
   {in [pred x in D | x \is real] &, {mono f' : x y / x <= y >-> (x <= y)}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma realn_nmono_in : {in D &, {homo f' : x y / y < x >-> (x < y)}} ->
   {in [pred x in D | x \is real] &, {mono f' : x y / y <= x >-> (x <= y)}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End NumDomainMonotonyTheoryForReals.
 
@@ -3134,16 +3134,16 @@ Variables (R : numDomainType) (gT : finGroupType).
 Implicit Types G : {group gT}.
 
 Lemma natrG_gt0 G : #|G|%:R > 0 :> R.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma natrG_neq0 G : #|G|%:R != 0 :> R.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma natr_indexg_gt0 G B : #|G : B|%:R > 0 :> R.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma natr_indexg_neq0 G B : #|G : B|%:R != 0 :> R.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End FinGroup.
 
@@ -3153,210 +3153,210 @@ Variable F : numFieldType.
 Implicit Types x y z t : F.
 
 Lemma unitf_gt0 x : 0 < x -> x \is a GRing.unit.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma unitf_lt0 x : x < 0 -> x \is a GRing.unit.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lef_pinv : {in pos &, {mono (@GRing.inv F) : x y /~ x <= y}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lef_ninv : {in neg &, {mono (@GRing.inv F) : x y /~ x <= y}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltf_pinv : {in pos &, {mono (@GRing.inv F) : x y /~ x < y}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltf_ninv: {in neg &, {mono (@GRing.inv F) : x y /~ x < y}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition ltef_pinv := (lef_pinv, ltf_pinv).
 Definition ltef_ninv := (lef_ninv, ltf_ninv).
 
 Lemma invf_gt1 x : 0 < x -> (1 < x^-1) = (x < 1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma invf_ge1 x : 0 < x -> (1 <= x^-1) = (x <= 1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition invf_gte1 := (invf_ge1, invf_gt1).
 
 Lemma invf_le1 x : 0 < x -> (x^-1 <= 1) = (1 <= x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma invf_lt1 x : 0 < x -> (x^-1 < 1) = (1 < x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition invf_lte1 := (invf_le1, invf_lt1).
 Definition invf_cp1 := (invf_gte1, invf_lte1).
 
 (* These lemma are all combinations of mono(LR|RL) with ler_[pn]mul2[rl]. *)
 Lemma ler_pdivl_mulr z x y : 0 < z -> (x <= y / z) = (x * z <= y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_pdivl_mulr z x y : 0 < z -> (x < y / z) = (x * z < y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lter_pdivl_mulr := (ler_pdivl_mulr, ltr_pdivl_mulr).
 
 Lemma ler_pdivr_mulr z x y : 0 < z -> (y / z <= x) = (y <= x * z).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_pdivr_mulr z x y : 0 < z -> (y / z < x) = (y < x * z).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lter_pdivr_mulr := (ler_pdivr_mulr, ltr_pdivr_mulr).
 
 Lemma ler_pdivl_mull z x y : 0 < z -> (x <= z^-1 * y) = (z * x <= y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_pdivl_mull z x y : 0 < z -> (x < z^-1 * y) = (z * x < y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lter_pdivl_mull := (ler_pdivl_mull, ltr_pdivl_mull).
 
 Lemma ler_pdivr_mull z x y : 0 < z -> (z^-1 * y <= x) = (y <= z * x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_pdivr_mull z x y : 0 < z -> (z^-1 * y < x) = (y < z * x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lter_pdivr_mull := (ler_pdivr_mull, ltr_pdivr_mull).
 
 Lemma ler_ndivl_mulr z x y : z < 0 -> (x <= y / z) = (y <= x * z).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_ndivl_mulr z x y : z < 0 -> (x < y / z) = (y < x * z).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lter_ndivl_mulr := (ler_ndivl_mulr, ltr_ndivl_mulr).
 
 Lemma ler_ndivr_mulr z x y : z < 0 -> (y / z <= x) = (x * z <= y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_ndivr_mulr z x y : z < 0 -> (y / z < x) = (x * z < y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lter_ndivr_mulr := (ler_ndivr_mulr, ltr_ndivr_mulr).
 
 Lemma ler_ndivl_mull z x y : z < 0 -> (x <= z^-1 * y) = (y <= z * x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_ndivl_mull z x y : z < 0 -> (x < z^-1 * y) = (y < z * x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lter_ndivl_mull := (ler_ndivl_mull, ltr_ndivl_mull).
 
 Lemma ler_ndivr_mull z x y : z < 0 -> (z^-1 * y <= x) = (z * x <= y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_ndivr_mull z x y : z < 0 -> (z^-1 * y < x) = (z * x < y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lter_ndivr_mull := (ler_ndivr_mull, ltr_ndivr_mull).
 
 Lemma natf_div m d : (d %| m)%N -> (m %/ d)%:R = m%:R / d%:R :> F.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normfV : {morph (@norm F F) : x / x ^-1}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normf_div : {morph (@norm F F) : x y / x / y}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma invr_sg x : (sg x)^-1 = sgr x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sgrV x : sgr x^-1 = sgr x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma splitr x : x = x / 2%:R + x / 2%:R.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* lteif *)
 
 Lemma lteif_pdivl_mulr C z x y :
   0 < z -> x < y / z ?<= if C = (x * z < y ?<= if C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lteif_pdivr_mulr C z x y :
   0 < z -> y / z < x ?<= if C = (y < x * z ?<= if C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lteif_pdivl_mull C z x y :
   0 < z -> x < z^-1 * y ?<= if C = (z * x < y ?<= if C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lteif_pdivr_mull C z x y :
   0 < z -> z^-1 * y < x ?<= if C = (y < z * x ?<= if C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lteif_ndivl_mulr C z x y :
   z < 0 -> x < y / z ?<= if C = (y < x * z ?<= if C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lteif_ndivr_mulr C z x y :
   z < 0 -> y / z < x ?<= if C = (x * z < y ?<= if C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lteif_ndivl_mull C z x y :
   z < 0 -> x < z^-1 * y ?<= if C = (y < z * x ?<= if C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lteif_ndivr_mull C z x y :
   z < 0 -> z^-1 * y < x ?<= if C = (z * x < y ?<= if C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* Interval midpoint. *)
 
 Local Notation mid x y := ((x + y) / 2).
 
 Lemma midf_le x y : x <= y -> (x <= mid x y) * (mid x y <= y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma midf_lt x y : x < y -> (x < mid x y) * (mid x y < y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition midf_lte := (midf_le, midf_lt).
 
 Lemma ler_addgt0Pr x y : reflect (forall e, e > 0 -> x <= y + e) (x <= y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_addgt0Pl x y : reflect (forall e, e > 0 -> x <= e + y) (x <= y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lt_le a b : (forall x, x < a -> x < b) -> a <= b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma gt_ge a b : (forall x, b < x -> a < x) -> a <= b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* The AGM, unscaled but without the nth root. *)
 
 Lemma real_leif_mean_square x y :
   x \is real -> y \is real -> x * y <= mid (x ^+ 2) (y ^+ 2) ?= iff (x == y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma real_leif_AGM2 x y :
   x \is real -> y \is real -> x * y <= mid x y ^+ 2 ?= iff (x == y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma leif_AGM (I : finType) (A : {pred I}) (E : I -> F) :
     let n := #|A| in let mu := (\sum_(i in A) E i) / n%:R in
     {in A, forall i, 0 <= E i} ->
   \prod_(i in A) E i <= mu ^+ n
                      ?= iff [forall i in A, forall j in A, E i == E j].
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Implicit Type p : {poly F}.
 Lemma Cauchy_root_bound p : p != 0 -> {b | forall x, root p x -> `|x| <= b}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Import GroupScope.
 
 Lemma natf_indexg (gT : finGroupType) (G H : {group gT}) :
   H \subset G -> #|G : H|%:R = (#|G|%:R / #|H|%:R)%R :> F.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End NumFieldTheory.
 
@@ -3365,65 +3365,65 @@ Section RealDomainTheory.
 Variable R : realDomainType.
 Implicit Types x y z t : R.
 
-Lemma num_real x : x \is real. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma num_real x : x \is real. Proof. Show. Fail (abduce 3). Admitted.
 Hint Resolve num_real : core.
 
 Lemma lerP x y : ler_xor_gt x y (min y x) (min x y) (max y x) (max x y)
                                 `|x - y| `|y - x| (x <= y) (y < x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltrP x y : ltr_xor_ge x y (min y x) (min x y) (max y x) (max x y)
                                 `|x - y| `|y - x| (y <= x) (x < y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltrgtP x y :
    comparer x y  (min y x) (min x y) (max y x) (max x y)
                  `|x - y| `|y - x| (y == x) (x == y)
                  (x >= y) (x <= y) (x > y) (x < y) .
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ger0P x : ger0_xor_lt0 x (min 0 x) (min x 0) (max 0 x) (max x 0)
                                 `|x| (x < 0) (0 <= x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler0P x : ler0_xor_gt0 x (min 0 x) (min x 0) (max 0 x) (max x 0)
                                 `|x| (0 < x) (x <= 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltrgt0P x : comparer0 x (min 0 x) (min x 0) (max 0 x) (max x 0)
   `|x| (0 == x) (x == 0) (x <= 0) (0 <= x) (x < 0) (x > 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* sign *)
 
 Lemma mulr_lt0 x y :
   (x * y < 0) = [&& x != 0, y != 0 & (x < 0) (+) (y < 0)].
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma neq0_mulr_lt0 x y :
   x != 0 -> y != 0 -> (x * y < 0) = (x < 0) (+) (y < 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma mulr_sign_lt0 (b : bool) x :
   ((-1) ^+ b * x < 0) = (x != 0) && (b (+) (x < 0)%R).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* sign & norm *)
 
 Lemma mulr_sign_norm x : (-1) ^+ (x < 0)%R * `|x| = x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma mulr_Nsign_norm x : (-1) ^+ (0 < x)%R * `|x| = - x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma numEsign x : x = (-1) ^+ (x < 0)%R * `|x|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma numNEsign x : -x = (-1) ^+ (0 < x)%R * `|x|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normrEsign x : `|x| = (-1) ^+ (x < 0)%R * x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End RealDomainTheory.
 
@@ -3462,7 +3462,7 @@ Lemma sgr_cp0 x :
   ((sg x == 1) = (0 < x)) *
   ((sg x == -1) = (x < 0)) *
   ((sg x == 0) = (x == 0)).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Variant sgr_val x : R -> bool -> bool -> bool -> bool -> bool -> bool
   -> bool -> bool -> bool -> bool -> bool -> bool -> R -> Set :=
@@ -3477,206 +3477,206 @@ Lemma sgrP x :
   sgr_val x `|x| (0 == x) (x <= 0) (0 <= x) (x == 0) (x < 0) (0 < x)
                  (0 == sg x) (-1 == sg x) (1 == sg x)
                  (sg x == 0)  (sg x == -1) (sg x == 1) (sg x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normrEsg x : `|x| = sg x * x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma numEsg x : x = sg x * `|x|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* GG: duplicate! *)
-Lemma mulr_sg_norm x : sg x * `|x| = x. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma mulr_sg_norm x : sg x * `|x| = x. Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sgrM x y : sg (x * y) = sg x * sg y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sgrN x : sg (- x) = - sg x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sgrX n x : sg (x ^+ n) = (sg x) ^+ n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sgr_smul x y : sg (sg x * y) = sg x * sg y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sgr_gt0 x : (sg x > 0) = (x > 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sgr_ge0 x : (sgr x >= 0) = (x >= 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* norm section *)
 
 Lemma ler_norm x : (x <= `|x|).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_norml x y : (`|x| <= y) = (- y <= x <= y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_normlP x y : reflect ((- x <= y) * (x <= y)) (`|x| <= y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Arguments ler_normlP {x y}.
 
 Lemma eqr_norml x y : (`|x| == y) = ((x == y) || (x == -y)) && (0 <= y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma eqr_norm2 x y : (`|x| == `|y|) = (x == y) || (x == -y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_norml x y : (`|x| < y) = (- y < x < y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lter_norml := (ler_norml, ltr_norml).
 
 Lemma ltr_normlP x y : reflect ((-x < y) * (x < y)) (`|x| < y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Arguments ltr_normlP {x y}.
 
-Lemma ltr_normlW x y : `|x| < y -> x < y. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma ltr_normlW x y : `|x| < y -> x < y. Proof. Show. Fail (abduce 3). Admitted.
 
-Lemma ltrNnormlW x y : `|x| < y -> - y < x. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma ltrNnormlW x y : `|x| < y -> - y < x. Proof. Show. Fail (abduce 3). Admitted.
 
-Lemma ler_normlW x y : `|x| <= y -> x <= y. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma ler_normlW x y : `|x| <= y -> x <= y. Proof. Show. Fail (abduce 3). Admitted.
 
-Lemma lerNnormlW x y : `|x| <= y -> - y <= x. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma lerNnormlW x y : `|x| <= y -> - y <= x. Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_normr x y : (x <= `|y|) = (x <= y) || (x <= - y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_normr x y : (x < `|y|) = (x < y) || (x < - y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lter_normr := (ler_normr, ltr_normr).
 
 Lemma ler_distl x y e : (`|x - y| <= e) = (y - e <= x <= y + e).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_distl x y e : (`|x - y| < e) = (y - e < x < y + e).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lter_distl := (ler_distl, ltr_distl).
 
 Lemma ltr_distlC x y e : (`|x - y| < e) = (x - e < y < x + e).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_distlC x y e : (`|x - y| <= e) = (x - e <= y <= x + e).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition lter_distlC := (ler_distlC, ltr_distlC).
 
 Lemma ltr_distl_addr x y e : `|x - y| < e -> x < y + e.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_distl_addr x y e : `|x - y| <= e -> x <= y + e.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_distlC_addr x y e : `|x - y| < e -> y < x + e.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_distlC_addr x y e : `|x - y| <= e -> y <= x + e.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_distl_subl x y e : `|x - y| < e -> x - e < y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_distl_subl x y e : `|x - y| <= e -> x - e <= y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_distlC_subl x y e : `|x - y| < e -> y - e < x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_distlC_subr x y e : `|x - y| <= e -> y - e <= x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma exprn_even_ge0 n x : ~~ odd n -> 0 <= x ^+ n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma exprn_even_gt0 n x : ~~ odd n -> (0 < x ^+ n) = (n == 0)%N || (x != 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma exprn_even_le0 n x : ~~ odd n -> (x ^+ n <= 0) = (n != 0%N) && (x == 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma exprn_even_lt0 n x : ~~ odd n -> (x ^+ n < 0) = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma exprn_odd_ge0 n x : odd n -> (0 <= x ^+ n) = (0 <= x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma exprn_odd_gt0 n x : odd n -> (0 < x ^+ n) = (0 < x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma exprn_odd_le0 n x : odd n -> (x ^+ n <= 0) = (x <= 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma exprn_odd_lt0 n x : odd n -> (x ^+ n < 0) = (x < 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* lteif *)
 
 Lemma lteif_norml C x y :
   (`|x| < y ?<= if C) = (- y < x ?<= if C) && (x < y ?<= if C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lteif_normr C x y :
   (x < `|y| ?<= if C) = (x < y ?<= if C) || (x < - y ?<= if C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lteif_distl C x y e :
   (`|x - y| < e ?<= if C) = (y - e < x ?<= if C) && (x < y + e ?<= if C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* Special lemmas for squares. *)
 
-Lemma sqr_ge0 x : 0 <= x ^+ 2. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma sqr_ge0 x : 0 <= x ^+ 2. Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sqr_norm_eq1 x : (x ^+ 2 == 1) = (`|x| == 1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma leif_mean_square_scaled x y :
   x * y *+ 2 <= x ^+ 2 + y ^+ 2 ?= iff (x == y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma leif_AGM2_scaled x y : x * y *+ 4 <= (x + y) ^+ 2 ?= iff (x == y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Section MinMax.
 
 Lemma oppr_max : {morph -%R : x y / max x y >-> min x y : R}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma oppr_min : {morph -%R : x y / min x y >-> max x y : R}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma addr_minl : @left_distributive R R +%R min.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma addr_minr : @right_distributive R R +%R min.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma addr_maxl : @left_distributive R R +%R max.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma addr_maxr : @right_distributive R R +%R max.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma minr_nmulr x y z : x <= 0 -> x * min y z = max (x * y) (x * z).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma maxr_nmulr x y z : x <= 0 -> x * max y z = min (x * y) (x * z).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma minr_nmull x y z : x <= 0 -> min y z * x = max (y * x) (z * x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma maxr_nmull x y z : x <= 0 -> max y z * x = min (y * x) (z * x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
-Lemma maxrN x : max x (- x) = `|x|.   Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma maxNr x : max (- x) x = `|x|.   Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma minrN x : min x (- x) = - `|x|. Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma minNr x : min (- x) x = - `|x|. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma maxrN x : max x (- x) = `|x|.   Proof. Show. Fail (abduce 3). Admitted.
+Lemma maxNr x : max (- x) x = `|x|.   Proof. Show. Fail (abduce 3). Admitted.
+Lemma minrN x : min x (- x) = - `|x|. Proof. Show. Fail (abduce 3). Admitted.
+Lemma minNr x : min (- x) x = - `|x|. Proof. Show. Fail (abduce 3). Admitted.
 
 End MinMax.
 
@@ -3685,10 +3685,10 @@ Section PolyBounds.
 Variable p : {poly R}.
 
 Lemma poly_itv_bound a b : {ub | forall x, a <= x <= b -> `|p.[x]| <= ub}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma monic_Cauchy_bound : p \is monic -> {b | forall x, x >= b -> p.[x] > 0}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End PolyBounds.
 
@@ -3699,10 +3699,10 @@ Section RealField.
 Variables (F : realFieldType) (x y : F).
 
 Lemma leif_mean_square : x * y <= (x ^+ 2 + y ^+ 2) / 2 ?= iff (x == y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma leif_AGM2 : x * y <= ((x + y) / 2)^+ 2 ?= iff (x == y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End RealField.
 
@@ -3711,10 +3711,10 @@ Section ArchimedeanFieldTheory.
 Variables (F : archiFieldType) (x : F).
 
 Lemma archi_boundP : 0 <= x -> x < (bound x)%:R.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma upper_nthrootP i : (bound x <= i)%N -> x < 2 ^+ i.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End ArchimedeanFieldTheory.
 
@@ -3723,65 +3723,65 @@ Section RealClosedFieldTheory.
 Variable R : rcfType.
 Implicit Types a x y : R.
 
-Lemma poly_ivt : real_closed_axiom R. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma poly_ivt : real_closed_axiom R. Proof. Show. Fail (abduce 3). Admitted.
 
 (* Square Root theory *)
 
 Lemma sqrtr_ge0 a : 0 <= sqrt a.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Hint Resolve sqrtr_ge0 : core.
 
 Lemma sqr_sqrtr a : 0 <= a -> sqrt a ^+ 2 = a.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler0_sqrtr a : a <= 0 -> sqrt a = 0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr0_sqrtr a : a < 0 -> sqrt a = 0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Variant sqrtr_spec a : R -> bool -> bool -> R -> Type :=
 | IsNoSqrtr of a < 0 : sqrtr_spec a a false true 0
 | IsSqrtr b of 0 <= b : sqrtr_spec a (b ^+ 2) true false b.
 
 Lemma sqrtrP a : sqrtr_spec a a (0 <= a) (a < 0) (sqrt a).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sqrtr_sqr a : sqrt (a ^+ 2) = `|a|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sqrtrM a b : 0 <= a -> sqrt (a * b) = sqrt a * sqrt b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sqrtr0 : sqrt 0 = 0 :> R.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sqrtr1 : sqrt 1 = 1 :> R.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sqrtr_eq0 a : (sqrt a == 0) = (a <= 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sqrtr_gt0 a : (0 < sqrt a) = (0 < a).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma eqr_sqrt a b : 0 <= a -> 0 <= b -> (sqrt a == sqrt b) = (a == b).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_wsqrtr : {homo @sqrt R : a b / a <= b}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_psqrt : {in @pos R &, {mono sqrt : a b / a <= b}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_sqrt a b : 0 < b -> (sqrt a <= sqrt b) = (a <= b).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_sqrt a b : 0 < b -> (sqrt a < sqrt b) = (a < b).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sqrtrV x : 0 <= x -> sqrt (x^-1) = (sqrt x)^-1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End RealClosedFieldTheory.
 
@@ -3799,14 +3799,14 @@ Variable C : numClosedFieldType.
 Implicit Types a x y z : C.
 
 Definition normCK x : `|x| ^+ 2 = x * x^*.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
-Lemma sqrCi : 'i ^+ 2 = -1 :> C. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma sqrCi : 'i ^+ 2 = -1 :> C. Proof. Show. Fail (abduce 3). Admitted.
 
-Lemma mulCii : 'i * 'i = -1 :> C. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma mulCii : 'i * 'i = -1 :> C. Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma conjCK : involutive (@conjC C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Let Re2 z := z + z^*.
 Definition nnegIm z := (0 <= imaginaryC * (z^* - z)).
@@ -3817,341 +3817,341 @@ Variant rootC_spec n (x : C) : Type :=
                         & forall z, (n > 0)%N -> z ^+ n = x -> argCle y z.
 
 Fact rootC_subproof n x : rootC_spec n x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition nthroot n x := let: RootCspec y _ _ := rootC_subproof n x in y.
 Notation "n .-root" := (nthroot n) : ring_scope.
 Notation sqrtC := 2.-root.
 
-Fact Re_lock : unit. Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Fact Im_lock : unit. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Fact Re_lock : unit. Proof. Show. Fail (abduce 3). Admitted.
+Fact Im_lock : unit. Proof. Show. Fail (abduce 3). Admitted.
 Definition Re z := locked_with Re_lock ((z + z^*) / 2%:R).
 Definition Im z := locked_with Im_lock ('i * (z^* - z) / 2%:R).
 Notation "'Re z" := (Re z) : ring_scope.
 Notation "'Im z" := (Im z) : ring_scope.
 
-Lemma ReE z : 'Re z = (z + z^*) / 2%:R. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma ReE z : 'Re z = (z + z^*) / 2%:R. Proof. Show. Fail (abduce 3). Admitted.
 Lemma ImE z : 'Im z = 'i * (z^* - z) / 2%:R.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
-Let nz2 : 2 != 0 :> C. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Let nz2 : 2 != 0 :> C. Proof. Show. Fail (abduce 3). Admitted.
 
-Lemma normCKC x : `|x| ^+ 2 = x^* * x. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma normCKC x : `|x| ^+ 2 = x^* * x. Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma mul_conjC_ge0 x : 0 <= x * x^*.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma mul_conjC_gt0 x : (0 < x * x^*) = (x != 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma mul_conjC_eq0 x : (x * x^* == 0) = (x == 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma conjC_ge0 x : (0 <= x^*) = (0 <= x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
-Lemma conjC_nat n : (n%:R)^* = n%:R :> C. Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma conjC0 : 0^* = 0 :> C. Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma conjC1 : 1^* = 1 :> C. Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma conjCN1 : (- 1)^* = - 1 :> C. Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma conjC_eq0 x : (x^* == 0) = (x == 0). Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma conjC_nat n : (n%:R)^* = n%:R :> C. Proof. Show. Fail (abduce 3). Admitted.
+Lemma conjC0 : 0^* = 0 :> C. Proof. Show. Fail (abduce 3). Admitted.
+Lemma conjC1 : 1^* = 1 :> C. Proof. Show. Fail (abduce 3). Admitted.
+Lemma conjCN1 : (- 1)^* = - 1 :> C. Proof. Show. Fail (abduce 3). Admitted.
+Lemma conjC_eq0 x : (x^* == 0) = (x == 0). Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma invC_norm x : x^-1 = `|x| ^- 2 * x^*.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* Real number subset. *)
 
 Lemma CrealE x : (x \is real) = (x^* == x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma CrealP {x} : reflect (x^* = x) (x \is real).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma conj_Creal x : x \is real -> x^* = x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma conj_normC z : `|z|^* = `|z|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma CrealJ : {mono (@conjC C) : x / x \is Num.real}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma geC0_conj x : 0 <= x -> x^* = x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma geC0_unit_exp x n : 0 <= x -> (x ^+ n.+1 == 1) = (x == 1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* Elementary properties of roots. *)
 
 Ltac case_rootC := rewrite /nthroot; case: (rootC_subproof _ _).
 
-Lemma root0C x : 0.-root x = 0. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma root0C x : 0.-root x = 0. Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rootCK n : (n > 0)%N -> cancel n.-root (fun x => x ^+ n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
-Lemma root1C x : 1.-root x = x. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma root1C x : 1.-root x = x. Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rootC0 n : n.-root 0 = 0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rootC_inj n : (n > 0)%N -> injective n.-root.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma eqr_rootC n : (n > 0)%N -> {mono n.-root : x y / x == y}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rootC_eq0 n x : (n > 0)%N -> (n.-root x == 0) = (x == 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* Rectangular coordinates. *)
 
 Lemma nonRealCi : ('i : C) \isn't real.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma neq0Ci : 'i != 0 :> C.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normCi : `|'i| = 1 :> C.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma invCi : 'i^-1 = - 'i :> C.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma conjCi : 'i^* = - 'i :> C.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Crect x : x = 'Re x + 'i * 'Im x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma eqCP x y : x = y <-> ('Re x = 'Re y) /\ ('Im x = 'Im y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma eqC x y : (x == y) = ('Re x == 'Re y) && ('Im x == 'Im y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Creal_Re x : 'Re x \is real.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Creal_Im x : 'Im x \is real.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Hint Resolve Creal_Re Creal_Im : core.
 
 Fact Re_is_additive : additive Re.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Canonical Re_additive := Additive Re_is_additive.
 
 Fact Im_is_additive : additive Im.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Canonical Im_additive := Additive Im_is_additive.
 
 Lemma Creal_ImP z : reflect ('Im z = 0) (z \is real).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Creal_ReP z : reflect ('Re z = z) (z \in real).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ReMl : {in real, forall x, {morph Re : z / x * z}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ReMr : {in real, forall x, {morph Re : z / z * x}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ImMl : {in real, forall x, {morph Im : z / x * z}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ImMr : {in real, forall x, {morph Im : z / z * x}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
-Lemma Re_i : 'Re 'i = 0. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma Re_i : 'Re 'i = 0. Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Im_i : 'Im 'i = 1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Re_conj z : 'Re z^* = 'Re z.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Im_conj z : 'Im z^* = - 'Im z.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Re_rect : {in real &, forall x y, 'Re (x + 'i * y) = x}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Im_rect : {in real &, forall x y, 'Im (x + 'i * y) = y}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma conjC_rect : {in real &, forall x y, (x + 'i * y)^* = x - 'i * y}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma addC_rect x1 y1 x2 y2 :
   (x1 + 'i * y1) + (x2 + 'i * y2) = x1 + x2 + 'i * (y1 + y2).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma oppC_rect x y : - (x + 'i * y)  = - x + 'i * (- y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma subC_rect x1 y1 x2 y2 :
   (x1 + 'i * y1) - (x2 + 'i * y2) = x1 - x2 + 'i * (y1 - y2).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma mulC_rect x1 y1 x2 y2 : (x1 + 'i * y1) * (x2 + 'i * y2) =
                               x1 * x2 - y1 * y2 + 'i * (x1 * y2 + x2 * y1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ImM x y : 'Im (x * y) = 'Re x * 'Im y + 'Re y * 'Im x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ImMil x : 'Im ('i * x) = 'Re x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ReMil x : 'Re ('i * x) = - 'Im x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
-Lemma ReMir x : 'Re (x * 'i) = - 'Im x. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma ReMir x : 'Re (x * 'i) = - 'Im x. Proof. Show. Fail (abduce 3). Admitted.
 
-Lemma ImMir x : 'Im (x * 'i) = 'Re x. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma ImMir x : 'Im (x * 'i) = 'Re x. Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ReM x y : 'Re (x * y) = 'Re x * 'Re y - 'Im x * 'Im y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normC2_rect :
   {in real &, forall x y, `|x + 'i * y| ^+ 2 = x ^+ 2 + y ^+ 2}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normC2_Re_Im z : `|z| ^+ 2 = 'Re z ^+ 2 + 'Im z ^+ 2.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma invC_Crect x y : (x + 'i * y)^-1  = (x^* - 'i * y^*) / `|x + 'i * y| ^+ 2.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma invC_rect :
   {in real &, forall x y, (x + 'i * y)^-1  = (x - 'i * y) / (x ^+ 2 + y ^+ 2)}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ImV x : 'Im x^-1 = - 'Im x / `|x| ^+ 2.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ReV x : 'Re x^-1 = 'Re x / `|x| ^+ 2.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rectC_mulr x y z : (x + 'i * y) * z = x * z + 'i * (y * z).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rectC_mull x y z : z * (x + 'i * y) = z * x + 'i * (z * y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma divC_Crect x1 y1 x2 y2 :
   (x1 + 'i * y1) / (x2 + 'i * y2) =
   (x1 * x2^* + y1 * y2^* + 'i * (x2^* * y1 - x1 * y2^*)) /
     `|x2 + 'i * y2| ^+ 2.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma divC_rect x1 y1 x2 y2 :
      x1 \is real -> y1 \is real -> x2 \is real -> y2 \is real ->
   (x1 + 'i * y1) / (x2 + 'i * y2) =
   (x1 * x2 + y1 * y2 + 'i * (x2 * y1 - x1 * y2)) /
     (x2 ^+ 2 + y2 ^+ 2).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Im_div x y : 'Im (x / y) = ('Re y * 'Im x - 'Re x * 'Im y) / `|y| ^+ 2.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Re_div x y : 'Re (x / y) = ('Re x * 'Re y + 'Im x * 'Im y) / `|y| ^+ 2.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma leif_normC_Re_Creal z : `|'Re z| <= `|z| ?= iff (z \is real).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma leif_Re_Creal z : 'Re z <= `|z| ?= iff (0 <= z).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* Equality from polar coordinates, for the upper plane. *)
 Lemma eqC_semipolar x y :
   `|x| = `|y| -> 'Re x = 'Re y -> 0 <= 'Im x * 'Im y -> x = y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* Nth roots. *)
 
 Let argCleP y z :
   reflect (0 <= 'Im z -> 0 <= 'Im y /\ 'Re z <= 'Re y) (argCle y z).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rootC_Re_max n x y :
   (n > 0)%N -> y ^+ n = x -> 0 <= 'Im y -> 'Re y <= 'Re (n.-root x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Let neg_unity_root n : (n > 1)%N -> exists2 w : C, w ^+ n = 1 & 'Re w < 0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Im_rootC_ge0 n x : (n > 1)%N -> 0 <= 'Im (n.-root x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rootC_lt0 n x : (1 < n)%N -> (n.-root x < 0) = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rootC_ge0 n x : (n > 0)%N -> (0 <= n.-root x) = (0 <= x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rootC_gt0 n x : (n > 0)%N -> (n.-root x > 0) = (x > 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rootC_le0 n x : (1 < n)%N -> (n.-root x <= 0) = (x == 0).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_rootCl n : (n > 0)%N -> {in Num.nneg, {mono n.-root : x y / x <= y}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_rootC n : (n > 0)%N -> {in Num.nneg &, {mono n.-root : x y / x <= y}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_rootCl n : (n > 0)%N -> {in Num.nneg, {mono n.-root : x y / x < y}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ltr_rootC n : (n > 0)%N -> {in Num.nneg &, {mono n.-root : x y / x < y}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma exprCK n x : (0 < n)%N -> 0 <= x -> n.-root (x ^+ n) = x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma norm_rootC n x : `|n.-root x| = n.-root `|x|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rootCX n x k : (n > 0)%N -> 0 <= x -> n.-root (x ^+ k) = n.-root x ^+ k.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rootC1 n : (n > 0)%N -> n.-root 1 = 1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rootCpX n x k : (k > 0)%N -> 0 <= x -> n.-root (x ^+ k) = n.-root x ^+ k.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rootCV n x : 0 <= x -> n.-root x^-1 = (n.-root x)^-1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rootC_eq1 n x : (n > 0)%N -> (n.-root x == 1) = (x == 1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rootC_ge1 n x : (n > 0)%N -> (n.-root x >= 1) = (x >= 1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rootC_gt1 n x : (n > 0)%N -> (n.-root x > 1) = (x > 1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rootC_le1 n x : (n > 0)%N -> 0 <= x -> (n.-root x <= 1) = (x <= 1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rootC_lt1 n x : (n > 0)%N -> 0 <= x -> (n.-root x < 1) = (x < 1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rootCMl n x z : 0 <= x -> n.-root (x * z) = n.-root x * n.-root z.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rootCMr n x z : 0 <= x -> n.-root (z * x) = n.-root z * n.-root x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma imaginaryCE : 'i = sqrtC (-1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* More properties of n.-root will be established in cyclotomic.v. *)
 
@@ -4161,75 +4161,75 @@ Lemma leif_rootC_AGM (I : finType) (A : {pred I}) (n := #|A|) E :
     {in A, forall i, 0 <= E i} ->
   n.-root (\prod_(i in A) E i) <= (\sum_(i in A) E i) / n%:R
                              ?= iff [forall i in A, forall j in A, E i == E j].
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* Square root. *)
 
-Lemma sqrtC0 : sqrtC 0 = 0. Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma sqrtC1 : sqrtC 1 = 1. Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma sqrtCK x : sqrtC x ^+ 2 = x. Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma sqrCK x : 0 <= x -> sqrtC (x ^+ 2) = x. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma sqrtC0 : sqrtC 0 = 0. Proof. Show. Fail (abduce 3). Admitted.
+Lemma sqrtC1 : sqrtC 1 = 1. Proof. Show. Fail (abduce 3). Admitted.
+Lemma sqrtCK x : sqrtC x ^+ 2 = x. Proof. Show. Fail (abduce 3). Admitted.
+Lemma sqrCK x : 0 <= x -> sqrtC (x ^+ 2) = x. Proof. Show. Fail (abduce 3). Admitted.
 
-Lemma sqrtC_ge0 x : (0 <= sqrtC x) = (0 <= x). Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma sqrtC_eq0 x : (sqrtC x == 0) = (x == 0). Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma sqrtC_gt0 x : (sqrtC x > 0) = (x > 0). Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma sqrtC_lt0 x : (sqrtC x < 0) = false. Proof. Show. Fail (cvc5_abduct 3). Admitted.
-Lemma sqrtC_le0 x : (sqrtC x <= 0) = (x == 0). Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma sqrtC_ge0 x : (0 <= sqrtC x) = (0 <= x). Proof. Show. Fail (abduce 3). Admitted.
+Lemma sqrtC_eq0 x : (sqrtC x == 0) = (x == 0). Proof. Show. Fail (abduce 3). Admitted.
+Lemma sqrtC_gt0 x : (sqrtC x > 0) = (x > 0). Proof. Show. Fail (abduce 3). Admitted.
+Lemma sqrtC_lt0 x : (sqrtC x < 0) = false. Proof. Show. Fail (abduce 3). Admitted.
+Lemma sqrtC_le0 x : (sqrtC x <= 0) = (x == 0). Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ler_sqrtC : {in Num.nneg &, {mono sqrtC : x y / x <= y}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Lemma ltr_sqrtC : {in Num.nneg &, {mono sqrtC : x y / x < y}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Lemma eqr_sqrtC : {mono sqrtC : x y / x == y}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Lemma sqrtC_inj : injective sqrtC.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Lemma sqrtCM : {in Num.nneg &, {morph sqrtC : x y / x * y}}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma sqrCK_P x : reflect (sqrtC (x ^+ 2) = x) ((0 <= 'Im x) && ~~ (x < 0)).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normC_def x : `|x| = sqrtC (x * x^*).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma norm_conjC x : `|x^*| = `|x|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normC_rect :
   {in real &, forall x y, `|x + 'i * y| = sqrtC (x ^+ 2 + y ^+ 2)}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normC_Re_Im z : `|z| = sqrtC ('Re z ^+ 2 + 'Im z ^+ 2).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* Norm sum (in)equalities. *)
 
 Lemma normC_add_eq x y :
     `|x + y| = `|x| + `|y| ->
   {t : C | `|t| == 1 & (x, y) = (`|x| * t, `|y| * t)}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normC_sum_eq (I : finType) (P : pred I) (F : I -> C) :
      `|\sum_(i | P i) F i| = \sum_(i | P i) `|F i| ->
    {t : C | `|t| == 1 & forall i, P i -> F i = `|F i| * t}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normC_sum_eq1 (I : finType) (P : pred I) (F : I -> C) :
     `|\sum_(i | P i) F i| = (\sum_(i | P i) `|F i|) ->
      (forall i, P i -> `|F i| = 1) ->
    {t : C | `|t| == 1 & forall i, P i -> F i = t}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normC_sum_upper (I : finType) (P : pred I) (F G : I -> C) :
      (forall i, P i -> `|F i| <= G i) ->
      \sum_(i | P i) F i = \sum_(i | P i) G i ->
    forall i, P i -> F i = G i.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normC_sub_eq x y :
   `|x - y| = `|x| - `|y| -> {t | `|t| == 1 & (x, y) = (`|x| * t, `|y| * t)}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End ClosedFieldTheory.
 
@@ -4277,33 +4277,33 @@ Local Notation "x <= y" := (le m x y) : ring_scope.
 Local Notation "x < y" := (lt m x y) : ring_scope.
 Local Notation "`| x |" := (norm m x) : ring_scope.
 
-Lemma ltrr x : x < x = false. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma ltrr x : x < x = false. Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ge0_def x : (0 <= x) = (`|x| == x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma subr_ge0 x y : (0 <= x - y) = (y <= x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma subr_gt0 x y : (0 < y - x) = (x < y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lt_trans : transitive (lt m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma le01 : 0 <= 1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lt01 : 0 < 1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
-Lemma ltW x y : x < y -> x <= y. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma ltW x y : x < y -> x <= y. Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lerr x : x <= x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma le_def' x y : (x <= y) = (x == y) || (x < y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma le_trans : transitive (le m).
 by move=> y x z; rewrite !le_def' => /predU1P [->|hxy] // /predU1P [<-|hyz];
@@ -4311,13 +4311,13 @@ by move=> y x z; rewrite !le_def' => /predU1P [->|hxy] // /predU1P [<-|hyz];
 Qed.
 
 Lemma normrMn x n : `|x *+ n| = `|x| *+ n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normrN1 : `|-1| = 1 :> R.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma normrN x : `|- x| = `|x|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition ltPOrderMixin : ltPOrderMixin R :=
   LtPOrderMixin le_def' ltrr lt_trans.
@@ -4354,7 +4354,7 @@ Variables (R : numDomainType).
 Variable (real : real_axiom R).
 
 Lemma le_total : totalPOrderMixin R.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End RealMixin.
 
@@ -4391,29 +4391,29 @@ Local Notation "x <= y" := (le m x y) : ring_scope.
 Local Notation "x < y" := (lt m x y) : ring_scope.
 Local Notation "`| x |" := (norm m x) : ring_scope.
 
-Let le0N x : (0 <= - x) = (x <= 0). Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Let le0N x : (0 <= - x) = (x <= 0). Proof. Show. Fail (abduce 3). Admitted.
 Let leN_total x : 0 <= x \/ 0 <= - x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
-Let le00 : 0 <= 0. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Let le00 : 0 <= 0. Proof. Show. Fail (abduce 3). Admitted.
 
 Fact lt0_add x y : 0 < x -> 0 < y -> 0 < x + y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Fact eq0_norm x : `|x| = 0 -> x = 0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Fact le_def x y : (x <= y) = (`|y - x| == y - x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Fact normM : {morph norm m : x y / x * y}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Fact le_normD x y : `|x + y| <= `|x| + `|y|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Fact le_total : total (le m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition numMixin : numMixin R :=
   NumMixin le_normD lt0_add eq0_norm (in2W le_total) normM le_def (lt_def m).
@@ -4463,38 +4463,38 @@ Local Notation "x <= y" := (le m x y) : ring_scope.
 Local Notation "`| x |" := (norm m x) : ring_scope.
 
 Fact lt0N x : (- x < 0) = (0 < x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Let leN_total x : 0 <= x \/ 0 <= - x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
-Let le00 : (0 <= 0). Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Let le00 : (0 <= 0). Proof. Show. Fail (abduce 3). Admitted.
 
 Fact sub_ge0 x y : (0 <= y - x) = (x <= y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Fact le0_add x y : 0 <= x -> 0 <= y -> 0 <= x + y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Fact le0_mul x y : 0 <= x -> 0 <= y -> 0 <= x * y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Fact normM : {morph norm m : x y / x * y}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Fact le_normD x y : `|x + y| <= `|x| + `|y|.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Fact eq0_norm x : `|x| = 0 -> x = 0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Fact le_def' x y : (x <= y) = (`|y - x| == y - x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Fact lt_def x y : (x < y) = (y != x) && (x <= y).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Fact le_total : total (le m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition numMixin : numMixin R :=
   NumMixin le_normD (@lt0_add m) eq0_norm (in2W le_total) normM le_def' lt_def.

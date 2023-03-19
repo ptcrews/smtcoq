@@ -23,4 +23,4 @@ Require Import SMTCoq.SMTCoq.
 Local Open Scope Z_scope.
 
 Lemma Zle_gt_succ n m : n <= m -> Z.succ m > n.
-Proof. Show. Fail (cvc5_abduct 1). Admitted.
+Proof. Show. Fail (abduce 1). Admitted.

@@ -28,28 +28,28 @@ Include ZAddProp Z.
     on N and Z *)
 
 Theorem mul_pred_r : forall n m, n * (P m) == n * m - n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem mul_pred_l : forall n m, (P n) * m == n * m - m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem mul_opp_l : forall n m, (- n) * m == - (n * m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem mul_opp_r : forall n m, n * (- m) == - (n * m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem mul_opp_opp : forall n m, (- n) * (- m) == n * m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem mul_opp_comm : forall n m, (- n) * m == n * (- m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem mul_sub_distr_l : forall n m p, n * (m - p) == n * m - n * p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem mul_sub_distr_r : forall n m p, (n - m) * p == n * p - m * p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End ZMulProp.
 
