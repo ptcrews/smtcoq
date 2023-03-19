@@ -140,6 +140,7 @@ issue.
 Use this static [binary](https://homepage.divms.uiowa.edu/~viswanathn/lpar23/cvc5-1.0.4.noIte.zip) that was built on a Ubuntu 20.04 system from
 a branch with a modified default SyGuS grammar.
 
+Alternately, you can build it from the sources from [this](https://github.com/arjunvish/cvc5/tree/lpar23) branch using the instructions [here](https://github.com/arjunvish/cvc5/blob/lpar23/INSTALL.rst).
 The `cvc5` binary must be present in your PATH to use it through SMTCoq.
 
 
