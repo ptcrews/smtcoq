@@ -11,7 +11,10 @@ instructions to execute our artifact.
 Assuming [opam](https://opam.ocaml.org) is installed:
 ```
 opam switch create lpar ocaml-base-compiler.4.11.1
+eval $(opam env)
 opam install coq.8.16.1 coqide.8.16.1
+opam install num
+eval $(opam env)
 git clone https://github.com/arjunvish/smtcoq.git
 cd smtcoq/src/
 git checkout lpar23
@@ -30,7 +33,7 @@ export LFSCSIGS="$HOME/path/to/smtcoq/src/lfsc/tests/signatures/"
 ```
 
 ## 4. Execute the artifact
-Assuming you are in `./src/`:
+Assuming you are in `./src/` of smtcoq:
 ```
 cd ../examples/LPAR/ 
 coqide ZorderLpar23.v
