@@ -70,6 +70,11 @@ opam install coq.8.16.1 coqide.8.16.1
 but you might need to install some extra packages and libraries for your system
 (such as GTK2, gtksourceview2, etc.).
 
+The num library must also be installed to make this branch of SMTCoq work
+
+```bash
+opam install num
+```
 
 ### Install SMTCoq
 Compile and install (installation isn't necessary for the artifact,
