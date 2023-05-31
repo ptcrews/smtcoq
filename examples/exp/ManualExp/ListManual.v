@@ -201,7 +201,8 @@ Section Facts.
     + intros H; discriminate H.
     + intros. left. split; auto.
     + intro H. right. split.
-      * generalize H. (* abduce 1 : ((app (A:=A)) l []) = l *)
+      * generalize H. (* Here, using the abduct shortens the case *) 
+                      (* abduce 1 : ((app (A:=A)) l []) = l *)
         generalize (app_nil_r l). intros E.
         rewrite -> E; auto.
       * auto.
