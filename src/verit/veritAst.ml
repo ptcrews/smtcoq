@@ -764,7 +764,7 @@ let process_rule (r: rule) : VeritSyntax.typ =
   | SubproofAST c -> Hole
 
 
-(*
+
 (* Removing occurrences of the cong rule using other rules 
    including eq_congruent, eq_congruent_pred, reso *)
 
@@ -790,7 +790,11 @@ let rec get_args (t : term) : term list =
    | Ite xs | And xs | Or xs | Imp xs | Xor xs -> xs
    | App (_, xs) -> xs
    | NTerm (_, t) -> get_args t
-
+(* returns the list of terms without duplicates (only syntactiv duplicates, not considering shared terms) *)
+let rec to_uniq (l : 'a list) : 'a list =
+   match l with
+   | h :: t -> if List.exists ((=) h) t then to_uniq t else h :: to_uniq t
+   | [] -> []
 (*
   Example:
   1. x = y
@@ -860,15 +864,15 @@ let cong_find_implicit_args (ft : term) (p : params) (cog : certif) : (term list
 let process_cong (c : certif) : certif =
   let rec process_cong_aux (c : certif) (cog : certif) : certif = 
    match c with
-    | (i, r, c, p, a) :: t ->
+    | (i, r, cl, p, a) :: t ->
         (match r with
         | CongAST ->
             (* To differentiate between the predicate and function case, we need to process
                the clause because we treat equality and iff as the same at the AST level *)
-            let c' = process_cl c in
+            let c' = process_cl cl in
             (match c' with
             | l :: _ ->
-                let conc = get_expr (List.hd c) in
+                let conc = get_expr (List.hd cl) in
                 (* get negation of premises and terms for any implicit equality *)
                 let prems_neg, imp_eq = try (cong_find_implicit_args conc p cog) with 
                                         | Debug s -> raise (Debug ("| process_cong: can't find premise(s) to congr at id "^i^" |"^s)) in
@@ -893,72 +897,182 @@ let process_cong (c : certif) : certif =
                                            f(x,y) = f(a,b)   
                   *)
                   let eqci = generate_id () in
-                    ((eqci, EqcoAST, (prems_neg @ c), [], []) ::
+                    ((eqci, EqcoAST, (prems_neg @ cl), [], []) ::
                     refls) @
-                    ((i, ResoAST, c, eqci :: (p @ refl_ids), a) :: 
+                    ((i, ResoAST, cl, eqci :: (p @ refl_ids), a) :: 
                     process_cong_aux t cog)
                 (* congruence over predicates*)
                 else if is_iff l then
-                  (*
-                     Convert a proof of the form:
-                     ...
-                     x = a              y = b
-                     ------------------------cong
-                         P(x, y) = P(a, b)
+                  let p' = List.map (fun x -> match get_cl x cog with
+                           | Some x' -> (x, List.hd x')
+                           | None -> raise (Debug ("Can't fetch premises to `and` at id "^i^" |"))) p in
+                  let eq = List.hd cl in
+                     (match eq with
+                     (* and predicate
+                        Convert a proof of the form:
+                         -----  -----
+                         x = a  y = b
+                        --------------cong
+                         x ^ y = a ^ b 
+                        
+                        to one of the form:
+                        (1)       (2)
+                        -------------res
+                        x ^ y = a ^ b
+                        where (1) and (2) are derived as:
+                                            -----   ---------------eqp2  -----   -----------------eqp2                                                                          
+                                            x = a   ~(x = a), ~a, x      y = b   ~(y = b), ~b, y                                                                                
+                        ---------------andn ----------------------res   -------------------------res  ------------andp    ------------andp                                      
+                        (x ^ y), ~x, ~y             ~a, x                         ~b, y                ~(a ^ b), b         ~(a ^ b), a                                          
+                        --------------------------------------------------------------------------------------------------------------res  ---------------------------------eqn2
+                                                                    ~(a ^ b), (x ^ y)                                                       x ^ y = a ^ b, (x ^ y), (a ^ b)     
+                                              -----------------------------------------------------------------------------------------------------------------------------res  
+                                                                                          x ^ y = a ^ b, (x ^ y) --(1)
 
-                     to:
-                        (1)                                    (2)                  (3)                                     (4)
-                     ------------------------------------------------res        -------------------------------------------------res
-                     ~(x = a), ~(y = b), P(a, b), (P(x, y) = P(a, b))           ~(x = a), ~(y = b), ~P(a, b), (P(x, y) = P(a, b))      x = a    y = b
-                     ---------------------------------------------------------------------------------------------------------------------------------res
-                                                                              P(x, y) = P(a, b)
-                     where:
-                     -------------------------------------eqcongp
-                     ~(x = a), ~(y = b), ~P(x, y), P(a, b)     --(1)
-                     -------------------------------------eqn2
-                     (P(x, y) = P(a, b)), P(x, y), P(a, b)      --(2)
-                     -------------------------------------eqcongp
-                     ~(x = a), ~(y = b), ~P(a, b), P(x, y)     --(3)
-                     ---------------------------------------eqn1
-                     (P(x, y) = P(a, b)), ~P(x, y), ~P(a, b)    --(4)
-
-                     TODO: Currently all premises are expected to be explicit,
-                     but the rule uses implicit premises such as true = true, which need to be 
-                     inferred and added to the resolutions (for each of these premises a rule of refl
-                     must be invoked). Without this, process_congr_form will probably fail.
-                     Solution: fetch all the arguments, and if they don't match the expected number
-                     infer them as follows. Unhash all premises and the conclusion and do pattern 
-                     matching. Fill whatever is remaining using refl.   
-                  *)
-                  let eqcpi1 = generate_id () in
-                  let eqcpi2 = generate_id () in
-                  let eqn2i = generate_id () in
-                  let eqn1i = generate_id () in
-                  let resi1 = generate_id () in
-                  let resi2 = generate_id () in
-                  (* variables for the target equality and the predicates it equates *)
-                  let (p1, p2) = (match conc with
-                                  | Eq (x, y) -> (x, y)
-                                  | _ -> assert false) in
-                    ((eqcpi1, EqcpAST, (prems_neg @ [Not p1; p2]), [], []) ::
-                    (eqn2i, Equn2AST, [conc; p1; p2], [], []) ::
-                    (resi1, ResoAST, (prems_neg @ [conc; p2]), [eqcpi1; eqn2i], []) ::
-                    (eqcpi2, EqcpAST, (prems_neg @ [Not p2; p1]), [], []) ::
-                    (eqn1i, Equn1AST, [conc; Not p1; Not p2], [], []) ::
-                    (resi2, ResoAST, (prems_neg @ [conc; Not p2]), [eqcpi2; eqn1i], []) ::
-                    refls) @
-                    ((i, ResoAST, [conc], resi1 :: resi2 :: (p @ refl_ids), []) ::
-                    process_cong_aux t cog)
+                                             -----   ---------------eqp1 -----   -----------------eqp1
+                                             x = a   ~(x = a), ~x, a     y = b    ~(y = b), ~y, b
+                        ---------------andn  -----------------------res  ------------------------res  -----------andp -----------andp
+                        (a ^ b), ~a, ~b               ~x, a                       ~y, b               ~(x ^ y), x     ~(x ^ y), y
+                        ---------------------------------------------------------------------------------------------------------res  ---------------------------------eqn1
+                                                                         ~(x ^ y), (a ^ b)                                            x ^ y = a ^ b, ~(x ^ y), ~(a ^ b)
+                                                                         ---------------------------------------------------------------------------------------------res
+                                                                                                                   x ^ y = a ^ b, ~(x ^ y) --(2)
+                     *)
+                     | Eq (And xs, And ys) ->
+                        (* For x1 ^ ... ^ xn = y1 ^ ... ^ ym in the conclusion, *)
+                        (* 1. generate x1 ^ ... ^ xn, ~x1, ..., ~xn by andn *)
+                        let andni1 = generate_id () in
+                        let andns1 = List.map (fun x -> Not x) xs in
+                        (* 2. for each equality x = y in premise, generate ~(x = y), ~y, x by eqp2 
+                              and resolve it with x = y, to get ~y, x *)
+                        let eqp2is, eqp2s = List.fold_left 
+                          (fun (is, r) (pid, peq) ->
+                            let i' = generate_id () in
+                            let eqp2i = generate_id () in
+                            let x, y = (match peq with
+                                        | Eq (x', y') -> (x', y')
+                                        | _ -> raise (Debug ("Expecting premise of cong to be equality at id "^i^" |"))) in
+                            (i' :: is, 
+                             (eqp2i, Equp2AST, [Not peq; Not y; x], [], []) :: 
+                             (i', ResoAST, [Not y; x], [eqp2i; pid], []) :: r))
+                          ([], []) p' in
+                        (* 3. for each yi, generate ~(y1 ^ ... ^ ym), yi by andp *)
+                        let andpis1, andps1 = List.fold_left
+                          (fun (is, r) y ->
+                            let i' = generate_id () in
+                            i' :: is,
+                            (i', AndpAST, [Not (And ys); y], [], []) :: r)
+                          ([], []) (to_uniq ys) in
+                        (* 4. resolve all clauses form 1., 2., and 3., to get ~(y1 ^ ... ^ ym), x1 ^ ... ^ xn *)
+                        let resi1 = generate_id () in
+                        (* 5. generate x1 ^ ... ^ xn = y1 ^ ... ^ ym, x1 ^ ... ^ xn, y1 ^ ... ^ ym by eqn2 *)
+                        let eqn2i = generate_id () in
+                        (* 6. resolve 4. and 5. to get x1 ^ ... ^ xn = y1 ^ ... ^ ym, x1 ^ ... ^ xn *)
+                        let resi2 = generate_id () in
+                        (* 7. generate y1 ^ ... ^ ym, ~y1, ..., ~ym by andn *)
+                        let andni2 = generate_id () in
+                        let andns2 = List.map (fun x -> Not x) ys in
+                        (* 8. for each equality x = y in premise, generate ~(x = y), y, ~x by eqp1 
+                              and resolve it with x = y, to get y, ~x *)
+                        let eqp1is, eqp1s = List.fold_left
+                          (fun (is, r) (pid, peq) ->
+                            let i' = generate_id () in
+                            let eqp1i = generate_id () in
+                            let x, y = (match peq with
+                                        | Eq (x', y') -> (x', y')
+                                        | _ -> raise (Debug ("Expecting premise of cong to be equality at id "^i^" |"))) in
+                            (i' :: is, 
+                             (eqp1i, Equp1AST, [Not peq; y; Not x], [], []) :: 
+                             (i', ResoAST, [y; Not x], [eqp1i; pid], []) :: r))
+                          ([], []) p' in
+                        (* 9. for each xi, generate ~(x1 ^ ... ^ xn), xi by andp *)
+                        let andpis2, andps2 = List.fold_left
+                          (fun (is, r) x ->
+                            let i' = generate_id () in
+                            i' :: is,
+                            (i', AndpAST, [Not (And xs); x], [], []) :: r)
+                          ([], []) (to_uniq xs) in
+                        (* 10. resolve all clauses form 7., 8., and 9., to get ~(x1 ^ ... ^ xn), y1 ^ ... ^ ym *)
+                        let resi3 = generate_id () in
+                        (* 11. generate x1 ^ ... ^ xn = y1 ^ ... ^ ym, ~(x1 ^ ... ^ xn), ~(y1 ^ ... ^ ym) by eqn1 *)
+                        let eqn1i = generate_id () in
+                        (* 12. resolve 10. and 11. to get x1 ^ ... ^ xn = y1 ^ ... ^ ym, ~(x1 ^ ... ^ xn) *)
+                        let resi4 = generate_id () in
+                        (* 13. resolve 6. and 12. to get x1 ^ ... ^ xn = y1 ^ ... ^ ym    *)
+                        ((andni1, AndnAST, (And xs :: andns1), [], []) ::
+                         (eqp2s @ andps1)) @
+                        ((resi1, ResoAST, [Not (And ys); And xs], (andni1 :: (eqp2is @ andpis1)), []) ::
+                         (eqn2i, Equn2AST, [eq; And xs; And ys], [], []) ::
+                         (resi2, ResoAST, [eq; And xs], [resi1; eqn2i], []) ::
+                         (andni2, AndnAST, (And ys :: andns2), [], []) ::
+                         (eqp1s @ andps2)) @
+                        ((resi3, ResoAST, [Not (And xs); And ys], (andni2 :: (eqp1is @ andpis2)), []) ::
+                         (eqn1i, Equn1AST, [eq; Not (And xs); Not (And ys)], [], []) ::
+                         (resi4, ResoAST, [eq; Not (And xs)], [resi3; eqn1i], []) ::
+                         (i, ResoAST, [eq], [resi2; resi4], []) ::
+                         process_cong_aux t cog)
+                     (* User-defined predicates *)
+                     | _ ->
+                        (*
+                           Convert a proof of the form:
+                           ...
+                           x = a              y = b
+                           ------------------------cong
+                               P(x, y) = P(a, b)
+                           
+                           to:
+                              (1)                                    (2)                  (3)                                     (4)
+                           ------------------------------------------------res        -------------------------------------------------res
+                           ~(x = a), ~(y = b), P(a, b), (P(x, y) = P(a, b))           ~(x = a), ~(y = b), ~P(a, b), (P(x, y) = P(a, b))      x = a    y = b
+                           ---------------------------------------------------------------------------------------------------------------------------------res
+                                                                                    P(x, y) = P(a, b)
+                           where:
+                           -------------------------------------eqcongp
+                           ~(x = a), ~(y = b), ~P(x, y), P(a, b)     --(1)
+                           -------------------------------------eqn2
+                           (P(x, y) = P(a, b)), P(x, y), P(a, b)      --(2)
+                           -------------------------------------eqcongp
+                           ~(x = a), ~(y = b), ~P(a, b), P(x, y)     --(3)
+                           ---------------------------------------eqn1
+                           (P(x, y) = P(a, b)), ~P(x, y), ~P(a, b)    --(4)
+                           
+                           TODO: Currently all premises are expected to be explicit,
+                           but the rule uses implicit premises such as true = true, which need to be 
+                           inferred and added to the resolutions (for each of these premises a rule of refl
+                           must be invoked). Without this, process_congr_form will probably fail.
+                           Solution: fetch all the arguments, and if they don't match the expected number
+                           infer them as follows. Unhash all premises and the conclusion and do pattern 
+                           matching. Fill whatever is remaining using refl.   
+                        *)
+                        let eqcpi1 = generate_id () in
+                        let eqcpi2 = generate_id () in
+                        let eqn2i = generate_id () in
+                        let eqn1i = generate_id () in
+                        let resi1 = generate_id () in
+                        let resi2 = generate_id () in
+                        (* variables for the target equality and the predicates it equates *)
+                        let (p1, p2) = (match conc with
+                                        | Eq (x, y) -> (x, y)
+                                        | _ -> assert false) in
+                          ((eqcpi1, EqcpAST, (prems_neg @ [Not p1; p2]), [], []) ::
+                          (eqn2i, Equn2AST, [conc; p1; p2], [], []) ::
+                          (resi1, ResoAST, (prems_neg @ [conc; p2]), [eqcpi1; eqn2i], []) ::
+                          (eqcpi2, EqcpAST, (prems_neg @ [Not p2; p1]), [], []) ::
+                          (eqn1i, Equn1AST, [conc; Not p1; Not p2], [], []) ::
+                          (resi2, ResoAST, (prems_neg @ [conc; Not p2]), [eqcpi2; eqn1i], []) ::
+                          refls) @
+                          ((i, ResoAST, [conc], resi1 :: resi2 :: (p @ refl_ids), []) ::
+                          process_cong_aux t cog))
                 else
                   raise (Debug ("| process_cong: expecting head of clause to be either an equality or an iff at id "^i^" |"))
-              | _ -> raise (Debug ("| process_cong: expecting clause to have one literal at id "^i^" |")))
+            | _ -> raise (Debug ("| process_cong: expecting clause to have one literal at id "^i^" |")))
         | _ -> (* This is necessary to add the shared terms to the hash tables *)
-               let _ = process_cl c in
-               (i, r, c, p, a) :: process_cong_aux t cog)
+               let _ = process_cl cl in
+               (i, r, cl, p, a) :: process_cong_aux t cog)
     | [] -> []
     in process_cong_aux c c
 
-
+(*
 (* Removing occurrences of the trans rule using other rules 
    including eq_transitive, reso *)
 (*
@@ -993,7 +1107,8 @@ let process_trans (c : certif) : certif =
    in  aux c c
 *)
 
-(* SMTCoq requires projection rules `and`, `not_or`, `or_neg`, `and_pos`
+
+(* SMTCoq requires projection rules and, not_or, or_neg, and_pos
    to specify an integer argument specifying the term to project.
    Alethe doesn't specify the projection for these rules. This 
    transformation searches the clause for the projection and adds
@@ -1038,7 +1153,7 @@ let process_proj (c: certif): certif =
             let i' = try findi (term_eq x) ts with
                      | Debug s -> raise (Debug ("| process_proj: fails at id "^i^" |"^s)) in
               (i, NorAST, cl, p, [(string_of_int i')]) :: aux tl cog
-        | _, _ -> raise (Debug ("| process_proj: expecting premise to be a `not (or)` at id "
+        | _, _ -> raise (Debug ("| process_proj: expecting premise to be a `not or` at id "
                   ^i^" |")))
     | (i, OrnAST, cl, p, a) :: tl when a = [] ->
         (match get_expr (List.nth cl 0), get_expr (List.nth cl 1) with
@@ -1054,7 +1169,7 @@ let process_proj (c: certif): certif =
             let i' = try findi (term_eq x) ts with
                      | Debug s -> raise (Debug ("| process_proj: fails at id "^i^" |"^s)) in
               (i, AndpAST, cl, p, [(string_of_int i')]) :: aux tl cog
-        |  _, _ -> raise (Debug ("| process_proj: expecting clause with `not (and)` and projection at id "
+        |  _, _ -> raise (Debug ("| process_proj: expecting clause with `not and` and projection at id "
                    ^i^" |")))
     | ircpa :: tl -> ircpa :: (aux tl cog)
     | [] -> []
@@ -1289,12 +1404,7 @@ let repeat (x : 'a) (n : int) : 'a list =
 let rec exists_dup (xs : 'a list) : bool =
   match xs with
   | h :: t -> if List.exists ((=) h) t then true else exists_dup t
-  | [] -> false
-(* returns the list of terms without duplicates (only syntactiv duplicates, not considering shared terms) *)
-let rec to_uniq (l : 'a list) : 'a list =
-   match l with
-   | h :: t -> if List.exists ((=) h) t then to_uniq t else h :: to_uniq t
-   | [] -> [] 
+  | [] -> false 
 let rec process_simplify (c : certif) : certif =
   match c with
   (* x_1 ^ ... ^ x_n <-> y *)
@@ -3268,11 +3378,11 @@ let preprocess_certif (c: certif) : certif =
   Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c4);
   let c5 = process_subproof c4 in
   Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c5);
-  (*let c6 = process_cong c5 in
+  let c6 = process_cong c5 in
   Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c6);
-  let c7 = process_trans c6 in
+  (*let c7 = process_trans c6 in
   Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c7);*)
-  let c8 = process_proj c5 in
+  let c8 = process_proj c6 in
   Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c8);
   c8) with
   | Debug s -> raise (Debug ("| VeritAst.preprocess_certif: failed to preprocess |"^s))
