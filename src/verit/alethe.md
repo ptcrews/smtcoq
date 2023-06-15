@@ -165,8 +165,44 @@ Verit-2016 has rules `eq_congruent` and `eq_congruent_pred` that state
 congruence of functions and predicates as tautologies. Additionally, 
 alethe has the `cong` rule which performs congruence (of both cases) in a
 premise-conclusion format. This transformation replaces `cong` instances
-by derivations that use either of the verit-2016 rules.
+by derivations that use either of the verit-2016 rules. 
 
+The `cong` rule is more expressive than the previous congruence
+rules in that it supports congruence over logical operators. To encode
+these, we use introduction and elimination rules of the logical operations 
+in question. For example, the following instance of `cong`:
+```
+ -----  -----
+ x = a  y = b
+--------------cong
+ x ^ y = a ^ b 
+```
+can be converted into:
+```
+(1)       (2)
+-------------res
+x ^ y = a ^ b
+```
+where `(1)` and `(2)` are derived as:
+```
+                    -----   ---------------eqp2  -----   -----------------eqp2                                                                          
+                    x = a   ~(x = a), ~a, x      y = b   ~(y = b), ~b, y                                                                                
+---------------andn ----------------------res   -------------------------res  ------------andp    ------------andp                                      
+(x ^ y), ~x, ~y             ~a, x                         ~b, y                ~(a ^ b), b         ~(a ^ b), a                                          
+--------------------------------------------------------------------------------------------------------------res  ---------------------------------eqn2
+                                            ~(a ^ b), (x ^ y)                                                       x ^ y = a ^ b, (x ^ y), (a ^ b)     
+                      -----------------------------------------------------------------------------------------------------------------------------res  
+                                                                  x ^ y = a ^ b, (x ^ y) --(1)
+
+                     -----   ---------------eqp1 -----   -----------------eqp1
+                     x = a   ~(x = a), ~x, a     y = b    ~(y = b), ~y, b
+---------------andn  -----------------------res  ------------------------res  -----------andp -----------andp
+(a ^ b), ~a, ~b               ~x, a                       ~y, b               ~(x ^ y), x     ~(x ^ y), y
+---------------------------------------------------------------------------------------------------------res  ---------------------------------eqn1
+                                                 ~(x ^ y), (a ^ b)                                            x ^ y = a ^ b, ~(x ^ y), ~(a ^ b)
+                                                 ---------------------------------------------------------------------------------------------res
+                                                                                           x ^ y = a ^ b, ~(x ^ y) --(2)
+```
 ### Processing Projection Rule Instances
 Rules that project a term from a formula (ex: projection of
 conjunct from a conjunction) took an argument specifying 
