@@ -33,8 +33,9 @@ We perform the following transformations on the parsed AST:
 3. Processing `notnot` rule
 4. Processing `_simplify` rules
 5. Processing `_subproof` rules
-6. Processing `_cong` rules
-7. Processing projection rules
+6. Processing projection rules
+7. Processing `_cong` rules
+8. Processing `not_simplify` rules (cvc5 rewrites)
 
 ### Storing Shared Terms
 We want to support term-sharing on the proofs where terms have names. We go through
@@ -160,6 +161,15 @@ Res G ~ G
    []
 ```
 
+### Processing Projection Rule Instances
+Rules that project a term from a formula (ex: projection of
+conjunct from a conjunction) took an argument specifying 
+the index of the term to project in verit-2016. So the backend
+expects this argument, whereas these rules don't have this 
+argument anymore in alethe. This transformation searches the
+term for the index and specifies as the argument for the
+backend.
+
 ### Processing `cong` Rule Instances
 Verit-2016 has rules `eq_congruent` and `eq_congruent_pred` that state 
 congruence of functions and predicates as tautologies. Additionally, 
@@ -203,14 +213,16 @@ where `(1)` and `(2)` are derived as:
                                                  ---------------------------------------------------------------------------------------------res
                                                                                            x ^ y = a ^ b, ~(x ^ y) --(2)
 ```
-### Processing Projection Rule Instances
-Rules that project a term from a formula (ex: projection of
-conjunct from a conjunction) took an argument specifying 
-the index of the term to project in verit-2016. So the backend
-expects this argument, whereas these rules don't have this 
-argument anymore in alethe. This transformation searches the
-term for the index and specifies as the argument for the
-backend.
+This task can be further divided into:
+- [x] `cong` over `and`
+- [ ] `cong` over `or`
+- [ ] `cong` over `not`
+- [ ] `cong` over `imp`
+- [ ] `cong` over `xor`
+- [ ] `cong` over `ite`
+
+### Processing `not_simplify` Rule Instances (cvc5 Rewrites)
+Ideally we can just use the DSL to rewrite these rule applications w.r.t. rules supported above.
 
 ## Rules
 This section at coverage in terms of rules in alethe and verit-2016. 
