@@ -1,34 +1,34 @@
  -----  -----
  x = a  y = b
 --------------cong
- x ^ y = a ^ b
+ x v y = a v b
 
 Encoding
 ========
-                    -----   ---------------eqp2  -----   -----------------eqp2                                                                                                  -----   ---------------eqp1 -----   -----------------eqp1
-                    x = a   ~(x = a), ~a, x      y = b   ~(y = b), ~b, y                                                                                                        x = a   ~(x = a), ~x, a     y = b    ~(y = b), ~y, b
----------------andn ----------------------res   -------------------------res  ------------andp    ------------andp                                         ---------------andn  -----------------------res  ------------------------res  -----------andp -----------andp
-(x ^ y), ~x, ~y             ~a, x                         ~b, y                ~(a ^ b), b         ~(a ^ b), a                                             (a ^ b), ~a, ~b               ~x, a                       ~y, b               ~(x ^ y), x     ~(x ^ y), y
---------------------------------------------------------------------------------------------------------------res  ---------------------------------eqn2   ---------------------------------------------------------------------------------------------------------res  ---------------------------------eqn1
-                                            ~(a ^ b), (x ^ y)                                                       x ^ y = a ^ b, (x ^ y), (a ^ b)                                                         ~(x ^ y), (a ^ b)                                            x ^ y = a ^ b, ~(x ^ y), ~(a ^ b)
+                    -----   ---------------eqp1  -----   -----------------eqp1                                                                                                  -----  ---------------eqp2  -----  -----------------eqp2 
+                    x = a   ~(x = a), ~x, a      y = b    ~(y = b), ~y, b                                                                                                       x = a  ~(x = a), ~a, x      y = b  ~(y = b), ~b, y       
+---------------orp  ----------------------res   -------------------------res  ------------orn    ------------orn                                          ---------------orp  -----------------------res   ------------------------res  -----------orn  -----------orn
+~(x v y), x, y             ~x, a                         ~y, b                (a v b), ~a         (a v b), ~b                                             ~(a v b), a, b               ~a, x                       ~b, y                (x v y), ~x     (x v y), ~y
+--------------------------------------------------------------------------------------------------------------res  ---------------------------------eqn2  ---------------------------------------------------------------------------------------------------------res  ---------------------------------eqn1
+                                            ~(x v y), (a v b)                                                       x v y = a v b, (x v y), (a v b)                                                         ~(a v b), (x v y)                                            x v y = a v b, ~(x v y), ~(a v b)
                       -----------------------------------------------------------------------------------------------------------------------------res                                                      ---------------------------------------------------------------------------------------------res
-                                                                x ^ y = a ^ b, (x ^ y)                                                                                                                                                          x ^ y = a ^ b, ~(x ^ y)
+                                                                x v y = a v b, (a v b)                                                                                                                                                          x v y = a v b, ~(a v b)
                                                                 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------res
-                                                                                                                                                            x ^ y = a ^ b
+                                                                                                                                                            x v y = a v b
 
-For `x1 ^ ... ^ xn = y1 ^ ... ^ ym` in the conclusion, 
-1. generate `x1 ^ ... ^ xn, ~x1, ..., ~xn` by `andn`
-2. for each equality `x = y` in premise, generate `~(x = y), ~y, x` by `eqp2` and resolve it with `x = y`, to get `~y, x`
-3. for each `yi`, generate `~(y1 ^ ... ^ ym), yi` by `andp`
-4. resolve all clauses form 1., 2., and 3., to get `~(y1 ^ ... ^ ym), x1 ^ ... ^ xn`
-5. generate `x1 ^ ... ^ xn = y1 ^ ... ^ ym, x1 ^ ... ^ xn, y1 ^ ... ^ ym` by `eqn2`
-6. resolve 4. and 5. to get `x1 ^ ... ^ xn = y1 ^ ... ^ ym, x1 ^ ... ^ xn`
+For `x1 v ... v xn = y1 v ... v ym` in the conclusion, 
+1. generate `~(x1 v ... v xn), x1, ..., xn` by `orp`
+2. for each equality `x = y` in premise, generate `~(x = y), y, ~x` by `eqp1` and resolve it with `x = y`, to get `y, ~x`
+3. for each `yi`, generate `(y1 v ... v ym), ~yi` by `orn`
+4. resolve all clauses form 1., 2., and 3., to get `~(x1 v ... v xn), y1 v ... v ym`
+5. generate `x1 v ... v xn = y1 v ... v ym, x1 v ... v xn, y1 v ... v ym` by `eqn2`
+6. resolve 4. and 5. to get `x1 v ... v xn = y1 v ... v ym, y1 v ... v ym`
 
-7. generate `y1 ^ ... ^ ym, ~y1, ..., ~ym` by `andn`
-8. for each equality `x = y` in premise, generate `~(x = y), y, ~x` by `eqp1` and resolve it with `x = y`, to get `y, ~x`
-9. for each `xi`, generate `~(x1 ^ ... ^ xn), xi` by `andp`
-10. resolve all clauses form 7., 8., and 9., to get `~(x1 ^ ... ^ xn), y1 ^ ... ^ ym`
-11. generate `x1 ^ ... ^ xn = y1 ^ ... ^ ym, ~(x1 ^ ... ^ xn), ~(y1 ^ ... ^ ym)` by `eqn1`
-12. resolve 10. and 11. to get `x1 ^ ... ^ xn = y1 ^ ... ^ ym, ~(x1 ^ ... ^ xn)`
+7. generate `~(y1 v ... v ym), y1, ..., ym` by `orp`
+8. for each equality `x = y` in premise, generate `~(x = y), ~y, x` by `eqp2` and resolve it with `x = y`, to get `~y, x`
+9. for each `xi`, generate `(x1 v ... v xn), ~xi` by `orn`
+10. resolve all clauses form 7., 8., and 9., to get `~(y1 v ... v ym), x1 v ... v xn`
+11. generate `x1 v ... v xn = y1 v ... v ym, ~(x1 v ... v xn), ~(y1 v ... v ym)` by `eqn1`
+12. resolve 10. and 11. to get `x1 v ... v xn = y1 v ... v ym, ~(y1 v ... v ym)`
 
-13. resolve 6. and 12. to get `x1 ^ ... ^ xn = y1 ^ ... ^ ym`
+13. resolve 6. and 12. to get `x1 v ... v xn = y1 v ... v ym`
