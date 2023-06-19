@@ -903,6 +903,7 @@ let process_cong (c : certif) : certif =
                     process_cong_aux t cog)
                 (* congruence over predicates*)
                 else if is_iff l then
+                  (* List of tuples representing (premise id, premise formula) pairs for all premises *)
                   let p' = List.map (fun x -> match get_cl x cog with
                            | Some x' -> (x, List.hd x')
                            | None -> raise (Debug ("Can't fetch premises to `and` at id "^i^" |"))) p in
@@ -998,7 +999,6 @@ let process_cong (c : certif) : certif =
                         let eqn1i = generate_id () in
                         (* 12. resolve 10. and 11. to get x1 ^ ... ^ xn = y1 ^ ... ^ ym, ~(x1 ^ ... ^ xn) *)
                         let resi4 = generate_id () in
-                        (* 13. resolve 6. and 12. to get x1 ^ ... ^ xn = y1 ^ ... ^ ym    *)
                         ((andni1, AndnAST, (And xs :: andns1), [], []) ::
                          (eqp2s @ andps1)) @
                         ((resi1, ResoAST, [Not (And ys); And xs], (andni1 :: (eqp2is @ andpis1)), []) ::
@@ -1009,6 +1009,7 @@ let process_cong (c : certif) : certif =
                         ((resi3, ResoAST, [Not (And xs); And ys], (andni2 :: (eqp1is @ andpis2)), []) ::
                          (eqn1i, Equn1AST, [eq; Not (And xs); Not (And ys)], [], []) ::
                          (resi4, ResoAST, [eq; Not (And xs)], [resi3; eqn1i], []) ::
+                         (* 13. resolve 6. and 12. to get x1 ^ ... ^ xn = y1 ^ ... ^ ym    *)
                          (i, ResoAST, [eq], [resi2; resi4], []) ::
                          process_cong_aux t cog)
                      (* or predicate
@@ -1099,7 +1100,6 @@ let process_cong (c : certif) : certif =
                         let eqn1i = generate_id () in
                         (* 12. resolve 10. and 11. to get `x1 v ... v xn = y1 v ... v ym, ~(y1 v ... v ym)` *)
                         let resi4 = generate_id () in
-                        (* 13. resolve 6. and 12. to get `x1 v ... v xn = y1 v ... v ym` *)
                         ((orpi1, OrpAST, (Not (Or xs) :: xs), [], []) ::
                          (eqp1s @ orns1)) @
                         ((resi1, ResoAST, [Not (Or xs); Or ys], (orpi1 :: (eqp1is @ ornis1)), []) ::
@@ -1110,8 +1110,56 @@ let process_cong (c : certif) : certif =
                         ((resi3, ResoAST, [Not (Or ys); Or xs], (orpi2 :: (eqp2is @ ornis2)), []) ::
                          (eqn1i, Equn1AST, [eq; Not (Or xs); Not (Or ys)], [], []) ::
                          (resi4, ResoAST, [eq; Not (Or ys)], [resi3; eqn1i], []) ::
+                         (* 13. resolve 6. and 12. to get `x1 v ... v xn = y1 v ... v ym` *)
                          (i, ResoAST, [eq], [resi2; resi4], []) ::
                          process_cong_aux t cog)
+                     (* not predicate
+                         -----
+                         x = a
+                        --------cong
+                         ~x = ~a
+
+                        Encoding
+                        ========
+                        -----  ---------------eqp2                       -----   ---------------eqp1
+                        x = a  ~(x = a), ~a, x                           x = a   ~(x = a), ~x, a      
+                        -----------------------res  ---------------eqn2  ------------------------res    --------------eqn1
+                               ~a, x                ~x = ~a, ~x, ~a              ~x, a                 ~x = ~a, x, a     
+                               ------------------------------------res          -------------------------------------res
+                                            ~a, ~x = ~a                                       a, ~x = ~a
+                                            ------------------------------------------------------------res
+                                                                        ~x = ~a                  
+                     *)
+                     | Eq (Not x, Not a) ->
+                        (* Given `~x = ~a` in the conclusion, *)
+                        (* 1. generate `~(x = a), ~x, a` by `eqp1` and resolve it with `x = a`, to get `~x, a` *)
+                        let eqp1i = generate_id () in
+                        let resi1 = generate_id () in
+                        let pxa = (match (List.hd p') with
+                                 | (pid, _) -> pid) in
+                        (* 2. generate `~x = ~a, x, a` by `eqn1` *)
+                        let eqn1i = generate_id () in
+                        (* 3. resolve 1. and 2. to get `a, ~x = ~a` *)
+                        let resi2 = generate_id () in
+                        (* 4. generate `~(x = a), ~a, x` by `eqp2` and resolve it with `x = a`, to get `~a`, x` *)
+                        let eqp2i = generate_id () in
+                        let resi3 = generate_id () in
+                        (* 5. generate `~x = ~a, ~x, ~a` by `eqn2` *)
+                        let eqn2i = generate_id () in
+                        (* 6. resolve 4. and 5. to get `~a, ~x = ~a` *)
+                        let resi4 = generate_id () in
+                        let eqxa = Eq (x, a) in
+                        (eqp1i, Equp1AST, [Not eqxa; Not x; a], [], []) ::
+                        (resi1, ResoAST, [Not x; a], [eqp1i; pxa], []) ::
+                        (eqn1i, Equn1AST, [eq; x; a], [], []) ::
+                        (resi2, ResoAST, [eq; a], [resi1; eqn1i], []) ::
+                        (eqp2i, Equp2AST, [Not eqxa; Not a; x], [], []) ::
+                        (resi3, ResoAST, [Not a; x], [eqp2i; pxa], []) :: 
+                        (eqn2i, Equn2AST, [eq; Not x; Not a], [], []) :: 
+                        (resi4, ResoAST, [eq; Not a], [resi3; eqn2i], []) ::
+                        (* 7. resolve 3. and 6. to get `~x = ~a` *)
+                        (i, ResoAST, [eq], [resi2; resi4], []) ::
+                        process_cong_aux t cog
                      (* User-defined predicates *)
                      | _ ->
                         (*

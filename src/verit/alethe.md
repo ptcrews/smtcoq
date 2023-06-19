@@ -215,8 +215,8 @@ where `(1)` and `(2)` are derived as:
 ```
 This task can be further divided into:
 - [x] `cong` over `and`
-- [ ] `cong` over `or`
-- [ ] `cong` over `not`
+- [x] `cong` over `or`
+- [x] `cong` over `not`
 - [ ] `cong` over `imp`
 - [ ] `cong` over `xor`
 - [ ] `cong` over `ite`
