@@ -221,8 +221,16 @@ This task can be further divided into:
 - [ ] `cong` over `xor`
 - [ ] `cong` over `ite`
 
-### Processing `not_simplify` Rule Instances (cvc5 Rewrites)
+### Processing `all_simplify` Rule Instances (cvc5 Rewrites)
 Ideally we can just use the DSL to rewrite these rule applications w.r.t. rules supported above.
+- First replace the RARE file in each theory (theory/th-name/rewrites) with the target rewrite rules (`_simplify` rules from alethe)
+(`ite` rules go in builtin)
+- Compile cvc4/proof-new
+- Run cvc5 with the following options
+```
+cvc5 filename.smt2 --dump-proofs --proof-format-mode=alethe --proof-granularity=dsl-rewrite --dag-thresh=0
+```
+- Check if the produced proofs have any `all_simplify` applications with no arguments (args)
 
 ## Rules
 This section at coverage in terms of rules in alethe and verit-2016. 

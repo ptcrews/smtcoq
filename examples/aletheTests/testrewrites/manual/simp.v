@@ -1,0 +1,39 @@
+(**************************************************************************)
+(*                                                                        *)
+(*     SMTCoq                                                             *)
+(*     Copyright (C) 2011 - 2021                                          *)
+(*                                                                        *)
+(*     See file "AUTHORS" for the list of authors                         *)
+(*                                                                        *)
+(*   This file is distributed under the terms of the CeCILL-C licence     *)
+(*                                                                        *)
+(**************************************************************************)
+
+
+(* [Require Import SMTCoq.SMTCoq.] loads the SMTCoq library.
+   If you are using native-coq instead of Coq 8.9, replace it with:
+     Require Import SMTCoq.
+   *)
+Add Rec LoadPath "/home/arjun/Desktop/smtcoq-veritAst/smtcoq/src" as SMTCoq.
+
+Require Import SMTCoq.SMTCoq.
+Require Import Bool.
+
+Require Import ZArith.
+Require Import Int31.
+
+Import BVList.BITVECTOR_LIST.
+Local Open Scope bv_scope.
+Local Open Scope int31_scope.
+
+Section AndSimp.
+  Verit_Checker "../examples/andsimp.smt2" "../examples/aletheTests/testrewrites/andsimp.pf".
+End AndSimp.
+
+(*Section NotSimp1.
+  Verit_Checker "../examples/notsimp1.smt2" "../examples/aletheTests/testrewrites/notsimp1.pf".
+End NotSimp1.
+
+Section NotSimp2.
+  Verit_Checker "../examples/notsimp2.smt2" "../examples/aletheTests/testrewrites/notsimp2.pf".
+End NotSimp2.*)

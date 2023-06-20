@@ -1,0 +1,5 @@
+(assume h1 (= a b))
+(assume h2 (P a))
+(assume h3 (not (P b)))
+(step t4 (cl (not (= a b)) (not (P a)) (P b)) :rule eq_congruent_pred)
+(step t5 (cl) :rule resolution :premises (h3 t4))

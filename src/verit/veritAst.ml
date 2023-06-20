@@ -542,7 +542,7 @@ let process_fins (c : certif) : certif =
 (* Remove notnot rule from certificate *)
 
 (* Soundly remove all notnot rules from certificate *)
-(* We assume that a ~~x is stored as just x by process_term *)
+(* ASSUMPTION: We assume that a ~~x is stored as just x by process_term *)
 (* So typically, a proof that eliminates ~~ by:
      ...
    -------   ---------not_not
@@ -902,6 +902,8 @@ let process_cong (c : certif) : certif =
                     ((i, ResoAST, cl, eqci :: (p @ refl_ids), a) :: 
                     process_cong_aux t cog)
                 (* congruence over predicates*)
+                (* ASSUMPTION: we're assuming that x = a is the first premise and y = b 
+                          the second premise to congruence *)
                 else if is_iff l then
                   (* List of tuples representing (premise id, premise formula) pairs for all premises *)
                   let p' = List.map (fun x -> match get_cl x cog with
@@ -1113,6 +1115,113 @@ let process_cong (c : certif) : certif =
                          (* 13. resolve 6. and 12. to get `x1 v ... v xn = y1 v ... v ym` *)
                          (i, ResoAST, [eq], [resi2; resi4], []) ::
                          process_cong_aux t cog)
+                     (* imp predicate
+                        Convert a proof of the form:
+                        -----  -----
+                        x = a  y = b
+                        --------------cong
+                        x -> y = a -> b
+                                                
+                        to one of the form:
+                              -------------------------------eqn2       -------------------------------------eqn1
+                        (1)   x -> y = a -> b, x -> y, a -> b      (2)  x -> y = a -> b, ~(x -> y), ~(a -> b)
+                        -------------------------------------res   ------------------------------------------res
+                               x -> y = a -> b, x -> y                     x -> y = a -> b, ~(x -> y)
+                               ----------------------------------------------------------------------res
+                                                         x -> y = a -> b
+                        where (1) and (2) are derived as:
+                                              -----   ---------------eqp1  -----  -----------------eqp2
+                                              x = a   ~(x = a), ~x, a      y = b  ~(y = b), ~b, y      
+                        ----------------impp  ------------------------res  ------------------------res 
+                        ~(a -> b), ~a, b               ~x, a                        ~b, y              
+                        -----------------------------------------------------------------res  ---------impn1  ----------impn2
+                                                ~(a -> b), ~x, y                              x -> y, x       x -> y, ~y
+                                                ------------------------------------------------------------------------res  
+                                                                        ~(a -> b), x -> y  ---(1)                            
+                                                
+                                              -----   -----------------eqp1  -----  ---------------eqp2
+                                              y = b    ~(y = b), ~y, b       x = a  ~(x = a), ~a, x    
+                        ----------------impp  -------------------------res   -----------------------res
+                        ~(x -> y), ~x, y                ~y, b                         ~a, x
+                        -------------------------------------------------------------------res  ---------impn1  ----------impn2
+                                                ~(x -> y), b, ~a                                a -> b, a       a -> b, ~b
+                                                --------------------------------------------------------------------------res  
+                                                                        ~(x -> y), a -> b  ---(2)
+                     *)
+                     | Eq (Imp [x; y], Imp [a; b]) ->
+                       (* Given `x -> y = a -> b` in the conclusion, *)
+                       (* 1. generate `~(x -> y), ~x, y` by `impp` *)
+                       let imppi1 = generate_id () in
+                       (* 2. generate `~(y = b), ~y, b` by `eqp1` and resolve it with premise `y = b` to get `~y, b` *)
+                       let eqp1i1 = generate_id () in
+                       let resi1 = generate_id () in
+                       (* 3. generate `~(x = a), ~a, x` by `eqp2` and resolve it with premise `x = a` to get `~a, x` *)
+                       let eqp2i1 = generate_id () in
+                       let resi2 = generate_id () in
+                       (* 4. resolve clauses from 1., 2., and 3. to get `~(x -> y), b, ~a` *)
+                       let resi3 = generate_id () in
+                       (* 5. generate `a -> b, a` by `impn1`, and `a -> b, ~b` by `impn2` *)
+                       let impn1i1 = generate_id () in
+                       let impn2i1 = generate_id () in
+                       (* 6. resolve clauses from 4. and 5. to get `~(x -> y), a -> b` *)
+                       let resi4 = generate_id () in
+                       (* 7. generate `x -> y = a -> b, ~(x -> y), ~(a -> b)` by `eqn1` *)
+                       let eqn1i = generate_id () in
+                       (* 8. resolve 6. and 7. to get `x -> y = a -> b, ~(x -> y)` *)
+                       let resi5 = generate_id () in
+                       (* 9. generate `~(a -> b), ~a, b` by `impp` *)
+                       let imppi2 = generate_id () in
+                       (* 10. generate `~(x = a), ~x, a` by `eqp1` and resolve it with premise `x = a` to get `~x, a` *)
+                       let eqp1i2 = generate_id () in
+                       let resi6 = generate_id () in
+                       (* 11. generate `~(y = b), ~b, y` by `eqp2` and resolve it with premise `y = b` to get `~b, y` *)
+                       let eqp2i2 = generate_id () in
+                       let resi7 = generate_id () in
+                       (* 12. resolve clauses from 9., 10., and 11. to get `~(a -> b), ~x, y` *)
+                       let resi8 = generate_id () in
+                       (* 13. generate `x -> y, x` by `impn1`, and `x -> y, ~y` by `impn2` *)
+                       let impn1i2 = generate_id () in
+                       let impn2i2 = generate_id () in
+                       (* 14. resolve clauses from 12. and 13. to get `~(a -> b), x -> y` *)
+                       let resi9 = generate_id () in
+                       (* 15. generate `x -> y = a -> b, x -> y, a -> b` by `eqn2` *)
+                       let eqn2i = generate_id () in
+                       (* 16. resolve 14. and 15. to get `x -> y = a -> b, x -> y` *)
+                       let resi10 = generate_id () in
+                       (* 17. resolve 8. and 16. to get `x -> y = a -> b` *)
+                       let xy = Imp [x; y] in
+                       let ab = Imp [a; b] in
+                       let eqxa = Eq (x, a) in
+                       let eqyb = Eq (y, b) in
+                       let p1 = (match (List.nth p' 0) with
+                                 | (pid, _) -> pid) in
+                       let p2 = (match (List.nth p' 1) with
+                                 | (pid, _) -> pid) in
+                       (imppi1, ImppAST, [Not xy; Not x; y], [], []) ::
+                       (eqp1i1, Equp1AST, [Not eqyb; Not y; b], [], []) ::
+                       (resi1, ResoAST, [Not y; b], [eqp1i1; p2], []) ::
+                       (eqp2i1, Equp2AST, [Not eqxa; Not a; x], [], []) ::
+                       (resi2, ResoAST, [Not a; x], [eqp2i1; p1], []) ::
+                       (resi3, ResoAST, [Not xy; b; Not a], [imppi1; resi1; resi2], []) ::
+                       (impn1i1, Impn1AST, [ab; a], [], []) ::
+                       (impn2i1, Impn2AST, [ab; Not b], [], []) ::
+                       (resi4, ResoAST, [Not xy; ab], [resi3; impn1i1; impn2i1], []) ::
+                       (eqn1i, Equn1AST, [eq; Not xy; Not ab], [], []) ::
+                       (resi5, ResoAST, [eq; Not xy], [resi4; eqn1i], []) ::
+                       (imppi2, ImppAST, [Not ab; Not a; b], [], []) ::
+                       (eqp1i2, Equp1AST, [Not eqxa; Not x; a], [], []) ::
+                       (resi6, ResoAST, [Not x; a], [eqp1i2; p1], []) ::
+                       (eqp2i2, Equp2AST, [Not eqyb; Not b; y], [], []) ::
+                       (resi7, ResoAST, [Not b; y], [eqp2i2; p2], []) ::
+                       (resi8, ResoAST, [Not ab; Not x; y], [imppi2; resi6; resi7], []) ::
+                       (impn1i2, Impn1AST, [xy; x], [], []) ::
+                       (impn2i2, Impn2AST, [xy; Not y], [], []) ::
+                       (resi9, ResoAST, [Not ab; xy], [resi8; impn1i2; impn2i2], []) ::
+                       (eqn2i, Equn2AST, [eq; xy; ab], [], []) ::
+                       (resi10, ResoAST, [eq; xy], [resi9; eqn2i], []) ::
+                       (i, ResoAST, [eq], [resi10; resi5], []) ::
+                       process_cong_aux t cog
+                     | Eq (Xor xs, Xor ys) -> []
                      (* not predicate
                          -----
                          x = a
