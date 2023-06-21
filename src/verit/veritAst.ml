@@ -864,505 +864,602 @@ let cong_find_implicit_args (ft : term) (p : params) (cog : certif) : (term list
 let process_cong (c : certif) : certif =
   let rec process_cong_aux (c : certif) (cog : certif) : certif = 
    match c with
-    | (i, r, cl, p, a) :: t ->
-        (match r with
-        | CongAST ->
-            (* To differentiate between the predicate and function case, we need to process
-               the clause because we treat equality and iff as the same at the AST level *)
-            let c' = process_cl cl in
-            (match c' with
-            | l :: _ ->
-                let conc = get_expr (List.hd cl) in
-                (* get negation of premises and terms for any implicit equality *)
-                let prems_neg, imp_eq = try (cong_find_implicit_args conc p cog) with 
-                                        | Debug s -> raise (Debug ("| process_cong: can't find premise(s) to congr at id "^i^" |"^s)) in
-                let refls, refl_ids = 
-                  List.split (List.map 
-                               (fun x -> let i' = generate_id () in
-                                         ((i', ReflAST, [Eq(x, x)], [], []), i')) imp_eq) in
-                (* congruence over functions *)
-                if is_eq l then
-                  (*
-                     Convert a proof of the form:
-                     ...
-                     x = a              y = b
-                     ------------------------cong
-                         f(x, y) = f(a, b)
-                     
-                     to:
-                     ...
-                     -------------------------------------eqcong
-                     ~(x = a), ~(y = b), (f(x,y) = f(a,b))          x = a    y = b
-                     --------------------------------------------------------------res
-                                           f(x,y) = f(a,b)   
-                  *)
-                  let eqci = generate_id () in
-                    ((eqci, EqcoAST, (prems_neg @ cl), [], []) ::
-                    refls) @
-                    ((i, ResoAST, cl, eqci :: (p @ refl_ids), a) :: 
-                    process_cong_aux t cog)
-                (* congruence over predicates*)
-                (* ASSUMPTION: we're assuming that x = a is the first premise and y = b 
-                          the second premise to congruence *)
-                else if is_iff l then
-                  (* List of tuples representing (premise id, premise formula) pairs for all premises *)
-                  let p' = List.map (fun x -> match get_cl x cog with
-                           | Some x' -> (x, List.hd x')
-                           | None -> raise (Debug ("Can't fetch premises to `and` at id "^i^" |"))) p in
-                  let eq = List.hd cl in
-                     (match eq with
-                     (* and predicate
-                        Convert a proof of the form:
-                         -----  -----
-                         x = a  y = b
-                        --------------cong
-                         x ^ y = a ^ b 
-                        
-                        to one of the form:
-                        (1)       (2)
-                        -------------res
-                        x ^ y = a ^ b
-                        where (1) and (2) are derived as:
-                                            -----   ---------------eqp1  -----   -----------------eqp1                                                                          
-                                            x = a   ~(x = a), x, ~a      y = b   ~(y = b), y, ~b
-                        ---------------andn ----------------------res   -------------------------res  ------------andp    ------------andp                                      
-                        (x ^ y), ~x, ~y             ~a, x                         ~b, y                ~(a ^ b), b         ~(a ^ b), a                                          
-                        --------------------------------------------------------------------------------------------------------------res  ---------------------------------eqn2
-                                                                    ~(a ^ b), (x ^ y)                                                       x ^ y = a ^ b, (x ^ y), (a ^ b)     
-                                              -----------------------------------------------------------------------------------------------------------------------------res  
-                                                                                          x ^ y = a ^ b, (x ^ y) --(1)
-
-                                             -----   ---------------eqp2 -----   -----------------eqp2
-                                             x = a   ~(x = a), ~x, a     y = b    ~(y = b), ~y, b
-                        ---------------andn  -----------------------res  ------------------------res  -----------andp -----------andp
-                        (a ^ b), ~a, ~b               ~x, a                       ~y, b               ~(x ^ y), x     ~(x ^ y), y
-                        ---------------------------------------------------------------------------------------------------------res  ---------------------------------eqn1
-                                                                         ~(x ^ y), (a ^ b)                                            x ^ y = a ^ b, ~(x ^ y), ~(a ^ b)
-                                                                         ---------------------------------------------------------------------------------------------res
-                                                                                                                   x ^ y = a ^ b, ~(x ^ y) --(2)
-                     *)
-                     | Eq (And xs, And ys) ->
-                        (* For x1 ^ ... ^ xn = y1 ^ ... ^ ym in the conclusion, *)
-                        (* 1. generate x1 ^ ... ^ xn, ~x1, ..., ~xn by andn *)
-                        let andni1 = generate_id () in
-                        let andns1 = List.map (fun x -> Not x) xs in
-                        (* 2. for each equality x = y in premise, generate ~(x = y), x, ~y by eqp1
-                              and resolve it with x = y, to get ~y, x *)
-                        let eqp1is, eqp1s = List.fold_left 
-                          (fun (is, r) (pid, peq) ->
-                            let i' = generate_id () in
-                            let eqp1i = generate_id () in
-                            let x, y = (match peq with
-                                        | Eq (x', y') -> (x', y')
-                                        | _ -> raise (Debug ("Expecting premise of cong to be equality at id "^i^" |"))) in
-                            (i' :: is, 
-                             (eqp1i, Equp1AST, [Not peq; x; Not y], [], []) :: 
-                             (i', ResoAST, [x; Not y], [eqp1i; pid], []) :: r))
-                          ([], []) p' in
-                        (* 3. for each yi, generate ~(y1 ^ ... ^ ym), yi by andp *)
-                        let andpis1, andps1 = List.fold_left
-                          (fun (is, r) y ->
-                            let i' = generate_id () in
-                            i' :: is,
-                            (i', AndpAST, [Not (And ys); y], [], []) :: r)
-                          ([], []) (to_uniq ys) in
-                        (* 4. resolve all clauses form 1., 2., and 3., to get ~(y1 ^ ... ^ ym), x1 ^ ... ^ xn *)
-                        let resi1 = generate_id () in
-                        (* 5. generate x1 ^ ... ^ xn = y1 ^ ... ^ ym, x1 ^ ... ^ xn, y1 ^ ... ^ ym by eqn2 *)
-                        let eqn2i = generate_id () in
-                        (* 6. resolve 4. and 5. to get x1 ^ ... ^ xn = y1 ^ ... ^ ym, x1 ^ ... ^ xn *)
-                        let resi2 = generate_id () in
-                        (* 7. generate y1 ^ ... ^ ym, ~y1, ..., ~ym by andn *)
-                        let andni2 = generate_id () in
-                        let andns2 = List.map (fun x -> Not x) ys in
-                        (* 8. for each equality x = y in premise, generate ~(x = y), ~x, y by eqp2 
-                              and resolve it with x = y, to get y, ~x *)
-                        let eqp2is, eqp2s = List.fold_left
-                          (fun (is, r) (pid, peq) ->
-                            let i' = generate_id () in
-                            let eqp2i = generate_id () in
-                            let x, y = (match peq with
-                                        | Eq (x', y') -> (x', y')
-                                        | _ -> raise (Debug ("Expecting premise of cong to be equality at id "^i^" |"))) in
-                            (i' :: is, 
-                             (eqp2i, Equp2AST, [Not peq; Not x; y], [], []) :: 
-                             (i', ResoAST, [Not x; y], [eqp2i; pid], []) :: r))
-                          ([], []) p' in
-                        (* 9. for each xi, generate ~(x1 ^ ... ^ xn), xi by andp *)
-                        let andpis2, andps2 = List.fold_left
-                          (fun (is, r) x ->
-                            let i' = generate_id () in
-                            i' :: is,
-                            (i', AndpAST, [Not (And xs); x], [], []) :: r)
-                          ([], []) (to_uniq xs) in
-                        (* 10. resolve all clauses form 7., 8., and 9., to get ~(x1 ^ ... ^ xn), y1 ^ ... ^ ym *)
-                        let resi3 = generate_id () in
-                        (* 11. generate x1 ^ ... ^ xn = y1 ^ ... ^ ym, ~(x1 ^ ... ^ xn), ~(y1 ^ ... ^ ym) by eqn1 *)
-                        let eqn1i = generate_id () in
-                        (* 12. resolve 10. and 11. to get x1 ^ ... ^ xn = y1 ^ ... ^ ym, ~(x1 ^ ... ^ xn) *)
-                        let resi4 = generate_id () in
-                        ((andni1, AndnAST, (And xs :: andns1), [], []) ::
-                         (eqp1s @ andps1)) @
-                        ((resi1, ResoAST, [Not (And ys); And xs], (andni1 :: (eqp1is @ andpis1)), []) ::
-                         (eqn2i, Equn2AST, [eq; And xs; And ys], [], []) ::
-                         (resi2, ResoAST, [eq; And xs], [resi1; eqn2i], []) ::
-                         (andni2, AndnAST, (And ys :: andns2), [], []) ::
-                         (eqp2s @ andps2)) @
-                        ((resi3, ResoAST, [Not (And xs); And ys], (andni2 :: (eqp2is @ andpis2)), []) ::
-                         (eqn1i, Equn1AST, [eq; Not (And xs); Not (And ys)], [], []) ::
-                         (resi4, ResoAST, [eq; Not (And xs)], [resi3; eqn1i], []) ::
-                         (* 13. resolve 6. and 12. to get x1 ^ ... ^ xn = y1 ^ ... ^ ym    *)
-                         (i, ResoAST, [eq], [resi2; resi4], []) ::
-                         process_cong_aux t cog)
-                     (* or predicate
-                        Convert a proof of the form:
-                         -----  -----
-                         x = a  y = b
-                        --------------cong
-                         x v y = a v b
-                        
-                        to one of the form:
-                        (1)       (2)
-                        -------------res
-                        x v y = a v b
-                        where (1) and (2) are derived as:
-                                            -----   ---------------eqp2  -----   -----------------eqp2                                                                          
-                                            x = a   ~(x = a), ~x, a      y = b    ~(y = b), ~y, b                                                                               
-                        ---------------orp  ----------------------res   -------------------------res  ------------orn    ------------orn                                        
-                        ~(x v y), x, y             ~x, a                         ~y, b                (a v b), ~a         (a v b), ~b                                           
-                        --------------------------------------------------------------------------------------------------------------res  ---------------------------------eqn2
-                                                                    ~(x v y), (a v b)                                                       x v y = a v b, (x v y), (a v b)     
-                                              -----------------------------------------------------------------------------------------------------------------------------res  
-                                                                                        x v y = a v b, (a v b) --(1)
-
-                                              -----  ---------------eqp1  -----  -----------------eqp1 
-                                              x = a  ~(x = a), ~a, x      y = b  ~(y = b), ~b, y       
-                        ---------------orp  -----------------------res   ------------------------res  -----------orn  -----------orn
-                        ~(a v b), a, b               ~a, x                       ~b, y                (x v y), ~x     (x v y), ~y
-                        ---------------------------------------------------------------------------------------------------------res  ---------------------------------eqn1
-                                                                          ~(a v b), (x v y)                                            x v y = a v b, ~(x v y), ~(a v b)
-                                                                          ---------------------------------------------------------------------------------------------res
-                                                                                                              x v y = a v b, ~(a v b) --(2)
-                     *)
-                     | Eq (Or xs, Or ys) ->
-                        (* For `x1 v ... v xn = y1 v ... v ym` in the conclusion, *)
-                        (* 1. generate `~(x1 v ... v xn), x1, ..., xn` by `orp` *)
-                        let orpi1 = generate_id () in
-                        (* 2. for each equality `x = y` in premise, generate `~(x = y), y, ~x` by `eqp2` 
-                              and resolve it with `x = y`, to get `y, ~x` *)
-                        let eqp2is, eqp2s = List.fold_left 
-                          (fun (is, r) (pid, peq) ->
-                            let i' = generate_id () in
-                            let eqp2i = generate_id () in
-                            let x, y = (match peq with
-                                        | Eq (x', y') -> (x', y')
-                                        | _ -> raise (Debug ("Expecting premise of cong to be equality at id "^i^" |"))) in
-                            (i' :: is, 
-                             (eqp2i, Equp2AST, [Not peq; Not x; y], [], []) :: 
-                             (i', ResoAST, [Not x; y], [eqp2i; pid], []) :: r))
-                          ([], []) p' in
-                        (* 3. for each `yi`, generate `(y1 v ... v ym), ~yi` by `orn` *)
-                        let ornis1, orns1 = List.fold_left
-                          (fun (is, r) y ->
-                            let i' = generate_id () in
-                            i' :: is,
-                            (i', OrnAST, [Or ys; Not y], [], []) :: r)
-                          ([], []) (to_uniq ys) in
-                        (* 4. resolve all clauses form 1., 2., and 3., to get `~(x1 v ... v xn), y1 v ... v ym` *)
-                        let resi1 = generate_id () in
-                        (* 5. generate `x1 v ... v xn = y1 v ... v ym, x1 v ... v xn, y1 v ... v ym` by `eqn2` *)
-                        let eqn2i = generate_id () in
-                        (* 6. resolve 4. and 5. to get `x1 v ... v xn = y1 v ... v ym, y1 v ... v ym` *)
-                        let resi2 = generate_id () in
-                        (* 7. generate `~(y1 v ... v ym), y1, ..., ym` by `orp` *)
-                        let orpi2 = generate_id () in
-                        (* 8. for each equality `x = y` in premise, generate `~(x = y), ~y, x` by `eqp1`
-                              and resolve it with `x = y`, to get `~y, x` *)
-                        let eqp1is, eqp1s = List.fold_left
-                          (fun (is, r) (pid, peq) ->
-                            let i' = generate_id () in
-                            let eqp1i = generate_id () in
-                            let x, y = (match peq with
-                                        | Eq (x', y') -> (x', y')
-                                        | _ -> raise (Debug ("Expecting premise of cong to be equality at id "^i^" |"))) in
-                            (i' :: is, 
-                             (eqp1i, Equp1AST, [Not peq; x; Not y], [], []) :: 
-                             (i', ResoAST, [x; Not y], [eqp1i; pid], []) :: r))
-                          ([], []) p' in
-                        (* 9. for each `xi`, generate `(x1 v ... v xn), ~xi` by `orn` *)
-                        let ornis2, orns2 = List.fold_left
-                          (fun (is, r) x ->
-                            let i' = generate_id () in
-                            i' :: is,
-                            (i', OrnAST, [Or xs; Not x], [], []) :: r)
-                          ([], []) (to_uniq xs) in
-                        (* 10. resolve all clauses form 7., 8., and 9., to get `~(y1 v ... v ym), x1 v ... v xn` *)
-                        let resi3 = generate_id () in
-                        (* 11. generate `x1 v ... v xn = y1 v ... v ym, ~(x1 v ... v xn), ~(y1 v ... v ym)` by `eqn1` *)
-                        let eqn1i = generate_id () in
-                        (* 12. resolve 10. and 11. to get `x1 v ... v xn = y1 v ... v ym, ~(y1 v ... v ym)` *)
-                        let resi4 = generate_id () in
-                        ((orpi1, OrpAST, (Not (Or xs) :: xs), [], []) ::
-                         (eqp2s @ orns1)) @
-                        ((resi1, ResoAST, [Not (Or xs); Or ys], (orpi1 :: (eqp2is @ ornis1)), []) ::
-                         (eqn2i, Equn2AST, [eq; Or xs; Or ys], [], []) ::
-                         (resi2, ResoAST, [eq; Or xs], [resi1; eqn2i], []) ::
-                         (orpi2, OrpAST, (Not (Or ys) :: ys), [], []) ::
-                         (eqp1s @ orns2)) @
-                        ((resi3, ResoAST, [Not (Or ys); Or xs], (orpi2 :: (eqp1is @ ornis2)), []) ::
-                         (eqn1i, Equn1AST, [eq; Not (Or xs); Not (Or ys)], [], []) ::
-                         (resi4, ResoAST, [eq; Not (Or ys)], [resi3; eqn1i], []) ::
-                         (* 13. resolve 6. and 12. to get `x1 v ... v xn = y1 v ... v ym` *)
-                         (i, ResoAST, [eq], [resi2; resi4], []) ::
-                         process_cong_aux t cog)
-                     (* imp predicate
-                        Convert a proof of the form:
-                        -----  -----
-                        x = a  y = b
-                        --------------cong
-                        x -> y = a -> b
-                                                
-                        to one of the form:
-                              -------------------------------eqn2       -------------------------------------eqn1
-                        (1)   x -> y = a -> b, x -> y, a -> b      (2)  x -> y = a -> b, ~(x -> y), ~(a -> b)
-                        -------------------------------------res   ------------------------------------------res
-                               x -> y = a -> b, x -> y                     x -> y = a -> b, ~(x -> y)
-                               ----------------------------------------------------------------------res
-                                                         x -> y = a -> b
-                        where (1) and (2) are derived as:
-                                              -----   ---------------eqp2  -----  -----------------eqp1
-                                              x = a   ~(x = a), ~x, a      y = b  ~(y = b), y, ~b      
-                        ----------------impp  ------------------------res  ------------------------res 
-                        ~(a -> b), ~a, b               ~x, a                        y, ~b              
-                        -----------------------------------------------------------------res  ---------impn1  ----------impn2
-                                                ~(a -> b), ~x, y                              x -> y, x       x -> y, ~y
-                                                ------------------------------------------------------------------------res  
-                                                                        ~(a -> b), x -> y  ---(1)                            
-                                                
-                                              -----   -----------------eqp2  -----  ---------------eqp1
-                                              y = b    ~(y = b), ~y, b       x = a  ~(x = a), x, ~a    
-                        ----------------impp  -------------------------res   -----------------------res
-                        ~(x -> y), ~x, y                ~y, b                         x, ~a
-                        -------------------------------------------------------------------res  ---------impn1  ----------impn2
-                                                ~(x -> y), b, ~a                                a -> b, a       a -> b, ~b
-                                                --------------------------------------------------------------------------res  
-                                                                        ~(x -> y), a -> b  ---(2)
-                     *)
-                     | Eq (Imp [x; y], Imp [a; b]) ->
-                       (* Given `x -> y = a -> b` in the conclusion, *)
-                       (* 1. generate `~(x -> y), ~x, y` by `impp` *)
-                       let imppi1 = generate_id () in
-                       (* 2. generate `~(y = b), ~y, b` by `eqp2` and resolve it with premise `y = b` to get `~y, b` *)
-                       let eqp2i1 = generate_id () in
-                       let resi1 = generate_id () in
-                       (* 3. generate `~(x = a), ~a, x` by `eqp1` and resolve it with premise `x = a` to get `x, ~a` *)
-                       let eqp1i1 = generate_id () in
-                       let resi2 = generate_id () in
-                       (* 4. resolve clauses from 1., 2., and 3. to get `~(x -> y), b, ~a` *)
-                       let resi3 = generate_id () in
-                       (* 5. generate `a -> b, a` by `impn1`, and `a -> b, ~b` by `impn2` *)
-                       let impn1i1 = generate_id () in
-                       let impn2i1 = generate_id () in
-                       (* 6. resolve clauses from 4. and 5. to get `~(x -> y), a -> b` *)
-                       let resi4 = generate_id () in
-                       (* 7. generate `x -> y = a -> b, ~(x -> y), ~(a -> b)` by `eqn1` *)
-                       let eqn1i = generate_id () in
-                       (* 8. resolve 6. and 7. to get `x -> y = a -> b, ~(x -> y)` *)
-                       let resi5 = generate_id () in
-                       (* 9. generate `~(a -> b), ~a, b` by `impp` *)
-                       let imppi2 = generate_id () in
-                       (* 10. generate `~(x = a), ~x, a` by `eqp2` and resolve it with premise `x = a` to get `~x, a` *)
-                       let eqp2i2 = generate_id () in
-                       let resi6 = generate_id () in
-                       (* 11. generate `~(y = b), ~b, y` by `eqp1` and resolve it with premise `y = b` to get `y, ~b` *)
-                       let eqp1i2 = generate_id () in
-                       let resi7 = generate_id () in
-                       (* 12. resolve clauses from 9., 10., and 11. to get `~(a -> b), ~x, y` *)
-                       let resi8 = generate_id () in
-                       (* 13. generate `x -> y, x` by `impn1`, and `x -> y, ~y` by `impn2` *)
-                       let impn1i2 = generate_id () in
-                       let impn2i2 = generate_id () in
-                       (* 14. resolve clauses from 12. and 13. to get `~(a -> b), x -> y` *)
-                       let resi9 = generate_id () in
-                       (* 15. generate `x -> y = a -> b, x -> y, a -> b` by `eqn2` *)
-                       let eqn2i = generate_id () in
-                       (* 16. resolve 14. and 15. to get `x -> y = a -> b, x -> y` *)
-                       let resi10 = generate_id () in
-                       (* 17. resolve 8. and 16. to get `x -> y = a -> b` *)
-                       let xy = Imp [x; y] in
-                       let ab = Imp [a; b] in
-                       let eqxa = Eq (x, a) in
-                       let eqyb = Eq (y, b) in
-                       let p1 = (match (List.nth p' 0) with
-                                 | (pid, _) -> pid) in
-                       let p2 = (match (List.nth p' 1) with
-                                 | (pid, _) -> pid) in
-                       (imppi1, ImppAST, [Not xy; Not x; y], [], []) ::
-                       (eqp1i1, Equp2AST, [Not eqyb; Not y; b], [], []) ::
-                       (resi1, ResoAST, [Not y; b], [eqp1i1; p2], []) ::
-                       (eqp2i1, Equp1AST, [Not eqxa; x; Not a], [], []) ::
-                       (resi2, ResoAST, [x; Not a], [eqp2i1; p1], []) ::
-                       (resi3, ResoAST, [Not xy; b; Not a], [imppi1; resi1; resi2], []) ::
-                       (impn1i1, Impn1AST, [ab; a], [], []) ::
-                       (impn2i1, Impn2AST, [ab; Not b], [], []) ::
-                       (resi4, ResoAST, [Not xy; ab], [resi3; impn1i1; impn2i1], []) ::
-                       (eqn1i, Equn1AST, [eq; Not xy; Not ab], [], []) ::
-                       (resi5, ResoAST, [eq; Not xy], [resi4; eqn1i], []) ::
-                       (imppi2, ImppAST, [Not ab; Not a; b], [], []) ::
-                       (eqp1i2, Equp2AST, [Not eqxa; Not x; a], [], []) ::
-                       (resi6, ResoAST, [Not x; a], [eqp1i2; p1], []) ::
-                       (eqp2i2, Equp1AST, [Not eqyb; y; Not b], [], []) ::
-                       (resi7, ResoAST, [y; Not b], [eqp2i2; p2], []) ::
-                       (resi8, ResoAST, [Not ab; Not x; y], [imppi2; resi6; resi7], []) ::
-                       (impn1i2, Impn1AST, [xy; x], [], []) ::
-                       (impn2i2, Impn2AST, [xy; Not y], [], []) ::
-                       (resi9, ResoAST, [Not ab; xy], [resi8; impn1i2; impn2i2], []) ::
-                       (eqn2i, Equn2AST, [eq; xy; ab], [], []) ::
-                       (resi10, ResoAST, [eq; xy], [resi9; eqn2i], []) ::
-                       (i, ResoAST, [eq], [resi10; resi5], []) ::
-                       process_cong_aux t cog
-                     | Eq (Xor xs, Xor ys) -> []
-                     (* not predicate
-                         -----
-                         x = a
-                        --------cong
-                         ~x = ~a
-
-                        Encoding
-                        ========
-                        -----  ---------------eqp2                       -----   ---------------eqp1
-                        x = a  ~(x = a), ~a, x                           x = a   ~(x = a), ~x, a      
-                        -----------------------res  ---------------eqn2  ------------------------res    --------------eqn1
-                               ~a, x                ~x = ~a, ~x, ~a              ~x, a                 ~x = ~a, x, a     
-                               ------------------------------------res          -------------------------------------res
-                                            ~a, ~x = ~a                                       a, ~x = ~a
-                                            ------------------------------------------------------------res
-                                                                        ~x = ~a                  
-                     *)
-                     | Eq (Not x, Not a) ->
-                        (* Given `~x = ~a` in the conclusion, *)
-                        (* 1. generate `~(x = a), ~x, a` by `eqp1` and resolve it with `x = a`, to get `~x, a` *)
+    | (i, CongAST, cl, p, a) :: t ->
+        (* To differentiate between the predicate and function case, we need to process
+           the clause because we treat equality and iff as the same at the AST level *)
+        let c' = process_cl cl in
+        (match c' with
+        | l :: _ ->
+            let conc = get_expr (List.hd cl) in
+            (* get negation of premises and terms for any implicit equality *)
+            let prems_neg, imp_eq = try (cong_find_implicit_args conc p cog) with 
+                                    | Debug s -> raise (Debug ("| process_cong: can't find premise(s) to congr at id "^i^" |"^s)) in
+            let refls, refl_ids = 
+              List.split (List.map 
+                           (fun x -> let i' = generate_id () in
+                                     ((i', ReflAST, [Eq(x, x)], [], []), i')) imp_eq) in
+            (* congruence over functions *)
+            if is_eq l then
+              (*
+                 Convert a proof of the form:
+                 ...
+                 x = a              y = b
+                 ------------------------cong
+                     f(x, y) = f(a, b)
+                 
+                 to:
+                 ...
+                 -------------------------------------eqcong
+                 ~(x = a), ~(y = b), (f(x,y) = f(a,b))          x = a    y = b
+                 --------------------------------------------------------------res
+                                       f(x,y) = f(a,b)   
+              *)
+              let eqci = generate_id () in
+                ((eqci, EqcoAST, (prems_neg @ cl), [], []) ::
+                refls) @
+                ((i, ResoAST, cl, eqci :: (p @ refl_ids), a) :: 
+                process_cong_aux t cog)
+            (* congruence over predicates *)
+            (* ASSUMPTION: we're assuming that x = a is the first premise and y = b 
+                      the second premise to congruence *)
+            else if is_iff l then
+              (* List of tuples representing (premise id, premise formula) pairs for all premises *)
+              let p' = List.map (fun x -> match get_cl x cog with
+                       | Some x' -> (x, List.hd x')
+                       | None -> raise (Debug ("Can't fetch premises to `and` at id "^i^" |"))) p in
+              let eq = List.hd cl in
+                 (match eq with
+                 (* and predicate
+                    Convert a proof of the form:
+                     -----  -----
+                     x = a  y = b
+                    --------------cong
+                     x ^ y = a ^ b 
+                    
+                    to one of the form:
+                    (1)       (2)
+                    -------------res
+                    x ^ y = a ^ b
+                    where (1) and (2) are derived as:
+                                        -----   ---------------eqp1  -----   -----------------eqp1                                                                          
+                                        x = a   ~(x = a), x, ~a      y = b   ~(y = b), y, ~b
+                    ---------------andn ----------------------res   -------------------------res  ------------andp    ------------andp                                      
+                    (x ^ y), ~x, ~y             ~a, x                         ~b, y                ~(a ^ b), b         ~(a ^ b), a                                          
+                    --------------------------------------------------------------------------------------------------------------res  ---------------------------------eqn2
+                                                                ~(a ^ b), (x ^ y)                                                       x ^ y = a ^ b, (x ^ y), (a ^ b)     
+                                          -----------------------------------------------------------------------------------------------------------------------------res  
+                                                                                      x ^ y = a ^ b, (x ^ y) --(1)
+        
+                                         -----   ---------------eqp2 -----   -----------------eqp2
+                                         x = a   ~(x = a), ~x, a     y = b    ~(y = b), ~y, b
+                    ---------------andn  -----------------------res  ------------------------res  -----------andp -----------andp
+                    (a ^ b), ~a, ~b               ~x, a                       ~y, b               ~(x ^ y), x     ~(x ^ y), y
+                    ---------------------------------------------------------------------------------------------------------res  ---------------------------------eqn1
+                                                                     ~(x ^ y), (a ^ b)                                            x ^ y = a ^ b, ~(x ^ y), ~(a ^ b)
+                                                                     ---------------------------------------------------------------------------------------------res
+                                                                                                               x ^ y = a ^ b, ~(x ^ y) --(2)
+                 *)
+                 | Eq (And xs, And ys) ->
+                    (* For x1 ^ ... ^ xn = y1 ^ ... ^ ym in the conclusion, *)
+                    (* 1. generate x1 ^ ... ^ xn, ~x1, ..., ~xn by andn *)
+                    let andni1 = generate_id () in
+                    let andns1 = List.map (fun x -> Not x) xs in
+                    (* 2. for each equality x = y in premise, generate ~(x = y), x, ~y by eqp1
+                          and resolve it with x = y, to get ~y, x *)
+                    let eqp1is, eqp1s = List.fold_left 
+                      (fun (is, r) (pid, peq) ->
+                        let i' = generate_id () in
                         let eqp1i = generate_id () in
-                        let resi1 = generate_id () in
-                        let pxa = (match (List.hd p') with
-                                 | (pid, _) -> pid) in
-                        (* 2. generate `~x = ~a, x, a` by `eqn1` *)
-                        let eqn1i = generate_id () in
-                        (* 3. resolve 1. and 2. to get `a, ~x = ~a` *)
-                        let resi2 = generate_id () in
-                        (* 4. generate `~(x = a), ~a, x` by `eqp2` and resolve it with `x = a`, to get `~a`, x` *)
+                        let x, y = (match peq with
+                                    | Eq (x', y') -> (x', y')
+                                    | _ -> raise (Debug ("Expecting premise of cong to be equality at id "^i^" |"))) in
+                        (i' :: is, 
+                         (eqp1i, Equp1AST, [Not peq; x; Not y], [], []) :: 
+                         (i', ResoAST, [x; Not y], [eqp1i; pid], []) :: r))
+                      ([], []) p' in
+                    (* 3. for each yi, generate ~(y1 ^ ... ^ ym), yi by andp *)
+                    let andpis1, andps1 = List.fold_left
+                      (fun (is, r) y ->
+                        let i' = generate_id () in
+                        i' :: is,
+                        (i', AndpAST, [Not (And ys); y], [], []) :: r)
+                      ([], []) (to_uniq ys) in
+                    (* 4. resolve all clauses form 1., 2., and 3., to get ~(y1 ^ ... ^ ym), x1 ^ ... ^ xn *)
+                    let resi1 = generate_id () in
+                    (* 5. generate x1 ^ ... ^ xn = y1 ^ ... ^ ym, x1 ^ ... ^ xn, y1 ^ ... ^ ym by eqn2 *)
+                    let eqn2i = generate_id () in
+                    (* 6. resolve 4. and 5. to get x1 ^ ... ^ xn = y1 ^ ... ^ ym, x1 ^ ... ^ xn *)
+                    let resi2 = generate_id () in
+                    (* 7. generate y1 ^ ... ^ ym, ~y1, ..., ~ym by andn *)
+                    let andni2 = generate_id () in
+                    let andns2 = List.map (fun x -> Not x) ys in
+                    (* 8. for each equality x = y in premise, generate ~(x = y), ~x, y by eqp2 
+                          and resolve it with x = y, to get y, ~x *)
+                    let eqp2is, eqp2s = List.fold_left
+                      (fun (is, r) (pid, peq) ->
+                        let i' = generate_id () in
                         let eqp2i = generate_id () in
-                        let resi3 = generate_id () in
-                        (* 5. generate `~x = ~a, ~x, ~a` by `eqn2` *)
-                        let eqn2i = generate_id () in
-                        (* 6. resolve 4. and 5. to get `~a, ~x = ~a` *)
-                        let resi4 = generate_id () in
-                        let eqxa = Eq (x, a) in
-                        (eqp1i, Equp1AST, [Not eqxa; Not x; a], [], []) ::
-                        (resi1, ResoAST, [Not x; a], [eqp1i; pxa], []) ::
-                        (eqn1i, Equn1AST, [eq; x; a], [], []) ::
-                        (resi2, ResoAST, [eq; a], [resi1; eqn1i], []) ::
-                        (eqp2i, Equp2AST, [Not eqxa; Not a; x], [], []) ::
-                        (resi3, ResoAST, [Not a; x], [eqp2i; pxa], []) :: 
-                        (eqn2i, Equn2AST, [eq; Not x; Not a], [], []) :: 
-                        (resi4, ResoAST, [eq; Not a], [resi3; eqn2i], []) ::
-                        (* 7. resolve 3. and 6. to get `~x = ~a` *)
-                        (i, ResoAST, [eq], [resi2; resi4], []) ::
-                        process_cong_aux t cog
-                     (* User-defined predicates *)
-                     | _ ->
-                        (*
-                           Convert a proof of the form:
-                           ...
-                           x = a              y = b
-                           ------------------------cong
-                               P(x, y) = P(a, b)
-                           
-                           to:
-                              (1)                                    (2)                  (3)                                     (4)
-                           ------------------------------------------------res        -------------------------------------------------res
-                           ~(x = a), ~(y = b), P(a, b), (P(x, y) = P(a, b))           ~(x = a), ~(y = b), ~P(a, b), (P(x, y) = P(a, b))      x = a    y = b
-                           ---------------------------------------------------------------------------------------------------------------------------------res
-                                                                                    P(x, y) = P(a, b)
-                           where:
-                           -------------------------------------eqcongp
-                           ~(x = a), ~(y = b), ~P(x, y), P(a, b)     --(1)
-                           -------------------------------------eqn2
-                           (P(x, y) = P(a, b)), P(x, y), P(a, b)      --(2)
-                           -------------------------------------eqcongp
-                           ~(x = a), ~(y = b), ~P(a, b), P(x, y)     --(3)
-                           ---------------------------------------eqn1
-                           (P(x, y) = P(a, b)), ~P(x, y), ~P(a, b)    --(4)
-                           
-                           TODO: Currently all premises are expected to be explicit,
-                           but the rule uses implicit premises such as true = true, which need to be 
-                           inferred and added to the resolutions (for each of these premises a rule of refl
-                           must be invoked). Without this, process_congr_form will probably fail.
-                           Solution: fetch all the arguments, and if they don't match the expected number
-                           infer them as follows. Unhash all premises and the conclusion and do pattern 
-                           matching. Fill whatever is remaining using refl.   
-                        *)
-                        let eqcpi1 = generate_id () in
-                        let eqcpi2 = generate_id () in
-                        let eqn2i = generate_id () in
-                        let eqn1i = generate_id () in
-                        let resi1 = generate_id () in
-                        let resi2 = generate_id () in
-                        (* variables for the target equality and the predicates it equates *)
-                        let (p1, p2) = (match conc with
-                                        | Eq (x, y) -> (x, y)
-                                        | _ -> assert false) in
-                          ((eqcpi1, EqcpAST, (prems_neg @ [Not p1; p2]), [], []) ::
-                          (eqn2i, Equn2AST, [conc; p1; p2], [], []) ::
-                          (resi1, ResoAST, (prems_neg @ [conc; p2]), [eqcpi1; eqn2i], []) ::
-                          (eqcpi2, EqcpAST, (prems_neg @ [Not p2; p1]), [], []) ::
-                          (eqn1i, Equn1AST, [conc; Not p1; Not p2], [], []) ::
-                          (resi2, ResoAST, (prems_neg @ [conc; Not p2]), [eqcpi2; eqn1i], []) ::
-                          refls) @
-                          ((i, ResoAST, [conc], resi1 :: resi2 :: (p @ refl_ids), []) ::
-                          process_cong_aux t cog))
-                else
-                  raise (Debug ("| process_cong: expecting head of clause to be either an equality or an iff at id "^i^" |"))
-            | _ -> raise (Debug ("| process_cong: expecting clause to have one literal at id "^i^" |")))
-        | _ -> (* This is necessary to add the shared terms to the hash tables *)
-               let _ = process_cl cl in
-               (i, r, cl, p, a) :: process_cong_aux t cog)
+                        let x, y = (match peq with
+                                    | Eq (x', y') -> (x', y')
+                                    | _ -> raise (Debug ("Expecting premise of cong to be equality at id "^i^" |"))) in
+                        (i' :: is, 
+                         (eqp2i, Equp2AST, [Not peq; Not x; y], [], []) :: 
+                         (i', ResoAST, [Not x; y], [eqp2i; pid], []) :: r))
+                      ([], []) p' in
+                    (* 9. for each xi, generate ~(x1 ^ ... ^ xn), xi by andp *)
+                    let andpis2, andps2 = List.fold_left
+                      (fun (is, r) x ->
+                        let i' = generate_id () in
+                        i' :: is,
+                        (i', AndpAST, [Not (And xs); x], [], []) :: r)
+                      ([], []) (to_uniq xs) in
+                    (* 10. resolve all clauses form 7., 8., and 9., to get ~(x1 ^ ... ^ xn), y1 ^ ... ^ ym *)
+                    let resi3 = generate_id () in
+                    (* 11. generate x1 ^ ... ^ xn = y1 ^ ... ^ ym, ~(x1 ^ ... ^ xn), ~(y1 ^ ... ^ ym) by eqn1 *)
+                    let eqn1i = generate_id () in
+                    (* 12. resolve 10. and 11. to get x1 ^ ... ^ xn = y1 ^ ... ^ ym, ~(x1 ^ ... ^ xn) *)
+                    let resi4 = generate_id () in
+                    ((andni1, AndnAST, (And xs :: andns1), [], []) ::
+                     (eqp1s @ andps1)) @
+                    ((resi1, ResoAST, [Not (And ys); And xs], (andni1 :: (eqp1is @ andpis1)), []) ::
+                     (eqn2i, Equn2AST, [eq; And xs; And ys], [], []) ::
+                     (resi2, ResoAST, [eq; And xs], [resi1; eqn2i], []) ::
+                     (andni2, AndnAST, (And ys :: andns2), [], []) ::
+                     (eqp2s @ andps2)) @
+                    ((resi3, ResoAST, [Not (And xs); And ys], (andni2 :: (eqp2is @ andpis2)), []) ::
+                     (eqn1i, Equn1AST, [eq; Not (And xs); Not (And ys)], [], []) ::
+                     (resi4, ResoAST, [eq; Not (And xs)], [resi3; eqn1i], []) ::
+                     (* 13. resolve 6. and 12. to get x1 ^ ... ^ xn = y1 ^ ... ^ ym    *)
+                     (i, ResoAST, [eq], [resi2; resi4], []) ::
+                     process_cong_aux t cog)
+                 (* or predicate
+                    Convert a proof of the form:
+                     -----  -----
+                     x = a  y = b
+                    --------------cong
+                     x v y = a v b
+                    
+                    to one of the form:
+                    (1)       (2)
+                    -------------res
+                    x v y = a v b
+                    where (1) and (2) are derived as:
+                                        -----   ---------------eqp2  -----   -----------------eqp2                                                                          
+                                        x = a   ~(x = a), ~x, a      y = b    ~(y = b), ~y, b                                                                               
+                    ---------------orp  ----------------------res   -------------------------res  ------------orn    ------------orn                                        
+                    ~(x v y), x, y             ~x, a                         ~y, b                (a v b), ~a         (a v b), ~b                                           
+                    --------------------------------------------------------------------------------------------------------------res  ---------------------------------eqn2
+                                                                ~(x v y), (a v b)                                                       x v y = a v b, (x v y), (a v b)     
+                                          -----------------------------------------------------------------------------------------------------------------------------res  
+                                                                                    x v y = a v b, (a v b) --(1)
+        
+                                          -----  ---------------eqp1  -----  -----------------eqp1 
+                                          x = a  ~(x = a), ~a, x      y = b  ~(y = b), ~b, y       
+                    ---------------orp  -----------------------res   ------------------------res  -----------orn  -----------orn
+                    ~(a v b), a, b               ~a, x                       ~b, y                (x v y), ~x     (x v y), ~y
+                    ---------------------------------------------------------------------------------------------------------res  ---------------------------------eqn1
+                                                                      ~(a v b), (x v y)                                            x v y = a v b, ~(x v y), ~(a v b)
+                                                                      ---------------------------------------------------------------------------------------------res
+                                                                                                          x v y = a v b, ~(a v b) --(2)
+                 *)
+                 | Eq (Or xs, Or ys) ->
+                    (* For `x1 v ... v xn = y1 v ... v ym` in the conclusion, *)
+                    (* 1. generate `~(x1 v ... v xn), x1, ..., xn` by `orp` *)
+                    let orpi1 = generate_id () in
+                    (* 2. for each equality `x = y` in premise, generate `~(x = y), y, ~x` by `eqp2` 
+                          and resolve it with `x = y`, to get `y, ~x` *)
+                    let eqp2is, eqp2s = List.fold_left 
+                      (fun (is, r) (pid, peq) ->
+                        let i' = generate_id () in
+                        let eqp2i = generate_id () in
+                        let x, y = (match peq with
+                                    | Eq (x', y') -> (x', y')
+                                    | _ -> raise (Debug ("Expecting premise of cong to be equality at id "^i^" |"))) in
+                        (i' :: is, 
+                         (eqp2i, Equp2AST, [Not peq; Not x; y], [], []) :: 
+                         (i', ResoAST, [Not x; y], [eqp2i; pid], []) :: r))
+                      ([], []) p' in
+                    (* 3. for each `yi`, generate `(y1 v ... v ym), ~yi` by `orn` *)
+                    let ornis1, orns1 = List.fold_left
+                      (fun (is, r) y ->
+                        let i' = generate_id () in
+                        i' :: is,
+                        (i', OrnAST, [Or ys; Not y], [], []) :: r)
+                      ([], []) (to_uniq ys) in
+                    (* 4. resolve all clauses form 1., 2., and 3., to get `~(x1 v ... v xn), y1 v ... v ym` *)
+                    let resi1 = generate_id () in
+                    (* 5. generate `x1 v ... v xn = y1 v ... v ym, x1 v ... v xn, y1 v ... v ym` by `eqn2` *)
+                    let eqn2i = generate_id () in
+                    (* 6. resolve 4. and 5. to get `x1 v ... v xn = y1 v ... v ym, y1 v ... v ym` *)
+                    let resi2 = generate_id () in
+                    (* 7. generate `~(y1 v ... v ym), y1, ..., ym` by `orp` *)
+                    let orpi2 = generate_id () in
+                    (* 8. for each equality `x = y` in premise, generate `~(x = y), ~y, x` by `eqp1`
+                          and resolve it with `x = y`, to get `~y, x` *)
+                    let eqp1is, eqp1s = List.fold_left
+                      (fun (is, r) (pid, peq) ->
+                        let i' = generate_id () in
+                        let eqp1i = generate_id () in
+                        let x, y = (match peq with
+                                    | Eq (x', y') -> (x', y')
+                                    | _ -> raise (Debug ("Expecting premise of cong to be equality at id "^i^" |"))) in
+                        (i' :: is, 
+                         (eqp1i, Equp1AST, [Not peq; x; Not y], [], []) :: 
+                         (i', ResoAST, [x; Not y], [eqp1i; pid], []) :: r))
+                      ([], []) p' in
+                    (* 9. for each `xi`, generate `(x1 v ... v xn), ~xi` by `orn` *)
+                    let ornis2, orns2 = List.fold_left
+                      (fun (is, r) x ->
+                        let i' = generate_id () in
+                        i' :: is,
+                        (i', OrnAST, [Or xs; Not x], [], []) :: r)
+                      ([], []) (to_uniq xs) in
+                    (* 10. resolve all clauses form 7., 8., and 9., to get `~(y1 v ... v ym), x1 v ... v xn` *)
+                    let resi3 = generate_id () in
+                    (* 11. generate `x1 v ... v xn = y1 v ... v ym, ~(x1 v ... v xn), ~(y1 v ... v ym)` by `eqn1` *)
+                    let eqn1i = generate_id () in
+                    (* 12. resolve 10. and 11. to get `x1 v ... v xn = y1 v ... v ym, ~(y1 v ... v ym)` *)
+                    let resi4 = generate_id () in
+                    ((orpi1, OrpAST, (Not (Or xs) :: xs), [], []) ::
+                     (eqp2s @ orns1)) @
+                    ((resi1, ResoAST, [Not (Or xs); Or ys], (orpi1 :: (eqp2is @ ornis1)), []) ::
+                     (eqn2i, Equn2AST, [eq; Or xs; Or ys], [], []) ::
+                     (resi2, ResoAST, [eq; Or xs], [resi1; eqn2i], []) ::
+                     (orpi2, OrpAST, (Not (Or ys) :: ys), [], []) ::
+                     (eqp1s @ orns2)) @
+                    ((resi3, ResoAST, [Not (Or ys); Or xs], (orpi2 :: (eqp1is @ ornis2)), []) ::
+                     (eqn1i, Equn1AST, [eq; Not (Or xs); Not (Or ys)], [], []) ::
+                     (resi4, ResoAST, [eq; Not (Or ys)], [resi3; eqn1i], []) ::
+                     (* 13. resolve 6. and 12. to get `x1 v ... v xn = y1 v ... v ym` *)
+                     (i, ResoAST, [eq], [resi2; resi4], []) ::
+                     process_cong_aux t cog)
+                 (* imp predicate
+                    Convert a proof of the form:
+                    -----  -----
+                    x = a  y = b
+                    --------------cong
+                    x -> y = a -> b
+                                            
+                    to one of the form:
+                          -------------------------------eqn2       -------------------------------------eqn1
+                    (1)   x -> y = a -> b, x -> y, a -> b      (2)  x -> y = a -> b, ~(x -> y), ~(a -> b)
+                    -------------------------------------res   ------------------------------------------res
+                           x -> y = a -> b, x -> y                     x -> y = a -> b, ~(x -> y)
+                           ----------------------------------------------------------------------res
+                                                     x -> y = a -> b
+                    where (1) and (2) are derived as:
+                                          -----   ---------------eqp2  -----  -----------------eqp1
+                                          x = a   ~(x = a), ~x, a      y = b  ~(y = b), y, ~b      
+                    ----------------impp  ------------------------res  ------------------------res 
+                    ~(a -> b), ~a, b               ~x, a                        y, ~b              
+                    -----------------------------------------------------------------res  ---------impn1  ----------impn2
+                                            ~(a -> b), ~x, y                              x -> y, x       x -> y, ~y
+                                            ------------------------------------------------------------------------res  
+                                                                    ~(a -> b), x -> y  ---(1)                            
+                                            
+                                          -----   -----------------eqp2  -----  ---------------eqp1
+                                          y = b    ~(y = b), ~y, b       x = a  ~(x = a), x, ~a    
+                    ----------------impp  -------------------------res   -----------------------res
+                    ~(x -> y), ~x, y                ~y, b                         x, ~a
+                    -------------------------------------------------------------------res  ---------impn1  ----------impn2
+                                            ~(x -> y), b, ~a                                a -> b, a       a -> b, ~b
+                                            --------------------------------------------------------------------------res  
+                                                                    ~(x -> y), a -> b  ---(2)
+                 *)
+                 | Eq (Imp [x; y], Imp [a; b]) ->
+                   (* Given `x -> y = a -> b` in the conclusion, *)
+                   (* 1. generate `~(x -> y), ~x, y` by `impp` *)
+                   let imppi1 = generate_id () in
+                   (* 2. generate `~(y = b), ~y, b` by `eqp2` and resolve it with premise `y = b` to get `~y, b` *)
+                   let eqp2i1 = generate_id () in
+                   let resi1 = generate_id () in
+                   (* 3. generate `~(x = a), ~a, x` by `eqp1` and resolve it with premise `x = a` to get `x, ~a` *)
+                   let eqp1i1 = generate_id () in
+                   let resi2 = generate_id () in
+                   (* 4. resolve clauses from 1., 2., and 3. to get `~(x -> y), b, ~a` *)
+                   let resi3 = generate_id () in
+                   (* 5. generate `a -> b, a` by `impn1`, and `a -> b, ~b` by `impn2` *)
+                   let impn1i1 = generate_id () in
+                   let impn2i1 = generate_id () in
+                   (* 6. resolve clauses from 4. and 5. to get `~(x -> y), a -> b` *)
+                   let resi4 = generate_id () in
+                   (* 7. generate `x -> y = a -> b, ~(x -> y), ~(a -> b)` by `eqn1` *)
+                   let eqn1i = generate_id () in
+                   (* 8. resolve 6. and 7. to get `x -> y = a -> b, ~(x -> y)` *)
+                   let resi5 = generate_id () in
+                   (* 9. generate `~(a -> b), ~a, b` by `impp` *)
+                   let imppi2 = generate_id () in
+                   (* 10. generate `~(x = a), ~x, a` by `eqp2` and resolve it with premise `x = a` to get `~x, a` *)
+                   let eqp2i2 = generate_id () in
+                   let resi6 = generate_id () in
+                   (* 11. generate `~(y = b), ~b, y` by `eqp1` and resolve it with premise `y = b` to get `y, ~b` *)
+                   let eqp1i2 = generate_id () in
+                   let resi7 = generate_id () in
+                   (* 12. resolve clauses from 9., 10., and 11. to get `~(a -> b), ~x, y` *)
+                   let resi8 = generate_id () in
+                   (* 13. generate `x -> y, x` by `impn1`, and `x -> y, ~y` by `impn2` *)
+                   let impn1i2 = generate_id () in
+                   let impn2i2 = generate_id () in
+                   (* 14. resolve clauses from 12. and 13. to get `~(a -> b), x -> y` *)
+                   let resi9 = generate_id () in
+                   (* 15. generate `x -> y = a -> b, x -> y, a -> b` by `eqn2` *)
+                   let eqn2i = generate_id () in
+                   (* 16. resolve 14. and 15. to get `x -> y = a -> b, x -> y` *)
+                   let resi10 = generate_id () in
+                   (* 17. resolve 8. and 16. to get `x -> y = a -> b` *)
+                   let xy = Imp [x; y] in
+                   let ab = Imp [a; b] in
+                   let eqxa = Eq (x, a) in
+                   let eqyb = Eq (y, b) in
+                   let p1 = (match (List.nth p' 0) with
+                             | (pid, _) -> pid) in
+                   let p2 = (match (List.nth p' 1) with
+                             | (pid, _) -> pid) in
+                   (imppi1, ImppAST, [Not xy; Not x; y], [], []) ::
+                   (eqp1i1, Equp2AST, [Not eqyb; Not y; b], [], []) ::
+                   (resi1, ResoAST, [Not y; b], [eqp1i1; p2], []) ::
+                   (eqp2i1, Equp1AST, [Not eqxa; x; Not a], [], []) ::
+                   (resi2, ResoAST, [x; Not a], [eqp2i1; p1], []) ::
+                   (resi3, ResoAST, [Not xy; b; Not a], [imppi1; resi1; resi2], []) ::
+                   (impn1i1, Impn1AST, [ab; a], [], []) ::
+                   (impn2i1, Impn2AST, [ab; Not b], [], []) ::
+                   (resi4, ResoAST, [Not xy; ab], [resi3; impn1i1; impn2i1], []) ::
+                   (eqn1i, Equn1AST, [eq; Not xy; Not ab], [], []) ::
+                   (resi5, ResoAST, [eq; Not xy], [resi4; eqn1i], []) ::
+                   (imppi2, ImppAST, [Not ab; Not a; b], [], []) ::
+                   (eqp1i2, Equp2AST, [Not eqxa; Not x; a], [], []) ::
+                   (resi6, ResoAST, [Not x; a], [eqp1i2; p1], []) ::
+                   (eqp2i2, Equp1AST, [Not eqyb; y; Not b], [], []) ::
+                   (resi7, ResoAST, [y; Not b], [eqp2i2; p2], []) ::
+                   (resi8, ResoAST, [Not ab; Not x; y], [imppi2; resi6; resi7], []) ::
+                   (impn1i2, Impn1AST, [xy; x], [], []) ::
+                   (impn2i2, Impn2AST, [xy; Not y], [], []) ::
+                   (resi9, ResoAST, [Not ab; xy], [resi8; impn1i2; impn2i2], []) ::
+                   (eqn2i, Equn2AST, [eq; xy; ab], [], []) ::
+                   (resi10, ResoAST, [eq; xy], [resi9; eqn2i], []) ::
+                   (i, ResoAST, [eq], [resi10; resi5], []) ::
+                   process_cong_aux t cog
+                 | Eq (Xor xs, Xor ys) -> []
+                 (* not predicate
+                     -----
+                     x = a
+                    --------cong
+                     ~x = ~a
+                    
+                    Encoding
+                    ========
+                    -----  ---------------eqp2                       -----   ---------------eqp1
+                    x = a  ~(x = a), ~a, x                           x = a   ~(x = a), ~x, a      
+                    -----------------------res  ---------------eqn2  ------------------------res    --------------eqn1
+                           ~a, x                ~x = ~a, ~x, ~a              ~x, a                 ~x = ~a, x, a     
+                           ------------------------------------res          -------------------------------------res
+                                        ~a, ~x = ~a                                       a, ~x = ~a
+                                        ------------------------------------------------------------res
+                                                                    ~x = ~a                  
+                 *)
+                 | Eq (Not x, Not a) ->
+                    (* Given `~x = ~a` in the conclusion, *)
+                    (* 1. generate `~(x = a), ~x, a` by `eqp1` and resolve it with `x = a`, to get `~x, a` *)
+                    let eqp1i = generate_id () in
+                    let resi1 = generate_id () in
+                    let pxa = (match (List.hd p') with
+                             | (pid, _) -> pid) in
+                    (* 2. generate `~x = ~a, x, a` by `eqn1` *)
+                    let eqn1i = generate_id () in
+                    (* 3. resolve 1. and 2. to get `a, ~x = ~a` *)
+                    let resi2 = generate_id () in
+                    (* 4. generate `~(x = a), ~a, x` by `eqp2` and resolve it with `x = a`, to get `~a`, x` *)
+                    let eqp2i = generate_id () in
+                    let resi3 = generate_id () in
+                    (* 5. generate `~x = ~a, ~x, ~a` by `eqn2` *)
+                    let eqn2i = generate_id () in
+                    (* 6. resolve 4. and 5. to get `~a, ~x = ~a` *)
+                    let resi4 = generate_id () in
+                    let eqxa = Eq (x, a) in
+                    (eqp1i, Equp1AST, [Not eqxa; Not x; a], [], []) ::
+                    (resi1, ResoAST, [Not x; a], [eqp1i; pxa], []) ::
+                    (eqn1i, Equn1AST, [eq; x; a], [], []) ::
+                    (resi2, ResoAST, [eq; a], [resi1; eqn1i], []) ::
+                    (eqp2i, Equp2AST, [Not eqxa; Not a; x], [], []) ::
+                    (resi3, ResoAST, [Not a; x], [eqp2i; pxa], []) :: 
+                    (eqn2i, Equn2AST, [eq; Not x; Not a], [], []) :: 
+                    (resi4, ResoAST, [eq; Not a], [resi3; eqn2i], []) ::
+                    (* 7. resolve 3. and 6. to get `~x = ~a` *)
+                    (i, ResoAST, [eq], [resi2; resi4], []) ::
+                    process_cong_aux t cog
+                 (* User-defined predicates *)
+                 | _ ->
+                    (*
+                       Convert a proof of the form:
+                       ...
+                       x = a              y = b
+                       ------------------------cong
+                           P(x, y) = P(a, b)
+                       
+                       to:
+                          (1)                                    (2)                  (3)                                     (4)
+                       ------------------------------------------------res        -------------------------------------------------res
+                       ~(x = a), ~(y = b), P(a, b), (P(x, y) = P(a, b))           ~(x = a), ~(y = b), ~P(a, b), (P(x, y) = P(a, b))      x = a    y = b
+                       ---------------------------------------------------------------------------------------------------------------------------------res
+                                                                                P(x, y) = P(a, b)
+                       where:
+                       -------------------------------------eqcongp
+                       ~(x = a), ~(y = b), ~P(x, y), P(a, b)     --(1)
+                       -------------------------------------eqn2
+                       (P(x, y) = P(a, b)), P(x, y), P(a, b)      --(2)
+                       -------------------------------------eqcongp
+                       ~(x = a), ~(y = b), ~P(a, b), P(x, y)     --(3)
+                       ---------------------------------------eqn1
+                       (P(x, y) = P(a, b)), ~P(x, y), ~P(a, b)    --(4)
+                       
+                       TODO: Currently all premises are expected to be explicit,
+                       but the rule uses implicit premises such as true = true, which need to be 
+                       inferred and added to the resolutions (for each of these premises a rule of refl
+                       must be invoked). Without this, process_congr_form will probably fail.
+                       Solution: fetch all the arguments, and if they don't match the expected number
+                       infer them as follows. Unhash all premises and the conclusion and do pattern 
+                       matching. Fill whatever is remaining using refl.   
+                    *)
+                    let eqcpi1 = generate_id () in
+                    let eqcpi2 = generate_id () in
+                    let eqn2i = generate_id () in
+                    let eqn1i = generate_id () in
+                    let resi1 = generate_id () in
+                    let resi2 = generate_id () in
+                    (* variables for the target equality and the predicates it equates *)
+                    let (p1, p2) = (match conc with
+                                    | Eq (x, y) -> (x, y)
+                                    | _ -> assert false) in
+                      ((eqcpi1, EqcpAST, (prems_neg @ [Not p1; p2]), [], []) ::
+                      (eqn2i, Equn2AST, [conc; p1; p2], [], []) ::
+                      (resi1, ResoAST, (prems_neg @ [conc; p2]), [eqcpi1; eqn2i], []) ::
+                      (eqcpi2, EqcpAST, (prems_neg @ [Not p2; p1]), [], []) ::
+                      (eqn1i, Equn1AST, [conc; Not p1; Not p2], [], []) ::
+                      (resi2, ResoAST, (prems_neg @ [conc; Not p2]), [eqcpi2; eqn1i], []) ::
+                      refls) @
+                      ((i, ResoAST, [conc], resi1 :: resi2 :: (p @ refl_ids), []) ::
+                      process_cong_aux t cog))
+            else
+              raise (Debug ("| process_cong: expecting head of clause to be either an equality or an iff at id "^i^" |"))
+        | _ -> raise (Debug ("| process_cong: expecting clause to have one literal at id "^i^" |")))
+    | (i, r, cl, p, a) :: t -> (* This is necessary to add the shared terms to the hash tables *)
+                               let _ = process_cl cl in
+                               (i, r, cl, p, a) :: process_cong_aux t cog
     | [] -> []
     in process_cong_aux c c
 
 
 (* Removing occurrences of the trans rule using other rules 
    including eq_transitive, reso *)
-(*
-   Convert a proof of the form:
-   ...
-   a = b    b = c    c = d
-   -----------------------trans
-            a = d
-   
-   to:
-   ...
-   -----------------------------------eqtrans
-   ~(a = b), ~(b = c), ~(c = d), a = d         a = b    b = c    c = d
-   -------------------------------------------------------------------res
-                                   a = d
-*)
 let process_trans (c : certif) : certif =
-  let rec aux (c : certif) (cog : certif) : certif =
+  let rec process_trans_aux (c : certif) (cog : certif) : certif =
     match c with
-     | (i, TransAST, c, p, a) :: t -> 
-        let prem_negs = List.map (fun x -> (match (get_cl x cog) with
-                                             | Some x -> Not (List.find (fun y -> match y with
-                                                                         | Eq _ -> true
-                                                                         | _ -> false) x)
-                                             | None -> raise (Debug ("| process_trans: can't fetch premises to trans at id "^i^" |")))) p in
-        let eqti = generate_id () in
-        [(eqti, EqtrAST, prem_negs @ c, [], []);
-         (i, ResoAST, c, eqti :: p, [])] @
-        (aux t cog)
-     | h :: t -> h :: (aux t cog)
+     | (i, TransAST, cl, p, a) :: t -> 
+        (* To differentiate between the predicate and function case, we need to process
+           the clause because we treat equality and iff as the same at the AST level *)
+        let c' = process_cl cl in
+        (match c' with
+          | l :: _ ->
+             (* get negation of premises and terms for any implicit equality *)
+             let prem_negs = List.map (fun x -> (match (get_cl x cog) with
+                                                 | Some x -> Not (List.find (fun y -> match y with
+                                                                             | Eq _ -> true
+                                                                             | _ -> false) x)
+                                                 | None -> raise (Debug ("| process_trans: can't fetch premises to trans at id "^i^" |")))) p in
+             (* congruence over functions *)
+             if is_eq l then
+               (*
+                  Convert a proof of the form:
+                  ...
+                  a = b    b = c    c = d
+                  -----------------------trans
+                           a = d
+                           
+                  to:
+                  ...
+                  -----------------------------------eqtrans
+                  ~(a = b), ~(b = c), ~(c = d), a = d         a = b    b = c    c = d
+                  -------------------------------------------------------------------res
+                                                  a = d
+               *)
+               let eqti = generate_id () in
+               [(eqti, EqtrAST, prem_negs @ cl, [], []);
+                (i, ResoAST, cl, eqti :: p, [])] @
+               (process_trans_aux t cog)
+             (* congruence over predicates *)
+             else if is_iff l then
+               (*
+                  Convert a proof of the form:
+                  -----  -----
+                  a = b  b = c
+                  ------------trans
+                      a = c
+
+                  to one of the form:
+                  (1)   (2)
+                  ---------res
+                    a = c
+                  where (1) and (2) are derived as:
+                  ---------------eqp1  -----     ---------------eqp1  -----
+                  ~(a = b), a, ~b      a = b     ~(b = c), b, ~c      b = c
+                  --------------------------res  --------------------------res 
+                             a, ~b                          b, ~c
+                             ------------------------------------res    -----------eqn2
+                                             a, ~c                      a = c, a, c
+                                             --------------------------------------res
+                                                            a = c, a   ---(1)
+
+                  ---------------eqp2  -----      ---------------eqp2  -----
+                  ~(b = c), ~b, c      b = c      ~(a = b), ~a, b      a = b
+                  --------------------------res  --------------------------res
+                             ~b, c                          ~a, b
+                             ------------------------------------res    -------------eqn1
+                                             ~a, c                      a = c, ~a, ~c
+                                             ----------------------------------------res
+                                                            a = c, ~a   ---(2)   
+               *)
+               let p' = List.map (fun x -> match get_cl x cog with
+                       | Some x' -> (x, List.hd x')
+                       | None -> raise (Debug ("Can't fetch premises to `and` at id "^i^" |"))) p in
+               let eq = List.hd cl in
+               let x1, xn = (match eq with
+                            | Eq (x', y') -> x', y'
+                            | _ -> raise (Debug ("Expecting premise of cong to be equality at id "^i^" |"))) in
+               (* Given conclusion `x1 = xn` and premises `x1 = x2, ..., xn-1 = xn`, *)
+               (* 1. For each premise `x = y`, generate `~(x = y), x, ~y` by `eqp1` and resolve it with 
+                     `x = y` to get `x, ~y` *)
+               let eqp1is, eqp1s = List.fold_left
+                 (fun (is, r) (pid, peq) ->
+                   let i' = generate_id () in
+                   let eqp1i = generate_id () in
+                   let x, y = (match peq with
+                               | Eq (x', y') -> (x', y')
+                               | _ -> raise (Debug ("Expecting premise of cong to be equality at id "^i^" |"))) in
+                   (i' :: is,
+                    (eqp1i, Equp1AST, [Not peq; x; Not y], [], []) ::
+                    (i', ResoAST, [x; Not y], [eqp1i; pid], []) :: r))
+                 ([], []) p' in
+               (* 2. Resolve all clauses from 1. to get `x1, ~xn` *)
+               let resi1 = generate_id () in
+               (* 3. Generate `x1 = xn, x1, xn` by `eqn2` *)
+               let eqn2i = generate_id () in
+               (* 4. Resolve 2. and 3. to get `x1 = xn, x1`. *)
+               let resi2 = generate_id () in
+               (* 5. For each premise `x = y`, generate `~(x = y), ~x, y` by `eqp2` and resolve it with 
+                     `x = y` to get `~x, y` *)
+               let eqp2is, eqp2s = List.fold_left
+                 (fun (is, r) (pid, peq) ->
+                   let i' = generate_id () in
+                   let eqp2i = generate_id () in
+                   let x, y = (match peq with
+                               | Eq (x', y') -> (x', y')
+                               | _ -> raise (Debug ("Expecting premise of cong to be equality at id "^i^" |"))) in
+                   (i' :: is,
+                    (eqp2i, Equp2AST, [Not peq; Not x; y], [], []) ::
+                    (i', ResoAST, [Not x; y], [eqp2i; pid], []) :: r))
+                 ([], []) p' in
+               (* 6. Resolve all clauses from 5. to get `~x1, xn` *)
+               let resi3 = generate_id () in
+               (* 7. Generate `x1 = xn, ~x1, ~xn` by `eqn1` *)
+               let eqn1i = generate_id () in
+               (* 8. Resolve 6. and 7. to get `x1 = xn, ~x1`. *)
+               let resi4 = generate_id () in
+               (* 9. resolve 4. and 8. to get `x1 = xn` *)
+               eqp1s @
+               ((resi1, ResoAST, [x1; Not xn], eqp1is, []) ::
+                (eqn2i, Equn2AST, [eq; x1; xn], [], []) ::
+                (resi2, ResoAST, [eq; x1], [resi1; eqn2i], []) :: eqp2s) @
+               ((resi3, ResoAST, [Not x1; xn], eqp2is, []) :: 
+                (eqn1i, Equn1AST, [eq; Not x1; Not xn], [], []) ::
+                (resi4, ResoAST, [eq; Not x1], [resi3; eqn1i], []) ::
+                (i, ResoAST, [eq], [resi2; resi4], []) ::
+                process_trans_aux t cog)
+             else
+               raise (Debug ("| process_trans: expecting head of clause to be either an equality or an iff at id "^i^" |"))
+          | _ -> raise (Debug ("| process_trans: expecting clause to have one literal at id "^i^" |")))
+     | h :: t -> h :: (process_trans_aux t cog)
      | [] -> []
-   in  aux c c
+   in process_trans_aux c c
 
 
 (* SMTCoq requires projection rules and, not_or, or_neg, and_pos
