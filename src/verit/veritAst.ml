@@ -923,8 +923,8 @@ let process_cong (c : certif) : certif =
                         -------------res
                         x ^ y = a ^ b
                         where (1) and (2) are derived as:
-                                            -----   ---------------eqp2  -----   -----------------eqp2                                                                          
-                                            x = a   ~(x = a), ~a, x      y = b   ~(y = b), ~b, y                                                                                
+                                            -----   ---------------eqp1  -----   -----------------eqp1                                                                          
+                                            x = a   ~(x = a), x, ~a      y = b   ~(y = b), y, ~b
                         ---------------andn ----------------------res   -------------------------res  ------------andp    ------------andp                                      
                         (x ^ y), ~x, ~y             ~a, x                         ~b, y                ~(a ^ b), b         ~(a ^ b), a                                          
                         --------------------------------------------------------------------------------------------------------------res  ---------------------------------eqn2
@@ -932,7 +932,7 @@ let process_cong (c : certif) : certif =
                                               -----------------------------------------------------------------------------------------------------------------------------res  
                                                                                           x ^ y = a ^ b, (x ^ y) --(1)
 
-                                             -----   ---------------eqp1 -----   -----------------eqp1
+                                             -----   ---------------eqp2 -----   -----------------eqp2
                                              x = a   ~(x = a), ~x, a     y = b    ~(y = b), ~y, b
                         ---------------andn  -----------------------res  ------------------------res  -----------andp -----------andp
                         (a ^ b), ~a, ~b               ~x, a                       ~y, b               ~(x ^ y), x     ~(x ^ y), y
@@ -946,18 +946,18 @@ let process_cong (c : certif) : certif =
                         (* 1. generate x1 ^ ... ^ xn, ~x1, ..., ~xn by andn *)
                         let andni1 = generate_id () in
                         let andns1 = List.map (fun x -> Not x) xs in
-                        (* 2. for each equality x = y in premise, generate ~(x = y), ~y, x by eqp2 
+                        (* 2. for each equality x = y in premise, generate ~(x = y), x, ~y by eqp1
                               and resolve it with x = y, to get ~y, x *)
-                        let eqp2is, eqp2s = List.fold_left 
+                        let eqp1is, eqp1s = List.fold_left 
                           (fun (is, r) (pid, peq) ->
                             let i' = generate_id () in
-                            let eqp2i = generate_id () in
+                            let eqp1i = generate_id () in
                             let x, y = (match peq with
                                         | Eq (x', y') -> (x', y')
                                         | _ -> raise (Debug ("Expecting premise of cong to be equality at id "^i^" |"))) in
                             (i' :: is, 
-                             (eqp2i, Equp2AST, [Not peq; Not y; x], [], []) :: 
-                             (i', ResoAST, [Not y; x], [eqp2i; pid], []) :: r))
+                             (eqp1i, Equp1AST, [Not peq; x; Not y], [], []) :: 
+                             (i', ResoAST, [x; Not y], [eqp1i; pid], []) :: r))
                           ([], []) p' in
                         (* 3. for each yi, generate ~(y1 ^ ... ^ ym), yi by andp *)
                         let andpis1, andps1 = List.fold_left
@@ -975,18 +975,18 @@ let process_cong (c : certif) : certif =
                         (* 7. generate y1 ^ ... ^ ym, ~y1, ..., ~ym by andn *)
                         let andni2 = generate_id () in
                         let andns2 = List.map (fun x -> Not x) ys in
-                        (* 8. for each equality x = y in premise, generate ~(x = y), y, ~x by eqp1 
+                        (* 8. for each equality x = y in premise, generate ~(x = y), ~x, y by eqp2 
                               and resolve it with x = y, to get y, ~x *)
-                        let eqp1is, eqp1s = List.fold_left
+                        let eqp2is, eqp2s = List.fold_left
                           (fun (is, r) (pid, peq) ->
                             let i' = generate_id () in
-                            let eqp1i = generate_id () in
+                            let eqp2i = generate_id () in
                             let x, y = (match peq with
                                         | Eq (x', y') -> (x', y')
                                         | _ -> raise (Debug ("Expecting premise of cong to be equality at id "^i^" |"))) in
                             (i' :: is, 
-                             (eqp1i, Equp1AST, [Not peq; y; Not x], [], []) :: 
-                             (i', ResoAST, [y; Not x], [eqp1i; pid], []) :: r))
+                             (eqp2i, Equp2AST, [Not peq; Not x; y], [], []) :: 
+                             (i', ResoAST, [Not x; y], [eqp2i; pid], []) :: r))
                           ([], []) p' in
                         (* 9. for each xi, generate ~(x1 ^ ... ^ xn), xi by andp *)
                         let andpis2, andps2 = List.fold_left
@@ -1002,13 +1002,13 @@ let process_cong (c : certif) : certif =
                         (* 12. resolve 10. and 11. to get x1 ^ ... ^ xn = y1 ^ ... ^ ym, ~(x1 ^ ... ^ xn) *)
                         let resi4 = generate_id () in
                         ((andni1, AndnAST, (And xs :: andns1), [], []) ::
-                         (eqp2s @ andps1)) @
-                        ((resi1, ResoAST, [Not (And ys); And xs], (andni1 :: (eqp2is @ andpis1)), []) ::
+                         (eqp1s @ andps1)) @
+                        ((resi1, ResoAST, [Not (And ys); And xs], (andni1 :: (eqp1is @ andpis1)), []) ::
                          (eqn2i, Equn2AST, [eq; And xs; And ys], [], []) ::
                          (resi2, ResoAST, [eq; And xs], [resi1; eqn2i], []) ::
                          (andni2, AndnAST, (And ys :: andns2), [], []) ::
-                         (eqp1s @ andps2)) @
-                        ((resi3, ResoAST, [Not (And xs); And ys], (andni2 :: (eqp1is @ andpis2)), []) ::
+                         (eqp2s @ andps2)) @
+                        ((resi3, ResoAST, [Not (And xs); And ys], (andni2 :: (eqp2is @ andpis2)), []) ::
                          (eqn1i, Equn1AST, [eq; Not (And xs); Not (And ys)], [], []) ::
                          (resi4, ResoAST, [eq; Not (And xs)], [resi3; eqn1i], []) ::
                          (* 13. resolve 6. and 12. to get x1 ^ ... ^ xn = y1 ^ ... ^ ym    *)
@@ -1026,7 +1026,7 @@ let process_cong (c : certif) : certif =
                         -------------res
                         x v y = a v b
                         where (1) and (2) are derived as:
-                                            -----   ---------------eqp1  -----   -----------------eqp1                                                                          
+                                            -----   ---------------eqp2  -----   -----------------eqp2                                                                          
                                             x = a   ~(x = a), ~x, a      y = b    ~(y = b), ~y, b                                                                               
                         ---------------orp  ----------------------res   -------------------------res  ------------orn    ------------orn                                        
                         ~(x v y), x, y             ~x, a                         ~y, b                (a v b), ~a         (a v b), ~b                                           
@@ -1035,7 +1035,7 @@ let process_cong (c : certif) : certif =
                                               -----------------------------------------------------------------------------------------------------------------------------res  
                                                                                         x v y = a v b, (a v b) --(1)
 
-                                              -----  ---------------eqp2  -----  -----------------eqp2 
+                                              -----  ---------------eqp1  -----  -----------------eqp1 
                                               x = a  ~(x = a), ~a, x      y = b  ~(y = b), ~b, y       
                         ---------------orp  -----------------------res   ------------------------res  -----------orn  -----------orn
                         ~(a v b), a, b               ~a, x                       ~b, y                (x v y), ~x     (x v y), ~y
@@ -1048,18 +1048,18 @@ let process_cong (c : certif) : certif =
                         (* For `x1 v ... v xn = y1 v ... v ym` in the conclusion, *)
                         (* 1. generate `~(x1 v ... v xn), x1, ..., xn` by `orp` *)
                         let orpi1 = generate_id () in
-                        (* 2. for each equality `x = y` in premise, generate `~(x = y), y, ~x` by `eqp1` 
+                        (* 2. for each equality `x = y` in premise, generate `~(x = y), y, ~x` by `eqp2` 
                               and resolve it with `x = y`, to get `y, ~x` *)
-                        let eqp1is, eqp1s = List.fold_left 
+                        let eqp2is, eqp2s = List.fold_left 
                           (fun (is, r) (pid, peq) ->
                             let i' = generate_id () in
-                            let eqp1i = generate_id () in
+                            let eqp2i = generate_id () in
                             let x, y = (match peq with
                                         | Eq (x', y') -> (x', y')
                                         | _ -> raise (Debug ("Expecting premise of cong to be equality at id "^i^" |"))) in
                             (i' :: is, 
-                             (eqp1i, Equp1AST, [Not peq; y; Not x], [], []) :: 
-                             (i', ResoAST, [y; Not x], [eqp1i; pid], []) :: r))
+                             (eqp2i, Equp2AST, [Not peq; Not x; y], [], []) :: 
+                             (i', ResoAST, [Not x; y], [eqp2i; pid], []) :: r))
                           ([], []) p' in
                         (* 3. for each `yi`, generate `(y1 v ... v ym), ~yi` by `orn` *)
                         let ornis1, orns1 = List.fold_left
@@ -1076,18 +1076,18 @@ let process_cong (c : certif) : certif =
                         let resi2 = generate_id () in
                         (* 7. generate `~(y1 v ... v ym), y1, ..., ym` by `orp` *)
                         let orpi2 = generate_id () in
-                        (* 8. for each equality `x = y` in premise, generate `~(x = y), ~y, x` by `eqp2`
+                        (* 8. for each equality `x = y` in premise, generate `~(x = y), ~y, x` by `eqp1`
                               and resolve it with `x = y`, to get `~y, x` *)
-                        let eqp2is, eqp2s = List.fold_left
+                        let eqp1is, eqp1s = List.fold_left
                           (fun (is, r) (pid, peq) ->
                             let i' = generate_id () in
-                            let eqp2i = generate_id () in
+                            let eqp1i = generate_id () in
                             let x, y = (match peq with
                                         | Eq (x', y') -> (x', y')
                                         | _ -> raise (Debug ("Expecting premise of cong to be equality at id "^i^" |"))) in
                             (i' :: is, 
-                             (eqp2i, Equp2AST, [Not peq; Not y; x], [], []) :: 
-                             (i', ResoAST, [Not y; x], [eqp2i; pid], []) :: r))
+                             (eqp1i, Equp1AST, [Not peq; x; Not y], [], []) :: 
+                             (i', ResoAST, [x; Not y], [eqp1i; pid], []) :: r))
                           ([], []) p' in
                         (* 9. for each `xi`, generate `(x1 v ... v xn), ~xi` by `orn` *)
                         let ornis2, orns2 = List.fold_left
@@ -1103,13 +1103,13 @@ let process_cong (c : certif) : certif =
                         (* 12. resolve 10. and 11. to get `x1 v ... v xn = y1 v ... v ym, ~(y1 v ... v ym)` *)
                         let resi4 = generate_id () in
                         ((orpi1, OrpAST, (Not (Or xs) :: xs), [], []) ::
-                         (eqp1s @ orns1)) @
-                        ((resi1, ResoAST, [Not (Or xs); Or ys], (orpi1 :: (eqp1is @ ornis1)), []) ::
+                         (eqp2s @ orns1)) @
+                        ((resi1, ResoAST, [Not (Or xs); Or ys], (orpi1 :: (eqp2is @ ornis1)), []) ::
                          (eqn2i, Equn2AST, [eq; Or xs; Or ys], [], []) ::
                          (resi2, ResoAST, [eq; Or xs], [resi1; eqn2i], []) ::
                          (orpi2, OrpAST, (Not (Or ys) :: ys), [], []) ::
-                         (eqp2s @ orns2)) @
-                        ((resi3, ResoAST, [Not (Or ys); Or xs], (orpi2 :: (eqp2is @ ornis2)), []) ::
+                         (eqp1s @ orns2)) @
+                        ((resi3, ResoAST, [Not (Or ys); Or xs], (orpi2 :: (eqp1is @ ornis2)), []) ::
                          (eqn1i, Equn1AST, [eq; Not (Or xs); Not (Or ys)], [], []) ::
                          (resi4, ResoAST, [eq; Not (Or ys)], [resi3; eqn1i], []) ::
                          (* 13. resolve 6. and 12. to get `x1 v ... v xn = y1 v ... v ym` *)
@@ -1330,7 +1330,7 @@ let process_cong (c : certif) : certif =
     | [] -> []
     in process_cong_aux c c
 
-(*
+
 (* Removing occurrences of the trans rule using other rules 
    including eq_transitive, reso *)
 (*
@@ -1363,7 +1363,6 @@ let process_trans (c : certif) : certif =
      | h :: t -> h :: (aux t cog)
      | [] -> []
    in  aux c c
-*)
 
 
 (* SMTCoq requires projection rules and, not_or, or_neg, and_pos
@@ -3638,9 +3637,9 @@ let preprocess_certif (c: certif) : certif =
   Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c5);
   let c6 = process_cong c5 in
   Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c6);
-  (*let c7 = process_trans c6 in
-  Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c7);*)
-  let c8 = process_proj c6 in
+  let c7 = process_trans c6 in
+  Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c7);
+  let c8 = process_proj c7 in
   Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c8);
   c8) with
   | Debug s -> raise (Debug ("| VeritAst.preprocess_certif: failed to preprocess |"^s))

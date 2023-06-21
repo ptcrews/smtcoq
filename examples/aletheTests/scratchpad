@@ -1,51 +1,42 @@
+We can't always use `eq_transitive` because SMTCoq differentiates terms and formulas, and `eq_transitive` only works for terms.
 Convert a proof of the form:
 -----  -----
-x = a  y = b
---------------cong
-x -> y = a -> b
+a = b  b = c
+--------------trans
+     a = c
 
 to one of the form:
-      -------------------------------eqn2       -------------------------------------eqn1
-(1)   x -> y = a -> b, x -> y, a -> b      (2)  x -> y = a -> b, ~(x -> y), ~(a -> b)
--------------------------------------res   ------------------------------------------res
-       x -> y = a -> b, x -> y                     x -> y = a -> b, ~(x -> y)
-       ----------------------------------------------------------------------res
-                                 x -> y = a -> b
+(1)   (2)
+---------res
+  a = c
 where (1) and (2) are derived as:
-                      -----   ---------------eqp1  -----  -----------------eqp2
-                      x = a   ~(x = a), ~x, a      y = b  ~(y = b), ~b, y      
-----------------impp  ------------------------res  ------------------------res 
-~(a -> b), ~a, b               ~x, a                        ~b, y              
------------------------------------------------------------------res  ---------impn1  ----------impn2
-                        ~(a -> b), ~x, y                              x -> y, x       x -> y, ~y
-                        ------------------------------------------------------------------------res  
-                                                ~(a -> b), x -> y  ---(1)                            
+---------------eqp1  -----     ---------------eqp1  -----
+~(a = b), a, ~b      a = b     ~(b = c), b, ~c      b = c
+--------------------------res  --------------------------res 
+           a, ~b                          b, ~c
+           ------------------------------------res    -----------eqn2
+                           a, ~c                      a = c, a, c
+                           --------------------------------------res
+                                          a = c, a   ---(1)
 
-                      -----   -----------------eqp1  -----  ---------------eqp2
-                      y = b    ~(y = b), ~y, b       x = a  ~(x = a), ~a, x    
-----------------impp  -------------------------res   -----------------------res
-~(x -> y), ~x, y                ~y, b                         ~a, x
--------------------------------------------------------------------res  ---------impn1  ----------impn2
-                        ~(x -> y), b, ~a                                a -> b, a       a -> b, ~b
-                        --------------------------------------------------------------------------res  
-                                                ~(x -> y), a -> b  ---(2)
-Given `x -> y = a -> b` in the conclusion, 
-1. generate `~(x -> y), ~x, y` by `impp`
-2. generate `~(y = b), ~y, b` by `eqp1` and resolve it with premise `y = b` to get `~y, b`
-3. generate `~(x = a), ~a, x` by `eqp2` and resolve it with premise `x = a` to get `~a, x`
-4. resolve clauses from 1., 2., and 3. to get `~(x -> y), b, ~a`
-5. generate `a -> b, a` by `impn1`, and `a -> b, ~b` by `impn2`
-6. resolve clauses from 4. and 5. to get `~(x -> y), a -> b`
-7. generate `x -> y = a -> b, ~(x -> y), ~(a -> b)` by `eqn1`
-8. resolve 6. and 7. to get `x -> y = a -> b, ~(x -> y)`
+---------------eqp2  -----      ---------------eqp2  -----
+~(b = c), ~b, c      b = c      ~(a = b), ~a, b      a = b
+--------------------------res  --------------------------res
+           ~b, c                          ~a, b
+           ------------------------------------res    -------------eqn1
+                           ~a, c                      a = c, ~a, ~c
+                           ----------------------------------------res
+                                          a = c, ~a   ---(2)
 
-9. generate `~(a -> b), ~a, b` by `impp`
-10. generate `~(x = a), ~x, a` by `eqp1` and resolve it with premise `x = a` to get `~x, a`
-11. generate `~(y = b), ~b, y` by `eqp2` and resolve it with premise `y = b` to get `~b, y`
-12. resolve clauses from 9., 10., and 11. to get `~(a -> b), ~x, y`
-13. generate `x -> y, x` by `impn1`, and `x -> y, ~y` by `impn2`
-14. resolve clauses from 12. and 13. to get `~(a -> b), x -> y`
-15. generate `x -> y = a -> b, x -> y, a -> b` by `eqn2`
-16. resolve 14. and 15. to get `x -> y = a -> b, x -> y`
+Given conclusion `x1 = xn` and premises `x1 = x2, ..., xn-1 = xn`,
+1. For each premise `x = y`, generate `~(x = y), x, ~y` by `eqp1` and resolve it with `x = y` to get `x, ~y`
+2. Resolve all clauses from 1. to get `x1, ~xn`
+3. Generate `x1 = xn, x1, xn` by `eqn2`
+4. Resolve 2. and 3. to get `x1 = xn, x1`.
 
-17. resolve 8. and 16. to get `x -> y = a -> b`
+5. For each premise `x = y`, generate `~(x = y), ~x, y` by `eqp2` and resolve it with `x = y` to get `~x, y`
+6. Resolve all clauses from 5. to get `~x1, xn`
+7. Generate `x1 = xn, ~x1, ~xn` by `eqn1`
+8. Resolve 6. and 7. to get `x1 = xn, ~x1`.
+
+9. resolve 4. and 8. to get `x1 = xn`
