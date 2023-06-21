@@ -1130,19 +1130,19 @@ let process_cong (c : certif) : certif =
                                ----------------------------------------------------------------------res
                                                          x -> y = a -> b
                         where (1) and (2) are derived as:
-                                              -----   ---------------eqp1  -----  -----------------eqp2
-                                              x = a   ~(x = a), ~x, a      y = b  ~(y = b), ~b, y      
+                                              -----   ---------------eqp2  -----  -----------------eqp1
+                                              x = a   ~(x = a), ~x, a      y = b  ~(y = b), y, ~b      
                         ----------------impp  ------------------------res  ------------------------res 
-                        ~(a -> b), ~a, b               ~x, a                        ~b, y              
+                        ~(a -> b), ~a, b               ~x, a                        y, ~b              
                         -----------------------------------------------------------------res  ---------impn1  ----------impn2
                                                 ~(a -> b), ~x, y                              x -> y, x       x -> y, ~y
                                                 ------------------------------------------------------------------------res  
                                                                         ~(a -> b), x -> y  ---(1)                            
                                                 
-                                              -----   -----------------eqp1  -----  ---------------eqp2
-                                              y = b    ~(y = b), ~y, b       x = a  ~(x = a), ~a, x    
+                                              -----   -----------------eqp2  -----  ---------------eqp1
+                                              y = b    ~(y = b), ~y, b       x = a  ~(x = a), x, ~a    
                         ----------------impp  -------------------------res   -----------------------res
-                        ~(x -> y), ~x, y                ~y, b                         ~a, x
+                        ~(x -> y), ~x, y                ~y, b                         x, ~a
                         -------------------------------------------------------------------res  ---------impn1  ----------impn2
                                                 ~(x -> y), b, ~a                                a -> b, a       a -> b, ~b
                                                 --------------------------------------------------------------------------res  
@@ -1152,11 +1152,11 @@ let process_cong (c : certif) : certif =
                        (* Given `x -> y = a -> b` in the conclusion, *)
                        (* 1. generate `~(x -> y), ~x, y` by `impp` *)
                        let imppi1 = generate_id () in
-                       (* 2. generate `~(y = b), ~y, b` by `eqp1` and resolve it with premise `y = b` to get `~y, b` *)
-                       let eqp1i1 = generate_id () in
-                       let resi1 = generate_id () in
-                       (* 3. generate `~(x = a), ~a, x` by `eqp2` and resolve it with premise `x = a` to get `~a, x` *)
+                       (* 2. generate `~(y = b), ~y, b` by `eqp2` and resolve it with premise `y = b` to get `~y, b` *)
                        let eqp2i1 = generate_id () in
+                       let resi1 = generate_id () in
+                       (* 3. generate `~(x = a), ~a, x` by `eqp1` and resolve it with premise `x = a` to get `x, ~a` *)
+                       let eqp1i1 = generate_id () in
                        let resi2 = generate_id () in
                        (* 4. resolve clauses from 1., 2., and 3. to get `~(x -> y), b, ~a` *)
                        let resi3 = generate_id () in
@@ -1171,11 +1171,11 @@ let process_cong (c : certif) : certif =
                        let resi5 = generate_id () in
                        (* 9. generate `~(a -> b), ~a, b` by `impp` *)
                        let imppi2 = generate_id () in
-                       (* 10. generate `~(x = a), ~x, a` by `eqp1` and resolve it with premise `x = a` to get `~x, a` *)
-                       let eqp1i2 = generate_id () in
-                       let resi6 = generate_id () in
-                       (* 11. generate `~(y = b), ~b, y` by `eqp2` and resolve it with premise `y = b` to get `~b, y` *)
+                       (* 10. generate `~(x = a), ~x, a` by `eqp2` and resolve it with premise `x = a` to get `~x, a` *)
                        let eqp2i2 = generate_id () in
+                       let resi6 = generate_id () in
+                       (* 11. generate `~(y = b), ~b, y` by `eqp1` and resolve it with premise `y = b` to get `y, ~b` *)
+                       let eqp1i2 = generate_id () in
                        let resi7 = generate_id () in
                        (* 12. resolve clauses from 9., 10., and 11. to get `~(a -> b), ~x, y` *)
                        let resi8 = generate_id () in
@@ -1198,10 +1198,10 @@ let process_cong (c : certif) : certif =
                        let p2 = (match (List.nth p' 1) with
                                  | (pid, _) -> pid) in
                        (imppi1, ImppAST, [Not xy; Not x; y], [], []) ::
-                       (eqp1i1, Equp1AST, [Not eqyb; Not y; b], [], []) ::
+                       (eqp1i1, Equp2AST, [Not eqyb; Not y; b], [], []) ::
                        (resi1, ResoAST, [Not y; b], [eqp1i1; p2], []) ::
-                       (eqp2i1, Equp2AST, [Not eqxa; Not a; x], [], []) ::
-                       (resi2, ResoAST, [Not a; x], [eqp2i1; p1], []) ::
+                       (eqp2i1, Equp1AST, [Not eqxa; x; Not a], [], []) ::
+                       (resi2, ResoAST, [x; Not a], [eqp2i1; p1], []) ::
                        (resi3, ResoAST, [Not xy; b; Not a], [imppi1; resi1; resi2], []) ::
                        (impn1i1, Impn1AST, [ab; a], [], []) ::
                        (impn2i1, Impn2AST, [ab; Not b], [], []) ::
@@ -1209,10 +1209,10 @@ let process_cong (c : certif) : certif =
                        (eqn1i, Equn1AST, [eq; Not xy; Not ab], [], []) ::
                        (resi5, ResoAST, [eq; Not xy], [resi4; eqn1i], []) ::
                        (imppi2, ImppAST, [Not ab; Not a; b], [], []) ::
-                       (eqp1i2, Equp1AST, [Not eqxa; Not x; a], [], []) ::
+                       (eqp1i2, Equp2AST, [Not eqxa; Not x; a], [], []) ::
                        (resi6, ResoAST, [Not x; a], [eqp1i2; p1], []) ::
-                       (eqp2i2, Equp2AST, [Not eqyb; Not b; y], [], []) ::
-                       (resi7, ResoAST, [Not b; y], [eqp2i2; p2], []) ::
+                       (eqp2i2, Equp1AST, [Not eqyb; y; Not b], [], []) ::
+                       (resi7, ResoAST, [y; Not b], [eqp2i2; p2], []) ::
                        (resi8, ResoAST, [Not ab; Not x; y], [imppi2; resi6; resi7], []) ::
                        (impn1i2, Impn1AST, [xy; x], [], []) ::
                        (impn2i2, Impn2AST, [xy; Not y], [], []) ::
