@@ -346,7 +346,6 @@ and string_of_clause (c : clause) =
 
 (* Pass through certificate, replace named terms with their
    aliases, and store the alias-term mapping in a hash table *)
-
 let rec store_shared_terms_t (t : term) : term =
   match t with
   | True | False -> t
@@ -812,7 +811,7 @@ let cong_find_implicit_args (ft : term) (p : params) (cog : certif) : (term list
                    (* no implicit equalities *)
                    if (n = List.length p) then
                      let prem_negs = List.map (fun x -> (match (get_cl x cog) with
-                                           | Some x -> Not (List.find (fun y -> match y with
+                                           | Some x -> Not (List.find (fun y -> match (get_expr y) with
                                                                        | Eq _ -> true
                                                                        | _ -> false) x)
                                            | None -> raise (Debug ("| cong_find_implicit_args: can't fetch premises to congr (no implicit equalities case) |")))) p in
@@ -823,7 +822,7 @@ let cong_find_implicit_args (ft : term) (p : params) (cog : certif) : (term list
                      let fyas = get_args fy in
                      (* get all equalities from params *)
                      let (pxs, pys) = List.split (List.map (fun x -> (match (get_cl x cog) with
-                                             | Some c -> let eq = List.find (fun x -> match x with
+                                             | Some c -> let eq = List.find (fun x -> match (get_expr x) with
                                                                             | Eq _ -> true
                                                                             | _ -> false) c in
                                                  (match eq with
@@ -908,7 +907,7 @@ let process_cong (c : certif) : certif =
                        | Some x' -> (x, List.hd x')
                        | None -> raise (Debug ("Can't fetch premises to `and` at id "^i^" |"))) p in
               let eq = List.hd cl in
-                 (match eq with
+                 (match (get_expr eq) with
                  (* and predicate
                     Convert a proof of the form:
                      -----  -----
@@ -950,9 +949,9 @@ let process_cong (c : certif) : certif =
                       (fun (is, r) (pid, peq) ->
                         let i' = generate_id () in
                         let eqp1i = generate_id () in
-                        let x, y = (match peq with
+                        let x, y = (match (get_expr peq) with
                                     | Eq (x', y') -> (x', y')
-                                    | _ -> raise (Debug ("Expecting premise of cong to be equality at id "^i^" |"))) in
+                                    | _ -> raise (Debug ("| process_cong: expecting premise of cong to be equality at id "^i^" |"))) in
                         (i' :: is, 
                          (eqp1i, Equp1AST, [Not peq; x; Not y], [], []) :: 
                          (i', ResoAST, [x; Not y], [eqp1i; pid], []) :: r))
@@ -979,9 +978,9 @@ let process_cong (c : certif) : certif =
                       (fun (is, r) (pid, peq) ->
                         let i' = generate_id () in
                         let eqp2i = generate_id () in
-                        let x, y = (match peq with
+                        let x, y = (match (get_expr peq) with
                                     | Eq (x', y') -> (x', y')
-                                    | _ -> raise (Debug ("Expecting premise of cong to be equality at id "^i^" |"))) in
+                                    | _ -> raise (Debug ("| process_cong: expecting premise of cong to be equality at id "^i^" |"))) in
                         (i' :: is, 
                          (eqp2i, Equp2AST, [Not peq; Not x; y], [], []) :: 
                          (i', ResoAST, [Not x; y], [eqp2i; pid], []) :: r))
@@ -1052,9 +1051,9 @@ let process_cong (c : certif) : certif =
                       (fun (is, r) (pid, peq) ->
                         let i' = generate_id () in
                         let eqp2i = generate_id () in
-                        let x, y = (match peq with
+                        let x, y = (match (get_expr peq) with
                                     | Eq (x', y') -> (x', y')
-                                    | _ -> raise (Debug ("Expecting premise of cong to be equality at id "^i^" |"))) in
+                                    | _ -> raise (Debug ("| process_cong: expecting premise of cong to be equality at id "^i^" |"))) in
                         (i' :: is, 
                          (eqp2i, Equp2AST, [Not peq; Not x; y], [], []) :: 
                          (i', ResoAST, [Not x; y], [eqp2i; pid], []) :: r))
@@ -1080,9 +1079,9 @@ let process_cong (c : certif) : certif =
                       (fun (is, r) (pid, peq) ->
                         let i' = generate_id () in
                         let eqp1i = generate_id () in
-                        let x, y = (match peq with
+                        let x, y = (match (get_expr peq) with
                                     | Eq (x', y') -> (x', y')
-                                    | _ -> raise (Debug ("Expecting premise of cong to be equality at id "^i^" |"))) in
+                                    | _ -> raise (Debug ("| process_cong: expecting premise of cong to be equality at id "^i^" |"))) in
                         (i' :: is, 
                          (eqp1i, Equp1AST, [Not peq; x; Not y], [], []) :: 
                          (i', ResoAST, [x; Not y], [eqp1i; pid], []) :: r))
@@ -1342,7 +1341,7 @@ let process_trans (c : certif) : certif =
           | l :: _ ->
              (* get negation of premises and terms for any implicit equality *)
              let prem_negs = List.map (fun x -> (match (get_cl x cog) with
-                                                 | Some x -> Not (List.find (fun y -> match y with
+                                                 | Some x -> Not (List.find (fun y -> match (get_expr y) with
                                                                              | Eq _ -> true
                                                                              | _ -> false) x)
                                                  | None -> raise (Debug ("| process_trans: can't fetch premises to trans at id "^i^" |")))) p in
@@ -1400,11 +1399,11 @@ let process_trans (c : certif) : certif =
                *)
                let p' = List.map (fun x -> match get_cl x cog with
                        | Some x' -> (x, List.hd x')
-                       | None -> raise (Debug ("Can't fetch premises to `and` at id "^i^" |"))) p in
+                       | None -> raise (Debug ("| process_trans: can't fetch premises to `and` at id "^i^" |"))) p in
                let eq = List.hd cl in
-               let x1, xn = (match eq with
+               let x1, xn = (match (get_expr eq) with
                             | Eq (x', y') -> x', y'
-                            | _ -> raise (Debug ("Expecting premise of cong to be equality at id "^i^" |"))) in
+                            | _ -> raise (Debug ("| process_trans: expecting premise of trans to be iff at id "^i^" |"))) in
                (* Given conclusion `x1 = xn` and premises `x1 = x2, ..., xn-1 = xn`, *)
                (* 1. For each premise `x = y`, generate `~(x = y), x, ~y` by `eqp1` and resolve it with 
                      `x = y` to get `x, ~y` *)
@@ -1412,9 +1411,9 @@ let process_trans (c : certif) : certif =
                  (fun (is, r) (pid, peq) ->
                    let i' = generate_id () in
                    let eqp1i = generate_id () in
-                   let x, y = (match peq with
+                   let x, y = (match (get_expr peq) with
                                | Eq (x', y') -> (x', y')
-                               | _ -> raise (Debug ("Expecting premise of cong to be equality at id "^i^" |"))) in
+                               | _ -> raise (Debug ("| process_trans: expecting premise of trans to be iff at id "^i^" |"))) in
                    (i' :: is,
                     (eqp1i, Equp1AST, [Not peq; x; Not y], [], []) ::
                     (i', ResoAST, [x; Not y], [eqp1i; pid], []) :: r))
@@ -1431,9 +1430,9 @@ let process_trans (c : certif) : certif =
                  (fun (is, r) (pid, peq) ->
                    let i' = generate_id () in
                    let eqp2i = generate_id () in
-                   let x, y = (match peq with
+                   let x, y = (match (get_expr peq) with
                                | Eq (x', y') -> (x', y')
-                               | _ -> raise (Debug ("Expecting premise of cong to be equality at id "^i^" |"))) in
+                               | _ -> raise (Debug ("| process_trans: expecting premise of trans to be iff at id "^i^" |"))) in
                    (i' :: is,
                     (eqp2i, Equp2AST, [Not peq; Not x; y], [], []) ::
                     (i', ResoAST, [Not x; y], [eqp2i; pid], []) :: r))
