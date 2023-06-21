@@ -28,15 +28,15 @@ where (1) and (2) are derived as:
                            ----------------------------------------res
                                           a = c, ~a   ---(2)
 
-Given conclusion `x1 = xn` and premises `x1 = x2, ..., xn-1 = xn`,
-1. For each premise `x = y`, generate `~(x = y), x, ~y` by `eqp1` and resolve it with `x = y` to get `x, ~y`
-2. Resolve all clauses from 1. to get `x1, ~xn`
-3. Generate `x1 = xn, x1, xn` by `eqn2`
-4. Resolve 2. and 3. to get `x1 = xn, x1`.
+(* Given conclusion `x1 = xn` and premises `x1 = x2, ..., xn-1 = xn`, *)
+(* 1. For each premise `x = y`, generate `~(x = y), x, ~y` by `eqp1` and resolve it with `x = y` to get `x, ~y` *)
+(* 2. Resolve all clauses from 1. to get `x1, ~xn` *)
+(* 3. Generate `x1 = xn, x1, xn` by `eqn2` *)
+(* 4. Resolve 2. and 3. to get `x1 = xn, x1`. *)
 
-5. For each premise `x = y`, generate `~(x = y), ~x, y` by `eqp2` and resolve it with `x = y` to get `~x, y`
-6. Resolve all clauses from 5. to get `~x1, xn`
-7. Generate `x1 = xn, ~x1, ~xn` by `eqn1`
-8. Resolve 6. and 7. to get `x1 = xn, ~x1`.
+(* 5. For each premise `x = y`, generate `~(x = y), ~x, y` by `eqp2` and resolve it with `x = y` to get `~x, y` *)
+(* 6. Resolve all clauses from 5. to get `~x1, xn` *)
+(* 7. Generate `x1 = xn, ~x1, ~xn` by `eqn1` *)
+(* 8. Resolve 6. and 7. to get `x1 = xn, ~x1`. *)
 
-9. resolve 4. and 8. to get `x1 = xn`
+(* 9. resolve 4. and 8. to get `x1 = xn` *)

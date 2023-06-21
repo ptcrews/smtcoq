@@ -34,7 +34,7 @@ We perform the following transformations on the parsed AST:
 4. Processing `_simplify` rules
 5. Processing `_subproof` rules
 6. Processing projection rules
-7. Processing `_cong` rules
+7. Processing `_cong` and `trans` rules
 8. Processing `not_simplify` rules (cvc5 rewrites)
 
 ### Storing Shared Terms
@@ -170,7 +170,7 @@ argument anymore in alethe. This transformation searches the
 term for the index and specifies as the argument for the
 backend.
 
-### Processing `cong` Rule Instances
+### Processing `cong` and `trans` Rule Instances
 Verit-2016 has rules `eq_congruent` and `eq_congruent_pred` that state 
 congruence of functions and predicates as tautologies. Additionally, 
 alethe has the `cong` rule which performs congruence (of both cases) in a
@@ -213,13 +213,68 @@ where `(1)` and `(2)` are derived as:
                                                  ---------------------------------------------------------------------------------------------res
                                                                                            x ^ y = a ^ b, ~(x ^ y) --(2)
 ```
+Similarly, `trans` is more expressive in that it supports transitivity over terms and formulas. For terms, it
+can be encoded in terms of `eq_transitive`:
+```
+Convert a proof of the form:
+...
+a = b    b = c    c = d
+-----------------------trans
+         a = d
+         
+to:
+...
+-----------------------------------eqtrans
+~(a = b), ~(b = c), ~(c = d), a = d         a = b    b = c    c = d
+-------------------------------------------------------------------res
+                                a = d
+```
+For formulas, it can be encoded using rules for equivalences:
+```
+Convert a proof of the form:
+-----  -----
+a = b  b = c
+------------trans
+    a = c
+
+to one of the form:
+(1)   (2)
+---------res
+  a = c
+where (1) and (2) are derived as:
+---------------eqp1  -----     ---------------eqp1  -----
+~(a = b), a, ~b      a = b     ~(b = c), b, ~c      b = c
+--------------------------res  --------------------------res 
+           a, ~b                          b, ~c
+           ------------------------------------res    -----------eqn2
+                           a, ~c                      a = c, a, c
+                           --------------------------------------res
+                                          a = c, a   ---(1)
+
+---------------eqp2  -----      ---------------eqp2  -----
+~(b = c), ~b, c      b = c      ~(a = b), ~a, b      a = b
+--------------------------res  --------------------------res
+           ~b, c                          ~a, b
+           ------------------------------------res    -------------eqn1
+                           ~a, c                      a = c, ~a, ~c
+                           ----------------------------------------res
+                                          a = c, ~a   ---(2)   
+```
 This task can be further divided into:
-- [x] `cong` over `and`
-- [x] `cong` over `or`
-- [x] `cong` over `not`
-- [ ] `cong` over `imp`
-- [ ] `cong` over `xor`
-- [ ] `cong` over `ite`
+- [ ] Support `cong`:
+ - [x] `cong` over terms using `eq_congruent`
+ - [ ] `cong` over predicates:
+  - [x] `cong` over user-defined predicates using `eq_congruent_pred`
+  - [x] `cong` over `and`
+  - [x] `cong` over `or`
+  - [x] `cong` over `not`
+  - [x] `cong` over `imp`
+  - [ ] `cong` over `xor`
+  - [ ] `cong` over `ite`
+- [x] Support `trans`:
+ - [x] `trans` over terms using `eq_transitive`
+ - [x] `trans` over formulas using rules for `iff`
+
 
 ### Processing `all_simplify` Rule Instances (cvc5 Rewrites)
 Ideally we can just use the DSL to rewrite these rule applications w.r.t. rules supported above.

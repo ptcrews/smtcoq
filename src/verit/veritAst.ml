@@ -1346,7 +1346,7 @@ let process_trans (c : certif) : certif =
                                                                              | Eq _ -> true
                                                                              | _ -> false) x)
                                                  | None -> raise (Debug ("| process_trans: can't fetch premises to trans at id "^i^" |")))) p in
-             (* congruence over functions *)
+             (* transitivity over functions *)
              if is_eq l then
                (*
                   Convert a proof of the form:
@@ -1366,7 +1366,7 @@ let process_trans (c : certif) : certif =
                [(eqti, EqtrAST, prem_negs @ cl, [], []);
                 (i, ResoAST, cl, eqti :: p, [])] @
                (process_trans_aux t cog)
-             (* congruence over predicates *)
+             (* transitivity over predicates *)
              else if is_iff l then
                (*
                   Convert a proof of the form:
