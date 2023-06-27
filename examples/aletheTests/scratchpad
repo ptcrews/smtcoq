@@ -1,42 +1,9 @@
-We can't always use `eq_transitive` because SMTCoq differentiates terms and formulas, and `eq_transitive` only works for terms.
 Convert a proof of the form:
------  -----
-a = b  b = c
---------------trans
-     a = c
+------refl
+T = T
 
 to one of the form:
-(1)   (2)
----------res
-  a = c
-where (1) and (2) are derived as:
----------------eqp1  -----     ---------------eqp1  -----
-~(a = b), a, ~b      a = b     ~(b = c), b, ~c      b = c
---------------------------res  --------------------------res 
-           a, ~b                          b, ~c
-           ------------------------------------res    -----------eqn2
-                           a, ~c                      a = c, a, c
-                           --------------------------------------res
-                                          a = c, a   ---(1)
-
----------------eqp2  -----      ---------------eqp2  -----
-~(b = c), ~b, c      b = c      ~(a = b), ~a, b      a = b
---------------------------res  --------------------------res
-           ~b, c                          ~a, b
-           ------------------------------------res    -------------eqn1
-                           ~a, c                      a = c, ~a, ~c
-                           ----------------------------------------res
-                                          a = c, ~a   ---(2)
-
-(* Given conclusion `x1 = xn` and premises `x1 = x2, ..., xn-1 = xn`, *)
-(* 1. For each premise `x = y`, generate `~(x = y), x, ~y` by `eqp1` and resolve it with `x = y` to get `x, ~y` *)
-(* 2. Resolve all clauses from 1. to get `x1, ~xn` *)
-(* 3. Generate `x1 = xn, x1, xn` by `eqn2` *)
-(* 4. Resolve 2. and 3. to get `x1 = xn, x1`. *)
-
-(* 5. For each premise `x = y`, generate `~(x = y), ~x, y` by `eqp2` and resolve it with `x = y` to get `~x, y` *)
-(* 6. Resolve all clauses from 5. to get `~x1, xn` *)
-(* 7. Generate `x1 = xn, ~x1, ~xn` by `eqn1` *)
-(* 8. Resolve 6. and 7. to get `x1 = xn, ~x1`. *)
-
-(* 9. resolve 4. and 8. to get `x1 = xn` *)
+-------------eqn1 ---true
+T = T, ~T, ~T      T
+---------------------res
+        T = T     
