@@ -960,108 +960,115 @@ let process_cong (c : certif) : certif =
                      x = a  y = b
                     --------------cong
                      x ^ y = a ^ b 
-                    
+                                        
                     to one of the form:
                     (1)       (2)
                     -------------res
                     x ^ y = a ^ b
                     where (1) and (2) are derived as:
-                                        -----   ---------------eqp1  -----   -----------------eqp1                                                                          
-                                        x = a   ~(x = a), x, ~a      y = b   ~(y = b), y, ~b
-                    ---------------andn ----------------------res   -------------------------res  ------------andp    ------------andp                                      
-                    (x ^ y), ~x, ~y             ~a, x                         ~b, y                ~(a ^ b), b         ~(a ^ b), a                                          
-                    --------------------------------------------------------------------------------------------------------------res  ---------------------------------eqn2
-                                                                ~(a ^ b), (x ^ y)                                                       x ^ y = a ^ b, (x ^ y), (a ^ b)     
-                                          -----------------------------------------------------------------------------------------------------------------------------res  
-                                                                                      x ^ y = a ^ b, (x ^ y) --(1)
-        
-                                         -----   ---------------eqp2 -----   -----------------eqp2
-                                         x = a   ~(x = a), ~x, a     y = b    ~(y = b), ~y, b
-                    ---------------andn  -----------------------res  ------------------------res  -----------andp -----------andp
-                    (a ^ b), ~a, ~b               ~x, a                       ~y, b               ~(x ^ y), x     ~(x ^ y), y
-                    ---------------------------------------------------------------------------------------------------------res  ---------------------------------eqn1
-                                                                     ~(x ^ y), (a ^ b)                                            x ^ y = a ^ b, ~(x ^ y), ~(a ^ b)
-                                                                     ---------------------------------------------------------------------------------------------res
-                                                                                                               x ^ y = a ^ b, ~(x ^ y) --(2)
+                                         -----   ---------------eqp1                   -----   -----------------eqp1
+                                         x = a   ~(x = a), x, ~a                       y = b   ~(y = b), y, ~b
+                                         ----------------------res   ------------andp  -------------------------res  ------------andp
+                                                ~a, x                ~(a ^ b), a                ~b, y                ~(a ^ b), b
+                    ---------------andn         --------------------------------res             --------------------------------res
+                    (x ^ y), ~x, ~y                    ~(a ^ b), x                                           ~(a ^ b), y
+                    ----------------------------------------------------------------------------------------------------res  ---------------------------------eqn2
+                                                              ~(a ^ b), (x ^ y)                                              x ^ y = a ^ b, (x ^ y), (a ^ b)     
+                                                              ----------------------------------------------------------------------------------------------res
+                                                                                              x ^ y = a ^ b, (x ^ y) --(1)
+                                
+                                         -----   ---------------eqp2                  -----   -----------------eqp2
+                                         x = a   ~(x = a), ~x, a                      y = b    ~(y = b), ~y, b
+                                         -----------------------res  -----------andp  ------------------------res  -----------andp
+                                                  ~x, a              ~(x ^ y), x               ~y, b               ~(x ^ y), y
+                    ---------------andn           ------------------------------res            -------------------------------res
+                    (a ^ b), ~a, ~b                         ~(x ^ y), a                                  ~(x ^ y), b
+                    ------------------------------------------------------------------------------------------------res  ---------------------------------eqn1
+                                                                ~(x ^ y), (a ^ b)                                        x ^ y = a ^ b, ~(x ^ y), ~(a ^ b)
+                                                                ------------------------------------------------------------------------------------------res
+                                                                                              x ^ y = a ^ b, ~(x ^ y) --(2)
+                     Under both trees, if a premise is a reflexivity, then the derivation from it using eqp1/2, andp and res must be shortened just to an andp
                  *)
                  | Eq (And xs, And ys) ->
                     (* For x1 ^ ... ^ xn = y1 ^ ... ^ ym in the conclusion, *)
                     (* 1. generate x1 ^ ... ^ xn, ~x1, ..., ~xn by andn *)
                     let andni1 = generate_id () in
                     let andns1 = List.map (fun x -> Not x) xs in
-                    (* 2. for each equality x = y in premise, generate ~(x = y), x, ~y by eqp1
-                          and resolve it with x = y, to get ~y, x *)
-                    let eqp1is, eqp1s = List.fold_left 
-                      (fun (is, r) (pid, peq) ->
+                    (* 2. for each non-refl equality x = y in premise, (for refl equalities, simply generate step (iv) by andp)
+                          (i) generate ~(x = y), x, ~y by eqp1
+                          (ii) resolve it with x = y, to get ~y, x
+                          (iii) generate ~(y1 ^ ... ^ ym), y by andp
+                          (iv) resolve (ii) and (iii) to get ~(y1 ^ ... ^ ym), x *)
+                    let resi1s, res1s = List.fold_left 
+                      (fun (ris, rs) (pid, peq) ->
                         let x, y = (match (get_expr peq) with
                                     | Eq (x', y') -> (x', y')
                                     | _ -> raise (Debug ("| process_cong: expecting premise of cong to be equality at id "^i^" instead I have "^(head_term (get_expr peq))^" |"))) in
                         if x = y then
-                          (is, r)
+                          let andpi = generate_id () in
+                          (andpi :: ris, 
+                           (andpi, AndpAST, [Not (And ys); x], [], []) :: rs)
                         else
-                          let i' = generate_id () in
                           let eqp1i = generate_id () in
-                          (i' :: is, 
+                          let resi1 = generate_id () in
+                          let andpi = generate_id () in
+                          let resi2 = generate_id () in
+                          (resi2 :: ris, 
                            (eqp1i, Equp1AST, [Not peq; x; Not y], [], []) :: 
-                           (i', ResoAST, [x; Not y], [eqp1i; pid], []) :: r))
+                           (resi1, ResoAST, [x; Not y], [eqp1i; pid], []) :: 
+                           (andpi, AndpAST, [Not (And ys); y], [], []) ::
+                           (resi2, ResoAST, [Not (And ys); x], [resi1; andpi], []) :: rs))
                       ([], []) ptuples in
-                    (* 3. for each yi, generate ~(y1 ^ ... ^ ym), yi by andp *)
-                    let andpis1, andps1 = List.fold_left
-                      (fun (is, r) y ->
-                        let i' = generate_id () in
-                        i' :: is,
-                        (i', AndpAST, [Not (And ys); y], [], []) :: r)
-                      ([], []) (to_uniq ys) in
-                    (* 4. resolve all clauses form 1., 2., and 3., to get ~(y1 ^ ... ^ ym), x1 ^ ... ^ xn *)
+                    (* 3. resolve all clauses form 1. and 2. to get ~(y1 ^ ... ^ ym), x1 ^ ... ^ xn *)
                     let resi1 = generate_id () in
-                    (* 5. generate x1 ^ ... ^ xn = y1 ^ ... ^ ym, x1 ^ ... ^ xn, y1 ^ ... ^ ym by eqn2 *)
+                    (* 4. generate x1 ^ ... ^ xn = y1 ^ ... ^ ym, x1 ^ ... ^ xn, y1 ^ ... ^ ym by eqn2 *)
                     let eqn2i = generate_id () in
-                    (* 6. resolve 4. and 5. to get x1 ^ ... ^ xn = y1 ^ ... ^ ym, x1 ^ ... ^ xn *)
+                    (* 5. resolve 3. and 4. to get x1 ^ ... ^ xn = y1 ^ ... ^ ym, x1 ^ ... ^ xn *)
                     let resi2 = generate_id () in
-                    (* 7. generate y1 ^ ... ^ ym, ~y1, ..., ~ym by andn *)
+                    (* 6. generate y1 ^ ... ^ ym, ~y1, ..., ~ym by andn *)
                     let andni2 = generate_id () in
                     let andns2 = List.map (fun x -> Not x) ys in
-                    (* 8. for each equality x = y in premise, generate ~(x = y), ~x, y by eqp2 
-                          and resolve it with x = y, to get y, ~x *)
-                    let eqp2is, eqp2s = List.fold_left
-                      (fun (is, r) (pid, peq) ->
+                    (* 7. for each non-refl equality x = y in premise, (for refl equalities, simply generate step (iv) by andp)
+                          (i) generate ~(x = y), ~x, y by eqp2
+                          (ii) resolve it with x = y, to get y, ~x
+                          (iii) generate ~(x1 ^ ... ^ xn), x by andp
+                          (iv) resolve (ii) and (iii) to get ~(x1 ^ ... ^ xn), y *)
+                    let resi2s, res2s = List.fold_left
+                      (fun (ris, rs) (pid, peq) ->
                         let x, y = (match (get_expr peq) with
                                     | Eq (x', y') -> (x', y')
                                     | _ -> raise (Debug ("| process_cong: expecting premise of cong to be equality at id "^i^" |"))) in
                         if x = y then
-                           (is, r)
+                           let andpi = generate_id () in
+                           (andpi :: ris,
+                            (andpi, AndpAST, [Not (And xs); y], [], []) :: rs)
                         else
-                          let i' = generate_id () in
                           let eqp2i = generate_id () in
-                          (i' :: is, 
+                          let resi1 = generate_id () in
+                          let andpi = generate_id () in
+                          let resi2 = generate_id () in
+                          (resi2 :: ris, 
                            (eqp2i, Equp2AST, [Not peq; Not x; y], [], []) :: 
-                           (i', ResoAST, [Not x; y], [eqp2i; pid], []) :: r))
+                           (resi1, ResoAST, [Not x; y], [eqp2i; pid], []) :: 
+                           (andpi, AndpAST, [Not (And xs); x], [], []) ::
+                           (resi2, ResoAST, [Not (And xs); y], [resi1; andpi], []) :: rs))
                       ([], []) ptuples in
-                    (* 9. for each xi, generate ~(x1 ^ ... ^ xn), xi by andp *)
-                    let andpis2, andps2 = List.fold_left
-                      (fun (is, r) x ->
-                        let i' = generate_id () in
-                        i' :: is,
-                        (i', AndpAST, [Not (And xs); x], [], []) :: r)
-                      ([], []) (to_uniq xs) in
-                    (* 10. resolve all clauses form 7., 8., and 9., to get ~(x1 ^ ... ^ xn), y1 ^ ... ^ ym *)
+                    (* 8. resolve all clauses form 6. and 7. to get ~(x1 ^ ... ^ xn), y1 ^ ... ^ ym *)
                     let resi3 = generate_id () in
-                    (* 11. generate x1 ^ ... ^ xn = y1 ^ ... ^ ym, ~(x1 ^ ... ^ xn), ~(y1 ^ ... ^ ym) by eqn1 *)
+                    (* 9. generate x1 ^ ... ^ xn = y1 ^ ... ^ ym, ~(x1 ^ ... ^ xn), ~(y1 ^ ... ^ ym) by eqn1 *)
                     let eqn1i = generate_id () in
-                    (* 12. resolve 10. and 11. to get x1 ^ ... ^ xn = y1 ^ ... ^ ym, ~(x1 ^ ... ^ xn) *)
+                    (* 10. resolve 8. and 9. to get x1 ^ ... ^ xn = y1 ^ ... ^ ym, ~(x1 ^ ... ^ xn) *)
                     let resi4 = generate_id () in
                     imp @
-                    ((andni1, AndnAST, (And xs :: andns1), [], []) ::
-                     (eqp1s @ andps1)) @
-                    ((resi1, ResoAST, [Not (And ys); And xs], (andni1 :: (eqp1is @ andpis1)), []) ::
+                    ((andni1, AndnAST, (And xs :: andns1), [], []) :: res1s) @
+                    ((resi1, ResoAST, [Not (And ys); And xs], (andni1 :: resi1s), []) ::
                      (eqn2i, Equn2AST, [eq; And xs; And ys], [], []) ::
                      (resi2, ResoAST, [eq; And xs], [resi1; eqn2i], []) ::
-                     (andni2, AndnAST, (And ys :: andns2), [], []) ::
-                     (eqp2s @ andps2)) @
-                    ((resi3, ResoAST, [Not (And xs); And ys], (andni2 :: (eqp2is @ andpis2)), []) ::
+                     (andni2, AndnAST, (And ys :: andns2), [], []) :: res2s) @
+                    ((resi3, ResoAST, [Not (And xs); And ys], (andni2 :: resi2s), []) ::
                      (eqn1i, Equn1AST, [eq; Not (And xs); Not (And ys)], [], []) ::
                      (resi4, ResoAST, [eq; Not (And xs)], [resi3; eqn1i], []) ::
-                     (* 13. resolve 6. and 12. to get x1 ^ ... ^ xn = y1 ^ ... ^ ym    *)
+                     (* 11. resolve 5. and 10. to get x1 ^ ... ^ xn = y1 ^ ... ^ ym    *)
                      (i, ResoAST, [eq], [resi2; resi4], []) ::
                      process_cong_aux t cog)
                  (* or predicate
