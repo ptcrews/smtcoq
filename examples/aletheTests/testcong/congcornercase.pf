@@ -1,0 +1,4 @@
+(assume h1 (= (not true) false))
+(assume h2 (not (= (and true (not true)) (and true false))))
+(step t3 (cl (= (and true (not true)) (and true false))) :rule cong :premises (h1))
+(step t4 (cl) :rule resolution :premises (h2 t3))

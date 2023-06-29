@@ -993,14 +993,17 @@ let process_cong (c : certif) : certif =
                           and resolve it with x = y, to get ~y, x *)
                     let eqp1is, eqp1s = List.fold_left 
                       (fun (is, r) (pid, peq) ->
-                        let i' = generate_id () in
-                        let eqp1i = generate_id () in
                         let x, y = (match (get_expr peq) with
                                     | Eq (x', y') -> (x', y')
                                     | _ -> raise (Debug ("| process_cong: expecting premise of cong to be equality at id "^i^" instead I have "^(head_term (get_expr peq))^" |"))) in
-                        (i' :: is, 
-                         (eqp1i, Equp1AST, [Not peq; x; Not y], [], []) :: 
-                         (i', ResoAST, [x; Not y], [eqp1i; pid], []) :: r))
+                        if x = y then
+                          (is, r)
+                        else
+                          let i' = generate_id () in
+                          let eqp1i = generate_id () in
+                          (i' :: is, 
+                           (eqp1i, Equp1AST, [Not peq; x; Not y], [], []) :: 
+                           (i', ResoAST, [x; Not y], [eqp1i; pid], []) :: r))
                       ([], []) ptuples in
                     (* 3. for each yi, generate ~(y1 ^ ... ^ ym), yi by andp *)
                     let andpis1, andps1 = List.fold_left
@@ -1022,14 +1025,17 @@ let process_cong (c : certif) : certif =
                           and resolve it with x = y, to get y, ~x *)
                     let eqp2is, eqp2s = List.fold_left
                       (fun (is, r) (pid, peq) ->
-                        let i' = generate_id () in
-                        let eqp2i = generate_id () in
                         let x, y = (match (get_expr peq) with
                                     | Eq (x', y') -> (x', y')
                                     | _ -> raise (Debug ("| process_cong: expecting premise of cong to be equality at id "^i^" |"))) in
-                        (i' :: is, 
-                         (eqp2i, Equp2AST, [Not peq; Not x; y], [], []) :: 
-                         (i', ResoAST, [Not x; y], [eqp2i; pid], []) :: r))
+                        if x = y then
+                           (is, r)
+                        else
+                          let i' = generate_id () in
+                          let eqp2i = generate_id () in
+                          (i' :: is, 
+                           (eqp2i, Equp2AST, [Not peq; Not x; y], [], []) :: 
+                           (i', ResoAST, [Not x; y], [eqp2i; pid], []) :: r))
                       ([], []) ptuples in
                     (* 9. for each xi, generate ~(x1 ^ ... ^ xn), xi by andp *)
                     let andpis2, andps2 = List.fold_left

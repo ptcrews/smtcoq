@@ -275,14 +275,18 @@ This task can be further divided into:
  - [x] `trans` over terms using `eq_transitive`
  - [x] `trans` over formulas using rules for `iff`
 A few complications:
-- [ ] Implicit arguments `(true = true)` were accounted for over other cases of `cong`, the same must be done for logical operators as well (with proper code reuse).
-- [ ] The implicit `true = true` arguments are handled using `refl` but `refl` uses `trans` so a formula version of them must be used.
+- [x] Implicit arguments `(true = true)` were accounted for over other cases of `cong`, the same must be done for logical operators as well (with proper code reuse).
+- [x] The implicit `true = true` arguments are handled using `refl` but `refl` uses `trans` so a formula version of them must be used.
+- [ ] SMTCoq's resolution checker fails when the pivor appears with both polarities in one of the clauses. So for example, some implcit argument `x = x`
+is generated and resolved with `~(x = x), x, ~x (eqp1)` to get `x, ~x` which is further resolved with other things, but it would always fail because
+`x` would be the pivot and it would occur in both polarities. 
 
 ### Processing `all_simplify` Rule Instances (cvc5 Rewrites)
 Ideally we can just use the DSL to rewrite these rule applications w.r.t. rules supported above.
-- First replace the RARE file in each theory (theory/th-name/rewrites) with the target rewrite rules (`_simplify` rules from alethe)
+1. Clone cvc5/proof-new
+2. Replace the RARE file in each theory (theory/th-name/rewrites) with the target rewrite rules (`_simplify` rules from alethe)
 (`ite` rules go in builtin)
-- Compile cvc4/proof-new
+- Compile
 - Run cvc5 with the following options
 ```
 cvc5 filename.smt2 --dump-proofs --proof-format-mode=alethe --proof-granularity=dsl-rewrite --dag-thresh=0
