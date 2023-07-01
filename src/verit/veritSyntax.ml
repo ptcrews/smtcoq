@@ -113,7 +113,7 @@ let get_eq l =
      (match Atom.atom ha with
       | Abop (BO_eq _,a,b) -> (a,b)
       | _ -> raise (Debug "| get_eq: equality expected |"))
-  | _ -> raise (Debug "| get_eq: atomic equality expected| ")
+  | _ -> raise (Debug "| get_eq: atomic equality expected | ")
 
 let get_at l =
   match Form.pform l with
@@ -277,11 +277,11 @@ let mkCongr p =
              if indexed_op_index a_f = indexed_op_index b_f then
                let cert = process_congr (Array.to_list a_args) (Array.to_list b_args) prem_val [] in
                Other (EqCgrP (p_p,c,cert))
-             else raise (Debug "| mkCongrPred: unmatching predicates ")
+             else raise (Debug "| mkCongrPred: unmatching predicates |")
           | _ -> raise (Debug "| mkCongrPred : not pred app |"))
-       |_ ->  raise (Debug "| mkCongr: no or more than one predicate app premise in congruence| "))
+       |_ ->  raise (Debug "| mkCongr: no or more than one predicate app premise in congruence |"))
     |[] ->  raise (Debug "| mkCongrPred: no conclusion in congruence |")
-    |_ -> raise (Debug "| mkCongrPred: more than one conclusion in congruence| ")
+    |_ -> raise (Debug "| mkCongrPred: more than one conclusion in congruence |")
 
 (*(* Congruence over connectives *)
   let rec process_congr_form a_args b_args prem res =

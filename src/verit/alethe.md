@@ -271,13 +271,14 @@ This task can be further divided into:
   - [x] `cong` over `imp`
   - [ ] `cong` over `xor`
   - [ ] `cong` over `ite`
+  - [ ] `cong` over `iff`
 - [x] Support `trans`:
  - [x] `trans` over terms using `eq_transitive`
  - [x] `trans` over formulas using rules for `iff`
 A few complications:
 - [x] Implicit arguments `(true = true)` were accounted for over other cases of `cong`, the same must be done for logical operators as well (with proper code reuse).
 - [x] The implicit `true = true` arguments are handled using `refl` but `refl` uses `trans` so a formula version of them must be used.
-- [ ] SMTCoq's resolution checker fails when the pivor appears with both polarities in one of the clauses. So for example, some implcit argument `x = x`
+- [x] SMTCoq's resolution checker fails when the pivor appears with both polarities in one of the clauses. So for example, some implcit argument `x = x`
 is generated and resolved with `~(x = x), x, ~x (eqp1)` to get `x, ~x` which is further resolved with other things, but it would always fail because
 `x` would be the pivot and it would occur in both polarities. 
 

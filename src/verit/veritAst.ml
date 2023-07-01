@@ -518,9 +518,9 @@ let rec remove x l =
   | h :: t -> if h = x then remove x t else h :: (remove x t)
   | [] -> []
 (* Remove premise from all resolutions in certif *)
-let remove_res_premise (i : id) (c : certif) : certif =
+let remove_res_trans_premise (i : id) (c : certif) : certif =
   List.map (fun s -> match s with
-               | (i', r, c, p, a) when (r = ResoAST || r = ThresoAST) ->
+               | (i', r, c, p, a) when (r = ResoAST || r = ThresoAST || r = TransAST) ->
                     (i', r, c, (remove i p), a)
                | s -> s) c
 
@@ -531,7 +531,7 @@ let process_fins (c : certif) : certif =
     | (i1, AnchorAST, c1, p1, a1) :: (i2, ReflAST, c2, p2, a2) ::
       (i3, CongAST, c3, p3, a3)   :: (i4, BindAST, c4, p4, a4) ::
       (i5, Equp2AST, c5, p5, a5)  :: (i6, ThresoAST, c6, p6, a6) :: t ->
-        process_fins_aux (remove_res_premise i6 t) cog
+        process_fins_aux (remove_res_trans_premise i6 t) cog
     (* Step 2 *)
     | (_, QcnfAST, c, _, _) :: t ->
         (* Ignoring this rule assuming no transformation is performed, 
@@ -582,11 +582,22 @@ let process_fins (c : certif) : certif =
 *)
 let rec process_notnot (c : certif) : certif = 
   match c with
-  | (i, NotnotAST, cl, p, a) :: tl -> process_notnot (remove_res_premise i tl)
+  | (i, NotnotAST, cl, p, a) :: tl -> process_notnot (remove_res_trans_premise i tl)
   | (i, NotsimpAST, cl, p, a) :: tl ->
       (match (get_expr_cl cl) with
       | [Eq (Not (Not x), y)] when x = y -> 
-         (i, EqreAST, [Eq (x, x)], [], []) :: process_notnot tl
+         (* 
+            Generate refl over `x` as (since refl and eq_reflexive only work for terms):
+            ---------eqn1  --------eqn2
+            x = x, ~x      x = x, x
+            -----------------------res
+                     x = x   
+         *)
+         let eqn1i = generate_id () in
+         let eqn2i = generate_id () in
+         (eqn1i, Equn1AST, [Eq (x, x); Not x], [], []) :: 
+         (eqn2i, Equn2AST, [Eq (x, x); x], [], []) :: 
+         (i, ResoAST, [Eq (x, x)], [eqn1i; eqn2i], []) :: process_notnot (remove_res_trans_premise i tl)
       | _ -> (i, NotsimpAST, cl, p, a) :: process_notnot tl)
   | h :: tl -> h :: process_notnot tl
   | [] -> []
@@ -1280,7 +1291,9 @@ let process_cong (c : certif) : certif =
                    (resi10, ResoAST, [eq; xy], [resi9; eqn2i], []) ::
                    (i, ResoAST, [eq], [resi10; resi5], []) ::
                    process_cong_aux t cog
-                 | Eq (Xor xs, Xor ys) -> []
+                 | Eq (Xor xs, Xor ys) -> raise (Debug ("| process_cong: cong over xor not implemented yet |"))
+                 | Eq (Ite xs, Ite ys) -> raise (Debug ("| process_cong: cong over ite not implemented yet |"))
+                 | Eq (Eq (x, y), Eq (a, b)) -> raise (Debug ("| process_cong: cong over iff not implemented yet |"))
                  (* not predicate
                      -----
                      x = a
@@ -1430,92 +1443,100 @@ let process_trans (c : certif) : certif =
                (process_trans_aux t cog)
              (* transitivity over predicates *)
              else if is_iff l then
-               (*
-                  Convert a proof of the form:
-                  -----  -----
-                  a = b  b = c
-                  ------------trans
+               (* trans over single premise can occur if all other premises have been eliminated, 
+                  e.g., by notnot elimination *)
+               if List.length p = 1 then
+                 let prem = (match (get_cl (List.hd p) cog) with
+                             | Some x -> x
+                             | None -> raise (Debug ("| process_trans: can't fetch premise to trans at id "^i^" |"))) in
+                 (i, ResoAST, prem, p, []) :: process_trans_aux t cog
+               else
+                 (*
+                    Convert a proof of the form:
+                    -----  -----
+                    a = b  b = c
+                    ------------trans
+                        a = c
+  
+                    to one of the form:
+                    (1)   (2)
+                    ---------res
                       a = c
-
-                  to one of the form:
-                  (1)   (2)
-                  ---------res
-                    a = c
-                  where (1) and (2) are derived as:
-                  ---------------eqp1  -----     ---------------eqp1  -----
-                  ~(a = b), a, ~b      a = b     ~(b = c), b, ~c      b = c
-                  --------------------------res  --------------------------res 
-                             a, ~b                          b, ~c
-                             ------------------------------------res    -----------eqn2
-                                             a, ~c                      a = c, a, c
-                                             --------------------------------------res
-                                                            a = c, a   ---(1)
-
-                  ---------------eqp2  -----      ---------------eqp2  -----
-                  ~(b = c), ~b, c      b = c      ~(a = b), ~a, b      a = b
-                  --------------------------res  --------------------------res
-                             ~b, c                          ~a, b
-                             ------------------------------------res    -------------eqn1
-                                             ~a, c                      a = c, ~a, ~c
-                                             ----------------------------------------res
-                                                            a = c, ~a   ---(2)   
-               *)
-               let p' = List.map (fun x -> match get_cl x cog with
-                       | Some x' -> (x, List.hd x')
-                       | None -> raise (Debug ("| process_trans: can't fetch premises to `and` at id "^i^" |"))) p in
-               let eq = List.hd cl in
-               let x1, xn = (match (get_expr eq) with
-                            | Eq (x', y') -> x', y'
-                            | _ -> raise (Debug ("| process_trans: expecting premise of trans to be iff at id "^i^" |"))) in
-               (* Given conclusion `x1 = xn` and premises `x1 = x2, ..., xn-1 = xn`, *)
-               (* 1. For each premise `x = y`, generate `~(x = y), x, ~y` by `eqp1` and resolve it with 
-                     `x = y` to get `x, ~y` *)
-               let eqp1is, eqp1s = List.fold_left
-                 (fun (is, r) (pid, peq) ->
-                   let i' = generate_id () in
-                   let eqp1i = generate_id () in
-                   let x, y = (match (get_expr peq) with
-                               | Eq (x', y') -> (x', y')
-                               | _ -> raise (Debug ("| process_trans: expecting premise of trans to be iff at id "^i^" |"))) in
-                   (i' :: is,
-                    (eqp1i, Equp1AST, [Not peq; x; Not y], [], []) ::
-                    (i', ResoAST, [x; Not y], [eqp1i; pid], []) :: r))
-                 ([], []) p' in
-               (* 2. Resolve all clauses from 1. to get `x1, ~xn` *)
-               let resi1 = generate_id () in
-               (* 3. Generate `x1 = xn, x1, xn` by `eqn2` *)
-               let eqn2i = generate_id () in
-               (* 4. Resolve 2. and 3. to get `x1 = xn, x1`. *)
-               let resi2 = generate_id () in
-               (* 5. For each premise `x = y`, generate `~(x = y), ~x, y` by `eqp2` and resolve it with 
-                     `x = y` to get `~x, y` *)
-               let eqp2is, eqp2s = List.fold_left
-                 (fun (is, r) (pid, peq) ->
-                   let i' = generate_id () in
-                   let eqp2i = generate_id () in
-                   let x, y = (match (get_expr peq) with
-                               | Eq (x', y') -> (x', y')
-                               | _ -> raise (Debug ("| process_trans: expecting premise of trans to be iff at id "^i^" |"))) in
-                   (i' :: is,
-                    (eqp2i, Equp2AST, [Not peq; Not x; y], [], []) ::
-                    (i', ResoAST, [Not x; y], [eqp2i; pid], []) :: r))
-                 ([], []) p' in
-               (* 6. Resolve all clauses from 5. to get `~x1, xn` *)
-               let resi3 = generate_id () in
-               (* 7. Generate `x1 = xn, ~x1, ~xn` by `eqn1` *)
-               let eqn1i = generate_id () in
-               (* 8. Resolve 6. and 7. to get `x1 = xn, ~x1`. *)
-               let resi4 = generate_id () in
-               (* 9. resolve 4. and 8. to get `x1 = xn` *)
-               eqp1s @
-               ((resi1, ResoAST, [x1; Not xn], eqp1is, []) ::
-                (eqn2i, Equn2AST, [eq; x1; xn], [], []) ::
-                (resi2, ResoAST, [eq; x1], [resi1; eqn2i], []) :: eqp2s) @
-               ((resi3, ResoAST, [Not x1; xn], eqp2is, []) :: 
-                (eqn1i, Equn1AST, [eq; Not x1; Not xn], [], []) ::
-                (resi4, ResoAST, [eq; Not x1], [resi3; eqn1i], []) ::
-                (i, ResoAST, [eq], [resi2; resi4], []) ::
-                process_trans_aux t cog)
+                    where (1) and (2) are derived as:
+                    ---------------eqp1  -----     ---------------eqp1  -----
+                    ~(a = b), a, ~b      a = b     ~(b = c), b, ~c      b = c
+                    --------------------------res  --------------------------res 
+                               a, ~b                          b, ~c
+                               ------------------------------------res    -----------eqn2
+                                               a, ~c                      a = c, a, c
+                                               --------------------------------------res
+                                                              a = c, a   ---(1)
+  
+                    ---------------eqp2  -----      ---------------eqp2  -----
+                    ~(b = c), ~b, c      b = c      ~(a = b), ~a, b      a = b
+                    --------------------------res  --------------------------res
+                               ~b, c                          ~a, b
+                               ------------------------------------res    -------------eqn1
+                                               ~a, c                      a = c, ~a, ~c
+                                               ----------------------------------------res
+                                                              a = c, ~a   ---(2)   
+                 *)
+                 let p' = List.map (fun x -> match get_cl x cog with
+                         | Some x' -> (x, List.hd x')
+                         | None -> raise (Debug ("| process_trans: can't fetch premises to `and` at id "^i^" |"))) p in
+                 let eq = List.hd cl in
+                 let x1, xn = (match (get_expr eq) with
+                              | Eq (x', y') -> x', y'
+                              | _ -> raise (Debug ("| process_trans: expecting premise of trans to be iff at id "^i^" |"))) in
+                 (* Given conclusion `x1 = xn` and premises `x1 = x2, ..., xn-1 = xn`, *)
+                 (* 1. For each premise `x = y`, generate `~(x = y), x, ~y` by `eqp1` and resolve it with 
+                       `x = y` to get `x, ~y` *)
+                 let eqp1is, eqp1s = List.fold_left
+                   (fun (is, r) (pid, peq) ->
+                     let i' = generate_id () in
+                     let eqp1i = generate_id () in
+                     let x, y = (match (get_expr peq) with
+                                 | Eq (x', y') -> (x', y')
+                                 | _ -> raise (Debug ("| process_trans: expecting premise of trans to be iff at id "^i^" |"))) in
+                     (i' :: is,
+                      (eqp1i, Equp1AST, [Not peq; x; Not y], [], []) ::
+                      (i', ResoAST, [x; Not y], [eqp1i; pid], []) :: r))
+                   ([], []) p' in
+                 (* 2. Resolve all clauses from 1. to get `x1, ~xn` *)
+                 let resi1 = generate_id () in
+                 (* 3. Generate `x1 = xn, x1, xn` by `eqn2` *)
+                 let eqn2i = generate_id () in
+                 (* 4. Resolve 2. and 3. to get `x1 = xn, x1`. *)
+                 let resi2 = generate_id () in
+                 (* 5. For each premise `x = y`, generate `~(x = y), ~x, y` by `eqp2` and resolve it with 
+                       `x = y` to get `~x, y` *)
+                 let eqp2is, eqp2s = List.fold_left
+                   (fun (is, r) (pid, peq) ->
+                     let i' = generate_id () in
+                     let eqp2i = generate_id () in
+                     let x, y = (match (get_expr peq) with
+                                 | Eq (x', y') -> (x', y')
+                                 | _ -> raise (Debug ("| process_trans: expecting premise of trans to be iff at id "^i^" |"))) in
+                     (i' :: is,
+                      (eqp2i, Equp2AST, [Not peq; Not x; y], [], []) ::
+                      (i', ResoAST, [Not x; y], [eqp2i; pid], []) :: r))
+                   ([], []) p' in
+                 (* 6. Resolve all clauses from 5. to get `~x1, xn` *)
+                 let resi3 = generate_id () in
+                 (* 7. Generate `x1 = xn, ~x1, ~xn` by `eqn1` *)
+                 let eqn1i = generate_id () in
+                 (* 8. Resolve 6. and 7. to get `x1 = xn, ~x1`. *)
+                 let resi4 = generate_id () in
+                 (* 9. resolve 4. and 8. to get `x1 = xn` *)
+                 eqp1s @
+                 ((resi1, ResoAST, [x1; Not xn], eqp1is, []) ::
+                  (eqn2i, Equn2AST, [eq; x1; xn], [], []) ::
+                  (resi2, ResoAST, [eq; x1], [resi1; eqn2i], []) :: eqp2s) @
+                 ((resi3, ResoAST, [Not x1; xn], eqp2is, []) :: 
+                  (eqn1i, Equn1AST, [eq; Not x1; Not xn], [], []) ::
+                  (resi4, ResoAST, [eq; Not x1], [resi3; eqn1i], []) ::
+                  (i, ResoAST, [eq], [resi2; resi4], []) ::
+                  process_trans_aux t cog)
              else
                raise (Debug ("| process_trans: expecting head of clause to be either an equality or an iff at id "^i^" |"))
           | _ -> raise (Debug ("| process_trans: expecting clause to have one literal at id "^i^" |")))
@@ -3782,24 +3803,24 @@ let rec process_simplify (c : certif) : certif =
 (* Final processing and linking of AST *)
 
 let preprocess_certif (c: certif) : certif =
-  Printf.printf ("Certif before preprocessing: \n%s\n") (string_of_certif c);
+  (* Printf.printf ("Certif before preprocessing: \n%s\n") (string_of_certif c); *)
   try 
   (let c1 = store_shared_terms c in
-  Printf.printf ("Certif after storing shared terms: \n%s\n") (string_of_certif c1);
+  (* Printf.printf ("Certif after storing shared terms: \n%s\n") (string_of_certif c1); *)
   let c2 = process_fins c1 in
-  Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2);
+  (* Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2); *)
   let c3 = process_notnot c2 in
-  Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c3);
+  (* Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c3); *)
   let c4 = process_cong c3 in
-  Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c4);
+  (* Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c4); *)
   let c5 = process_trans c4 in
-  Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c5);
+  (* Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c5); *)
   let c6 = process_simplify c5 in
-  Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c6);
+  (* Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c6); *)
   let c7 = process_subproof c6 in
-  Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c7);
+  (* Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c7); *)
   let c8 = process_proj c7 in
-  Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c8);
+  (* Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c8); *)
   c8) with
   | Debug s -> raise (Debug ("| VeritAst.preprocess_certif: failed to preprocess |"^s))
 
