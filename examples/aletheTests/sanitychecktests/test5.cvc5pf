@@ -1,0 +1,7 @@
+(assume a0 (not (or op_0 (not op_0))))
+(step t1 (cl (not (not (not op_0))) op_0) :rule not_not)
+(step t2 (cl (not (not op_0))) :rule not_or :premises (a0))
+(step t3 (cl op_0) :rule resolution :premises (t1 t2))
+(step t4 (cl (not op_0)) :rule not_or :premises (a0))
+(step t5 (cl) :rule resolution :premises (t3 t4))
+

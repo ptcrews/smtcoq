@@ -2,7 +2,9 @@
 Add Rec LoadPath "/home/arjun/Desktop/smtcoq-veritAst/smtcoq/src" as SMTCoq.
 Require Import SMTCoq.SMTCoq.
 Require Import Bool.
+
 Section Subproof1.
+  Print "path".
   Verit_Checker "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/Benchmarks/pb2010/normalized-j308_1-unsat.smt2" "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/Benchmarks/pb2010/normalized-j308_1-unsat.smt2.proof".
 End Subproof1.
 
