@@ -27,4 +27,3 @@
 (step t24 (cl false) :rule resolution :premises (t1 t23 a2))
 (step t25 (cl (not false)) :rule false)
 (step t26 (cl) :rule resolution :premises (t24 t25))
-

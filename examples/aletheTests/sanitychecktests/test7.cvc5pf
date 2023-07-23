@@ -58,4 +58,3 @@
 (step t57 (cl op_0 (=> op_0 op_1)) :rule reordering :premises (t56))
 (step t58 (cl (=> op_0 op_1)) :rule resolution :premises (t57 t49))
 (step t59 (cl) :rule resolution :premises (t31 t52 t55 t58))
-

@@ -603,6 +603,41 @@ let rec process_notnot (c : certif) : certif =
   | [] -> []
 
 
+
+(* Remove Same rules from the certificate *)
+(*
+   For example, the following certificate:
+     (step x ...)
+     ...
+     (step y ... :rule symm :premises (x))
+     ...
+     (step z ... :premises (y, ...))
+   
+   changes to:
+     (step x ...)
+     ...
+     (step z ... :premises (x, ...)) 
+   where we store symm as Same
+*)
+let rec replace x y l =
+   match l with
+   | h :: t -> if h = x then y :: replace x y t else h :: (replace x y t)
+   | [] -> []
+let rec replace_prem (x : id) (y : id) (c : certif) : certif =
+   match c with
+   | (i, r, cl, p, a) :: tl -> (i, r, cl, (replace x y p), a) :: replace_prem x y tl 
+   | [] -> []
+let rec process_same (c : certif) : certif =
+   match c with
+   | (i, SameAST, _, p, _) :: tl -> let ogi = (match p with
+                                    | [p1] -> p1
+                                    | _ -> raise (Debug ("| process_same : expecting a Same rule to have exactly one premise at id "^i^" |"))) in
+                                    process_same (replace_prem i ogi tl)
+   | h :: tl -> h :: process_same tl
+   | [] -> []
+
+
+
 (* Convert an AST to a list of clauses *)
 
 let process_typ (t : typ) : SmtBtype.btype =
@@ -1257,11 +1292,11 @@ let process_cong (c : certif) : certif =
                    let eqn2i = generate_id () in
                    (* 16. resolve 14. and 15. to get `x -> y = a -> b, x -> y` *)
                    let resi10 = generate_id () in
-                   (* 17. resolve 8. and 16. to get `x -> y = a -> b` *)
                    let xy = Imp [x; y] in
                    let ab = Imp [a; b] in
                    let eqxa = Eq (x, a) in
                    let eqyb = Eq (y, b) in
+                   (* Get premise ids *)
                    let p1 = (match (List.nth ptuples 0) with
                              | (pid, _) -> pid) in
                    let p2 = (match (List.nth ptuples 1) with
@@ -1289,11 +1324,125 @@ let process_cong (c : certif) : certif =
                    (resi9, ResoAST, [Not ab; xy], [resi8; impn1i2; impn2i2], []) ::
                    (eqn2i, Equn2AST, [eq; xy; ab], [], []) ::
                    (resi10, ResoAST, [eq; xy], [resi9; eqn2i], []) ::
+                   (* 17. resolve 8. and 16. to get `x -> y = a -> b` *)
                    (i, ResoAST, [eq], [resi10; resi5], []) ::
                    process_cong_aux t cog
                  | Eq (Xor xs, Xor ys) -> raise (Debug ("| process_cong: cong over xor not implemented yet |"))
                  | Eq (Ite xs, Ite ys) -> raise (Debug ("| process_cong: cong over ite not implemented yet |"))
-                 | Eq (Eq (x, y), Eq (a, b)) -> raise (Debug ("| process_cong: cong over iff not implemented yet |"))
+                 (* iff predicate
+                    -----  ---------------eqp1                                                                             
+                    y = b  ~(y = b), y, ~b                                                                                 
+                    ----------------------res  ----------------eqp1  -----------eqn2  -------------------------------eqn2  
+                            y, ~b              ~(x = y),  x, ~y      a = b, a, b      (x = y) = (a = b), x = y, a = b      
+                            -----------------------------------------------------------------------------------------res   
+                                                            (x = y) = (a = b), a = b, x, a --(1)                           
+                    
+                                                    -----  ---------------eqp2
+                                                    y = b  ~(y = b), ~y, b
+                                                    ----------------------res  -----------eqn2  --------------eqp1  -------------------------------------eqn1  -----  ---------------eqp1
+                                                            ~y, b              x = y, x, y      ~(a = b), a ~b      (x = y) = (a = b), ~(x = y), ~(a = b)      x = a  ~(x = a), x, ~a
+                    ------------------------------(1)       ---------------------------------------------------------------------------------------------res   ----------------------res 
+                    (x = y) = (a = b), a = b, x, a                                           (x = y) = (a = b), ~(a = b), x, a                                          x, ~a
+                    ---------------------------------------------------------------------------------------------------------------------------------------------------------res
+                                                                                     (x = y) = (a = b), x --(2)
+                    
+                    -----  ---------------eqp2
+                    x = a  ~(x = a), ~x, a
+                    ----------------------res  --------------------(2)
+                            ~x, a              (x = y) = (a = b), x
+                            ---------------------------------------                                                                                                             
+                                     (x = y) = (a = b), a --(3)
+                    
+                                                                                                     -----  ---------------eqp2
+                                                                                                     y = b  ~(y = b), ~y, b
+                    -------------------------------------eqn1  -------------eqn1  -------------eqn1  ----------------------res  --------------------(3)  --------------------(2)  -----  ---------------eqp1
+                    (x = y) = (a = b), ~(x = y), ~(a = b)      a = b, ~a, ~b      x = y, ~x, ~y              ~y, b              (x = y) = (a = b), a     (x = y) = (a = b), x     y = b  ~(y = b), y, ~b
+                    ---------------------------------------------------------------------------------------------------------------------------------------------------------res  ----------------------res 
+                                                                                          (x = y) = (a = b), ~y --(4)                                                                       y, ~b
+                                                                                          -----------------------------------------------------------------------------------------------------res
+                                                                                                                                    (x = y) = (a = b), ~b --(5)
+
+                                                         ---------------eqp2  ---------------------(4)  --------------------(2)  ---------------eqp2  ---------------------(5)  --------------------(3)
+                                                         ~(x = y), ~x, y      (x = y) = (a = b), ~y     (x = y) = (a = b), x     ~(a = b), ~a, b      (x = y) = (a = b), ~b     (x = y) = (a = b), a
+                    -------------------------------eqn2  -------------------------------------------------------------------res  -------------------------------------------------------------------res
+                    (x = y) = (a = b), x = y, a = b                       (x = y) = (a = b), ~(x = y)                                               (x = y) = (a = b), ~(a = b)
+                    -----------------------------------------------------------------------------------------------------------------------------------------------------------res
+                                                                                           (x = y) = (a = b)
+                 *)
+                 | Eq (Eq (x, y), Eq (a, b)) as eq ->
+                  (* Given (x = y) = (a = b) in the conclusion, *)
+                  (* 1. Generate ~(y = b), y, ~b by eqp1 and resolve it with y = b to get y, ~b *)
+                  let eqp1i1 = generate_id () in
+                  let resi1 = generate_id () in
+                  (* 2. Generate ~(x = y),  x, ~y by eqp1, a = b, a, b by eqn2, (x = y) = (a = b), x = y, a = b by eqn2 and resolve all of them with 1. to get (x = y) = (a = b), a = b, x, a *)
+                  let eqp1i2 = generate_id () in
+                  let eqn2i1 = generate_id () in
+                  let eqn2i2 = generate_id () in
+                  let resi2 = generate_id () in
+                  (* 3. Generate ~(y = b), ~y, b by eqp2, and resolve it with y = b to get ~y, b *)
+                  let eqp2i1 = generate_id () in
+                  let resi3 = generate_id () in
+                  (* 4. Generate x = y, x, y by eqn2, ~(a = b), a ~b by eqp1, (x = y) = (a = b), ~(x = y), ~(a = b) by eqn1, and resolve all of them with 3. to get (x = y) = (a = b), ~(a = b), x, a *)
+                  let eqn2i3 = generate_id () in
+                  let eqp1i3 = generate_id () in
+                  let eqn1i1 = generate_id () in
+                  let resi4 = generate_id () in
+                  (* 5. Generate ~(x = a), x, ~a by eqp1 and resolve it with x = a to get x, ~a *)
+                  let eqp1i4 = generate_id () in
+                  let resi5 = generate_id () in
+                  (* 6. Resolve 2., 4., and 5. to get (x = y) = (a = b), x *)
+                  let resi6 = generate_id () in
+                  (* 7. Generate ~(x = a), ~x, a by eqp2 and resolve with x = a to get ~x, a *)
+                  let eqp2i2 = generate_id () in
+                  let resi7 = generate_id () in
+                  (* 8. Resolve 6. and 7. to get (x = y) = (a = b), a *)
+                  let resi8 = generate_id () in
+                  (* 9. Resolve (x = y) = (a = b), ~(x = y), ~(a = b) by eqn1 (reuse from 4.), a = b, ~a, ~b by eqn1, x = y, ~x, ~y by eqn1, 3., 8., and 6. to get (x = y) = (a = b), ~y *)
+                  let eqn1i2 = generate_id () in
+                  let eqn1i3 = generate_id () in
+                  let resi9 = generate_id () in
+                  (* 10. Resolve 9. and 1. to get (x = y) = (a = b), ~b *)
+                  let resi10 = generate_id () in
+                  (* 11. Resolve ~(x = y), ~x, y by eqp2, 9., and 6. to get  (x = y) = (a = b), ~(x = y) *)
+                  let eqp2i3 = generate_id () in
+                  let resi11 = generate_id () in
+                  (* 12. Resolve ~(a = b), ~a, b by eqp2, 10., and 8. to get (x = y) = (a = b), ~(a = b) *)
+                  let eqp2i4 = generate_id () in
+                  let resi12 = generate_id () in
+                  (* Get premise ids *)
+                  let p1 = (match (List.nth ptuples 0) with
+                          | (pid, _) -> pid) in
+                  let p2 = (match (List.nth ptuples 1) with
+                          | (pid, _) -> pid) in
+                  (eqp1i1, Equp1AST, [Not (Eq (y, b)); y; Not b], [], []) ::
+                  (resi1, ResoAST, [y; Not b], [p2; eqp1i1], []) ::
+                  (eqp1i2, Equp1AST, [Not (Eq (x, y)); x; Not y], [], []) ::
+                  (eqn2i1, Equn1AST, [Eq (a, b); a; b],[], []) ::
+                  (eqn2i2, Equn2AST, [eq; Eq (x, y); Eq (a, b)], [], []) ::
+                  (resi2, ResoAST, [eq; Eq (a, b); x; a], [resi1; eqp1i2; eqn2i1; eqn2i2], []) ::
+                  (eqp2i1, Equp2AST, [Not (Eq (y, b)); Not y; b], [], []) ::
+                  (resi3, ResoAST, [Not y; b], [p2; eqp2i1], []) ::
+                  (eqn2i3, Equn2AST, [Eq (x, y); x; y], [], []) ::
+                  (eqp1i3, Equp1AST, [Not (Eq (a, b)); a; Not b], [], []) ::
+                  (eqn1i1, Equn1AST, [eq; Not (Eq (x, y)); Not (Eq (a, b))], [], []) ::
+                  (resi4, ResoAST, [eq; Not (Eq (a, b)); x; a], [resi3; eqn2i3; eqp1i3; eqn1i1], []) ::
+                  (eqp1i4, Equp1AST, [Not (Eq (x, a)); x; Not a], [], []) ::
+                  (resi5, ResoAST, [x; Not a], [p1; eqp1i4], []) ::
+                  (resi6, ResoAST, [eq; x], [resi2; resi4; resi5], []) ::
+                  (eqp2i2, Equp2AST, [Not (Eq (x, a)); Not x; a], [], []) ::
+                  (resi7, ResoAST, [Not x; a], [p1; eqp2i2], []) ::
+                  (resi8, ResoAST, [eq; a], [resi6; resi7], []) ::
+                  (eqn1i2, Equn1AST, [Eq (a, b); Not a; Not b], [], []) ::
+                  (eqn1i3, Equn1AST, [Eq (x, y); Not x; Not y], [], []) ::
+                  (resi9, ResoAST, [eq; Not y], [eqn1i1; eqn1i2; eqn1i3], []) ::
+                  (resi10, ResoAST, [eq; Not b], [resi9; resi1], []) ::
+                  (eqp2i3, Equp2AST, [Not (Eq (x, y)); Not x; y], [], []) ::
+                  (resi11, ResoAST, [eq; Not (Eq (x, y))], [eqp2i3; resi9; resi6], []) ::
+                  (eqp2i4, Equp2AST, [Not (Eq (a, b)); Not a; b], [], []) ::
+                  (resi12, ResoAST, [eq; Not (Eq (a, b))], [eqp2i4; resi10; resi8], []) ::
+                  (* 13. Generate (x = y) = (a = b), x = y, a = b (reuse from 2.) by eqn2 and resolve it with 11. and 12. to get (x = y) = (a = b) *)
+                  (i, ResoAST, [eq], [resi2; resi11; resi12], []) ::
+                  process_cong_aux t cog
                  (* not predicate
                      -----
                      x = a
@@ -3811,17 +3960,19 @@ let preprocess_certif (c: certif) : certif =
   (* Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2); *)
   let c3 = process_notnot c2 in
   (* Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c3); *)
-  let c4 = process_cong c3 in
-  (* Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c4); *)
-  let c5 = process_trans c4 in
-  (* Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c5); *)
-  let c6 = process_simplify c5 in
-  (* Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c6); *)
-  let c7 = process_subproof c6 in
-  (* Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c7); *)
-  let c8 = process_proj c7 in
-  (* Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c8); *)
-  c8) with
+  let c4 = process_same c3 in
+  (* Printf.printf ("Certif after process_same: \n%s\n") (string_of_certif c4); *)
+  let c5 = process_cong c4 in
+  (* Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c5); *)
+  let c6 = process_trans c5 in
+  (* Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c6); *)
+  let c7 = process_simplify c6 in
+  (* Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c7); *)
+  let c8 = process_subproof c7 in
+  (* Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c8); *)
+  let c9 = process_proj c8 in
+  (* Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c9); *)
+  c9) with
   | Debug s -> raise (Debug ("| VeritAst.preprocess_certif: failed to preprocess |"^s))
 
 let rec process_certif (c : certif) : VeritSyntax.id list =

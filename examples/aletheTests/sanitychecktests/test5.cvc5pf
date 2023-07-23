@@ -4,4 +4,3 @@
 (step t3 (cl op_0) :rule resolution :premises (t1 t2))
 (step t4 (cl (not op_0)) :rule not_or :premises (a0))
 (step t5 (cl) :rule resolution :premises (t3 t4))
-

@@ -9,4 +9,3 @@
 (step t8 (cl false) :rule resolution :premises (t1 t7 a0))
 (step t9 (cl (not false)) :rule false)
 (step t10 (cl) :rule resolution :premises (t8 t9))
-

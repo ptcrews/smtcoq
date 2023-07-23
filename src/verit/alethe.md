@@ -294,6 +294,29 @@ cvc5 filename.smt2 --dump-proofs --proof-format-mode=alethe --proof-granularity=
 ```
 - Check if the produced proofs have any `all_simplify` applications with no arguments (args)
 
+### Processing `evaluate` Rule Instances from cvc5 (Constant Folding)
+Conjecture: all constant folding instances for Booleans can be represented by veriT's `_simplify`
+rules.
+Conjecture: LIA constant folding can be handled by the Micromega decision procedure used by SMTCoq. 
+[x] Change the alethe printer to print `op_simplify` where `op` is the head of the term 
+being rewritten.
+
+### Processing `symm`, `redordering`, `factoring` from cvc5
+These should all be soundly removed from the proof. For example,
+```
+(step x ...)
+...
+(step y ... :rule symm :premises (x))
+...
+(step z ... :premises (y, ...))
+```
+changes to
+```
+(step x ...)
+...
+(step z ... :premises (x, ...))
+```
+
 ## Rules
 This section at coverage in terms of rules in alethe and verit-2016. 
 ### No Modifications

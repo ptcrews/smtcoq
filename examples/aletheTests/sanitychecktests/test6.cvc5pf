@@ -35,4 +35,3 @@
 (step t34 (cl (not (not (op_1 (op_3 op_2))))) :rule not_or :premises (t31))
 (step t35 (cl (op_1 (op_3 op_2))) :rule resolution :premises (t33 t34))
 (step t36 (cl) :rule resolution :premises (t32 t35))
-

@@ -34,4 +34,3 @@
 (step t33 (cl false) :rule resolution :premises (t1 t29 t32))
 (step t34 (cl (not false)) :rule false)
 (step t35 (cl) :rule resolution :premises (t33 t34))
-

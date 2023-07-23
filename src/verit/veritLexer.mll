@@ -93,7 +93,8 @@
 
       (* cvc5 rules *)
         "symm", SYMM;
-        "reordering", REORD;
+        "reordering", REORDR;
+        "factoring", FACTR;
         "all_simplify", ALLSIMP;
 
       (* Simplifications on Boolean operators rules *)

@@ -20,4 +20,3 @@
 (step t19 (cl (not op_1)) :rule resolution :premises (t9 t18))
 (step t20 (cl (not op_2)) :rule resolution :premises (t6 t19))
 (step t21 (cl) :rule resolution :premises (t3 t20 t19 t18))
-

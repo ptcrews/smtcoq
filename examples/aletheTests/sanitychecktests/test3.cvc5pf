@@ -2,4 +2,3 @@
 (step t1 (cl op_0) :rule and :premises (a0))
 (step t2 (cl (not op_0)) :rule and :premises (a0))
 (step t3 (cl) :rule resolution :premises (t1 t2))
-
