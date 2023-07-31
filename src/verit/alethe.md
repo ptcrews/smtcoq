@@ -38,7 +38,8 @@ We perform the following transformations on the parsed AST:
 8. Processing `all_simplify` rules (cvc5 rewrites)
 9. Processing `symm`, `reordering`, and `factoring` (from cvc5)
 
-![Transformations](Alethe.jpg)
+| ![Transformations](Alethe.jpg) |
+|-|
 
 ### Storing Shared Terms
 We want to support term-sharing on the proofs where terms have names. We go through
