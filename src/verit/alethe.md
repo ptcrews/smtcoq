@@ -35,7 +35,10 @@ We perform the following transformations on the parsed AST:
 5. Processing `_subproof` rules
 6. Processing projection rules
 7. Processing `_cong` and `trans` rules
-8. Processing `not_simplify` rules (cvc5 rewrites)
+8. Processing `all_simplify` rules (cvc5 rewrites)
+9. Processing `symm`, `reordering`, and `factoring` (from cvc5)
+
+![Transformations](Alethe.jpg)
 
 ### Storing Shared Terms
 We want to support term-sharing on the proofs where terms have names. We go through
@@ -269,9 +272,9 @@ This task can be further divided into:
   - [x] `cong` over `or`
   - [x] `cong` over `not`
   - [x] `cong` over `imp`
+  - [x] `cong` over `iff`
   - [ ] `cong` over `xor`
   - [ ] `cong` over `ite`
-  - [ ] `cong` over `iff`
 - [x] Support `trans`:
  - [x] `trans` over terms using `eq_transitive`
  - [x] `trans` over formulas using rules for `iff`
@@ -301,7 +304,7 @@ Conjecture: LIA constant folding can be handled by the Micromega decision proced
 [x] Change the alethe printer to print `op_simplify` where `op` is the head of the term 
 being rewritten.
 
-### Processing `symm`, `redordering`, `factoring` from cvc5
+### Processing `symm`, `reordering`, `factoring` from cvc5
 These should all be soundly removed from the proof. For example,
 ```
 (step x ...)

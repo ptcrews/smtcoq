@@ -1559,7 +1559,7 @@ let process_trans (c : certif) : certif =
   let rec process_trans_aux (c : certif) (cog : certif) : certif =
     match c with
      | (i, TransAST, cl, p, a) :: t -> 
-        (* To differentiate between the predicate and function case, we need to process
+        (* To differentiate between the formula and term case, we need to process
            the clause because we treat equality and iff as the same at the AST level *)
         let c' = process_cl cl in
         (match c' with
@@ -1570,7 +1570,7 @@ let process_trans (c : certif) : certif =
                                                                              | Eq _ -> true
                                                                              | _ -> false) x)
                                                  | None -> raise (Debug ("| process_trans: can't fetch premises to trans at id "^i^" |")))) p in
-             (* transitivity over functions *)
+             (* transitivity over terms *)
              if is_eq l then
                (*
                   Convert a proof of the form:
@@ -1590,7 +1590,7 @@ let process_trans (c : certif) : certif =
                [(eqti, EqtrAST, prem_negs @ cl, [], []);
                 (i, ResoAST, cl, eqti :: p, [])] @
                (process_trans_aux t cog)
-             (* transitivity over predicates *)
+             (* transitivity over fpr,i;as *)
              else if is_iff l then
                (* trans over single premise can occur if all other premises have been eliminated, 
                   e.g., by notnot elimination *)
