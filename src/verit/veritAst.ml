@@ -1417,7 +1417,7 @@ let process_cong (c : certif) : certif =
                   (eqp1i1, Equp1AST, [Not (Eq (y, b)); y; Not b], [], []) ::
                   (resi1, ResoAST, [y; Not b], [p2; eqp1i1], []) ::
                   (eqp1i2, Equp1AST, [Not (Eq (x, y)); x; Not y], [], []) ::
-                  (eqn2i1, Equn1AST, [Eq (a, b); a; b],[], []) ::
+                  (eqn2i1, Equn2AST, [Eq (a, b); a; b],[], []) ::
                   (eqn2i2, Equn2AST, [eq; Eq (x, y); Eq (a, b)], [], []) ::
                   (resi2, ResoAST, [eq; Eq (a, b); x; a], [resi1; eqp1i2; eqn2i1; eqn2i2], []) ::
                   (eqp2i1, Equp2AST, [Not (Eq (y, b)); Not y; b], [], []) ::
@@ -1434,14 +1434,14 @@ let process_cong (c : certif) : certif =
                   (resi8, ResoAST, [eq; a], [resi6; resi7], []) ::
                   (eqn1i2, Equn1AST, [Eq (a, b); Not a; Not b], [], []) ::
                   (eqn1i3, Equn1AST, [Eq (x, y); Not x; Not y], [], []) ::
-                  (resi9, ResoAST, [eq; Not y], [eqn1i1; eqn1i2; eqn1i3], []) ::
+                  (resi9, ResoAST, [eq; Not y], [eqn1i1; eqn1i2; eqn1i3; resi3; resi8; resi6], []) ::
                   (resi10, ResoAST, [eq; Not b], [resi9; resi1], []) ::
                   (eqp2i3, Equp2AST, [Not (Eq (x, y)); Not x; y], [], []) ::
                   (resi11, ResoAST, [eq; Not (Eq (x, y))], [eqp2i3; resi9; resi6], []) ::
                   (eqp2i4, Equp2AST, [Not (Eq (a, b)); Not a; b], [], []) ::
                   (resi12, ResoAST, [eq; Not (Eq (a, b))], [eqp2i4; resi10; resi8], []) ::
                   (* 13. Generate (x = y) = (a = b), x = y, a = b (reuse from 2.) by eqn2 and resolve it with 11. and 12. to get (x = y) = (a = b) *)
-                  (i, ResoAST, [eq], [resi2; resi11; resi12], []) ::
+                  (i, ResoAST, [eq], [eqn2i2; resi11; resi12], []) ::
                   process_cong_aux t cog
                  (* not predicate
                      -----
@@ -3952,26 +3952,26 @@ let rec process_simplify (c : certif) : certif =
 (* Final processing and linking of AST *)
 
 let preprocess_certif (c: certif) : certif =
-  (* Printf.printf ("Certif before preprocessing: \n%s\n") (string_of_certif c); *)
+  Printf.printf ("Certif before preprocessing: \n%s\n") (string_of_certif c);
   try 
   (let c1 = store_shared_terms c in
-  (* Printf.printf ("Certif after storing shared terms: \n%s\n") (string_of_certif c1); *)
+  Printf.printf ("Certif after storing shared terms: \n%s\n") (string_of_certif c1);
   let c2 = process_fins c1 in
-  (* Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2); *)
+  Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2);
   let c3 = process_notnot c2 in
-  (* Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c3); *)
+  Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c3);
   let c4 = process_same c3 in
-  (* Printf.printf ("Certif after process_same: \n%s\n") (string_of_certif c4); *)
+  Printf.printf ("Certif after process_same: \n%s\n") (string_of_certif c4);
   let c5 = process_cong c4 in
-  (* Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c5); *)
+  Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c5);
   let c6 = process_trans c5 in
-  (* Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c6); *)
+  Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c6);
   let c7 = process_simplify c6 in
-  (* Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c7); *)
+  Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c7);
   let c8 = process_subproof c7 in
-  (* Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c8); *)
+  Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c8);
   let c9 = process_proj c8 in
-  (* Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c9); *)
+  Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c9);
   c9) with
   | Debug s -> raise (Debug ("| VeritAst.preprocess_certif: failed to preprocess |"^s))
 
