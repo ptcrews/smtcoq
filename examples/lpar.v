@@ -53,8 +53,17 @@ x := 0
 y := -1
 z := 1
 mul' := fun BOUND_VARIABLE_335 BOUND_VARIABLE_336 => if BOUND_VARIABLE_335 = 1 then if BOUND_VARIABLE_336 = -1 then -2 else 2 else 2 *)
-abduce 3.
-1. time abduce 3. (* with cvc5 latest where grammar has both ITE and OR *)
+(* 
+1. time abduce 3. (with latest cvc5, no ite and or, and core-connective on by default)
+Tactic call ran for 14.386 secs (0.016u,0.021s) (failure)
+cvc5 returned SAT.
+The solver cannot prove the goal, but one 
+ of the following hypotheses would make it provable:
+z = y
+x - 1 = z
+(mul' y z) = (mul' z y)
+
+2. time abduce 3. (* with cvc5 previous where grammar has both ITE and OR *)
 Tactic call ran for 15.278 secs (0.014u,0.02s) (failure)
 cvc5 returned SAT.
 The solver cannot prove the goal, but one 
@@ -63,7 +72,7 @@ y = z
 z + 1 = x
 (multi z y) = (multi y z) 
 
-2. time abduce 4. (* with cvc5-lpar23 where grammar doesn't have ITE *)
+3. time abduce 4. (* with cvc5-lpar23 where grammar doesn't have ITE *)
 Tactic call ran for 28.931 secs (0.02u,0.026s) (failure)
 cvc5 returned SAT.
 The solver cannot prove the goal, but one 
@@ -73,7 +82,7 @@ z + 1 = x
 x <= y || y = z
 (multi y z) = (multi z y)
 
-3. time abduce 3. (* with cvc5-noSygusIte where grammar doesn't have ITE 
+4. time abduce 3. (* with cvc5-noSygusIte where grammar doesn't have ITE 
 and OR *)
 Tactic call ran for 20.388 secs (0.007u,0.035s) (failure)
 cvc5 returned SAT.
@@ -81,21 +90,20 @@ The solver cannot prove the goal, but one
  of the following hypotheses would make it provable:
 y = z
 -1 + x = z
-(multi z y) = (multi y z)
-
+(multi z y) = (multi y z) *)
 Search (_ * _ = _ * _).
-*)
-(* Search (_ * _ = _). *)
-intros. assert ((multi z y) = (multi y z)). 
+intros. assert ((z *' y) = (y *' z)). 
 { apply Z.mul_comm. } smt.
 Qed.
-Search (_ * _ = _). Search Z.max.
+
+(* Search (_ * _ = _). Search Z.max.
 Lemma inj_max n m : 0<=n -> 0<=m ->
  Z.abs_N (Z.max n m) = N.max (Z.abs_N n) (Z.abs_N m).
-Proof. abduce 3.
+Proof. (* abduce 3. *)
  intros. rewrite !abs_N_nonneg; trivial. now apply Z2N.inj_max.
  transitivity n; trivial. apply Z.le_max_l.
-Qed. 
+Qed.*)
+
 (* Require Import List.
 Local Open Scope list_scope.
 Goal forall (a : A) (l : list A), a :: l ++ [] = [a] -> a :: l = [a].
@@ -106,432 +114,24 @@ Proof. (* cvc5_abduct 3.
 pose proof app_nil_r. smt.
 (* "Uncaught exception Failure("Verit.tactic: can only deal with equality over bool")." *)*)
 
-
 Goal forall
     (x y: Z),
-    x = y + 1 -> multi x y = multi (x - 1) x
+    x = y + 1 -> x *' y = (x - 1) *' x.
 Proof.
-  abduce 2.
+(* 
+time abduce 1.
+Tactic call ran for 1.609 secs (0.017u,0.025s) (failure)
+cvc5 returned SAT.
+The solver cannot prove the goal, but one 
+ of the following hypotheses would make it provable:
+(mul' y x) = (mul' x y)
+
+time abduce 2.
+Tactic call ran for 44.092 secs (0.007u,0.028s) (failure)
+cvc5 returned SAT.
+The solver cannot prove the goal, but one 
+ of the following hypotheses would make it provable:
+(mul' y x) = (mul' x y)
+(mul' x - 1 x) = (mul' x y)
 Qed.
-
-Zchaff_Checker "sat.cnf" "sat.log".
-Zchaff_Theorem sat "sat.cnf" "sat.log".
-Check sat.
-
-Zchaff_Checker "hole4.cnf" "hole4.log".
-
-
-(* Example that checks a VeriT certificate, for logic QF_UFLIA *)
-
-Section Verit.
-  Verit_Checker "lia.smt2" "lia.vtlog".
-End Verit.
-
-
-(* Example that checks a LFSC certificate, for logic QF_UFLIA *)
-
-Section Lfsc.
-  Lfsc_Checker "lia.smt2" "lia.lfsc".
-End Lfsc.
-
-
-(* Examples of the zchaff tactic (requires zchaff in your PATH
-   environment variable):
-   - with booleans
-   - with concrete terms *)
-
-Goal forall a b c,
-  (a || b || c) && ((negb a) || (negb b) || (negb c)) && ((negb a) || b) && ((negb b) || c) && ((negb c) || a) = false.
-Proof.
-  zchaff.
-Qed.
-
-Goal forall (i j k : Z),
-    let a := Z.eqb i j in
-    let b := Z.eqb j k in
-    let c := Z.eqb k i in
-  (a || b || c) && ((negb a) || (negb b) || (negb c)) && ((negb a) || b) && ((negb b) || c) && ((negb c) || a) = false.
-Proof.
-  zchaff.
-Qed.
-
-
-(* Examples of the verit tactics (requires verit in your PATH environment
-   variable), which handle
-   - propositional logic
-   - theory of equality
-   - linear integer arithmetic
-   - universally quantified hypotheses *)
-
-Goal forall a b c, ((a || b || c) && ((negb a) || (negb b) || (negb c)) && ((negb a) || b) && ((negb b) || c) && ((negb c) || a)) = false.
-Proof.
-  verit_bool.
-Qed.
-
-Local Open Scope Z_scope.
-
-Goal forall (a b : Z) (P : Z -> bool) (f : Z -> Z),
-  (negb (Z.eqb (f a) b)) || (negb (P (f a))) || (P b).
-Proof.
-  verit_bool.
-Qed.
-
-Goal forall b1 b2 x1 x2,
-    implb
-      (ifb b1
-           (ifb b2 (Z.eqb (2*x1+1) (2*x2+1)) (Z.eqb (2*x1+1) (2*x2)))
-           (ifb b2 (Z.eqb (2*x1) (2*x2+1)) (Z.eqb (2*x1) (2*x2))))
-      ((implb b1 b2) && (implb b2 b1) && (Z.eqb x1 x2)).
-Proof.
-  verit_bool.
-Qed.
-
-Goal forall
-    (x y: Z)
-    (f: Z -> Z),
-    x = y + 1 -> f y = f (x - 1).
-Proof.
-  verit.
-Qed.
-
-
-(* Some examples of using verit with lemmas. Use <verit H1 .. Hn> to
-   temporarily add the lemmas H1 .. Hn to the verit environment.
- *)
-
-Lemma const_fun_is_eq_val_0 :
-  forall f : Z -> Z,
-    (forall a b, f a =? f b) ->
-    forall x, f x =? f 0.
-Proof.
-  intros f Hf.
-  verit Hf.
-Qed.
-
-Section With_lemmas.
-  Variable f : Z -> Z.
-  Variable k : Z.
-  Hypothesis f_k_linear : forall x, f (x + 1) =? f x + k.
-
-  Lemma fSS2:
-    forall x, f (x + 2) =? f x + 2 * k.
-  Proof. verit_no_check f_k_linear. Qed.
-End With_lemmas.
-
-(* Instantiating a lemma with multiple quantifiers *)
-
-Section NonLinear.
-  Lemma distr_right_inst a b (mult : Z -> Z -> Z) :
-    (forall x y z, mult (x + y)  z =? mult x z + mult y z) ->
-    (mult (3 + a) b =? mult 3 b + mult a b).
-  Proof.
-    intro H.
-    verit H.
-  Qed.
-End NonLinear.
-
-(* You can use <Add_lemmas H1 .. Hn> to permanently add the lemmas H1 .. Hn to
-   the environment. If you did so in a section then, at the end of the section,
-   you should use <Clear_lemmas> to empty the globally added lemmas because
-   those lemmas won't be available outside of the section. *)
-
-Section mult3.
-  Variable mult3 : Z -> Z.
-  Hypothesis mult3_0 : mult3 0 =? 0.
-  Hypothesis mult3_Sn : forall n, mult3 (n+1) =? mult3 n + 3.
-  Add_lemmas mult3_0 mult3_Sn.
-
-  Lemma mult_3_4_12 : mult3 4 =? 12.
-  Proof. verit. Qed.
-
-  Clear_lemmas.
-End mult3.
-
-
-(* Examples of the smt tactic (requires verit and cvc4 in your PATH environment
-   variable):
-   - propositional logic
-   - theory of equality
-   - linear integer arithmetic
-   - theory of fixed-sized bit-vectors
-   - theory of arrays *)
-
-Goal forall a b c, ((a || b || c) && ((negb a) || (negb b) || (negb c)) && ((negb a) || b) && ((negb b) || c) && ((negb c) || a)) = false.
-Proof.
-  smt.
-Qed.
-
-Goal forall (a b : Z) (P : Z -> bool) (f : Z -> Z),
-  (negb (Z.eqb (f a) b)) || (negb (P (f a))) || (P b).
-Proof.
-  smt.
-Qed.
-Goal forall b1 b2 x1 x2,
-    implb
-      (ifb b1
-           (ifb b2 (Z.eqb (2*x1+1) (2*x2+1)) (Z.eqb (2*x1+1) (2*x2)))
-           (ifb b2 (Z.eqb (2*x1) (2*x2+1)) (Z.eqb (2*x1) (2*x2))))
-      ((implb b1 b2) && (implb b2 b1) && (Z.eqb x1 x2)).
-Proof.
-  smt.
-Qed.
-
-Goal forall
-    (x y: Z)
-    (f: Z -> Z),
-    x = y + 1 -> f y = f (x - 1).
-Proof.
-  smt.
-Qed.
-
-Goal forall (bv1 bv2 bv3: bitvector 4),
-    bv1 = #b|0|0|0|0|  /\
-    bv2 = #b|1|0|0|0|  /\
-    bv3 = #b|1|1|0|0|  ->
-    bv_ultP bv1 bv2 /\ bv_ultP bv2 bv3.
-Proof.
-  smt.
-Qed.
-
-Goal forall (a b: farray Z Z) (v w x y z t: Z)
-            (r s: bitvector 4)
-            (f: Z -> Z)
-            (g: farray Z Z -> Z)
-            (h: bitvector 4 -> Z),
-    a[x <- v] = b /\ a[y <- w] = b ->
-    a[z <- w] = b /\ a[t <- v] = b ->
-    r = s -> v < x + 10 /\ v > x - 5 ->
-    ~ (g a = g b) \/ f (h r) = f (h s).
-Proof.
-  smt.
-Qed.
-
-
-(* All tactics have a "no_check" variant that is faster but, in case of
-   failure, it will only fail at Qed *)
-
-Goal forall (bv1 bv2 bv3: bitvector 4),
-    bv1 = #b|0|0|0|0|  /\
-    bv2 = #b|1|0|0|0|  /\
-    bv3 = #b|1|1|0|0|  ->
-    bv_ultP bv1 bv2 /\ bv_ultP bv2 bv3.
-Proof.
-  smt_no_check.
-Qed.
-
-Goal forall (a b: farray Z Z) (v w x y z t: Z)
-            (r s: bitvector 4)
-            (f: Z -> Z)
-            (g: farray Z Z -> Z)
-            (h: bitvector 4 -> Z),
-    a[x <- v] = b /\ a[y <- w] = b ->
-    a[z <- w] = b /\ a[t <- v] = b ->
-    r = s -> v < x + 10 /\ v > x - 5 ->
-    ~ (g a = g b) \/ f (h r) = f (h s).
-Proof.
-  smt_no_check.
-Qed.
-
-
-(** SMTCoq also provides conversion tactics, to inject various integer
-    types into the type Z supported by SMTCoq. They can be called before
-    the standard SMTCoq tactics. **)
-
-Local Open Scope positive_scope.
-
-Goal forall (f : positive -> positive) (x y : positive),
-  implb ((x + 3) =? y)
-        ((f (x + 3)) <=? (f y))
-  = true.
-Proof.
-  pos_convert.
-  verit.
-Qed.
-
-Goal forall (f : positive -> positive) (x y : positive),
-  implb ((x + 3) =? y)
-        ((3 <? y) && ((f (x + 3)) <=? (f y)))
-  = true.
-Proof.
-  pos_convert.
-  verit.
-Qed.
-
-Local Close Scope positive_scope.
-
-Local Open Scope N_scope.
-
-Goal forall (f : N -> N) (x y : N),
-    implb ((x + 3) =? y)
-          ((f (x + 3)) <=? (f y))
-    = true.
-Proof.
-  N_convert.
-  verit.
-Qed.
-
-Goal forall (f : N -> N) (x y : N),
-    implb ((x + 3) =? y)
-          ((2 <? y) && ((f (x + 3)) <=? (f y)))
-    = true.
-Proof.
-  N_convert.
-  verit.
-Qed.
-
-Local Close Scope N_scope.
-
-Require Import NPeano.
-Local Open Scope nat_scope.
-
-Goal forall (f : nat -> nat) (x y : nat),
-    implb (Nat.eqb (x + 3) y)
-          ((f (x + 3)) <=? (f y))
-    = true.
-Proof.
-  nat_convert.
-  verit.
-Qed.
-
-Goal forall (f : nat -> nat) (x y : nat),
-    implb (Nat.eqb (x + 3) y)
-          ((2 <? y) && ((f (x + 3)) <=? (f y)))
-    = true.
-Proof.
-  nat_convert.
-  verit.
-Qed.
-
-Local Close Scope nat_scope.
-
-(* An example with all 3 types and a binary function *)
-Goal forall f : positive -> nat -> N, forall (x : positive) (y : nat),
-  implb (x =? 3)%positive
-    (implb (Nat.eqb y 7)
-      (implb (f 3%positive 7%nat =? 12)%N
-        (f x y =? 12)%N)) = true.
-  pos_convert.
-  nat_convert.
-  N_convert.
-  verit.
-Qed.
-
-Open Scope Z_scope.
-
-
-(** Now more insightful examples. The first one automatically proves
-    properties in group theory. **)
-
-Section Group.
-  Variable G : Type.
-  (* We suppose that G has a decidable equality *)
-  Variable HG : CompDec G.
-  Variable op : G -> G -> G.
-  Variable inv : G -> G.
-  Variable e : G.
-
-  Local Notation "a ==? b" := (@eqb_of_compdec G HG a b) (at level 60).
-
-  (* We can prove automatically that we have a group if we only have the
-     "left" versions of the axioms of a group *)
-  Hypothesis associative :
-    forall a b c : G, op a (op b c) ==? op (op a b) c.
-  Hypothesis inverse :
-    forall a : G, op (inv a) a ==? e.
-  Hypothesis identity :
-    forall a : G, op e a ==? a.
-  Add_lemmas associative inverse identity.
-
-  (* The "right" version of inverse *)
-  Lemma inverse' :
-    forall a : G, op a (inv a) ==? e.
-  Proof. smt. Qed.
-
-  (* The "right" version of identity *)
-  Lemma identity' :
-    forall a : G, op a e ==? a.
-  Proof. smt inverse'. Qed.
-
-  (* Some other interesting facts about groups *)
-  Lemma unique_identity e':
-    (forall z, op e' z ==? z) -> e' ==? e.
-  Proof. intros pe'; smt pe'. Qed.
-
-  Lemma simplification_right x1 x2 y:
-      op x1 y ==? op x2 y -> x1 ==? x2.
-  Proof. intro H. smt_no_check (H, inverse'). Qed.
-
-  Lemma simplification_left x1 x2 y:
-      op y x1 ==? op y x2 -> x1 ==? x2.
-  Proof. intro H. smt_no_check (H, inverse'). Qed.
-
-  Clear_lemmas.
-End Group.
-
-
-(* A full example coming from CompCert, slightly revisited.
-   See: https://hal.inria.fr/inria-00289542
-        https://xavierleroy.org/memory-model/doc/Memory.html (Section 3)
- *)
-Section CompCert.
-
-  Variable block : Set.
-  Hypothesis eq_block : CompDec block.
-
-  Variable mem: Set.
-  Hypothesis dec_mem : CompDec mem.
-  Variable alloc_block: mem -> Z -> Z -> block.
-  Variable alloc_mem: mem -> Z -> Z -> mem.
-  Variable valid_block: mem -> block -> bool.
-
-  Hypothesis alloc_valid_block_1:
-    forall m lo hi b,
-      valid_block (alloc_mem m lo hi) b -> ((b = (alloc_block m lo hi)) \/ valid_block m b).
-
-  Hypothesis alloc_valid_block_2:
-    forall m lo hi b,
-      ((b = (alloc_block m lo hi)) \/ valid_block m b) -> (valid_block (alloc_mem m lo hi) b).
-
-  Hypothesis alloc_not_valid_block:
-    forall m lo hi,
-       negb (valid_block m (alloc_block m lo hi)).
-
-  Lemma alloc_valid_block_inv m lo hi b :
-    valid_block m b -> valid_block (alloc_mem m lo hi) b.
-  Proof.
-    intro H. verit (alloc_valid_block_2, H).
-  Qed.
-
-  Lemma alloc_not_valid_block_2 m lo hi b' :
-    valid_block m b' -> b' <> (alloc_block m lo hi).
-  Proof.
-    intro H. verit (alloc_not_valid_block, H).
-  Qed.
-
-End CompCert.
-
-
-(** The verit solver can be called with a timeout (a positive integer,
-    in seconds). If the goal cannot be solved within this given time,
-    then an anomaly is raised.
-    To test, one can uncomment the following examples.
-**)
-
-Section test_timeout.
-
-  Variable P : Z -> bool.
-  Variable H0 : P 0.
-  Variable HInd : forall n, implb (P n) (P (n + 1)).
-
-  Goal P 3.
-  Proof.
-    (* verit_timeout 3. *) verit.
-  Qed.
-
-  Goal true -> P 1000000000.
-  Proof.
-    intro H.
-    (* verit_timeout 5. *)
-  Abort.
-
-End test_timeout.
+*)

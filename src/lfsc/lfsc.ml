@@ -348,18 +348,18 @@ let call_cvc5_abduct i j env rt ro ra rf root lsmt =
     let open Smtlib2_solver in
     let fl = Form.neg (snd root) in
     let solver_call = (match j with
-                     | 1 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0"; "--sygus-enum=fast"; "--sygus-core-connective"; "--sygus-rewrite=none" |] 
+                     | 1 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0"; "--sygus-enum=fast"; "--no-sygus-core-connective"; "--sygus-rewrite=none" |] 
                      | 2 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0"; "--sygus-enum=fast"; "--sygus-rewrite=none" |] 
-                     | 3 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0"; "--sygus-enum=fast"; "--sygus-core-connective" |] 
+                     | 3 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0"; "--sygus-enum=fast"; "--no-sygus-core-connective" |] 
                      | 4 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0"; "--sygus-enum=fast" |]
-                     | 5 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0"; "--sygus-enum=smart"; "--sygus-core-connective"; "--sygus-rewrite=none" |] 
+                     | 5 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0"; "--sygus-enum=smart"; "--no-sygus-core-connective"; "--sygus-rewrite=none" |] 
                      | 6 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0"; "--sygus-enum=smart"; "--sygus-rewrite=none" |] 
-                     | 7 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0"; "--sygus-enum=smart"; "--sygus-core-connective" |] 
+                     | 7 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0"; "--sygus-enum=smart"; "--no-sygus-core-connective" |] 
                      | 8 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0"; "--sygus-enum=smart" |]
-                     | 9 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0"; "--sygus-core-connective"; "--sygus-rewrite=none" |] 
+                     | 9 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0"; "--no-sygus-core-connective"; "--sygus-rewrite=none" |] 
                      | 10 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0"; "--sygus-rewrite=none" |] 
-                     | 11 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0"; "--sygus-core-connective" |] 
-                     | _ -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0" |]) in
+                     | 11 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0"; "--no-sygus-core-connective" |] 
+                     | _ -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0"; "--no-sygus-core-connective" |]) in
     let cvc5 = create solver_call in
     set_option cvc5 "print-success" true;
     set_option cvc5 "produce-assignments" true;
