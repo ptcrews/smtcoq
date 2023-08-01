@@ -43,26 +43,26 @@ Require Import SMTCoq.SMTCoq.
 (* Complements sur plus et mult *)
 
 Lemma plus_n_SO : forall x : nat, x + 1 = S x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma plus_permute2 : forall x y z : nat, x + y + z = x + z + y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma mult_sym : forall a b : nat, a * b = b * a.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma mult_permute : forall a b c : nat, a * b * c = a * c * b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 
 Lemma plus_n_n : (n:nat)((plus n n)=(mult n (S (S O)))).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma plus_O_O : forall n m : nat, n + m = 0 -> n = 0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma mult_plus_distr2 : forall n m p : nat, n * (m + p) = n * m + n * p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (****************************************************************)
 (* La fonction puissance de 2 *)
@@ -74,61 +74,61 @@ Fixpoint power2 (n : nat) : nat :=
   end.
 
 Lemma power2_eq2 : forall x : nat, power2 (S x) = power2 x + power2 x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma power2_SO : ((S (S O))=(power2 (S O))).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma power2_plus : forall x y : nat, power2 (x + y) = power2 x * power2 y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (****************************************************************)
 (* Complements sur Lt Le Gt... *)
 
 Theorem le_plus_n_m : forall n m : nat, n <= m -> n + n <= m + m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem lt_plus_n_m : forall n m : nat, n < m -> S (n + n) < m + m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma le_plus_lem1 : forall a b c : nat, a <= b -> c + a <= c + b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma le_plus_lem2 : forall a b c : nat, c + a <= c + b -> a <= b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma gt_double : forall a b : nat, a + a > b + b -> a > b. 
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma gt_double_inv : forall a b : nat, a > b -> a + a > b + b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma gt_double_n_S : forall a b : nat, a > b -> a + a > S (b + b).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma gt_double_S_n : forall a b : nat, a > b -> S (a + a) > b + b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (****************************************************************)
 (* Complements sur minus *)
 
 Lemma minus_le_O : forall a b : nat, a <= b -> a - b = 0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma minus_n_SO : forall n : nat, n - 1 = pred n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma minus_le_lem2c : forall a b : nat, a - S b <= a - b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma minus_le_lem2 : forall a b : nat, a - b <= a.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma minus_minus_lem1 : forall a b : nat, a - b - a = 0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma minus_minus_lem2 : forall a b : nat, b <= a -> a - (a - b) = b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma le_minus_minus : forall a b c : nat, c <= b -> a - b <= a - c.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.

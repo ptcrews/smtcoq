@@ -20,60 +20,60 @@ Module N2Nat.
     See [Nat2N.id] below for the dual equation. *)
 
 Lemma id a : N.of_nat (N.to_nat a) = a.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [N.to_nat] is hence injective *)
 
 Lemma inj a a' : N.to_nat a = N.to_nat a' -> a = a'.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_iff a a' : N.to_nat a = N.to_nat a' <-> a = a'.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** Interaction of this translation and usual operations. *)
 
 Lemma inj_double a : N.to_nat (N.double a) = 2*(N.to_nat a).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_succ_double a : N.to_nat (N.succ_double a) = S (2*(N.to_nat a)).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_succ a : N.to_nat (N.succ a) = S (N.to_nat a).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_add a a' :
   N.to_nat (a + a') = N.to_nat a + N.to_nat a'.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_mul a a' :
   N.to_nat (a * a') = N.to_nat a * N.to_nat a'.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_sub a a' :
   N.to_nat (a - a') = N.to_nat a - N.to_nat a'.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_pred a : N.to_nat (N.pred a) = Nat.pred (N.to_nat a).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_div2 a : N.to_nat (N.div2 a) = Nat.div2 (N.to_nat a).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_compare a a' :
  (a ?= a')%N = (N.to_nat a ?= N.to_nat a').
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_max a a' :
   N.to_nat (N.max a a') = Nat.max (N.to_nat a) (N.to_nat a').
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_min a a' :
   N.to_nat (N.min a a') = Nat.min (N.to_nat a) (N.to_nat a').
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_iter a {A} (f:A->A) (x:A) :
   N.iter a f x = Nat.iter (N.to_nat a) f x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End N2Nat.
 
@@ -93,7 +93,7 @@ Module Nat2N.
     See [N2Nat.id] above for the dual equation. *)
 
 Lemma id n : N.to_nat (N.of_nat n) = n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Hint Rewrite id : Nnat.
 Ltac nat2N := apply N2Nat.inj; now autorewrite with Nnat.
@@ -101,52 +101,52 @@ Ltac nat2N := apply N2Nat.inj; now autorewrite with Nnat.
 (** [N.of_nat] is hence injective *)
 
 Lemma inj n n' : N.of_nat n = N.of_nat n' -> n = n'.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_iff n n' : N.of_nat n = N.of_nat n' <-> n = n'.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** Interaction of this translation and usual operations. *)
 
 Lemma inj_double n : N.of_nat (2*n) = N.double (N.of_nat n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_succ_double n : N.of_nat (S (2*n)) = N.succ_double (N.of_nat n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_succ n : N.of_nat (S n) = N.succ (N.of_nat n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_pred n : N.of_nat (Nat.pred n) = N.pred (N.of_nat n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_add n n' : N.of_nat (n+n') = (N.of_nat n + N.of_nat n')%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_sub n n' : N.of_nat (n-n') = (N.of_nat n - N.of_nat n')%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_mul n n' : N.of_nat (n*n') = (N.of_nat n * N.of_nat n')%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_div2 n : N.of_nat (Nat.div2 n) = N.div2 (N.of_nat n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_compare n n' :
   (n ?= n') = (N.of_nat n ?= N.of_nat n')%N.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_min n n' :
   N.of_nat (Nat.min n n') = N.min (N.of_nat n) (N.of_nat n').
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_max n n' :
   N.of_nat (Nat.max n n') = N.max (N.of_nat n) (N.of_nat n').
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_iter n {A} (f:A->A) (x:A) :
   Nat.iter n f x = N.iter (N.of_nat n) f x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End Nat2N.
 

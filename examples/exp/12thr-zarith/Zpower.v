@@ -31,10 +31,10 @@ Local Open Scope Z_scope.
 Definition Zpower_nat (z:Z) := nat_rect _ 1 (fun _ => Z.mul z).
 
 Lemma Zpower_nat_0_r z : Zpower_nat z 0 = 1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zpower_nat_succ_r n z : Zpower_nat z (S n) = z * (Zpower_nat z n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Zpower_nat_is_exp] says [Zpower_nat] is a morphism for
     [plus : nat->nat->nat] and [Z.mul : Z->Z->Z] *)
@@ -42,28 +42,28 @@ Proof. Show. Fail (cvc5_abduct 3). Admitted.
 Lemma Zpower_nat_is_exp :
   forall (n m:nat) (z:Z),
     Zpower_nat z (n + m) = Zpower_nat z n * Zpower_nat z m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** Conversions between powers of unary and binary integers *)
 
 Lemma Zpower_pos_nat (z : Z) (p : positive) :
   Z.pow_pos z p = Zpower_nat z (Pos.to_nat p).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zpower_nat_Z (z : Z) (n : nat) :
   Zpower_nat z n = z ^ (Z.of_nat n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem Zpower_nat_Zpower z n : 0 <= n ->
  z^n = Zpower_nat z (Z.abs_nat n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** The function [(Z.pow_pos z)] is a morphism
    for [Pos.add : positive->positive->positive] and [Z.mul : Z->Z->Z] *)
 
 Lemma Zpower_pos_is_exp (n m : positive)(z:Z) :
   Z.pow_pos z (n + m) = Z.pow_pos z n * Z.pow_pos z m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 #[global]
 Hint Immediate Zpower_nat_is_exp Zpower_pos_is_exp : zarith.
@@ -72,7 +72,7 @@ Hint Unfold Z.pow_pos Zpower_nat: zarith.
 
 Theorem Zpower_exp x n m :
   n >= 0 -> m >= 0 -> x ^ (n + m) = x ^ n * x ^ m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Section Powers_of_2.
 
@@ -104,71 +104,71 @@ Section Powers_of_2.
   (** Equivalence with notions defined in BinInt *)
 
   Lemma shift_nat_equiv n p : shift_nat n p = Pos.shiftl_nat p n.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Lemma shift_pos_equiv n p : shift_pos n p = Pos.shiftl p (Npos n).
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Lemma shift_equiv n p : 0<=n -> Zpos (shift n p) = Z.shiftl (Zpos p) n.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Lemma two_power_nat_equiv n : two_power_nat n = 2 ^ (Z.of_nat n).
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Lemma two_power_pos_equiv p : two_power_pos p = 2 ^ Zpos p.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Lemma two_p_equiv x : two_p x = 2 ^ x.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   (** Properties of these old versions of powers of two *)
 
   Lemma two_power_nat_S n : two_power_nat (S n) = 2 * two_power_nat n.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Lemma shift_nat_plus n m x :
     shift_nat (n + m) x = shift_nat n (shift_nat m x).
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Theorem shift_nat_correct n x :
     Zpos (shift_nat n x) = Zpower_nat 2 n * Zpos x.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Theorem two_power_nat_correct n : two_power_nat n = Zpower_nat 2 n.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Lemma shift_pos_nat p x : shift_pos p x = shift_nat (Pos.to_nat p) x.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Lemma two_power_pos_nat p : two_power_pos p = two_power_nat (Pos.to_nat p).
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Theorem shift_pos_correct p x :
     Zpos (shift_pos p x) = Z.pow_pos 2 p * Zpos x.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Theorem two_power_pos_correct x : two_power_pos x = Z.pow_pos 2 x.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Theorem two_power_pos_is_exp x y :
    two_power_pos (x + y) = two_power_pos x * two_power_pos y.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Lemma two_p_correct x : two_p x = 2^x.
   Proof (two_p_equiv x).
 
   Theorem two_p_is_exp x y :
     0 <= x -> 0 <= y -> two_p (x + y) = two_p x * two_p y.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Lemma two_p_gt_ZERO x : 0 <= x -> two_p x > 0.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Lemma two_p_S x : 0 <= x -> two_p (Z.succ x) = 2 * two_p x.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Lemma two_p_pred x : 0 <= x -> two_p (Z.pred x) < two_p x.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
 End Powers_of_2.
 
@@ -203,12 +203,12 @@ Section power_div_with_rest.
   Lemma Zdiv_rest_correct1 (x:Z) (p:positive) :
     let (_, d) := Pos.iter Zdiv_rest_aux (x, 0, 1) p in
     d = two_power_pos p.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Lemma Zdiv_rest_correct2 (x:Z) (p:positive) :
     let '(q,r,d) := Pos.iter Zdiv_rest_aux (x, 0, 1) p in
     x = q * d + r /\ 0 <= r < d.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   (** Old-style rich specification by proof of existence *)
 
@@ -219,19 +219,19 @@ Section power_div_with_rest.
       0 <= r -> r < two_power_pos p -> Zdiv_rest_proofs x p.
 
   Lemma Zdiv_rest_correct (x:Z) (p:positive) : Zdiv_rest_proofs x p.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   (** Direct correctness of [Zdiv_rest] *)
 
   Lemma Zdiv_rest_ok x p :
     let (q,r) := Zdiv_rest x p in
     x = q * 2^(Zpos p) + r /\ 0 <= r < 2^(Zpos p).
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   (** Equivalence with [Z.shiftr] *)
 
   Lemma Zdiv_rest_shiftr x p :
    fst (Zdiv_rest x p) = Z.shiftr x (Zpos p).
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
 End power_div_with_rest.

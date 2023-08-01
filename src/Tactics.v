@@ -200,7 +200,7 @@ Tactic Notation "verit_no_check"           :=
          end; vauto
   ].
 
-Tactic Notation "cvc5_abduct" int_or_var(i) constr(h) :=
+Tactic Notation "abduce" int_or_var(i) constr(h) :=
   intros; prop2bool;
   [ .. | prop2bool_hyps h;
          [ .. | let Hs := get_hyps in
@@ -212,7 +212,7 @@ Tactic Notation "cvc5_abduct" int_or_var(i) constr(h) :=
                 end; vauto
          ]
   ].
-Tactic Notation "cvc5_abduct" int_or_var(i)           :=
+Tactic Notation "abduce" int_or_var(i)           :=
   intros; prop2bool;
   [ .. | let Hs := get_hyps in
          lazymatch Hs with
@@ -222,7 +222,7 @@ Tactic Notation "cvc5_abduct" int_or_var(i)           :=
          | None => cvc5_bool_abduct_base_auto i 0 (@None nat)
          end; vauto
   ].
-Tactic Notation "cvc5_abduct" int_or_var(i) int_or_var(j) :=
+Tactic Notation "abduce" int_or_var(i) int_or_var(j) :=
   intros; prop2bool;
   [ .. | let Hs := get_hyps in
          lazymatch Hs with
@@ -232,7 +232,7 @@ Tactic Notation "cvc5_abduct" int_or_var(i) int_or_var(j) :=
          | None => cvc5_bool_abduct_base_auto i j (@None nat)
          end; vauto
   ].
-Tactic Notation "cvc5_abduct_no_quant" int_or_var(i) constr(h) :=
+Tactic Notation "abduce_no_quant" int_or_var(i) constr(h) :=
   intros; prop2bool;
   [ .. | prop2bool_hyps h;
          [ .. | let Hs := get_hyps_abd in
@@ -244,7 +244,7 @@ Tactic Notation "cvc5_abduct_no_quant" int_or_var(i) constr(h) :=
                 end; vauto
          ]
   ].
-Tactic Notation "cvc5_abduct_no_quant" int_or_var(i)           :=
+Tactic Notation "abduce_no_quant" int_or_var(i)           :=
   intros; prop2bool;
   [ .. | let Hs := get_hyps_abd in
          lazymatch Hs with
@@ -254,7 +254,7 @@ Tactic Notation "cvc5_abduct_no_quant" int_or_var(i)           :=
          | None => cvc5_bool_abduct_base_auto i 0 (@None nat)
          end; vauto
   ].
-Tactic Notation "cvc5_abduct_no_quant" int_or_var(i) int_or_var(j) :=
+Tactic Notation "abduce_no_quant" int_or_var(i) int_or_var(j) :=
   intros; prop2bool;
   [ .. | let Hs := get_hyps_abd in
          lazymatch Hs with

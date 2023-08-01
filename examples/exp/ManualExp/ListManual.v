@@ -96,9 +96,9 @@ Section Facts.
       * firstorder discriminate.
       * firstorder discriminate.
     - intros. simpl. split.
-      * (* cvc5_abduct 1 : x = a *) intros (H1, H2). inversion H1. 
+      * (* abduce 1 : x = a *) intros (H1, H2). inversion H1. 
         rewrite H2. reflexivity.
-      * (* cvc5_abduct 1 : a = x && xs = r *) inversion 1. subst. auto.
+      * (* abduce 1 : a = x && xs = r *) inversion 1. subst. auto.
   Qed.
 
   Lemma hd_error_some_nil l (a:A) : hd_error l = Some a -> l <> nil.
@@ -155,7 +155,7 @@ Section Facts.
   (* begin hide *)
   (* Deprecated *)
   Theorem app_nil_end (l:list A) : l = l ++ [].
-  Proof. (* cvc5_abduct 1 : ((app (A:=A)) l []) = l 
+  Proof. (* abduce 1 : ((app (A:=A)) l []) = l 
             smt app_nil_r. leaves us with CompDec (list A) *) 
     symmetry; apply app_nil_r. Qed.
   (* end hide *)
@@ -202,7 +202,7 @@ Section Facts.
     + intros H; discriminate H.
     + intros. left. split; auto.
     + intro H. right. split.
-      * generalize H. (* cvc5_abduct 1 : ((app (A:=A)) l []) = l *)
+      * generalize H. (* abduce 1 : ((app (A:=A)) l []) = l *)
         generalize (app_nil_r l). intros E.
         rewrite -> E; auto.
       * auto.
@@ -813,7 +813,7 @@ Section Elts.
     - destruct (eq_dec y z); destruct (eq_dec x z).
       + subst. auto. 
       + subst. rewrite IHl.
-     (* cvc5_abduct_no_quant 3.
+     (* abduce_no_quant 3.
         Before symmetry:
         1. (z :: (remove x l)) = (remove x l)
         2. (z :: (remove x l)) = (remove x l) || z = x
@@ -827,7 +827,7 @@ Section Elts.
         remove_cons: remove z (z :: remove x l) = remove z (remove x l) 
         which is what 3 from before symmetry gives us. *)
         symmetry. apply remove_cons.
-      + subst. rewrite IHl. (*cvc5_abduct_no_quant 3. Same as above *) 
+      + subst. rewrite IHl. (*abduce_no_quant 3. Same as above *) 
         apply remove_cons.
       + auto. simpl. destruct (eq_dec y z). tauto. rewrite IHl.
         destruct (eq_dec x z); tauto.

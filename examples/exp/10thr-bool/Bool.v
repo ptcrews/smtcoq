@@ -33,38 +33,38 @@ Definition Is_true (b:bool) :=
 (*******************)
 
 Lemma bool_dec : forall b1 b2 : bool, {b1 = b2} + {b1 <> b2}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (*********************)
 (** * Discrimination *)
 (*********************)
 
 Lemma diff_true_false : true <> false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 #[global]
 Hint Resolve diff_true_false : bool.
 
 Lemma diff_false_true : false <> true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 #[global]
 Hint Resolve diff_false_true : bool.
 #[global]
 Hint Extern 1 (false <> true) => exact diff_false_true : core.
 
 Lemma eq_true_false_abs : forall b:bool, b = true -> b = false -> False.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma not_true_is_false : forall b:bool, b <> true -> b = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma not_false_is_true : forall b:bool, b <> false -> b = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma not_true_iff_false : forall b, b <> true <-> b = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma not_false_iff_true : forall b, b <> false <-> b = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (************************)
 (** * Order on booleans *)
@@ -79,7 +79,7 @@ Proof. Show. Fail (cvc5_abduct 3). Admitted.
 Hint Unfold le: bool.
 
 Lemma le_implb : forall b1 b2, le b1 b2 <-> implb b1 b2 = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 #[deprecated(since="8.12",note="Use Bool.le instead.")]
 Notation leb := le (only parsing).
@@ -103,7 +103,7 @@ Hint Unfold lt: bool.
 
 Lemma compare_spec : forall b1 b2,
   CompareSpec (b1 = b2) (lt b1 b2) (lt b2 b1) (compare b1 b2).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 
 (***************)
@@ -122,19 +122,19 @@ Register eqb as core.bool.eqb.
 
 Lemma eqb_subst :
   forall (P:bool -> Prop) (b1 b2:bool), eqb b1 b2 = true -> P b1 -> P b2.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma eqb_reflx : forall b:bool, eqb b b = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma eqb_prop : forall a b:bool, eqb a b = true -> a = b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma eqb_true_iff : forall a b:bool, eqb a b = true <-> a = b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma eqb_false_iff : forall a b:bool, eqb a b = false <-> a <> b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (**********************************)
 (** * A synonym of [if] on [bool] *)
@@ -153,46 +153,46 @@ Open Scope bool_scope.
 (*********************)
 
 Lemma negb_orb : forall b1 b2:bool, negb (b1 || b2) = negb b1 && negb b2.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma negb_andb : forall b1 b2:bool, negb (b1 && b2) = negb b1 || negb b2.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (***************************)
 (** * Properties of [negb] *)
 (***************************)
 
 Lemma negb_involutive : forall b:bool, negb (negb b) = b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma negb_involutive_reverse : forall b:bool, b = negb (negb b).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Notation negb_elim := negb_involutive (only parsing).
 Notation negb_intro := negb_involutive_reverse (only parsing).
 
 Lemma negb_sym : forall b b':bool, b' = negb b -> b = negb b'.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma no_fixpoint_negb : forall b:bool, negb b <> b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma eqb_negb1 : forall b:bool, eqb (negb b) b = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma eqb_negb2 : forall b:bool, eqb b (negb b) = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma if_negb :
   forall (A:Type) (b:bool) (x y:A),
     (if negb b then x else y) = (if b then y else x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma negb_true_iff : forall b, negb b = true <-> b = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma negb_false_iff : forall b, negb b = false <-> b = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 
 (**************************)
@@ -201,47 +201,47 @@ Proof. Show. Fail (cvc5_abduct 3). Admitted.
 
 Lemma orb_true_iff :
   forall b1 b2, b1 || b2 = true <-> b1 = true \/ b2 = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma orb_false_iff :
   forall b1 b2, b1 || b2 = false <-> b1 = false /\ b2 = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma orb_true_elim :
   forall b1 b2:bool, b1 || b2 = true -> {b1 = true} + {b2 = true}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma orb_prop : forall a b:bool, a || b = true -> a = true \/ b = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma orb_true_intro :
   forall b1 b2:bool, b1 = true \/ b2 = true -> b1 || b2 = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 #[global]
 Hint Resolve orb_true_intro: bool.
 
 Lemma orb_false_intro :
   forall b1 b2:bool, b1 = false -> b2 = false -> b1 || b2 = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 #[global]
 Hint Resolve orb_false_intro: bool.
 
 Lemma orb_false_elim :
   forall b1 b2:bool, b1 || b2 = false -> b1 = false /\ b2 = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma orb_diag : forall b, b || b = b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [true] is a zero for [orb] *)
 
 Lemma orb_true_r : forall b:bool, b || true = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 #[global]
 Hint Resolve orb_true_r: bool.
 
 Lemma orb_true_l : forall b:bool, true || b = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Notation orb_b_true := orb_true_r (only parsing).
 Notation orb_true_b := orb_true_l (only parsing).
@@ -249,12 +249,12 @@ Notation orb_true_b := orb_true_l (only parsing).
 (** [false] is neutral for [orb] *)
 
 Lemma orb_false_r : forall b:bool, b || false = b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 #[global]
 Hint Resolve orb_false_r: bool.
 
 Lemma orb_false_l : forall b:bool, false || b = b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 #[global]
 Hint Resolve orb_false_l: bool.
 
@@ -264,24 +264,24 @@ Notation orb_false_b := orb_false_l (only parsing).
 (** Complementation *)
 
 Lemma orb_negb_r : forall b:bool, b || negb b = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 #[global]
 Hint Resolve orb_negb_r: bool.
 
 Lemma orb_negb_l : forall b:bool, negb b || b = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Notation orb_neg_b := orb_negb_r (only parsing).
 
 (** Commutativity *)
 
 Lemma orb_comm : forall b1 b2:bool, b1 || b2 = b2 || b1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** Associativity *)
 
 Lemma orb_assoc : forall b1 b2 b3:bool, b1 || (b2 || b3) = b1 || b2 || b3.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 #[global]
 Hint Resolve orb_comm orb_assoc: bool.
 
@@ -291,74 +291,74 @@ Hint Resolve orb_comm orb_assoc: bool.
 
 Lemma andb_true_iff :
   forall b1 b2:bool, b1 && b2 = true <-> b1 = true /\ b2 = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma andb_false_iff :
   forall b1 b2:bool, b1 && b2 = false <-> b1 = false \/ b2 = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma andb_true_eq :
   forall a b:bool, true = a && b -> true = a /\ true = b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma andb_false_intro1 : forall b1 b2:bool, b1 = false -> b1 && b2 = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma andb_false_intro2 : forall b1 b2:bool, b2 = false -> b1 && b2 = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [false] is a zero for [andb] *)
 
 Lemma andb_false_r : forall b:bool, b && false = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma andb_false_l : forall b:bool, false && b = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Notation andb_b_false := andb_false_r (only parsing).
 Notation andb_false_b := andb_false_l (only parsing).
 
 Lemma andb_diag : forall b, b && b = b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [true] is neutral for [andb] *)
 
 Lemma andb_true_r : forall b:bool, b && true = b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma andb_true_l : forall b:bool, true && b = b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Notation andb_b_true := andb_true_r (only parsing).
 Notation andb_true_b := andb_true_l (only parsing).
 
 Lemma andb_false_elim :
   forall b1 b2:bool, b1 && b2 = false -> {b1 = false} + {b2 = false}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 #[global]
 Hint Resolve andb_false_elim: bool.
 
 (** Complementation *)
 
 Lemma andb_negb_r : forall b:bool, b && negb b = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 #[global]
 Hint Resolve andb_negb_r: bool.
 
 Lemma andb_negb_l : forall b:bool, negb b && b = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Notation andb_neg_b := andb_negb_r (only parsing).
 
 (** Commutativity *)
 
 Lemma andb_comm : forall b1 b2:bool, b1 && b2 = b2 && b1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** Associativity *)
 
 Lemma andb_assoc : forall b1 b2 b3:bool, b1 && (b2 && b3) = b1 && b2 && b3.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 #[global]
 Hint Resolve andb_comm andb_assoc: bool.
@@ -371,19 +371,19 @@ Hint Resolve andb_comm andb_assoc: bool.
 
 Lemma andb_orb_distrib_r :
   forall b1 b2 b3:bool, b1 && (b2 || b3) = b1 && b2 || b1 && b3.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma andb_orb_distrib_l :
  forall b1 b2 b3:bool, (b1 || b2) && b3 = b1 && b3 || b2 && b3.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma orb_andb_distrib_r :
   forall b1 b2 b3:bool, b1 || b2 && b3 = (b1 || b2) && (b1 || b3).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma orb_andb_distrib_l :
   forall b1 b2 b3:bool, b1 && b2 || b3 = (b1 || b3) && (b2 || b3).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* Compatibility *)
 Notation demorgan1 := andb_orb_distrib_r (only parsing).
@@ -394,10 +394,10 @@ Notation demorgan4 := orb_andb_distrib_l (only parsing).
 (** Absorption *)
 
 Lemma absorption_andb : forall b1 b2:bool, b1 && (b1 || b2) = b1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma absorption_orb : forall b1 b2:bool, b1 || b1 && b2 = b1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* begin hide *)
 (* Compatibility *)
@@ -410,49 +410,49 @@ Notation absoption_orb := absorption_orb (only parsing).
 (****************************)
 
 Lemma implb_true_iff : forall b1 b2:bool, implb b1 b2 = true <-> (b1 = true -> b2 = true).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma implb_false_iff : forall b1 b2:bool, implb b1 b2 = false <-> (b1 = true /\ b2 = false).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma implb_orb : forall b1 b2:bool, implb b1 b2 = negb b1 || b2.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma implb_negb_orb : forall b1 b2:bool, implb (negb b1) b2 = b1 || b2.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma implb_true_r : forall b:bool, implb b true = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma implb_false_r : forall b:bool, implb b false = negb b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma implb_true_l : forall b:bool, implb true b = b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma implb_false_l : forall b:bool, implb false b = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma implb_same : forall b:bool, implb b b = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma implb_contrapositive : forall b1 b2:bool, implb (negb b1) (negb b2) = implb b2 b1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma implb_negb : forall b1 b2:bool, implb (negb b1) b2 = implb (negb b2) b1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma implb_curry : forall b1 b2 b3:bool, implb (b1 && b2) b3 = implb b1 (implb b2 b3).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma implb_andb_distrib_r : forall b1 b2 b3:bool, implb b1 (b2 && b3) = implb b1 b2 && implb b1 b3.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma implb_orb_distrib_r : forall b1 b2 b3:bool, implb b1 (b2 || b3) = implb b1 b2 || implb b1 b3.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma implb_orb_distrib_l : forall b1 b2 b3:bool, implb (b1 || b2) b3 = implb b1 b3 && implb b2 b3.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (***************************)
 (** * Properties of [xorb] *)
@@ -461,10 +461,10 @@ Proof. Show. Fail (cvc5_abduct 3). Admitted.
 (** [false] is neutral for [xorb] *)
 
 Lemma xorb_false_r : forall b:bool, xorb b false = b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma xorb_false_l : forall b:bool, xorb false b = b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Notation xorb_false := xorb_false_r (only parsing).
 Notation false_xorb := xorb_false_l (only parsing).
@@ -472,10 +472,10 @@ Notation false_xorb := xorb_false_l (only parsing).
 (** [true] is "complementing" for [xorb] *)
 
 Lemma xorb_true_r : forall b:bool, xorb b true = negb b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma xorb_true_l : forall b:bool, xorb true b = negb b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Notation xorb_true := xorb_true_r (only parsing).
 Notation true_xorb := xorb_true_l (only parsing).
@@ -483,66 +483,66 @@ Notation true_xorb := xorb_true_l (only parsing).
 (** Nilpotency (alternatively: identity is a inverse for [xorb]) *)
 
 Lemma xorb_nilpotent : forall b:bool, xorb b b = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** Commutativity *)
 
 Lemma xorb_comm : forall b b':bool, xorb b b' = xorb b' b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** Associativity *)
 
 Lemma xorb_assoc_reverse :
   forall b b' b'':bool, xorb (xorb b b') b'' = xorb b (xorb b' b'').
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Notation xorb_assoc := xorb_assoc_reverse (only parsing). (* Compatibility *)
 
 Lemma xorb_eq : forall b b':bool, xorb b b' = false -> b = b'.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma xorb_move_l_r_1 :
   forall b b' b'':bool, xorb b b' = b'' -> b' = xorb b b''.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma xorb_move_l_r_2 :
   forall b b' b'':bool, xorb b b' = b'' -> b = xorb b'' b'.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma xorb_move_r_l_1 :
   forall b b' b'':bool, b = xorb b' b'' -> xorb b' b = b''.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma xorb_move_r_l_2 :
   forall b b' b'':bool, b = xorb b' b'' -> xorb b b'' = b'.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma negb_xorb_l : forall b b', negb (xorb b b') = xorb (negb b) b'.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma negb_xorb_r : forall b b', negb (xorb b b') = xorb b (negb b').
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma xorb_negb_negb : forall b b', xorb (negb b) (negb b') = xorb b b'.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** Lemmas about the [b = true] embedding of [bool] to [Prop] *)
 
 Lemma eq_iff_eq_true : forall b1 b2, b1 = b2 <-> (b1 = true <-> b2 = true).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma eq_true_iff_eq : forall b1 b2, (b1 = true <-> b2 = true) -> b1 = b2.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Notation bool_1 := eq_true_iff_eq (only parsing). (* Compatibility *)
 
 Lemma eq_true_negb_classical : forall b:bool, negb b <> true -> b = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Notation bool_3 := eq_true_negb_classical (only parsing). (* Compatibility *)
 
 Lemma eq_true_not_negb : forall b:bool, b <> true -> negb b = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Notation bool_6 := eq_true_not_negb (only parsing). (* Compatibility *)
 
@@ -552,12 +552,12 @@ Hint Resolve eq_true_not_negb : bool.
 (* An interesting lemma for auto but too strong to keep compatibility *)
 
 Lemma absurd_eq_bool : forall b b':bool, False -> b = b'.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* A more specific one that preserves compatibility with old hint bool_3 *)
 
 Lemma absurd_eq_true : forall b, False -> b = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 #[global]
 Hint Resolve absurd_eq_true : core.
 
@@ -565,7 +565,7 @@ Hint Resolve absurd_eq_true : core.
    old hint bool_2 *)
 
 Lemma trans_eq_bool : forall x y z:bool, x = y -> y = z -> x = z.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 #[global]
 Hint Resolve trans_eq_bool : core.
 
@@ -579,13 +579,13 @@ Hint Resolve trans_eq_bool : core.
 Hint Unfold Is_true: bool.
 
 Lemma Is_true_eq_true : forall x:bool, Is_true x -> x = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Is_true_eq_left : forall x:bool, x = true -> Is_true x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Is_true_eq_right : forall x:bool, true = x -> Is_true x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Notation Is_true_eq_true2 := Is_true_eq_right (only parsing).
 
@@ -593,26 +593,26 @@ Notation Is_true_eq_true2 := Is_true_eq_right (only parsing).
 Hint Immediate Is_true_eq_right Is_true_eq_left: bool.
 
 Lemma eqb_refl : forall x:bool, Is_true (eqb x x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma eqb_eq : forall x y:bool, Is_true (eqb x y) -> x = y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Is_true] and connectives *)
 
 Lemma orb_prop_elim :
   forall a b:bool, Is_true (a || b) -> Is_true a \/ Is_true b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Notation orb_prop2 := orb_prop_elim (only parsing).
 
 Lemma orb_prop_intro :
   forall a b:bool, Is_true a \/ Is_true b -> Is_true (a || b).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma andb_prop_intro :
   forall b1 b2:bool, Is_true b1 /\ Is_true b2 -> Is_true (b1 && b2).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 #[global]
 Hint Resolve andb_prop_intro: bool.
 
@@ -622,7 +622,7 @@ Notation andb_true_intro2 :=
 
 Lemma andb_prop_elim :
   forall a b:bool, Is_true (a && b) -> Is_true a /\ Is_true b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 #[global]
 Hint Resolve andb_prop_elim: bool.
 
@@ -630,34 +630,34 @@ Notation andb_prop2 := andb_prop_elim (only parsing).
 
 Lemma eq_bool_prop_intro :
   forall b1 b2, (Is_true b1 <-> Is_true b2) -> b1 = b2.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma eq_bool_prop_elim : forall b1 b2, b1 = b2 -> (Is_true b1 <-> Is_true b2).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma negb_prop_elim : forall b, Is_true (negb b) -> ~ Is_true b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma negb_prop_intro : forall b, ~ Is_true b -> Is_true (negb b).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma negb_prop_classical : forall b, ~ Is_true (negb b) -> Is_true b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma negb_prop_involutive : forall b, Is_true b -> ~ Is_true (negb b).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** Rewrite rules about andb, orb and if (used in romega) *)
 
 Lemma andb_if : forall (A:Type)(a a':A)(b b' : bool),
   (if b && b' then a else a') =
   (if b then if b' then a else a' else a').
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma negb_if : forall (A:Type)(a a':A)(b:bool),
  (if negb b then a else a') =
  (if b then a' else a).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (***********************************************)
 (** * Alternative versions of [andb] and [orb]
@@ -674,10 +674,10 @@ Notation "a ||| b" := (if a then true else b)
 Local Open Scope lazy_bool_scope.
 
 Lemma andb_lazy_alt : forall a b : bool, a && b = a &&& b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma orb_lazy_alt : forall a b : bool, a || b = a ||| b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (************************************************)
 (** * Reflect: a specialized inductive type for
@@ -698,10 +698,10 @@ Hint Constructors reflect : bool.
 (** Relation with iff : *)
 
 Lemma reflect_iff : forall P b, reflect P b -> (P<->b=true).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma iff_reflect : forall P b, (P<->b=true) -> reflect P b.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** It would be nice to join [reflect_iff] and [iff_reflect]
     in a unique [iff] statement, but this isn't allowed since
@@ -710,7 +710,7 @@ Proof. Show. Fail (cvc5_abduct 3). Admitted.
 (** Reflect implies decidability of the proposition *)
 
 Lemma reflect_dec : forall P b, reflect P b -> {P}+{~P}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** Reciprocally, from a decidability, we could state a
     [reflect] as soon as we have a [bool_of_sumbool]. *)
@@ -718,7 +718,7 @@ Proof. Show. Fail (cvc5_abduct 3). Admitted.
 (** For instance, we could state the correctness of [Bool.eqb] via [reflect]: *)
 
 Lemma eqb_spec (b b' : bool) : reflect (b = b') (eqb b b').
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** Notations *)
 Module BoolNotations.

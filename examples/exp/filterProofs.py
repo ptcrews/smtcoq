@@ -47,7 +47,7 @@ for i in f1lines:
     #For small proofs, write abduction body
     if (length < 4):
       totalsmallproofs += 1
-      f2.write("Proof. Show. Fail (cvc5_abduct 3). Admitted.\n")
+      f2.write("Proof. Show. Fail (abduce 3). Admitted.\n")
     #For large proofs, write proof body
     else:
       for i in aproofbody:

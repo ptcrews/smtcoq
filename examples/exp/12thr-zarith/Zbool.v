@@ -59,81 +59,81 @@ Definition Zneq_bool (x y:Z) :=
 (** Properties in term of [if ... then ... else ...] *)
 
 Lemma Zle_cases n m : if n <=? m then n <= m else n > m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zlt_cases n m : if n <? m then n < m else n >= m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zge_cases n m : if n >=? m then n >= m else n < m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zgt_cases n m : if n >? m then n > m else n <= m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** Lemmas on [Z.leb] used in contrib/graphs *)
 
 Lemma Zle_bool_imp_le n m : (n <=? m) = true -> (n <= m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zle_imp_le_bool n m : (n <= m) -> (n <=? m) = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Notation Zle_bool_refl := Z.leb_refl (only parsing).
 
 Lemma Zle_bool_antisym n m :
  (n <=? m) = true -> (m <=? n) = true -> n = m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zle_bool_trans n m p :
  (n <=? m) = true -> (m <=? p) = true -> (n <=? p) = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition Zle_bool_total x y :
   { x <=? y = true } + { y <=? x = true }.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zle_bool_plus_mono n m p q :
  (n <=? m) = true ->
  (p <=? q) = true ->
  (n + p <=? m + q) = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zone_pos : 1 <=? 0 = false.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zone_min_pos n : (n <=? 0) = false -> (1 <=? n) = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** Properties in term of [iff] *)
 
 Lemma Zle_is_le_bool n m : (n <= m) <-> (n <=? m) = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zge_is_le_bool n m : (n >= m) <-> (m <=? n) = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zlt_is_lt_bool n m : (n < m) <-> (n <? m) = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zgt_is_gt_bool n m : (n > m) <-> (n >? m) = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zlt_is_le_bool n m : (n < m) <-> (n <=? m - 1) = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zgt_is_le_bool n m : (n > m) <-> (m <=? n - 1) = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** Properties of the deprecated [Zeq_bool] *)
 
 Lemma Zeq_is_eq_bool x y : x = y <-> Zeq_bool x y = true.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zeq_bool_eq x y : Zeq_bool x y = true -> x = y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zeq_bool_neq x y : Zeq_bool x y = false -> x <> y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zeq_bool_if x y : if Zeq_bool x y then x=y else x<>y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.

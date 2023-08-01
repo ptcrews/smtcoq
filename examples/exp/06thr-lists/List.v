@@ -84,32 +84,32 @@
    
      (** Discrimination *)
      Theorem nil_cons (x:A) (l:list A) : [] <> x :: l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
    
      (** Destruction *)
    
      Theorem destruct_list (l : list A) : {x:A & {tl:list A | l = x::tl}}+{l = []}.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma hd_error_tl_repr l (a:A) r :
        hd_error l = Some a /\ tl l = r <-> l = a :: r.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma hd_error_some_nil l (a:A) : hd_error l = Some a -> l <> nil.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Theorem length_zero_iff_nil (l : list A):
        length l = 0 <-> l=[].
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      (** *** Head and tail *)
    
      Theorem hd_error_nil : hd_error (@nil A) = None.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Theorem hd_error_cons (l : list A) (x : A) : hd_error (x::l) = Some x.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
    
      (**************************)
@@ -118,82 +118,82 @@
    
      (** Discrimination *)
      Theorem app_cons_not_nil (x y:list A) (a:A) : [] <> x ++ a :: y.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
    
      (** Concat with [nil] *)
      Theorem app_nil_l (l:list A) : [] ++ l = l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Theorem app_nil_r (l:list A) : l ++ [] = l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      (* begin hide *)
      (* Deprecated *)
      Theorem app_nil_end (l:list A) : l = l ++ [].
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
      (* end hide *)
    
      (** [app] is associative *)
      Theorem app_assoc (l m n:list A) : l ++ m ++ n = (l ++ m) ++ n.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      (* begin hide *)
      (* Deprecated *)
      Theorem app_assoc_reverse (l m n:list A) : (l ++ m) ++ n = l ++ m ++ n.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
      #[local]
      Hint Resolve app_assoc_reverse : core.
      (* end hide *)
    
      (** [app] commutes with [cons] *)
      Theorem app_comm_cons (x y:list A) (a:A) : a :: (x ++ y) = (a :: x) ++ y.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      (** Facts deduced from the result of a concatenation *)
    
      Theorem app_eq_nil (l l':list A) : l ++ l' = [] -> l = [] /\ l' = [].
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Theorem app_eq_unit (x y:list A) (a:A) :
          x ++ y = [a] -> x = [] /\ y = [a] \/ x = [a] /\ y = [].
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma elt_eq_unit l1 l2 (a b : A) :
        l1 ++ a :: l2 = [b] -> a = b /\ l1 = [] /\ l2 = [].
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma app_inj_tail_iff :
        forall (x y:list A) (a b:A), x ++ [a] = y ++ [b] <-> x = y /\ a = b.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma app_inj_tail :
        forall (x y:list A) (a b:A), x ++ [a] = y ++ [b] -> x = y /\ a = b.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      (** Compatibility with other operations *)
    
      Lemma app_length : forall l l' : list A, length (l++l') = length l + length l'.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma last_length : forall (l : list A) a, length (l ++ a :: nil) = S (length l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma app_inv_head_iff:
       forall l l1 l2 : list A, l ++ l1 = l ++ l2 <-> l1 = l2.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma app_inv_head:
       forall l l1 l2 : list A, l ++ l1 = l ++ l2 -> l1 = l2.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma app_inv_tail:
        forall l l1 l2 : list A, l1 ++ l = l2 ++ l -> l1 = l2.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma app_inv_tail_iff:
        forall l l1 l2 : list A, l1 ++ l = l2 ++ l <-> l1 = l2.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      (************************)
      (** *** Facts about [In] *)
@@ -203,46 +203,46 @@
      (** Characterization of [In] *)
    
      Theorem in_eq : forall (a:A) (l:list A), In a (a :: l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Theorem in_cons : forall (a b:A) (l:list A), In b l -> In b (a :: l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Theorem not_in_cons (x a : A) (l : list A):
        ~ In x (a::l) <-> x<>a /\ ~ In x l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Theorem in_nil : forall a:A, ~ In a [].
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma in_app_or : forall (l m:list A) (a:A), In a (l ++ m) -> In a l \/ In a m.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma in_or_app : forall (l m:list A) (a:A), In a l \/ In a m -> In a (l ++ m).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma in_app_iff : forall l l' (a:A), In a (l++l') <-> In a l \/ In a l'.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Theorem in_split : forall x (l:list A), In x l -> exists l1 l2, l = l1++x::l2.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma in_elt : forall (x:A) l1 l2, In x (l1 ++ x :: l2).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma in_elt_inv : forall (x y : A) l1 l2,
        In x (l1 ++ y :: l2) -> x = y \/ In x (l1 ++ l2).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      (** Inversion *)
      Lemma in_inv : forall (a b:A) (l:list A), In b (a :: l) -> a = b \/ In b l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      (** Decidability of [In] *)
      Theorem in_dec :
        (forall x y:A, {x = y} + {x <> y}) ->
        forall (a:A) (l:list A), {In a l} + {~ In a l}.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
    
    
@@ -291,12 +291,12 @@
    
      Lemma nth_in_or_default :
        forall (n:nat) (l:list A) (d:A), {In (nth n l d) l} + {nth n l d = d}.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma nth_S_cons :
        forall (n:nat) (l:list A) (d a:A),
          In (nth n l d) l -> In (nth (S n) (a :: l) d) (a :: l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Fixpoint nth_error (l:list A) (n:nat) {struct n} : option A :=
        match n, l with
@@ -313,84 +313,84 @@
    
      Lemma nth_default_eq :
        forall n l (d:A), nth_default d l n = nth n l d.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      (** Results about [nth] *)
    
      Lemma nth_In :
        forall (n:nat) (l:list A) (d:A), n < length l -> In (nth n l d) l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma In_nth l x d : In x l ->
        exists n, n < length l /\ nth n l d = x.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma nth_overflow : forall l n d, length l <= n -> nth n l d = d.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma nth_indep :
        forall l n d d', n < length l -> nth n l d = nth n l d'.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma app_nth1 :
        forall l l' d n, n < length l -> nth n (l++l') d = nth n l d.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma app_nth2 :
        forall l l' d n, n >= length l -> nth n (l++l') d = nth (n-length l) l' d.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma app_nth2_plus : forall l l' d n,
        nth (length l + n) (l ++ l') d = nth n l' d.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma nth_middle : forall l l' a d,
        nth (length l) (l ++ a :: l') d = a.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma nth_split n l d : n < length l ->
        exists l1, exists l2, l = l1 ++ nth n l d :: l2 /\ length l1 = n.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma nth_ext : forall l l' d d', length l = length l' ->
        (forall n, n < length l -> nth n l d = nth n l' d') -> l = l'.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      (** Results about [nth_error] *)
    
      Lemma nth_error_In l n x : nth_error l n = Some x -> In x l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma In_nth_error l x : In x l -> exists n, nth_error l n = Some x.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma nth_error_None l n : nth_error l n = None <-> length l <= n.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma nth_error_Some l n : nth_error l n <> None <-> n < length l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma nth_error_split l n a : nth_error l n = Some a ->
        exists l1, exists l2, l = l1 ++ a :: l2 /\ length l1 = n.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma nth_error_app1 l l' n : n < length l ->
        nth_error (l++l') n = nth_error l n.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma nth_error_app2 l l' n : length l <= n ->
        nth_error (l++l') n = nth_error l' (n-length l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      (** Results directly relating [nth] and [nth_error] *)
    
      Lemma nth_error_nth : forall (l : list A) (n : nat) (x d : A),
        nth_error l n = Some x -> nth n l d = x.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma nth_error_nth' : forall (l : list A) (n : nat) (d : A),
        n < length l -> nth_error l n = Some (nth n l d).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      (******************************)
      (** ** Last element of a list *)
@@ -407,7 +407,7 @@
      end.
    
      Lemma last_last : forall l a d, last (l ++ [a]) d = a.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      (** [removelast l] remove the last element of [l] *)
    
@@ -420,18 +420,18 @@
    
      Lemma app_removelast_last :
        forall l d, l <> [] -> l = removelast l ++ [last l d].
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma exists_last :
        forall l, l <> [] -> { l' : (list A) & { a : A | l = l' ++ [a]}}.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma removelast_app :
        forall l l', l' <> [] -> removelast (l++l') = l ++ removelast l'.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma removelast_last : forall l a, removelast (l ++ [a]) = l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
    
      (*****************)
@@ -447,36 +447,36 @@
        end.
    
      Lemma remove_cons : forall x l, remove x (x :: l) = remove x l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma remove_app : forall x l1 l2,
        remove x (l1 ++ l2) = remove x l1 ++ remove x l2.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Theorem remove_In : forall (l : list A) (x : A), ~ In x (remove x l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma notin_remove: forall l x, ~ In x l -> remove x l = l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma in_remove: forall l x y, In x (remove y l) -> In x l /\ x <> y.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma in_in_remove : forall l x y, x <> y -> In x l -> In x (remove y l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma remove_remove_comm : forall l x y,
        remove x (remove y l) = remove y (remove x l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma remove_remove_eq : forall l x, remove x (remove x l) = remove x l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma remove_length_le : forall l x, length (remove x l) <= length l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma remove_length_lt : forall l x, In x l -> length (remove x l) < length l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
    
      (******************************************)
@@ -493,25 +493,25 @@
    
      (** Compatibility of count_occ with operations on list *)
      Theorem count_occ_In l x : In x l <-> count_occ l x > 0.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Theorem count_occ_not_In l x : ~ In x l <-> count_occ l x = 0.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma count_occ_nil x : count_occ [] x = 0.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Theorem count_occ_inv_nil l :
        (forall x:A, count_occ l x = 0) <-> l = [].
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma count_occ_cons_eq l x y :
        x = y -> count_occ (x::l) y = S (count_occ l y).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma count_occ_cons_neq l x y :
        x <> y -> count_occ (x::l) y = count_occ l y.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
    End Elts.
    
@@ -534,28 +534,28 @@
        end.
    
      Lemma rev_app_distr : forall x y:list A, rev (x ++ y) = rev y ++ rev x.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Remark rev_unit : forall (l:list A) (a:A), rev (l ++ [a]) = a :: rev l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma rev_involutive : forall l:list A, rev (rev l) = l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma rev_eq_app : forall l l1 l2, rev l = l1 ++ l2 -> l = rev l2 ++ rev l1.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      (** Compatibility with other operations *)
    
      Lemma in_rev : forall l x, In x l <-> In x (rev l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma rev_length : forall l, length (rev l) = length l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma rev_nth : forall l d n,  n < length l ->
        nth n (rev l) d = nth (length l - S n) l d.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
    
      (**  An alternative tail-recursive definition for reverse *)
@@ -569,10 +569,10 @@
      Definition rev' l : list A := rev_append l [].
    
      Lemma rev_append_rev : forall l l', rev_append l l' = rev l ++ l'.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma rev_alt : forall l, rev l = rev_append l [].
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
    
    (*********************************************)
@@ -585,12 +585,12 @@
          P [] ->
          (forall (a:A) (l:list A), P (rev l) -> P (rev (a :: l))) ->
          forall l:list A, P (rev l).
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Theorem rev_ind : forall P:list A -> Prop,
          P [] ->
          (forall (x:A) (l:list A), P l -> P (l ++ [x])) -> forall l:list A, P l.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
      End Reverse_Induction.
    
@@ -605,17 +605,17 @@
      end.
    
      Lemma concat_nil : concat nil = nil.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma concat_cons : forall x l, concat (cons x l) = x ++ concat l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma concat_app : forall l1 l2, concat (l1 ++ l2) = concat l1 ++ concat l2.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma in_concat : forall l y,
        In y (concat l) <-> exists x, In x l /\ In y x.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
    
      (***********************************)
@@ -625,7 +625,7 @@
      Hypothesis eq_dec : forall (x y : A), {x = y}+{x <> y}.
    
      Lemma list_eq_dec : forall l l':list A, {l = l'} + {l <> l'}.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
    End ListOps.
    
@@ -648,47 +648,47 @@
        end.
    
      Lemma map_cons (x:A)(l:list A) : map (x::l) = (f x) :: (map l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma in_map :
        forall (l:list A) (x:A), In x l -> In (f x) (map l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma in_map_iff : forall l y, In y (map l) <-> exists x, f x = y /\ In x l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma map_length : forall l, length (map l) = length l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma map_nth : forall l d n,
        nth n (map l) (f d) = f (nth n l d).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma map_nth_error : forall n l d,
        nth_error l n = Some d -> nth_error (map l) n = Some (f d).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma map_app : forall l l',
        map (l++l') = (map l)++(map l').
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma map_last : forall l a,
        map (l ++ [a]) = (map l) ++ [f a].
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma map_rev : forall l, map (rev l) = rev (map l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma map_eq_nil : forall l, map l = [] -> l = [].
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma map_eq_cons : forall l l' b,
        map l = b :: l' -> exists a tl, l = a :: tl /\ f a = b /\ map tl = l'.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma map_eq_app  : forall l l1 l2,
        map l = l1 ++ l2 -> exists l1' l2', l = l1' ++ l2' /\ map l1' = l1 /\ map l2' = l2.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      (** [map] and count of occurrences *)
    
@@ -698,7 +698,7 @@
    
      Theorem count_occ_map x l:
        count_occ decA l x = count_occ decB (map l) (f x).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      (** [flat_map] *)
    
@@ -711,60 +711,60 @@
    
      Lemma flat_map_app : forall f l1 l2,
        flat_map f (l1 ++ l2) = flat_map f l1 ++ flat_map f l2.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma in_flat_map : forall (f:A->list B)(l:list A)(y:B),
        In y (flat_map f l) <-> exists x, In x l /\ In y (f x).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
    End Map.
    
    Lemma flat_map_concat_map : forall A B (f : A -> list B) l,
      flat_map f l = concat (map f l).
-   Proof. Show. Fail (cvc5_abduct 3). Admitted.
+   Proof. Show. Fail (abduce 3). Admitted.
    
    Lemma concat_map : forall A B (f : A -> B) l, map f (concat l) = concat (map (map f) l).
-   Proof. Show. Fail (cvc5_abduct 3). Admitted.
+   Proof. Show. Fail (abduce 3). Admitted.
    
    Lemma remove_concat A (eq_dec : forall x y : A, {x = y}+{x <> y}) : forall l x,
      remove eq_dec x (concat l) = flat_map (remove eq_dec x) l.
-   Proof. Show. Fail (cvc5_abduct 3). Admitted.
+   Proof. Show. Fail (abduce 3). Admitted.
    
    Lemma map_id : forall (A :Type) (l : list A),
      map (fun x => x) l = l.
-   Proof. Show. Fail (cvc5_abduct 3). Admitted.
+   Proof. Show. Fail (abduce 3). Admitted.
    
    Lemma map_map : forall (A B C:Type)(f:A->B)(g:B->C) l,
      map g (map f l) = map (fun x => g (f x)) l.
-   Proof. Show. Fail (cvc5_abduct 3). Admitted.
+   Proof. Show. Fail (abduce 3). Admitted.
    
    Lemma map_ext_in :
      forall (A B : Type)(f g:A->B) l, (forall a, In a l -> f a = g a) -> map f l = map g l.
-   Proof. Show. Fail (cvc5_abduct 3). Admitted.
+   Proof. Show. Fail (abduce 3). Admitted.
    
    Lemma ext_in_map :
      forall (A B : Type)(f g:A->B) l, map f l = map g l -> forall a, In a l -> f a = g a.
-   Proof. Show. Fail (cvc5_abduct 3). Admitted.
+   Proof. Show. Fail (abduce 3). Admitted.
    
    Arguments ext_in_map [A B f g l].
    
    Lemma map_ext_in_iff :
       forall (A B : Type)(f g:A->B) l, map f l = map g l <-> forall a, In a l -> f a = g a.
-   Proof. Show. Fail (cvc5_abduct 3). Admitted.
+   Proof. Show. Fail (abduce 3). Admitted.
    
    Arguments map_ext_in_iff {A B f g l}.
    
    Lemma map_ext :
      forall (A B : Type)(f g:A->B), (forall a, f a = g a) -> forall l, map f l = map g l.
-   Proof. Show. Fail (cvc5_abduct 3). Admitted.
+   Proof. Show. Fail (abduce 3). Admitted.
    
    Lemma flat_map_ext : forall (A B : Type)(f g : A -> list B),
      (forall a, f a = g a) -> forall l, flat_map f l = flat_map g l.
-   Proof. Show. Fail (cvc5_abduct 3). Admitted.
+   Proof. Show. Fail (abduce 3). Admitted.
    
    Lemma nth_nth_nth_map A : forall (l : list A) n d ln dn, n < length ln \/ length l <= dn ->
      nth (nth n ln dn) l d = nth n (map (fun x => nth x l d) ln) d.
-   Proof. Show. Fail (cvc5_abduct 3). Admitted.
+   Proof. Show. Fail (abduce 3). Admitted.
    
    
    (************************************)
@@ -783,13 +783,13 @@
    
      Lemma fold_left_app : forall (l l':list B)(i:A),
        fold_left (l++l') i = fold_left l' (fold_left l i).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
    End Fold_Left_Recursor.
    
    Lemma fold_left_length :
      forall (A:Type)(l:list A), fold_left (fun x _ => S x) l 0 = length l.
-   Proof. Show. Fail (cvc5_abduct 3). Admitted.
+   Proof. Show. Fail (abduce 3). Admitted.
    
    (************************************)
    (** Right-to-left iterator on lists *)
@@ -810,18 +810,18 @@
    
      Lemma fold_right_app : forall (A B:Type)(f:A->B->B) l l' i,
        fold_right f i (l++l') = fold_right f (fold_right f i l') l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma fold_left_rev_right : forall (A B:Type)(f:A->B->B) l i,
        fold_right f i (rev l) = fold_left (fun x y => f y x) l i.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Theorem fold_symmetric :
        forall (A : Type) (f : A -> A -> A),
        (forall x y z : A, f x (f y z) = f (f x y) z) ->
        forall (a0 : A), (forall y : A, f a0 y = f y a0) ->
        forall (l : list A), fold_left f l a0 = fold_right f a0 l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      (** [(list_power x y)] is [y^x], or the set of sequences of elts of [y]
          indexed by elts of [x], sorted in lexicographic order. *)
@@ -855,15 +855,15 @@
    
        Lemma existsb_exists :
          forall l, existsb l = true <-> exists x, In x l /\ f x = true.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma existsb_nth : forall l n d, n < length l ->
          existsb l = false -> f (nth n l d) = false.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma existsb_app : forall l1 l2,
          existsb (l1++l2) = existsb l1 || existsb l2.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
      (** find whether a boolean function is satisfied by
        all the elements of a list. *)
@@ -876,11 +876,11 @@
    
        Lemma forallb_forall :
          forall l, forallb l = true <-> (forall x, In x l -> f x = true).
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma forallb_app :
          forall l1 l2, forallb (l1++l2) = forallb l1 && forallb l2.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
      (** [filter] *)
    
@@ -891,15 +891,15 @@
          end.
    
        Lemma filter_In : forall x l, In x (filter l) <-> In x l /\ f x = true.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma filter_app (l l':list A) :
          filter (l ++ l') = filter l ++ filter l'.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma concat_filter_map : forall (l : list (list A)),
          concat (map filter l) = filter (concat l).
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
      (** [find] *)
    
@@ -910,10 +910,10 @@
          end.
    
        Lemma find_some l x : find l = Some x -> In x l /\ f x = true.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma find_none l : find l = None -> forall x, In x l -> f x = false.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
      (** [partition] *)
    
@@ -928,27 +928,27 @@
        partition l = (l1, l2) ->
        f a = true ->
        partition (a::l) = (a::l1, l2).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Theorem partition_cons2 a l l1 l2:
        partition l = (l1, l2) ->
        f a=false ->
        partition (a::l) = (l1, a::l2).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Theorem partition_length l l1 l2:
        partition l = (l1, l2) ->
        length l = length l1 + length l2.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Theorem partition_inv_nil (l : list A):
        partition l = ([], []) <-> l = [].
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Theorem elements_in_partition l l1 l2:
        partition l = (l1, l2) ->
        forall x:A, In x l <-> In x l1 \/ In x l2.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      End Bool.
    
@@ -962,23 +962,23 @@
    
        Lemma filter_map : forall (f g : A -> bool) (l : list A),
          filter f l = filter g l <-> map f l = map g l.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma filter_ext_in : forall (f g : A -> bool) (l : list A),
          (forall a, In a l -> f a = g a) -> filter f l = filter g l.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma ext_in_filter : forall (f g : A -> bool) (l : list A),
          filter f l = filter g l -> (forall a, In a l -> f a = g a).
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma filter_ext_in_iff : forall (f g : A -> bool) (l : list A),
          filter f l = filter g l <-> (forall a, In a l -> f a = g a).
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma filter_ext : forall (f g : A -> bool),
          (forall a, f a = g a) -> forall l, filter f l = filter g l.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        (** Remove by filtering *)
    
@@ -988,7 +988,7 @@
          filter (fun y => if eq_dec x y then false else true).
    
        Lemma remove_alt (x : A) (l : list A) : remove' x l = remove eq_dec x l.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        (** Counting occurrences by filtering *)
    
@@ -997,7 +997,7 @@
    
        Lemma count_occ_alt (l : list A) (x : A) :
          count_occ' l x = count_occ eq_dec l x.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
      End Filtering.
    
@@ -1019,23 +1019,23 @@
    
        Lemma in_split_l : forall (l:list (A*B))(p:A*B),
          In p l -> In (fst p) (fst (split l)).
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma in_split_r : forall (l:list (A*B))(p:A*B),
          In p l -> In (snd p) (snd (split l)).
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma split_nth : forall (l:list (A*B))(n:nat)(d:A*B),
          nth n l d = (nth n (fst (split l)) (fst d), nth n (snd (split l)) (snd d)).
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma split_length_l : forall (l:list (A*B)),
          length (fst (split l)) = length l.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma split_length_r : forall (l:list (A*B)),
          length (snd (split l)) = length l.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
      (** [combine] is the opposite of [split].
          Lists given to [combine] are meant to be of same length.
@@ -1049,28 +1049,28 @@
    
        Lemma split_combine : forall (l: list (A*B)),
          let (l1,l2) := split l in combine l1 l2 = l.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma combine_split : forall (l:list A)(l':list B), length l = length l' ->
          split (combine l l') = (l,l').
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma in_combine_l : forall (l:list A)(l':list B)(x:A)(y:B),
          In (x,y) (combine l l') -> In x l.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma in_combine_r : forall (l:list A)(l':list B)(x:A)(y:B),
          In (x,y) (combine l l') -> In y l'.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma combine_length : forall (l:list A)(l':list B),
          length (combine l l') = min (length l) (length l').
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma combine_nth : forall (l:list A)(l':list B)(n:nat)(x:A)(y:B),
          length l = length l' ->
          nth n (combine l l') (x,y) = (nth n l x, nth n l' y).
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
      (** [list_prod] has the same signature as [combine], but unlike
         [combine], it adds every possible pairs, not only those at the
@@ -1086,21 +1086,21 @@
        Lemma in_prod_aux :
          forall (x:A) (y:B) (l:list B),
      In y l -> In (x, y) (map (fun y0:B => (x, y0)) l).
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma in_prod :
          forall (l:list A) (l':list B) (x:A) (y:B),
            In x l -> In y l' -> In (x, y) (list_prod l l').
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma in_prod_iff :
          forall (l:list A)(l':list B)(x:A)(y:B),
            In (x,y) (list_prod l l') <-> In x l /\ In y l'.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma prod_length : forall (l:list A)(l':list B),
          length (list_prod l l') = (length l) * (length l').
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
      End ListPairs.
    
@@ -1126,22 +1126,22 @@
      Variables l m n : list A.
    
      Lemma lel_refl : lel l l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma lel_trans : lel l m -> lel m n -> lel l n.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma lel_cons_cons : lel l m -> lel (a :: l) (b :: m).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma lel_cons : lel l m -> lel l (b :: m).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma lel_tail : lel (a :: l) (b :: m) -> lel l m.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma lel_nil : forall l':list A, lel l' nil -> nil = l'.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    End length_order.
    
    #[global]
@@ -1162,68 +1162,68 @@
      Hint Unfold incl : core.
    
      Lemma incl_nil_l : forall l, incl nil l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma incl_l_nil : forall l, incl l nil -> l = nil.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma incl_refl : forall l:list A, incl l l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
      #[local]
      Hint Resolve incl_refl : core.
    
      Lemma incl_tl : forall (a:A) (l m:list A), incl l m -> incl l (a :: m).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
      #[local]
      Hint Immediate incl_tl : core.
    
      Lemma incl_tran : forall l m n:list A, incl l m -> incl m n -> incl l n.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma incl_appl : forall l m n:list A, incl l n -> incl l (n ++ m).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
      #[local]
      Hint Immediate incl_appl : core.
    
      Lemma incl_appr : forall l m n:list A, incl l n -> incl l (m ++ n).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
      #[local]
      Hint Immediate incl_appr : core.
    
      Lemma incl_cons :
        forall (a:A) (l m:list A), In a m -> incl l m -> incl (a :: l) m.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
      #[local]
      Hint Resolve incl_cons : core.
    
      Lemma incl_cons_inv : forall (a:A) (l m:list A),
        incl (a :: l) m -> In a m /\ incl l m.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma incl_app : forall l m n:list A, incl l n -> incl m n -> incl (l ++ m) n.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
      #[local]
      Hint Resolve incl_app : core.
    
      Lemma incl_app_app : forall l1 l2 m1 m2:list A,
        incl l1 m1 -> incl l2 m2 -> incl (l1 ++ l2) (m1 ++ m2).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma incl_app_inv : forall l1 l2 m : list A,
        incl (l1 ++ l2) m -> incl l1 m /\ incl l2 m.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma incl_filter f l : incl (filter f l) l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma remove_incl (eq_dec : forall x y : A, {x = y} + {x <> y}) : forall l1 l2 x,
        incl l1 l2 -> incl (remove eq_dec x l1) (remove eq_dec x l2).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
    End SetIncl.
    
    Lemma incl_map A B (f : A -> B) l1 l2 : incl l1 l2 -> incl (map f l1) (map f l2).
-   Proof. Show. Fail (cvc5_abduct 3). Admitted.
+   Proof. Show. Fail (abduce 3). Admitted.
    
    #[global]
    Hint Resolve incl_refl incl_tl incl_tran incl_appl incl_appr incl_cons
@@ -1248,42 +1248,42 @@
        end.
    
      Lemma firstn_nil n: firstn n [] = [].
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma firstn_cons n a l: firstn (S n) (a::l) = a :: (firstn n l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma firstn_all l: firstn (length l) l = l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma firstn_all2 n: forall (l:list A), (length l) <= n -> firstn n l = l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma firstn_O l: firstn 0 l = [].
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma firstn_le_length n: forall l:list A, length (firstn n l) <= n.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma firstn_length_le: forall l:list A, forall n:nat,
        n <= length l -> length (firstn n l) = n.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma firstn_app n:
        forall l1 l2,
        firstn n (l1 ++ l2) = (firstn n l1) ++ (firstn (n - length l1) l2).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma firstn_app_2 n:
        forall l1 l2,
        firstn ((length l1) + n) (l1 ++ l2) = l1 ++ firstn n l2.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma firstn_firstn:
        forall l:list A,
        forall i j : nat,
        firstn i (firstn j l) = firstn (min i j) l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Fixpoint skipn (n:nat)(l:list A) : list A :=
        match n with
@@ -1296,66 +1296,66 @@
    
      Lemma firstn_skipn_comm : forall m n l,
      firstn m (skipn n l) = skipn n (firstn (n + m) l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma skipn_firstn_comm : forall m n l,
      skipn m (firstn n l) = firstn (n - m) (skipn m l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma skipn_O : forall l, skipn 0 l = l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma skipn_nil : forall n, skipn n ([] : list A) = [].
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma skipn_cons n a l: skipn (S n) (a::l) = skipn n l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma skipn_all : forall l, skipn (length l) l = nil.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
    #[deprecated(since="8.12",note="Use skipn_all instead.")] Notation skipn_none := skipn_all.
    
      Lemma skipn_all2 n: forall l, length l <= n -> skipn n l = [].
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma firstn_skipn : forall n l, firstn n l ++ skipn n l = l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma firstn_length : forall n l, length (firstn n l) = min n (length l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma skipn_length n :
        forall l, length (skipn n l) = length l - n.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma skipn_app n : forall l1 l2,
        skipn n (l1 ++ l2) = (skipn n l1) ++ (skipn (n - length l1) l2).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma firstn_skipn_rev: forall x l,
          firstn x l = rev (skipn (length l - x) (rev l)).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma firstn_rev: forall x l,
        firstn x (rev l) = rev (skipn (length l - x) l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma skipn_rev: forall x l,
          skipn x (rev l) = rev (firstn (length l - x) l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
       Lemma removelast_firstn : forall n l, n < length l ->
         removelast (firstn (S n) l) = firstn n l.
-      Proof. Show. Fail (cvc5_abduct 3). Admitted.
+      Proof. Show. Fail (abduce 3). Admitted.
    
       Lemma removelast_firstn_len : forall l,
         removelast l = firstn (pred (length l)) l.
-      Proof. Show. Fail (cvc5_abduct 3). Admitted.
+      Proof. Show. Fail (abduce 3). Admitted.
    
       Lemma firstn_removelast : forall n l, n < length l ->
         firstn n (removelast l) = firstn n l.
-      Proof. Show. Fail (cvc5_abduct 3). Admitted.
+      Proof. Show. Fail (abduce 3). Admitted.
    
    End Cutting.
    
@@ -1368,19 +1368,19 @@
    
        Lemma combine_nil : forall (l : list A),
          combine l (@nil B) = @nil (A*B).
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma combine_firstn_l : forall (l : list A) (l' : list B),
          combine l l' = combine l (firstn (length l) l').
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma combine_firstn_r : forall (l : list A) (l' : list B),
          combine l l' = combine (firstn (length l') l) l'.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma combine_firstn : forall (l : list A) (l' : list B) (n : nat),
          firstn n (combine l l') = combine (firstn n l) (firstn n l').
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
    End Combining.
    
@@ -1399,25 +1399,25 @@
        | Add_cons x l l' : Add a l l' -> Add a (x::l) (x::l').
    
      Lemma Add_app a l1 l2 : Add a (l1++l2) (l1++a::l2).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma Add_split a l l' :
        Add a l l' -> exists l1 l2, l = l1++l2 /\ l' = l1++a::l2.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma Add_in a l l' : Add a l l' ->
       forall x, In x l' <-> In x (a::l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma Add_length a l l' : Add a l l' -> length l' = S (length l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma Add_inv a l : In a l -> exists l', Add a l' l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma incl_Add_inv a l u v :
        ~In a l -> incl (a::l) v -> Add a u v -> incl l u.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
    End Add.
    
@@ -1434,27 +1434,27 @@
        | NoDup_cons : forall x l, ~ In x l -> NoDup l -> NoDup (x::l).
    
      Lemma NoDup_Add a l l' : Add a l l' -> (NoDup l' <-> NoDup l /\ ~In a l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma NoDup_remove l l' a :
        NoDup (l++a::l') -> NoDup (l++l') /\ ~In a (l++l').
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma NoDup_remove_1 l l' a : NoDup (l++a::l') -> NoDup (l++l').
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma NoDup_remove_2 l l' a : NoDup (l++a::l') -> ~In a (l++l').
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Theorem NoDup_cons_iff a l:
        NoDup (a::l) <-> ~ In a l /\ NoDup l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma NoDup_rev l : NoDup l -> NoDup (rev l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma NoDup_filter f l : NoDup l -> NoDup (filter f l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      (** Effective computation of a list without duplicates *)
    
@@ -1468,27 +1468,27 @@
    
      Lemma nodup_fixed_point (l : list A) :
        NoDup l -> nodup l = l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma nodup_In l x : In x (nodup l) <-> In x l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma nodup_incl l1 l2 : incl l1 (nodup l2) <-> incl l1 l2.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma NoDup_nodup l: NoDup (nodup l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma nodup_inv k l a : nodup k = a :: l -> ~ In a l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Theorem NoDup_count_occ l:
        NoDup l <-> (forall x:A, count_occ decA l x <= 1).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Theorem NoDup_count_occ' l:
        NoDup l <-> (forall x:A, In x l -> count_occ decA l x = 1).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      (** Alternative characterisations of being without duplicates,
          thanks to [nth_error] and [nth] *)
@@ -1496,27 +1496,27 @@
      Lemma NoDup_nth_error l :
        NoDup l <->
        (forall i j, i<length l -> nth_error l i = nth_error l j -> i = j).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma NoDup_nth l d :
        NoDup l <->
        (forall i j, i<length l -> j<length l ->
           nth i l d = nth j l d -> i = j).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      (** Having [NoDup] hypotheses bring more precise facts about [incl]. *)
    
      Lemma NoDup_incl_length l l' :
        NoDup l -> incl l l' -> length l <= length l'.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma NoDup_length_incl l l' :
        NoDup l -> length l' <= length l -> incl l l' -> incl l' l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma NoDup_incl_NoDup (l l' : list A) : NoDup l ->
        length l' <= length l -> incl l l' -> NoDup l'.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
    End ReDun.
    
@@ -1526,7 +1526,7 @@
        see FinFun.v *)
    
    Lemma NoDup_map_inv A B (f:A->B) l : NoDup (map f l) -> NoDup l.
-   Proof. Show. Fail (cvc5_abduct 3). Admitted.
+   Proof. Show. Fail (abduce 3). Admitted.
    
    (***********************************)
    (** ** Sequence of natural numbers *)
@@ -1544,32 +1544,32 @@
        end.
    
      Lemma cons_seq : forall len start, start :: seq (S start) len = seq start (S len).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma seq_length : forall len start, length (seq start len) = len.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma seq_nth : forall len start n d,
        n < len -> nth n (seq start len) d = start+n.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma seq_shift : forall len start,
        map S (seq start len) = seq (S start) len.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma in_seq len start n :
        In n (seq start len) <-> start <= n < start+len.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma seq_NoDup len start : NoDup (seq start len).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma seq_app : forall len1 len2 start,
        seq start (len1 + len2) = seq start len1 ++ seq (start + len1) len2.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma seq_S : forall len start, seq start (S len) = seq start len ++ [start + len].
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
    End NatSeq.
    
@@ -1592,37 +1592,37 @@
    
        Lemma Exists_exists (l:list A) :
          Exists l <-> (exists x, In x l /\ P x).
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma Exists_nth l :
          Exists l <-> exists i d, i < length l /\ P (nth i l d).
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma Exists_nil : Exists nil <-> False.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma Exists_cons x l:
          Exists (x::l) <-> P x \/ Exists l.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma Exists_app l1 l2 :
          Exists (l1 ++ l2) <-> Exists l1 \/ Exists l2.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma Exists_rev l : Exists l -> Exists (rev l).
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma Exists_dec l:
          (forall x:A, {P x} + { ~ P x }) ->
          {Exists l} + {~ Exists l}.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma Exists_fold_right l :
          Exists l <-> fold_right (fun x => or (P x)) False l.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma incl_Exists l1 l2 : incl l1 l2 -> Exists l1 -> Exists l2.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Inductive Forall : list A -> Prop :=
          | Forall_nil : Forall nil
@@ -1633,98 +1633,98 @@
    
        Lemma Forall_forall (l:list A):
          Forall l <-> (forall x, In x l -> P x).
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma Forall_nth l :
          Forall l <-> forall i d, i < length l -> P (nth i l d).
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma Forall_inv : forall (a:A) l, Forall (a :: l) -> P a.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Theorem Forall_inv_tail : forall (a:A) l, Forall (a :: l) -> Forall l.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma Forall_app l1 l2 :
          Forall (l1 ++ l2) <-> Forall l1 /\ Forall l2.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma Forall_elt a l1 l2 : Forall (l1 ++ a :: l2) -> P a.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma Forall_rev l : Forall l -> Forall (rev l).
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma Forall_rect : forall (Q : list A -> Type),
          Q [] -> (forall b l, P b -> Q (b :: l)) -> forall l, Forall l -> Q l.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma Forall_dec :
          (forall x:A, {P x} + { ~ P x }) ->
          forall l:list A, {Forall l} + {~ Forall l}.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma Forall_fold_right l :
          Forall l <-> fold_right (fun x => and (P x)) True l.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
        Lemma incl_Forall l1 l2 : incl l2 l1 -> Forall l1 -> Forall l2.
-       Proof. Show. Fail (cvc5_abduct 3). Admitted.
+       Proof. Show. Fail (abduce 3). Admitted.
    
      End One_predicate.
    
      Lemma map_ext_Forall B : forall (f g : A -> B) l,
        Forall (fun x => f x = g x) l -> map f l = map g l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Theorem Exists_impl : forall (P Q : A -> Prop), (forall a : A, P a -> Q a) ->
        forall l, Exists P l -> Exists Q l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma Exists_or : forall (P Q : A -> Prop) l,
        Exists P l \/ Exists Q l -> Exists (fun x => P x \/ Q x) l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma Exists_or_inv : forall (P Q : A -> Prop) l,
        Exists (fun x => P x \/ Q x) l -> Exists P l \/ Exists Q l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma Forall_impl : forall (P Q : A -> Prop), (forall a, P a -> Q a) ->
        forall l, Forall P l -> Forall Q l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma Forall_and : forall (P Q : A -> Prop) l,
        Forall P l -> Forall Q l -> Forall (fun x => P x /\ Q x) l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma Forall_and_inv : forall (P Q : A -> Prop) l,
        Forall (fun x => P x /\ Q x) l -> Forall P l /\ Forall Q l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma Forall_Exists_neg (P:A->Prop)(l:list A) :
        Forall (fun x => ~ P x) l <-> ~(Exists P l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma Exists_Forall_neg (P:A->Prop)(l:list A) :
        (forall x, P x \/ ~P x) ->
        Exists (fun x => ~ P x) l <-> ~(Forall P l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma neg_Forall_Exists_neg (P:A->Prop) (l:list A) :
        (forall x:A, {P x} + { ~ P x }) ->
        ~ Forall P l ->
        Exists (fun x => ~ P x) l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma Forall_Exists_dec (P:A->Prop) :
        (forall x:A, {P x} + { ~ P x }) ->
        forall l:list A,
        {Forall P l} + {Exists (fun x => ~ P x) l}.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma incl_Forall_in_iff l l' :
        incl l l' <-> Forall (fun x => In x l') l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
    End Exists_Forall.
    
@@ -1735,23 +1735,23 @@
    
    Lemma exists_Forall A B : forall (P : A -> B -> Prop) l,
      (exists k, Forall (P k) l) -> Forall (fun x => exists k, P k x) l.
-   Proof. Show. Fail (cvc5_abduct 3). Admitted.
+   Proof. Show. Fail (abduce 3). Admitted.
    
    Lemma Forall_image A B : forall (f : A -> B) l,
      Forall (fun y => exists x, y = f x) l <-> exists l', l = map f l'.
-   Proof. Show. Fail (cvc5_abduct 3). Admitted.
+   Proof. Show. Fail (abduce 3). Admitted.
    
    Lemma concat_nil_Forall A : forall (l : list (list A)),
      concat l = nil <-> Forall (fun x => x = nil) l.
-   Proof. Show. Fail (cvc5_abduct 3). Admitted.
+   Proof. Show. Fail (abduce 3). Admitted.
    
    Lemma in_flat_map_Exists A B : forall (f : A -> list B) x l,
      In x (flat_map f l) <-> Exists (fun y => In x (f y)) l.
-   Proof. Show. Fail (cvc5_abduct 3). Admitted.
+   Proof. Show. Fail (abduce 3). Admitted.
    
    Lemma notin_flat_map_Forall A B : forall (f : A -> list B) x l,
      ~ In x (flat_map f l) <-> Forall (fun y => ~ In x (f y)) l.
-   Proof. Show. Fail (cvc5_abduct 3). Admitted.
+   Proof. Show. Fail (abduce 3). Admitted.
    
    
    Section Forall2.
@@ -1770,21 +1770,21 @@
      Hint Constructors Forall2 : core.
    
      Theorem Forall2_refl : Forall2 [] [].
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Theorem Forall2_app_inv_l : forall l1 l2 l',
        Forall2 (l1 ++ l2) l' ->
        exists l1' l2', Forall2 l1 l1' /\ Forall2 l2 l2' /\ l' = l1' ++ l2'.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Theorem Forall2_app_inv_r : forall l1' l2' l,
        Forall2 l (l1' ++ l2') ->
        exists l1 l2, Forall2 l1 l1' /\ Forall2 l2 l2' /\ l = l1 ++ l2.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Theorem Forall2_app : forall l1 l2 l1' l2',
        Forall2 l1 l1' -> Forall2 l2 l2' -> Forall2 (l1 ++ l2) (l1' ++ l2').
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    End Forall2.
    
    #[global]
@@ -1815,19 +1815,19 @@
      Lemma ForallOrdPairs_In : forall l,
        ForallOrdPairs l ->
        forall x y, In x l -> In y l -> x=y \/ R x y \/ R y x.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      (** [ForallPairs] implies [ForallOrdPairs]. The reverse implication is true
        only when [R] is symmetric and reflexive. *)
    
      Lemma ForallPairs_ForallOrdPairs l: ForallPairs l -> ForallOrdPairs l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma ForallOrdPairs_ForallPairs :
        (forall x, R x x) ->
        (forall x y, R x y -> R y x) ->
        forall l, ForallOrdPairs l -> ForallPairs l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    End ForallPairs.
    
    Section Repeat.
@@ -1841,41 +1841,41 @@
    
      Theorem repeat_length x n:
        length (repeat x n) = n.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Theorem repeat_spec n x y:
        In y (repeat x n) -> y=x.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma repeat_cons n a :
        a :: repeat a n = repeat a n ++ (a :: nil).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma repeat_app x n m :
        repeat x (n + m) = repeat x n ++ repeat x m.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma repeat_eq_app x n l1 l2 :
        repeat x n = l1 ++ l2 -> repeat x (length l1) = l1 /\ repeat x (length l2) = l2.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma repeat_eq_cons x y n l :
        repeat x n = y :: l -> x = y /\ repeat x (pred n) = l.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma repeat_eq_elt x y n l1 l2 :
        repeat x n = l1 ++ y :: l2 -> x = y /\ repeat x (length l1) = l1 /\ repeat x (length l2) = l2.
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
      Lemma Forall_eq_repeat x l :
        Forall (eq x) l -> l = repeat x (length l).
-     Proof. Show. Fail (cvc5_abduct 3). Admitted.
+     Proof. Show. Fail (abduce 3). Admitted.
    
    End Repeat.
    
    Lemma repeat_to_concat A n (a:A) :
      repeat a n = concat (repeat [a] n).
-   Proof. Show. Fail (cvc5_abduct 3). Admitted.
+   Proof. Show. Fail (abduce 3). Admitted.
    
    
    (** Sum of elements of a list of [nat]: [list_sum] *)
@@ -1884,7 +1884,7 @@
    
    Lemma list_sum_app : forall l1 l2,
       list_sum (l1 ++ l2) = list_sum l1 + list_sum l2.
-   Proof. Show. Fail (cvc5_abduct 3). Admitted.
+   Proof. Show. Fail (abduce 3). Admitted.
    
    (** Max of elements of a list of [nat]: [list_max] *)
    
@@ -1892,14 +1892,14 @@
    
    Lemma list_max_app : forall l1 l2,
       list_max (l1 ++ l2) = max (list_max l1) (list_max l2).
-   Proof. Show. Fail (cvc5_abduct 3). Admitted.
+   Proof. Show. Fail (abduce 3). Admitted.
    
    Lemma list_max_le : forall l n,
      list_max l <= n <-> Forall (fun k => k <= n) l.
-   Proof. Show. Fail (cvc5_abduct 3). Admitted.
+   Proof. Show. Fail (abduce 3). Admitted.
    
    Lemma list_max_lt : forall l n, l <> nil ->
      list_max l < n <-> Forall (fun k => k < n) l.
-   Proof. Show. Fail (cvc5_abduct 3). Admitted.
+   Proof. Show. Fail (abduce 3). Admitted.
    
    

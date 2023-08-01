@@ -74,10 +74,10 @@ Section Conjunction.
   Variables A B : Prop.
 
   Theorem proj1 : A /\ B -> A.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Theorem proj2 : A /\ B -> B.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
 End Conjunction.
 
@@ -107,13 +107,13 @@ Register proj2 as core.iff.proj2.
 Section Equivalence.
 
 Theorem iff_refl : forall A:Prop, A <-> A.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem iff_trans : forall A B C:Prop, (A <-> B) -> (B <-> C) -> (A <-> C).
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem iff_sym : forall A B:Prop, (A <-> B) -> (B <-> A).
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
 End Equivalence.
 
@@ -124,70 +124,70 @@ Hint Unfold iff: extcore.
 
 Theorem and_iff_compat_l : forall A B C : Prop,
   (B <-> C) -> (A /\ B <-> A /\ C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem and_iff_compat_r : forall A B C : Prop,
   (B <-> C) -> (B /\ A <-> C /\ A).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem or_iff_compat_l : forall A B C : Prop,
   (B <-> C) -> (A \/ B <-> A \/ C).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem or_iff_compat_r : forall A B C : Prop,
   (B <-> C) -> (B \/ A <-> C \/ A).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem imp_iff_compat_l : forall A B C : Prop,
   (B <-> C) -> ((A -> B) <-> (A -> C)).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem imp_iff_compat_r : forall A B C : Prop,
   (B <-> C) -> ((B -> A) <-> (C -> A)).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem not_iff_compat : forall A B : Prop,
   (A <-> B) -> (~ A <-> ~B).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 
 (** Some equivalences *)
 
 Theorem neg_false : forall A : Prop, ~ A <-> (A <-> False).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem and_cancel_l : forall A B C : Prop,
   (B -> A) -> (C -> A) -> ((A /\ B <-> A /\ C) <-> (B <-> C)).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem and_cancel_r : forall A B C : Prop,
   (B -> A) -> (C -> A) -> ((B /\ A <-> C /\ A) <-> (B <-> C)).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem and_comm : forall A B : Prop, A /\ B <-> B /\ A.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem and_assoc : forall A B C : Prop, (A /\ B) /\ C <-> A /\ B /\ C.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem or_cancel_l : forall A B C : Prop,
   (B -> ~ A) -> (C -> ~ A) -> ((A \/ B <-> A \/ C) <-> (B <-> C)).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem or_cancel_r : forall A B C : Prop,
   (B -> ~ A) -> (C -> ~ A) -> ((B \/ A <-> C \/ A) <-> (B <-> C)).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem or_comm : forall A B : Prop, (A \/ B) <-> (B \/ A).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem or_assoc : forall A B C : Prop, (A \/ B) \/ C <-> A \/ B \/ C.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Lemma iff_and : forall A B : Prop, (A <-> B) -> (A -> B) /\ (B -> A).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma iff_to_and : forall A B : Prop, (A <-> B) <-> (A -> B) /\ (B -> A).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** * First-order quantifiers *)
 
@@ -285,10 +285,10 @@ Section universal_quantification.
   Variable P : A -> Prop.
 
   Theorem inst : forall x:A, all (fun x => P x) -> P x.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Theorem gen : forall (B:Prop) (f:forall y:A, B -> P y), B -> all P.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
 End universal_quantification.
 
@@ -334,7 +334,7 @@ Register eq_rect as core.eq.rect.
 Section Logic_lemmas.
 
   Theorem absurd : forall A C:Prop, A -> ~ A -> C.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Section equality.
     Variables A B : Type.
@@ -342,31 +342,31 @@ Section Logic_lemmas.
     Variables x y z : A.
 
     Theorem eq_sym : x = y -> y = x.
-    Proof. Show. Fail (cvc5_abduct 3). Admitted.
+    Proof. Show. Fail (abduce 3). Admitted.
 
     Register eq_sym as core.eq.sym.
 
     Theorem eq_trans : x = y -> y = z -> x = z.
-    Proof. Show. Fail (cvc5_abduct 3). Admitted.
+    Proof. Show. Fail (abduce 3). Admitted.
 
     Register eq_trans as core.eq.trans.
 
     Theorem eq_trans_r : x = y -> z = y -> x = z.
-    Proof. Show. Fail (cvc5_abduct 3). Admitted.
+    Proof. Show. Fail (abduce 3). Admitted.
 
     Theorem f_equal : x = y -> f x = f y.
-    Proof. Show. Fail (cvc5_abduct 3). Admitted.
+    Proof. Show. Fail (abduce 3). Admitted.
 
     Register f_equal as core.eq.congr.
 
     Theorem not_eq_sym : x <> y -> y <> x.
-    Proof. Show. Fail (cvc5_abduct 3). Admitted.
+    Proof. Show. Fail (abduce 3). Admitted.
 
   End equality.
 
   Definition eq_sind_r :
     forall (A:Type) (x:A) (P:A -> SProp), P x -> forall y:A, y = x -> P y.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   Definition eq_ind_r :
     forall (A:Type) (x:A) (P:A -> Prop), P x -> forall y:A, y = x -> P y.
@@ -467,25 +467,25 @@ Section equality_dep.
   Variables x y : A.
 
   Theorem f_equal_dep (H: x = y) : rew H in f x = f y.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
 End equality_dep.
 
 Lemma f_equal_dep2 {A A' B B'} (f : A -> A') (g : forall a:A, B a -> B' (f a))
   {x1 x2 : A} {y1 : B x1} {y2 : B x2} (H : x1 = x2) :
   rew H in y1 = y2 -> rew f_equal f H in g x1 y1 = g x2 y2.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rew_opp_r A (P:A->Type) (x y:A) (H:x=y) (a:P y) : rew H in rew <- H in a = a.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rew_opp_l A (P:A->Type) (x y:A) (H:x=y) (a:P x) : rew <- H in rew H in a = a.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem f_equal2 :
   forall (A1 A2 B:Type) (f:A1 -> A2 -> B) (x1 y1:A1)
     (x2 y2:A2), x1 = y1 -> x2 = y2 -> f x1 x2 = f y1 y2.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Register f_equal2 as core.eq.congr2.
 
@@ -493,13 +493,13 @@ Theorem f_equal3 :
   forall (A1 A2 A3 B:Type) (f:A1 -> A2 -> A3 -> B) (x1 y1:A1)
     (x2 y2:A2) (x3 y3:A3),
     x1 = y1 -> x2 = y2 -> x3 = y3 -> f x1 x2 x3 = f y1 y2 y3.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem f_equal4 :
   forall (A1 A2 A3 A4 B:Type) (f:A1 -> A2 -> A3 -> A4 -> B)
     (x1 y1:A1) (x2 y2:A2) (x3 y3:A3) (x4 y4:A4),
     x1 = y1 -> x2 = y2 -> x3 = y3 -> x4 = y4 -> f x1 x2 x3 x4 = f y1 y2 y3 y4.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem f_equal5 :
   forall (A1 A2 A3 A4 A5 B:Type) (f:A1 -> A2 -> A3 -> A4 -> A5 -> B)
@@ -507,85 +507,85 @@ Theorem f_equal5 :
     x1 = y1 ->
     x2 = y2 ->
     x3 = y3 -> x4 = y4 -> x5 = y5 -> f x1 x2 x3 x4 x5 = f y1 y2 y3 y4 y5.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem f_equal_compose A B C (a b:A) (f:A->B) (g:B->C) (e:a=b) :
   f_equal g (f_equal f e) = f_equal (fun a => g (f a)) e.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** The groupoid structure of equality *)
 
 Theorem eq_trans_refl_l A (x y:A) (e:x=y) : eq_trans eq_refl e = e.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem eq_trans_refl_r A (x y:A) (e:x=y) : eq_trans e eq_refl = e.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem eq_sym_involutive A (x y:A) (e:x=y) : eq_sym (eq_sym e) = e.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem eq_trans_sym_inv_l A (x y:A) (e:x=y) : eq_trans (eq_sym e) e = eq_refl.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem eq_trans_sym_inv_r A (x y:A) (e:x=y) : eq_trans e (eq_sym e) = eq_refl.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem eq_trans_assoc A (x y z t:A) (e:x=y) (e':y=z) (e'':z=t) :
   eq_trans e (eq_trans e' e'') = eq_trans (eq_trans e e') e''.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem rew_map A B (P:B->Type) (f:A->B) x1 x2 (H:x1=x2) (y:P (f x1)) :
   rew [fun x => P (f x)] H in y = rew f_equal f H in y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem eq_trans_map {A B} {x1 x2 x3:A} {y1:B x1} {y2:B x2} {y3:B x3}
   (H1:x1=x2) (H2:x2=x3) (H1': rew H1 in y1 = y2) (H2': rew H2 in y2 = y3) :
   rew eq_trans H1 H2 in y1 = y3.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma map_subst {A} {P Q:A->Type} (f : forall x, P x -> Q x) {x y} (H:x=y) (z:P x) :
   rew H in f x z = f y (rew H in z).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma map_subst_map {A B} {P:A->Type} {Q:B->Type} (f:A->B) (g : forall x, P x -> Q (f x))
   {x y} (H:x=y) (z:P x) :
   rew f_equal f H in g x z = g y (rew H in z).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rew_swap A (P:A->Type) x1 x2 (H:x1=x2) (y1:P x1) (y2:P x2) : rew H in y1 = y2 -> y1 = rew <- H in y2.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rew_compose A (P:A->Type) x1 x2 x3 (H1:x1=x2) (H2:x2=x3) (y:P x1) :
   rew H2 in rew H1 in y = rew (eq_trans H1 H2) in y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** Extra properties of equality *)
 
 Theorem eq_id_comm_l A (f:A->A) (Hf:forall a, a = f a) a : f_equal f (Hf a) = Hf (f a).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem eq_id_comm_r A (f:A->A) (Hf:forall a, f a = a) a : f_equal f (Hf a) = Hf (f a).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma eq_refl_map_distr A B x (f:A->B) : f_equal f (eq_refl x) = eq_refl (f x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma eq_trans_map_distr A B x y z (f:A->B) (e:x=y) (e':y=z) : f_equal f (eq_trans e e') = eq_trans (f_equal f e) (f_equal f e').
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma eq_sym_map_distr A B (x y:A) (f:A->B) (e:x=y) : eq_sym (f_equal f e) = f_equal f (eq_sym e).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma eq_trans_sym_distr A (x y z:A) (e:x=y) (e':y=z) : eq_sym (eq_trans e e') = eq_trans (eq_sym e') (eq_sym e).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma eq_trans_rew_distr A (P:A -> Type) (x y z:A) (e:x=y) (e':y=z) (k:P x) :
     rew (eq_trans e e') in k = rew e' in rew e in k.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rew_const A P (x y:A) (e:x=y) (k:P) :
     rew [fun _ => P] e in k = k.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 
 (* Aliases *)
@@ -622,18 +622,18 @@ Notation "'exists' ! x .. y , p" :=
 
 Lemma unique_existence : forall (A:Type) (P:A->Prop),
   ((exists x, P x) /\ uniqueness P) <-> (exists! x, P x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma forall_exists_unique_domain_coincide :
   forall A (P:A->Prop), (exists! x, P x) ->
   forall Q:A->Prop, (forall x, P x -> Q x) <-> (exists x, P x /\ Q x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma forall_exists_coincide_unique_domain :
   forall A (P:A->Prop),
   (forall Q:A->Prop, (forall x, P x -> Q x) <-> (exists x, P x /\ Q x))
   -> (exists! x, P x).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** * Being inhabited *)
 
@@ -652,21 +652,21 @@ Hint Resolve inhabits: core.
 
 Lemma exists_inhabited : forall (A:Type) (P:A->Prop),
   (exists x, P x) -> inhabited A.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inhabited_covariant (A B : Type) : (A -> B) -> inhabited A -> inhabited B.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** Declaration of stepl and stepr for eq and iff *)
 
 Lemma eq_stepl : forall (A : Type) (x y z : A), x = y -> x = z -> z = y.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Declare Left Step eq_stepl.
 Declare Right Step eq_trans.
 
 Lemma iff_stepl : forall A B C : Prop, (A <-> B) -> (A <-> C) -> (C <-> B).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Declare Left Step iff_stepl.
 Declare Right Step iff_trans.
@@ -680,11 +680,11 @@ Declare Right Step iff_trans.
 (** η Principles *)
 Definition ex_eta {A : Prop} {P} (p : exists a : A, P a)
   : p = ex_intro _ (ex_proj1 p) (ex_proj2 p).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition ex2_eta {A : Prop} {P Q} (p : exists2 a : A, P a & Q a)
   : p = ex_intro2 _ _ (ex_proj1 (ex_of_ex2 p)) (ex_proj2 (ex_of_ex2 p)) (ex_proj3 p).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Section ex_Prop.
   Variables (A:Prop) (P:A->Prop).
@@ -715,13 +715,13 @@ Section ex.
   Definition eq_ex_intro_uncurried {A : Type} {P : A -> Prop} {u1 v1 : A} {u2 : P u1} {v2 : P v1}
              (pq : exists p : u1 = v1, rew p in u2 = v2)
     : ex_intro _ u1 u2 = ex_intro _ v1 v2.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   (** Equality of [ex] is itself a [ex] (backwards-reasoning version) *)
   Definition eq_ex_uncurried {A : Prop} {P : A -> Prop} (u v : exists a : A, P a)
              (pq : exists p : ex_proj1 u = ex_proj1 v, rew p in ex_proj2 u = ex_proj2 v)
     : u = v.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   (** Curried version of proving equality of [ex] types *)
   Definition eq_ex_intro {A : Type} {P : A -> Prop} {u1 v1 : A} {u2 : P u1} {v2 : P v1}
@@ -749,7 +749,7 @@ Section ex.
 
   (** Induction principle for [@eq (ex _)] *)
   Definition eq_ex_eta {A : Prop} {P : A -> Prop} {u v : exists a : A, P a} (p : u = v) : p = eq_ex u v (ex_proj1_eq p) (ex_proj2_eq p).
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
   Definition eq_ex_rect {A : Prop} {P : A -> Prop} {u v : exists a : A, P a} (Q : u = v -> Type)
              (f : forall p q, Q (eq_ex u v p q))
     : forall p, Q p
@@ -798,7 +798,7 @@ Section ex.
       but for simplicity, we don't. *)
   Definition eq_ex_uncurried_iff {A : Prop} {P : A -> Prop} (u v : exists a : A, P a)
     : u = v <-> exists p : ex_proj1 u = ex_proj1 v, rew p in ex_proj2 u = ex_proj2 v.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   (** Equivalence of equality of [ex] involving hProps with equality of the first components *)
   Definition eq_ex_hprop_iff {A : Prop} {P : A -> Prop} (P_hprop : forall (x : A) (p q : P x), p = q)
@@ -812,7 +812,7 @@ Section ex.
           (Q y)
           (rew H in ex_proj1 u)
           (rew dependent H in ex_proj2 u).
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 End ex.
 Global Arguments eq_ex_intro A P _ _ _ _ !p !q / .
 
@@ -855,14 +855,14 @@ Section ex2.
   Definition eq_ex_intro2_uncurried {A : Type} {P Q : A -> Prop} {u1 v1 : A} {u2 : P u1} {v2 : P v1} {u3 : Q u1} {v3 : Q v1}
              (pqr : exists2 p : u1 = v1, rew p in u2 = v2 & rew p in u3 = v3)
     : ex_intro2 _ _ u1 u2 u3 = ex_intro2 _ _ v1 v2 v3.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   (** Equality of [ex2] is itself a [ex2] (backwards-reasoning version) *)
   Definition eq_ex2_uncurried {A : Prop} {P Q : A -> Prop} (u v : exists2 a : A, P a & Q a)
              (pqr : exists2 p : ex_proj1 u = ex_proj1 v,
                                 rew p in ex_proj2 u = ex_proj2 v & rew p in ex_proj3 u = ex_proj3 v)
     : u = v.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   (** Curried version of proving equality of [ex] types *)
   Definition eq_ex2 {A : Prop} {P Q : A -> Prop} (u v : exists2 a : A, P a & Q a)
@@ -920,12 +920,12 @@ Section ex2.
     : u = v
       <-> exists2 p : ex_proj1 u = ex_proj1 v,
                       rew p in ex_proj2 u = ex_proj2 v & rew p in ex_proj3 u = ex_proj3 v.
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 
   (** Induction principle for [@eq (ex2 _ _)] *)
   Definition eq_ex2_eta {A : Prop} {P Q : A -> Prop} {u v : exists2 a : A, P a & Q a} (p : u = v)
     : p = eq_ex2 u v (ex_proj1_of_ex2_eq p) (ex_proj2_of_ex2_eq p) (ex_proj3_eq p).
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
   Definition eq_ex2_rect {A : Prop} {P Q : A -> Prop} {u v : exists2 a : A, P a & Q a} (R : u = v -> Type)
              (f : forall p q r, R (eq_ex2 u v p q r))
     : forall p, R p
@@ -979,6 +979,6 @@ Section ex2.
           (rew H in ex_proj1 u)
           (rew dependent H in ex_proj2 u)
           (rew dependent H in ex_proj3 u).
-  Proof. Show. Fail (cvc5_abduct 3). Admitted.
+  Proof. Show. Fail (abduce 3). Admitted.
 End ex2.
 Global Arguments eq_ex_intro2 A P Q _ _ _ _ _ _ !p !q !r / .

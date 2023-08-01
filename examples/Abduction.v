@@ -36,7 +36,7 @@ Local Open Scope Z_scope.
 (* #1 From paper *)
 Goal forall (x y z : Z), 0 <= y ->  0 <= x + y + z.
 Proof. 
-  (*cvc5_abduct 5.*)
+  (*abduce 5.*)
   (*intros. assert (0 <= z + x). { admit. } smt (H, H0).*)
   (* cvc5 returned SAT. The goal is invalid, but one of the
      following hypotheses would allow cvc5 to prove the goal:
@@ -59,7 +59,7 @@ Section Comm.
 Variable f : Z -> Z -> Z.
 Goal forall (x y : Z), (f x y) >= 0 -> (f y x) >= 0.
 Proof.
-  (* cvc5_abduct 5. *)
+  (* abduce 5. *)
   (* cvc5 returned SAT. The goal is invalid, but one of the
      following hypotheses would allow cvc5 to prove the goal:
       x = y
@@ -85,7 +85,7 @@ Admitted.
 Variable H : f x y >= 0.
 Goal f y x >= 0.
 Proof.
-  (* cvc5_abduct 5. *)
+  (* abduce 5. *)
   (* cvc5 returned SAT. The goal is invalid, but one of the
      following hypotheses would allow cvc5 to prove the goal:
       x = y
@@ -115,7 +115,7 @@ End Comm.
 (* Trans *)
 Goal forall (x y z : Z), x <= y -> x <= z.
 Proof.
-  (* cvc5_abduct 5. *)
+  (* abduce 5. *)
   (* cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
       z = x
       y + 1 <= z
@@ -128,7 +128,7 @@ Admitted.
 
 Goal forall (a b c d : Z), a <= c -> a + b <= c + d.
 Proof.
-  (* cvc5_abduct 5. *)
+  (* abduce 5. *)
   (* cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
       d = b
       d + c = b + a
@@ -142,7 +142,7 @@ Admitted.
 Goal forall (a b c d : bool), (implb a b) && (implb c d) 
   -> (*a && c ->*) b && d.
 Proof. 
-  (* cvc5_abduct 5. *)
+  (* abduce 5. *)
   (* cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:
       a && c
       b && d && a

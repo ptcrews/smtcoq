@@ -354,7 +354,7 @@ let string_logic_quant ro f =
     (if SL.mem LBitvectors l then "BV" else "")
     (if SL.mem LLia l then "LIA" else "")
 
-let call_cvc5_abduct i j env rt ro ra rf root lsmt =
+let call_abduce i j env rt ro ra rf root lsmt =
     let open Smtlib2_solver in
     let fl = Form.neg (snd root) in
     let solver_call = match j with
@@ -394,7 +394,7 @@ let call_cvc5_abduct i j env rt ro ra rf root lsmt =
         else []) in
       let abducts = List.rev (produce_abducts (i - 1)) in
         CoqInterface.error
-        ("cvc5 returned SAT. The goal is invalid, but one of the following hypotheses would allow cvc5 to prove the goal:\n\n" ^
+        ("cvc5 returned SAT.\nThe solver cannot prove the goal, but one of the following hypotheses would make it provable:\n" ^
           abduct1^"\n"^(String.concat "\n" abducts))
     in
   
@@ -443,7 +443,7 @@ let call_cvc4_abduct i j env rt ro ra rf root lsmt =
   let proof =
     match check_sat cvc4 with
     | Unsat -> CoqInterface.error "CVC4 returned UNSAT, try the smt tactic instead."
-    | Sat -> call_cvc5_abduct i j env rt ro ra rf root lsmt
+    | Sat -> call_abduce i j env rt ro ra rf root lsmt
   in
 
   quit cvc4;

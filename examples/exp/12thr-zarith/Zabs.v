@@ -43,18 +43,18 @@ Notation Zabs_Zmult := Z.abs_mul (only parsing).
 Lemma Zabs_ind :
   forall (P:Z -> Prop) (n:Z),
     (n >= 0 -> P n) -> (n <= 0 -> P (- n)) -> P (Z.abs n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem Zabs_intro : forall P (n:Z), P (- n) -> P n -> P (Z.abs n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition Zabs_dec : forall x:Z, {x = Z.abs x} + {x = - Z.abs x}.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zabs_spec x :
   0 <= x /\ Z.abs x = x \/
   0 > x /\ Z.abs x = -x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** * Some results about the sign function. *)
 
@@ -70,7 +70,7 @@ Lemma Zsgn_spec x :
   0 < x /\ Z.sgn x = 1 \/
   0 = x /\ Z.sgn x = 0 \/
   0 > x /\ Z.sgn x = -1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** Compatibility *)
 
@@ -83,7 +83,7 @@ Notation Zabs_nat_Zminus := (fun n m => Zabs2Nat.inj_sub m n) (only parsing).
 Notation Zabs_nat_compare := Zabs2Nat.inj_compare (only parsing).
 
 Lemma Zabs_nat_le n m : 0 <= n <= m -> (Z.abs_nat n <= Z.abs_nat m)%nat.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zabs_nat_lt n m : 0 <= n < m -> (Z.abs_nat n < Z.abs_nat m)%nat.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.

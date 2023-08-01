@@ -71,9 +71,9 @@ Implicit Types x y z : 'I_p.
 (* Standard injection; val (inZp i) = i %% p *)
 Definition inZp i := Ordinal (ltn_pmod i (ltn0Sn p')).
 Lemma modZp x : x %% p = x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Lemma valZpK x : inZp x = x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (* Operations *)
 Definition Zp0 : 'I_p := ord0.
@@ -86,16 +86,16 @@ Definition Zp_inv x := if coprime p x then inZp (egcdn x p).1 else x.
 (* Additive group structure. *)
 
 Lemma Zp_add0z : left_id Zp0 Zp_add.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zp_addNz : left_inverse Zp0 Zp_opp Zp_add.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zp_addA : associative Zp_add.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zp_addC : commutative Zp_add.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition Zp_zmodMixin := ZmodMixin Zp_addA Zp_addC Zp_add0z Zp_addNz.
 Canonical Zp_zmodType := Eval hnf in ZmodType 'I_p Zp_zmodMixin.
@@ -106,57 +106,57 @@ Canonical Zp_finGroupType := Eval hnf in [finGroupType of 'I_p for +%R].
 (* Ring operations *)
 
 Lemma Zp_mul1z : left_id Zp1 Zp_mul.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zp_mulC : commutative Zp_mul.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zp_mulz1 : right_id Zp1 Zp_mul.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zp_mulA : associative Zp_mul.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zp_mul_addr : right_distributive Zp_mul Zp_add.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zp_mul_addl : left_distributive Zp_mul Zp_add.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zp_mulVz x : coprime p x -> Zp_mul (Zp_inv x) x = Zp1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zp_mulzV x : coprime p x -> Zp_mul x (Zp_inv x) = Zp1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zp_intro_unit x y : Zp_mul y x = Zp1 -> coprime p x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zp_inv_out x : ~~ coprime p x -> Zp_inv x = x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zp_mulrn x n : x *+ n = inZp (x * n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Import GroupScope.
 
 Lemma Zp_mulgC : @commutative 'I_p _ mulg.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zp_abelian : abelian [set: 'I_p].
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zp_expg x n : x ^+ n = inZp (x * n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zp1_expgz x : Zp1 ^+ x = x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zp_cycle : setT = <[Zp1]>.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma order_Zp1 : #[Zp1] = p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End ZpDef.
 
@@ -168,32 +168,32 @@ Arguments valZpK {p'} x.
 (* We redefine fintype.ord1 to specialize it with 0 instead of ord0 *)
 (* since 'I_n is now canonically a zmodType  *)
 Lemma ord1 : all_equal_to (0 : 'I_1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma lshift0 m n : lshift m (0 : 'I_n.+1) = (0 : 'I_(n + m).+1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma rshift1 n : @rshift 1 n =1 lift (0 : 'I_n.+1).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma split1 n i :
   split (i : 'I_(1 + n)) = oapp (@inr _ _) (inl _ 0) (unlift 0 i).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma big_ord1 R idx (op : @Monoid.law R idx) F :
   \big[op/idx]_(i < 1) F i = F 0.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma big_ord1_cond R idx (op : @Monoid.law R idx) P F :
   \big[op/idx]_(i < 1 | P i) F i = if P 0 then F 0 else idx.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Section ZpRing.
 
 Variable p' : nat.
 Local Notation p := p'.+2.
 
-Lemma Zp_nontrivial : Zp1 != 0 :> 'I_p. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma Zp_nontrivial : Zp1 != 0 :> 'I_p. Proof. Show. Fail (abduce 3). Admitted.
 
 Definition Zp_ringMixin :=
   ComRingMixin (@Zp_mulA _) (@Zp_mulC _) (@Zp_mul1z _) (@Zp_mul_addl _)
@@ -211,22 +211,22 @@ Canonical Zp_comUnitRingType := Eval hnf in [comUnitRingType of 'I_p].
 Canonical Zp_finComUnitRingType := Eval hnf in [finComUnitRingType of 'I_p].
 
 Lemma Zp_nat n : n%:R = inZp n :> 'I_p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma natr_Zp (x : 'I_p) : x%:R = x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma natr_negZp (x : 'I_p) : (- x)%:R = - x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Import GroupScope.
 
 Lemma unit_Zp_mulgC : @commutative {unit 'I_p} _ mulg.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma unit_Zp_expg (u : {unit 'I_p}) n :
   val (u ^+ n) = inZp (val u ^ n) :> 'I_p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End ZpRing.
 
@@ -247,36 +247,36 @@ Definition Zp := if p > 1 then [set: 'Z_p] else 1%g.
 Definition units_Zp := [set: {unit 'Z_p}].
 
 Lemma Zp_cast : p > 1 -> (Zp_trunc p).+2 = p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma val_Zp_nat (p_gt1 : p > 1) n : (n%:R : 'Z_p) = (n %% p)%N :> nat.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zp_nat_mod (p_gt1 : p > 1)m : (m %% p)%:R = m%:R :> 'Z_p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma char_Zp : p > 1 -> p%:R = 0 :> 'Z_p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma unitZpE x : p > 1 -> ((x%:R : 'Z_p) \is a GRing.unit) = coprime p x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Zp_group_set : group_set Zp.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 Canonical Zp_group := Group Zp_group_set.
 
 Lemma card_Zp : p > 0 -> #|Zp| = p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
-Lemma mem_Zp x : p > 1 -> x \in Zp. Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Lemma mem_Zp x : p > 1 -> x \in Zp. Proof. Show. Fail (abduce 3). Admitted.
 
 Canonical units_Zp_group := [group of units_Zp].
 
 Lemma card_units_Zp : p > 0 -> #|units_Zp| = totient p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma units_Zp_abelian : abelian units_Zp.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End Groups.
 
@@ -293,33 +293,33 @@ Section F_prime.
 Hypothesis p_pr : prime p.
 
 Lemma Fp_Zcast : (Zp_trunc (pdiv p)).+2 = (Zp_trunc p).+2.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Fp_cast : (Zp_trunc (pdiv p)).+2 = p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma card_Fp : #|'F_p| = p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma val_Fp_nat n : (n%:R : 'F_p) = (n %% p)%N :> nat.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Fp_nat_mod m : (m %% p)%:R = m%:R :> 'F_p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma char_Fp : p \in [char 'F_p].
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma char_Fp_0 : p%:R = 0 :> 'F_p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma unitFpE x : ((x%:R : 'F_p) \is a GRing.unit) = coprime p x.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End F_prime.
 
 Lemma Fp_fieldMixin : GRing.Field.mixin_of [the unitRingType of 'F_p].
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Definition Fp_idomainMixin := FieldIdomainMixin Fp_fieldMixin.
 

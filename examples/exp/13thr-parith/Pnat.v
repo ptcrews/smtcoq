@@ -26,100 +26,100 @@ Module Pos2Nat.
 (** [Pos.to_nat] is a morphism for successor, addition, multiplication *)
 
 Lemma inj_succ p : to_nat (succ p) = S (to_nat p).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem inj_add p q : to_nat (p + q) = to_nat p + to_nat q.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem inj_mul p q : to_nat (p * q) = to_nat p * to_nat q.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** Mapping of xH, xO and xI through [Pos.to_nat] *)
 
 Lemma inj_1 : to_nat 1 = 1.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_xO p : to_nat (xO p) = 2 * to_nat p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_xI p : to_nat (xI p) = S (2 * to_nat p).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Pos.to_nat] maps to the strictly positive subset of [nat] *)
 
 Lemma is_succ p : exists n, to_nat p = S n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Pos.to_nat] is strictly positive *)
 
 Lemma is_pos p : 0 < to_nat p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Pos.to_nat] is a bijection between [positive] and
     non-zero [nat], with [Pos.of_nat] as reciprocal.
     See [Nat2Pos.id] below for the dual equation. *)
 
 Theorem id p : of_nat (to_nat p) = p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Pos.to_nat] is hence injective *)
 
 Lemma inj p q : to_nat p = to_nat q -> p = q.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_iff p q : to_nat p = to_nat q <-> p = q.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Pos.to_nat] is a morphism for comparison *)
 
 Lemma inj_compare p q : (p ?= q)%positive = (to_nat p ?= to_nat q).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Pos.to_nat] is a morphism for [lt], [le], etc *)
 
 Lemma inj_lt p q : (p < q)%positive <-> to_nat p < to_nat q.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_le p q : (p <= q)%positive <-> to_nat p <= to_nat q.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_gt p q : (p > q)%positive <-> to_nat p > to_nat q.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_ge p q : (p >= q)%positive <-> to_nat p >= to_nat q.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Pos.to_nat] is a morphism for subtraction *)
 
 Theorem inj_sub p q : (q < p)%positive ->
  to_nat (p - q) = to_nat p - to_nat q.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem inj_sub_max p q :
  to_nat (p - q) = Nat.max 1 (to_nat p - to_nat q).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem inj_pred p : (1 < p)%positive ->
  to_nat (pred p) = Nat.pred (to_nat p).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem inj_pred_max p :
  to_nat (pred p) = Nat.max 1 (Peano.pred (to_nat p)).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Pos.to_nat] and other operations *)
 
 Lemma inj_min p q :
  to_nat (min p q) = Nat.min (to_nat p) (to_nat q).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_max p q :
  to_nat (max p q) = Nat.max (to_nat p) (to_nat q).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem inj_iter p {A} (f:A->A) (x:A) :
     Pos.iter f x p = nat_rect _ x (fun _ => f) (to_nat p).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End Pos2Nat.
 
@@ -130,52 +130,52 @@ Module Nat2Pos.
     See [Pos2Nat.id] above for the dual equation. *)
 
 Theorem id (n:nat) : n<>0 -> Pos.to_nat (Pos.of_nat n) = n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem id_max (n:nat) : Pos.to_nat (Pos.of_nat n) = max 1 n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Pos.of_nat] is hence injective for non-zero numbers *)
 
 Lemma inj (n m : nat) : n<>0 -> m<>0 -> Pos.of_nat n = Pos.of_nat m -> n = m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_iff (n m : nat) : n<>0 -> m<>0 ->
  (Pos.of_nat n = Pos.of_nat m <-> n = m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** Usual operations are morphisms with respect to [Pos.of_nat]
     for non-zero numbers. *)
 
 Lemma inj_succ (n:nat) : n<>0 -> Pos.of_nat (S n) = Pos.succ (Pos.of_nat n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_pred (n:nat) : Pos.of_nat (pred n) = Pos.pred (Pos.of_nat n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_add (n m : nat) : n<>0 -> m<>0 ->
  Pos.of_nat (n+m) = (Pos.of_nat n + Pos.of_nat m)%positive.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_mul (n m : nat) : n<>0 -> m<>0 ->
  Pos.of_nat (n*m) = (Pos.of_nat n * Pos.of_nat m)%positive.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_compare (n m : nat) : n<>0 -> m<>0 ->
  (n ?= m) = (Pos.of_nat n ?= Pos.of_nat m)%positive.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_sub (n m : nat) : m<>0 ->
  Pos.of_nat (n-m) = (Pos.of_nat n - Pos.of_nat m)%positive.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_min (n m : nat) :
  Pos.of_nat (min n m) = Pos.min (Pos.of_nat n) (Pos.of_nat m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_max (n m : nat) :
  Pos.of_nat (max n m) = Pos.max (Pos.of_nat n) (Pos.of_nat m).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End Nat2Pos.
 
@@ -189,13 +189,13 @@ Module Pos2SuccNat.
     on [positive] *)
 
 Theorem id_succ p : Pos.of_succ_nat (Pos.to_nat p) = Pos.succ p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** Composition of [Pos.to_nat], [Pos.of_succ_nat] and [Pos.pred]
     is identity on [positive] *)
 
 Theorem pred_id p : Pos.pred (Pos.of_succ_nat (Pos.to_nat p)) = p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End Pos2SuccNat.
 
@@ -204,33 +204,33 @@ Module SuccNat2Pos.
 (** Composition of [Pos.of_succ_nat] and [Pos.to_nat] is successor on [nat] *)
 
 Theorem id_succ (n:nat) : Pos.to_nat (Pos.of_succ_nat n) = S n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem pred_id (n:nat) : pred (Pos.to_nat (Pos.of_succ_nat n)) = n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** [Pos.of_succ_nat] is hence injective *)
 
 Lemma inj (n m : nat) : Pos.of_succ_nat n = Pos.of_succ_nat m -> n = m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_iff (n m : nat) : Pos.of_succ_nat n = Pos.of_succ_nat m <-> n = m.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** Another formulation *)
 
 Theorem inv n p : Pos.to_nat p = S n -> Pos.of_succ_nat n = p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** Successor and comparison are morphisms with respect to
     [Pos.of_succ_nat] *)
 
 Lemma inj_succ n : Pos.of_succ_nat (S n) = Pos.succ (Pos.of_succ_nat n).
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma inj_compare n m :
  (n ?= m) = (Pos.of_succ_nat n ?= Pos.of_succ_nat m)%positive.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 (** Other operations, for instance [Pos.add] and [plus] aren't
     directly related this way (we would need to compensate for
@@ -298,28 +298,28 @@ Section ObsoletePmultNat.
 
 Lemma Pmult_nat_mult : forall p n,
  Pmult_nat p n = Pos.to_nat p * n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Pmult_nat_succ_morphism :
  forall p n, Pmult_nat (Pos.succ p) n = n + Pmult_nat p n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem Pmult_nat_l_plus_morphism :
  forall p q n, Pmult_nat (p + q) n = Pmult_nat p n + Pmult_nat q n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Theorem Pmult_nat_plus_carry_morphism :
  forall p q n, Pmult_nat (Pos.add_carry p q) n = n + Pmult_nat (p + q) n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma Pmult_nat_r_plus_morphism :
  forall p n, Pmult_nat p (n + n) = Pmult_nat p n + Pmult_nat p n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma ZL6 : forall p, Pmult_nat p 2 = Pos.to_nat p + Pos.to_nat p.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 Lemma le_Pmult_nat : forall p n, n <= Pmult_nat p n.
-Proof. Show. Fail (cvc5_abduct 3). Admitted.
+Proof. Show. Fail (abduce 3). Admitted.
 
 End ObsoletePmultNat.
