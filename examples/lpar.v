@@ -34,25 +34,26 @@ Proof.
 (* smt. *)
 Admitted.
 
-Definition multi := Z.mul.
+Definition mul' := Z.mul.
+Notation "x *' y" := (mul' x y) (at level 1).
 
 Goal forall (x y : Z),
   x = y + 1 -> x * x = (y + 1) * x.
 Proof. (* smt. *) Admitted.
 
 Goal forall (x y : Z),
-  x = y + 1 -> multi x x = multi (y + 1) x.
+  x = y + 1 -> x *' x = (y + 1) *' x.
 Proof. smt. Qed.
 
 Goal forall (x y z: Z),
-    x = y + 1 -> multi y z = multi z (x - 1).
+    x = y + 1 -> y *' z = z *' (x - 1).
 Proof. (* smt.
 CVC4 returned sat. Here is the model:
 x := 0
 y := -1
 z := 1
-multi := fun BOUND_VARIABLE_335 BOUND_VARIABLE_336 => if BOUND_VARIABLE_335 = 1 then if BOUND_VARIABLE_336 = -1 then -2 else 2 else 2
-
+mul' := fun BOUND_VARIABLE_335 BOUND_VARIABLE_336 => if BOUND_VARIABLE_335 = 1 then if BOUND_VARIABLE_336 = -1 then -2 else 2 else 2 *)
+abduce 3.
 1. time abduce 3. (* with cvc5 latest where grammar has both ITE and OR *)
 Tactic call ran for 15.278 secs (0.014u,0.02s) (failure)
 cvc5 returned SAT.
@@ -88,7 +89,13 @@ Search (_ * _ = _ * _).
 intros. assert ((multi z y) = (multi y z)). 
 { apply Z.mul_comm. } smt.
 Qed.
-
+Search (_ * _ = _). Search Z.max.
+Lemma inj_max n m : 0<=n -> 0<=m ->
+ Z.abs_N (Z.max n m) = N.max (Z.abs_N n) (Z.abs_N m).
+Proof. abduce 3.
+ intros. rewrite !abs_N_nonneg; trivial. now apply Z2N.inj_max.
+ transitivity n; trivial. apply Z.le_max_l.
+Qed. 
 (* Require Import List.
 Local Open Scope list_scope.
 Goal forall (a : A) (l : list A), a :: l ++ [] = [a] -> a :: l = [a].
