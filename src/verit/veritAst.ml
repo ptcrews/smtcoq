@@ -894,9 +894,15 @@ let cong_find_implicit_args (ft : term) (p : params) (cog : certif) (is_form : b
                                            | None -> raise (Debug ("| cong_find_implicit_args: can't fetch premises to congr (no implicit equalities case) |")))) p in
                      ([], ptuples)
                    else
+                     (* Congruence over equality is a special case. Since we have to check modulo symmetry
+                        the arguments may be reversed, which we don't account for in other functions. We 
+                        reverse the equality here so that they can be checked pairwise *)
+                     let fx', fy' = (match fx, fy with
+                                     | Eq (x, y), Eq (a, b) when (x = b || y = a) -> Eq (y, x), Eq (a, b)
+                                     | _, _ -> fx, fy) in
                      (* get all arguments of fx and fy *)
-                     let fxas = get_args fx in
-                     let fyas = get_args fy in
+                     let fxas = get_args fx' in
+                     let fyas = get_args fy' in
                      (* get all equalities from params *)
                      let (pids, peqs) = List.split (List.map (fun x -> (match (get_cl x cog) with
                                              | Some c -> let eq = try (List.find (fun y -> match (get_expr y) with
@@ -917,7 +923,7 @@ let cong_find_implicit_args (ft : term) (p : params) (cog : certif) (is_form : b
                            if ((fxa' = px' && fya' = py') || (fxa' = py' && fya' = px')) then
                               let (imp, ptuples) = f fxat fyat pidt peqt in
                               (imp, (pid, (Eq (px', py'))) :: ptuples)
-                           (* implicit equaltiy found *)
+                           (* implicit equality found *)
                            else if (fxa' = fya') then
                               let (imp, ptuples) = f fxat fyat (pid :: pidt) (Eq (px', py') :: peqt) in
                               let impi = generate_id () in
@@ -1327,8 +1333,140 @@ let process_cong (c : certif) : certif =
                    (* 17. resolve 8. and 16. to get `x -> y = a -> b` *)
                    (i, ResoAST, [eq], [resi10; resi5], []) ::
                    process_cong_aux t cog
-                 | Eq (Xor xs, Xor ys) -> raise (Debug ("| process_cong: cong over xor not implemented yet |"))
-                 | Eq (Ite xs, Ite ys) -> raise (Debug ("| process_cong: cong over ite not implemented yet |"))
+                 | Eq (Xor xs, Xor ys) -> raise (Debug ("| process_cong: cong over xor not implemented yet at id "^i^" |"))
+                 (* ite predicate
+                    -----  ---------------eqp2
+                    z = c  ~(z = c), ~z, c
+                    ----------------------res  ------------------itep1  ----------------iten1  -------------------------------------------eqn2
+                             ~z, c             ~(ite x y z), x, z       ite a b c, a, ~c       ite x y z = ite a b c, ite x y z, ite a b c
+                            --------------------------------------------------------------------------------------------------------------res
+                                                               ite x y z = ite a b c, ite a b c, x, a --(1)
+                    -----  ---------------eqp1                                                                                                                                                   -----  ---------------eqp1
+                    z = c  ~(z = c), z, ~c                                                                                                                                                       x = a  ~(x = a), x, ~a
+                    ----------------------res  ----------------iten1  ------------------itep1  -------------------------------------------------eqn1  --------------------------------------(1)  ----------------------res
+                             z, ~c             ite x y z, x, ~z       ~(ite a b c), a, c       ite x y z = ite a b c, ~(ite x y z), ~(ite a b c)      ite x y z = ite a b c, ite a b c, x, a              x, ~a
+                             ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------res  
+                                                                                                       ite x y z = ite a b c, x --(2)
+                    -----  ---------------eqp2
+                    x = a  ~(x = a), ~x, a
+                    ----------------------res  ------------------------(2)
+                             ~x, a             ite x y z = ite a b c, x
+                             ------------------------------------------res
+                                    ite x y z = ite a b c, a --(3)
+                    y = b  ~(y = b), y, ~b
+                    ----------------------res  -------------------itep2  -----------------iten2  -------------------------------------------eqn2  ------------------------(3)  ------------------------(2)
+                             y, ~b             ~(ite a b c), ~a, b       ite x y z, ~x, ~y       ite x y z = ite a b c, ite x y z, ite a b c      ite x y z = ite a b c, a     ite x y z = ite a b c, x
+                             --------------------------------------------------------------------------------------------------------------------------------------------------------------------------res
+                                                                                                 ite x y z = ite a b c, ite x y z --(4)
+
+                    -------------------------------------------------eqn1  --------------------------------(4)
+                    ite x y z = ite a b c, ~(ite x y z), ~(ite a b c)      ite x y z = ite a b c, ite x y z
+                    ---------------------------------------------------------------------------------------res
+                                            ite x y z = ite a b c, ~(ite a b c) --(5)
+                    -------------------itep2  --------------------------------(4)  ------------------------(2)
+                    ~(ite x y z), ~x, y       ite x y z = ite a b c, ite x y z     ite x y z = ite a b c, x
+                    ---------------------------------------------------------------------------------------res
+                                                  ite x y z = ite a b c, y --(6)
+                    -----------------iten2  -----------------------------------(5)  -----------------------(3)
+                    ite a b c, ~a, ~b       ite x y z = ite a b c, ~(ite a b c)     ite x y z = ite a b c, a
+                    ----------------------------------------------------------------------------------------res
+                                                  ite x y z = ite a b c, ~b --(7)
+                    -----  ---------------eqp2
+                    y = b  ~(y = b), ~y, b
+                    ----------------------res  ------------------------(6)  -------------------------(7)
+                             ~y, b             ite x y z = ite a b c, y     ite x y z = ite a b c, ~b
+                             ------------------------------------------------------------------------res
+                                                       ite x y z = ite a b c  
+                 *)
+                 | Eq (Ite [x; y; z], Ite [a; b; c]) as eq-> 
+                   (* Given ite x y z = ite a b c in the conclusion,
+                      1. Generate ~(z = c), ~z, c by eqp2 and resolve it with z = c to get ~z, c *)
+                   let eqp2i1 = generate_id () in
+                   let resi1 = generate_id () in
+                   (* 2. Resolve 1., ~(ite x y z), x, z by itep1, ite a b c, a, ~c by iten1, and ite x y z = ite a b c, ite x y z, ite a b c by 
+                         eqn2 to get ite x y z = ite a b c, ite a b c, x, a *)
+                   let itep1i1 = generate_id () in
+                   let iten1i1 = generate_id () in
+                   let eqn2i1 = generate_id () in
+                   let resi2 = generate_id () in
+                   (* 3. Generate ~(z = c), z, ~c by eqp1 and resolve it with z = c to get z, ~c *)
+                   let eqp1i1 = generate_id () in
+                   let resi3 = generate_id () in
+                   (* 4. Generate ~(x = a), x, ~a by eqp1 and resolve it with x = a to get x, ~a *)
+                   let eqp1i2 = generate_id () in
+                   let resi4 = generate_id () in
+                   (* 5. Resolve 3., ite x y z, x, ~z by iten1, ~(ite a b c), a, c by itep1, ite x y z = ite a b c, ~(ite x y z), ~(ite a b c) by
+                         eqn1, 2., and 4. to get ite x y z = ite a b c, x *)
+                   let iten1i2 = generate_id () in
+                   let itep1i2 = generate_id () in
+                   let eqn1i1 = generate_id () in
+                   let resi5 = generate_id () in
+                   (* 6. Generate ~(x = a), ~x, a by eqp2 and resolve it with x = a to get ~x, a *)
+                   let eqp2i2 = generate_id () in
+                   let resi6 = generate_id () in
+                   (* 7. Resolve 6. and 5. to get ite x y z = ite a b c, a *)
+                   let resi7 = generate_id () in
+                   (* 8. Generate ~(y = b), y, ~b by eqp1 amd resolve it with y = b to get y, ~b. *)
+                   let eqp1i3 = generate_id () in
+                   let resi8 = generate_id () in
+                   (* 9. Resolve 8., ~(ite a b c), ~a, b by itep2, ite x y z, ~x, ~y by iten2, ite x y z = ite a b c, ite x y z, ite a b c by eqn2 (reuse from 2.), 
+                         7., and 5. to get ite x y z = ite a b c, ite x y z *)
+                   let itep2i1 = generate_id () in
+                   let iten2i1 = generate_id () in
+                   let resi9 = generate_id () in
+                   (* 10. Generate ite x y z = ite a b c, ~(ite x y z), ~(ite a b c) by eqn1 (reuse from 5.) and resolve it with 9. to get 
+                          ite x y z = ite a b c, ~(ite a b c) *)
+                   let resi10 = generate_id () in
+                   (* 11. Generate ~(ite x y z), ~x, y by itep2, 9. and 5. to get ite x y z = ite a b c, y *)
+                   let itep2i2 = generate_id () in
+                   let resi11 = generate_id () in
+                   (* 12. Generate ite a b c, ~a, ~b by iten2 and resolve it with 10. and 7. to get ite x y z = ite a b c, ~b *)
+                   let iten2i2 = generate_id () in
+                   let resi12 = generate_id () in
+                   (* 13. Generate ~(y = b), ~y, b by eqp2 and resolve it with y = b to get ~y, b *)
+                   let eqp2i3 = generate_id () in
+                   let resi13 = generate_id () in
+                   (* Get premise ids *)
+                   let p1 = (match (List.nth ptuples 0) with
+                             | (pid, _) -> pid) in
+                   let p2 = (match (List.nth ptuples 1) with
+                             | (pid, _) -> pid) in
+                   let p3 = (match (List.nth ptuples 2) with
+                             | (pid, _) -> pid) in
+                   let itexyz = Ite [x; y; z] in
+                   let iteabc = Ite [a; b; c] in
+                   (eqp2i1, Equp2AST, [Not (Eq (z, c)); Not z; c], [], []) ::
+                   (resi1, ResoAST, [Not z; c], [eqp2i1; p3], []) ::
+                   (itep1i1, Itep1AST, [Not itexyz; x; z], [], []) ::
+                   (iten1i1, Iten1AST, [iteabc; a; Not c], [], []) ::
+                   (eqn2i1, Equn2AST, [eq; itexyz; iteabc], [], []) ::
+                   (resi2, ResoAST, [eq; iteabc; x; a], [resi1; itep1i1; iten1i1; eqn2i1], []) ::
+                   (eqp1i1, Equp1AST, [Not (Eq (z, c)); z; Not c], [], []) ::
+                   (resi3, ResoAST, [z; Not c], [eqp1i1; p3], []) ::
+                   (eqp1i2, Equp1AST, [Not (Eq (x, a)); x; Not a], [], []) ::
+                   (resi4, ResoAST, [x; Not a], [eqp1i2; p1], []) ::
+                   (iten1i2, Iten1AST, [itexyz; x; Not z], [], []) ::
+                   (itep1i2, Itep1AST, [Not iteabc; a; c], [], []) ::
+                   (eqn1i1, Equn1AST, [eq; Not itexyz; Not iteabc], [], []) ::
+                   (resi5, ResoAST, [eq; x], [resi3; iten1i2; itep1i2; eqn1i1; resi2; resi4], []) ::
+                   (eqp2i2, Equp2AST, [Not (Eq (x, a)); Not x; a], [], []) ::
+                   (resi6, ResoAST, [Not x; a], [eqp2i2; p1], []) ::
+                   (resi7, ResoAST, [eq; a], [resi6; resi5], []) ::
+                   (eqp1i3, Equp1AST, [Not (Eq (y, b)); y; Not b], [], []) ::
+                   (resi8, ResoAST, [y; Not b], [eqp1i3; p2], []) ::
+                   (itep2i1, Itep2AST, [Not iteabc; Not a; b], [], []) ::
+                   (iten2i1, Iten2AST, [itexyz; Not x; Not y], [], []) ::
+                   (resi9, ResoAST, [eq; itexyz], [resi8; itep2i1; iten2i1; eqn2i1; resi7; resi5], []) ::
+                   (resi10, ResoAST, [eq; Not iteabc], [eqn1i1; resi9], []) ::
+                   (itep2i2, Itep2AST, [Not itexyz; Not x; y], [], []) ::
+                   (resi11, ResoAST, [eq; y], [itep2i2; resi9; resi5], []) ::
+                   (iten2i2, Iten2AST, [iteabc; Not a; Not b], [], []) ::
+                   (resi12, ResoAST, [eq; Not b], [iten2i2; resi10; resi7], []) ::
+                   (eqp2i3, Equp2AST, [Not (Eq (y, b)); Not y; b], [], []) ::
+                   (resi13, ResoAST, [Not y; b], [eqp2i3; p2], []) ::
+                   (* 14. Resolve 13., 11., and 12. to get ite x y z = ite a b c *)
+                   (i, ResoAST, [eq], [resi13; resi11; resi12], []) ::
+                   process_cong_aux t cog
                  (* iff predicate
                     -----  ---------------eqp1                                                                             
                     y = b  ~(y = b), y, ~b                                                                                 

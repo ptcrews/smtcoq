@@ -1,172 +1,115 @@
+ -----  -----  -----
+ x = a  y = b  z = c
+---------------------cong
+ite x y z = ite a b c
 
-
-1:(input (x = a))
-2:(input (y = b))
-3:(input (~(x = y) = (a = b)))
-4:(equiv1 (~x, a) 1)
-5:(equiv2 (x, ~a) 1)
-6:(equiv1 (~y, b) 2)
-7:(equiv2 (y, ~b) 2)
-8:(equiv_pos1 (~(x = y), x, ~y))
-9:(equiv_pos2 (~(x = y), ~x, y))
-10:(equiv_neg1 (x = y, ~x, ~y))
-11:(equiv_neg2 (x = y, x, y))
-12:(equiv_pos1 (~(a = b), a, ~b))
-13:(equiv_pos2 (~(a = b), ~a, b))
-14:(equiv_neg1 (a = b, ~a, ~b))
-15:(equiv_neg2 (a = b, a, b))
-16:(not_equiv1 (x = y, a = b) 3)
-17:(not_equiv2 (~(x = y), ~(a = b)) 3)
-18:(resolution (x, a = b, a) 7 8 15 16)
-19:(resolution (x) 6 11 12 17 18 5)
-20:(resolution (a) 4 19)
-21:(resolution ~y 17 14 10 6 20 19)
-22:(resolution ~b 7 21)
-23:(resolution ~(x = y) 9 21 19)
-24:(resolution (~(a = b)) 13 22 20)
-25:(resolution () 16 23 24)
-
-
-1:(input (x = a))
-2:(input (y = b))
-
-4:(equiv1 (~x a) 1)
+1:(input ((= x a)))
+2:(input ((= y b)))
+3:(input ((= z c)))
+4:(input ((not (= (ite x y z) (ite a b c)))))
+5:(equiv1 ((not x) a) 1)
 -----  ---------------eqp2
 x = a  ~(x = a), ~x, a
-----------------------res 
-        ~x, a
-5:(equiv2 (x ~a) 1)
+----------------------res
+         ~x, a
+6:(equiv2 (x (not a)) 1)
 -----  ---------------eqp1
 x = a  ~(x = a), x, ~a
-----------------------res 
-        x, ~a
-6:(equiv1 (~y b) 2)
+----------------------res
+         x, ~a
+7:(equiv1 ((not y) b) 2)
 -----  ---------------eqp2
 y = b  ~(y = b), ~y, b
-----------------------res 
-        ~y, b   
-7:(equiv2 (y ~b) 2)
+----------------------res
+         ~y, b
+8:(equiv2 (y (not b)) 2)
 -----  ---------------eqp1
 y = b  ~(y = b), y, ~b
-----------------------res 
-        y, ~b
-8:(equiv_pos1 (~(x = y) x ~y))
-----------------eqp1
-~(x = y),  x, ~y
-9:(equiv_pos2 (~(x = y) ~x y))
-------------eqp2
-x = y, ~x, y
-10:(equiv_neg1 ((x = y) ~x ~y))
--------------eqn1
-x = y, ~x, ~y
-11:(equiv_neg2 ((x = y) x y))
------------eqn2
-x = y, x, y
-12:(equiv_pos1 (~(a = b) a ~b))
---------------eqp1
-~(a = b), a ~b
-13:(equiv_pos2 (~(a = b) ~a b))
---------------eqp2
-~(a = b), ~a, b
-14:(equiv_neg1 ((a = b) ~a ~b))
--------------eqn1
-a = b, ~a, ~b
-15:(equiv_neg2 ((a = b) a b))
------------eqn2
-a = b, a, b
-16:(equiv_neg2 (((x  =  y) = (a = b)) (x = y) (a = b)))
--------------------------------eqn2
-(x = y) = (a = b), x = y, a = b
-17:(equiv_neg1 (((x  =  y) = (a = b)) ~(x = y) ~(a = b)))
--------------------------------------eqn1
-(x = y) = (a = b), ~(x = y), ~(a = b)
-18:(resolution (a = b, x, a) 7 8 15 16)
-19:(resolution (x) 6 11 12 17 18 5)
-20:(resolution (a) 4 19)
-21:(resolution ~y 17 14 10 6 20 19)
-22:(resolution ~b 7 21)
-23:(resolution ~(x = y) 9 21 19)
-24:(resolution (~(a = b)) 13 22 20)
-25:(resolution () 16 23 24)
+----------------------res
+         y, ~b
+9:(equiv1 ((not z) c) 3)
+-----  ---------------eqp2
+z = c  ~(z = c), ~z, c
+----------------------res
+         ~z, c
+10:(equiv2 (z (not c)) 3)
+-----  ---------------eqp1
+z = c  ~(z = c), z, ~c
+----------------------res
+         z, ~c
+11:(ite_pos1 ((not (ite x y z)) x z))
+------------------itep1
+~(ite x y z), x, z
+12:(ite_pos2 ((not (ite x y z)) (not x) y))
+-------------------itep2
+~(ite x y z), ~x, y
+13:(ite_neg1 ((ite x y z) x (not z)))
+----------------iten1
+ite x y z, x, ~z
+14:(ite_neg2 ((ite x y z) (not x) (not y)))
+-----------------iten2
+ite x y z, ~x, ~y
+15:(ite_pos1 ((not (ite a b c)) a c))
+------------------itep1
+~(ite a b c), a, c
+16:(ite_pos2 ((not (ite a b c)) (not a) b))
+-------------------itep2
+~(ite a b c), ~a, b
+17:(ite_neg1 ((ite a b c) a (not c)))
+----------------iten1
+ite a b c, a, ~c
+18:(ite_neg2 ((ite a b c) (not a) (not b)))
+-----------------iten2
+ite a b c, ~a, ~b
+19:(not_equiv1 ((ite x y z) (ite a b c)) 4)
+-------------------------------------------eqn2
+ite x y z = ite a b c, ite x y z, ite a b c
+20:(not_equiv2 ((not (ite x y z)) (not (ite a b c))) 4)
+-------------------------------------------------eqn1
+ite x y z = ite a b c, ~(ite x y z), ~(ite a b c)
+21:(resolution (x (ite a b c) a) 9 11 17 19)
 
 
-which can be transformed into a step like this:
-1:(input (x = a))
-2:(input (y = b))
-
-4:(equiv1 (~x, a) 1)
-5:(equiv2 (x, ~a) 1)
-6:(equiv1 (~y, b) 2)
-7:(equiv2 (y, ~b) 2)
-8:(equiv_pos1 (~(x = y), x, ~y))
-9:(equiv_pos2 (~(x = y), ~x, y))
-10:(equiv_neg1 (x = y, ~x, ~y))
-11:(equiv_neg2 (x = y, x, y))
-12:(equiv_pos1 (~(a = b), a, ~b))
-13:(equiv_pos2 (~(a = b), ~a, b))
-14:(equiv_neg1 (a = b, ~a, ~b))
-15:(equiv_neg2 (a = b, a, b))
-16:(equiv_neg2 ((x = y) = (a = b), x = y, a = b))
-17:(equiv_neg1 ((x = y) = (a = b), ~(x = y), ~(a = b)))
-18:(resolution ((x = y) = (a = b), a = b, x, a) 7 8 15 16)
-19:(resolution ((x = y) = (a = b), x) 6 11 12 17 18 5)
-20:(resolution ((x = y) = (a = b), a) 4 19)
-21:(resolution ((x = y) = (a = b), ~y) 17 14 10 6 20 19)
-22:(resolution ((x = y) = (a = b), ~b) 7 21)
-23:(resolution ((x = y) = (a = b), ~(x = y)) 9 21 19)
-24:(resolution ((x = y) = (a = b), ~(a = b)) 13 22 20)
-25:(resolution ((x = y) = (a = b)) 16 23 24)
-
-Given (x = y) = (a = b) in the conclusion,
-1. Generate ~(y = b), y, ~b by eqp1 and resolve it with y = b to get y, ~b
-2. Generate ~(x = y),  x, ~y by eqp1, a = b, a, b by eqn2, (x = y) = (a = b), x = y, a = b by eqn2 and resolve all of them with 1. to get (x = y) = (a = b), a = b, x, a
-3. Generate ~(y = b), ~y, b by eqp2, and resolve it with y = b to get ~y, b
-4. Generate x = y, x, y by eqn2, ~(a = b), a ~b by eqp1, (x = y) = (a = b), ~(x = y), ~(a = b) by eqn1, and resolve all of them with 3. to get (x = y) = (a = b), ~(a = b), x, a
-5. Generate ~(x = a), x, ~a by eqp1 and resolve it with x = a to get x, ~a
-6. Resolve 2., 4., and 5. to get (x = y) = (a = b), x
-7. Generate ~(x = a), ~x, a by eqp2 and resolve with x = a to get ~x, a
-8. Resolve 6. and 7. to get (x = y) = (a = b), a
-9. Resolve (x = y) = (a = b), ~(x = y), ~(a = b) by eqn1 (reuse from 4.), a = b, ~a, ~b by eqn1, x = y, ~x, ~y by eqn1, 3., 8., and 6. to get (x = y) = (a = b), ~y
-10. Resolve 9. and 1. to get (x = y) = (a = b), ~b
-11. Resolve ~(x = y), ~x, y by eqp2, 9., and 6. to get  (x = y) = (a = b), ~(x = y)
-12. Resolve ~(a = b), ~a, by eqp2, 9., and 8. to get (x = y) = (a = b), ~(a = b)
-13. Generate (x = y) = (a = b), x = y, a = b (reuse from 2.) by eqn2 and resolve it with 11. and 12. to get (x = y) = (a = b)
-
------  ---------------eqp1                                                                             
-y = b  ~(y = b), y, ~b                                                                                 
-----------------------res  ----------------eqp1  -----------eqn2  -------------------------------eqn2  
-        y, ~b              ~(x = y),  x, ~y      a = b, a, b      (x = y) = (a = b), x = y, a = b      
-        -----------------------------------------------------------------------------------------res   
-                                        (x = y) = (a = b), a = b, x, a --(1)                           
-
-                                -----  ---------------eqp2
-                                y = b  ~(y = b), ~y, b
-                                ----------------------res  -----------eqn2  --------------eqp1  -------------------------------------eqn1  -----  ---------------eqp1
-                                        ~y, b              x = y, x, y      ~(a = b), a ~b      (x = y) = (a = b), ~(x = y), ~(a = b)      x = a  ~(x = a), x, ~a
-------------------------------(1)      ---------------------------------------------------------------------------------------------res   ----------------------res 
-(x = y) = (a = b), a = b, x, a                                           (x = y) = (a = b), ~(a = b), x, a                                          x, ~a
----------------------------------------------------------------------------------------------------------------------------------------------------------res
-                                                                 (x = y) = (a = b), x --(2)
 
 -----  ---------------eqp2
+z = c  ~(z = c), ~z, c
+----------------------res  ------------------itep1  ----------------iten1  -------------------------------------------eqn2
+         ~z, c             ~(ite x y z), x, z       ite a b c, a, ~c       ite x y z = ite a b c, ite x y z, ite a b c
+        --------------------------------------------------------------------------------------------------------------res
+                                           ite x y z = ite a b c, ite a b c, x, a --(1)
+-----  ---------------eqp1                                                                                                                                                   -----  ---------------eqp1
+z = c  ~(z = c), z, ~c                                                                                                                                                       x = a  ~(x = a), x, ~a
+----------------------res  ----------------iten1  ------------------itep1  -------------------------------------------------eqn1  --------------------------------------(1)  ----------------------res
+         z, ~c             ite x y z, x, ~z       ~(ite a b c), a, c       ite x y z = ite a b c, ~(ite x y z), ~(ite a b c)      ite x y z = ite a b c, ite a b c, x, a              x, ~a
+         ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------res  
+                                                                                   ite x y z = ite a b c, x --(2)
+-----  ---------------eqp2
 x = a  ~(x = a), ~x, a
-----------------------res  --------------------(2)
-        ~x, a              (x = y) = (a = b), x
-        ---------------------------------------                                                                                                             
-                 (x = y) = (a = b), a --(3)
-
-                                                                                 -----  ---------------eqp2
-                                                                                 y = b  ~(y = b), ~y, b
--------------------------------------eqn1  -------------eqn1  -------------eqn1  ----------------------res  --------------------(3)  --------------------(2)  -----  ---------------eqp1
-(x = y) = (a = b), ~(x = y), ~(a = b)      a = b, ~a, ~b      x = y, ~x, ~y              ~y, b              (x = y) = (a = b), a     (x = y) = (a = b), x     y = b  ~(y = b), y, ~b
----------------------------------------------------------------------------------------------------------------------------------------------------------res  ----------------------res 
-                                                                      (x = y) = (a = b), ~y --(4)                                                                       y, ~b
-                                                                      -----------------------------------------------------------------------------------------------------res
-                                                                                                                (x = y) = (a = b), ~b --(5)
-
-                                     ---------------eqp2  ---------------------(4)  --------------------(2)  ---------------eqp2  ---------------------(4)  --------------------(3)
-                                     ~(x = y), ~x, y      (x = y) = (a = b), ~y     (x = y) = (a = b), x     ~(a = b), ~a, b      (x = y) = (a = b), ~b     (x = y) = (a = b), a
--------------------------------eqn2  -------------------------------------------------------------------res  -------------------------------------------------------------------res
-(x = y) = (a = b), x = y, a = b                       (x = y) = (a = b), ~(x = y)                                               (x = y) = (a = b), ~(a = b)
------------------------------------------------------------------------------------------------------------------------------------------------------------res
-                                                                       (x = y) = (a = b)
+----------------------res  ------------------------(2)
+         ~x, a             ite x y z = ite a b c, x
+         ------------------------------------------res
+                ite x y z = ite a b c, a --(3)
+-----  ---------------eqp1
+y = b  ~(y = b), y, ~b
+----------------------res  -------------------itep2  -----------------iten2  -------------------------------------------eqn2  ------------------------(3)  ------------------------(2)
+         y, ~b             ~(ite a b c), ~a, b       ite x y z, ~x, ~y       ite x y z = ite a b c, ite x y z, ite a b c      ite x y z = ite a b c, a     ite x y z = ite a b c, x
+         --------------------------------------------------------------------------------------------------------------------------------------------------------------------------res
+                                                                             ite x y z = ite a b c, ite x y z --(4)
+-------------------------------------------------eqn1  --------------------------------(4)
+ite x y z = ite a b c, ~(ite x y z), ~(ite a b c)      ite x y z = ite a b c, ite x y z
+---------------------------------------------------------------------------------------res
+                        ite x y z = ite a b c, ~(ite a b c) --(5)
+-------------------itep2  --------------------------------(4)  ------------------------(2)
+~(ite x y z), ~x, y       ite x y z = ite a b c, ite x y z     ite x y z = ite a b c, x
+---------------------------------------------------------------------------------------res
+                              ite x y z = ite a b c, y --(6)
+-----------------iten2  -----------------------------------(5)  -----------------------(3)
+ite a b c, ~a, ~b       ite x y z = ite a b c, ~(ite a b c)     ite x y z = ite a b c, a
+----------------------------------------------------------------------------------------res
+                              ite x y z = ite a b c, ~b --(7)
+-----  ---------------eqp2
+y = b  ~(y = b), ~y, b
+----------------------res  ------------------------(6)  -------------------------(7)
+         ~y, b             ite x y z = ite a b c, y     ite x y z = ite a b c, ~b
+         ------------------------------------------------------------------------res
+                                   ite x y z = ite a b c

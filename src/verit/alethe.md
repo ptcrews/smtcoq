@@ -36,7 +36,8 @@ We perform the following transformations on the parsed AST:
 6. Processing projection rules
 7. Processing `_cong` and `trans` rules
 8. Processing `all_simplify` rules (cvc5 rewrites)
-9. Processing `symm`, `reordering`, and `factoring` (from cvc5)
+9. Processing `evaluate` rules (cvc5 constant folding)
+10. Processing `symm`, `reordering`, and `factoring` (from cvc5)
 
 | ![Transformations](Alethe.jpg) |
 |-|
@@ -296,7 +297,7 @@ Ideally we can just use the DSL to rewrite these rule applications w.r.t. rules 
 ```
 cvc5 filename.smt2 --dump-proofs --proof-format-mode=alethe --proof-granularity=dsl-rewrite --dag-thresh=0
 ```
-- Check if the produced proofs have any `all_simplify` applications with no arguments (args)
+- Check if the produced proofs have any `all_simplify` applications with no arguments (args). If it does,reconstruction has failed.
 
 ### Processing `evaluate` Rule Instances from cvc5 (Constant Folding)
 Conjecture: all constant folding instances for Booleans can be represented by veriT's `_simplify`
