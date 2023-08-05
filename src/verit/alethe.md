@@ -266,17 +266,17 @@ where (1) and (2) are derived as:
                                           a = c, ~a   ---(2)   
 ```
 This task can be further divided into:
-- [ ] Support `cong`:
+- [x] Support `cong`:
  - [x] `cong` over terms using `eq_congruent`
- - [ ] `cong` over predicates:
+ - [x] `cong` over predicates:
   - [x] `cong` over user-defined predicates using `eq_congruent_pred`
   - [x] `cong` over `and`
   - [x] `cong` over `or`
   - [x] `cong` over `not`
   - [x] `cong` over `imp`
   - [x] `cong` over `iff`
-  - [ ] `cong` over `xor`
-  - [ ] `cong` over `ite`
+  - [x] `cong` over `xor`
+  - [x] `cong` over `ite`
 - [x] Support `trans`:
  - [x] `trans` over terms using `eq_transitive`
  - [x] `trans` over formulas using rules for `iff`
@@ -404,15 +404,15 @@ to work with SMTCoq.
 | la_rw_eq              | LIA    | Micromega                                         | [x]  |
 | assume                | Misc   | Rename `input`                                    | [x]  |
 | subproof              | Misc   | Process subproof                                  | [x]  |
+| cong                  | EUF    | Process `cong`                                    | [x]  |
+| trans                 | EUF    | Modify similar to process `cong`                  | [x]  |
 | ac_simp               | EUF    | Add                                               | [ ]  |
-| bfun_elim             | EUF    | Add                                               | [ ]  |
-| cong                  | EUF    | Process `cong`                                    | [ ]  |
+| refl                  | EUF    | Dealt with when used with `forall_inst`           | [ ]  |
+| tautology             | EUF    | Add                                               | [ ]  |
 | contraction           | EUF    | Add                                               | [ ]  |
 | distinct_elim         | EUF    | Modify `tmp_distinct_elim`                        | [ ]  |
 | ite_intro             | EUF    | Add                                               | [ ]  |
-| refl                  | EUF    | Dealt with when used with `forall_inst`           | [ ]  |
-| tautology             | EUF    | Add                                               | [ ]  |
-| trans                 | EUF    | Modify similar to process `cong`                  | [ ]  |
+| bfun_elim             | EUF    | Add                                               | [ ]  |
 | let                   | Misc   | Not sure what's done with `Tple` (`tmp_let_elim`) | [ ]  |
 | nary_elim             | Misc   | Add                                               | [ ]  |
 | qnt_simplify          | Quant  | Add                                               | [ ]  |

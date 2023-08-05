@@ -1333,7 +1333,132 @@ let process_cong (c : certif) : certif =
                    (* 17. resolve 8. and 16. to get `x -> y = a -> b` *)
                    (i, ResoAST, [eq], [resi10; resi5], []) ::
                    process_cong_aux t cog
-                 | Eq (Xor xs, Xor ys) -> raise (Debug ("| process_cong: cong over xor not implemented yet at id "^i^" |"))
+                 (* xor predicate
+                    Convert a proof of the form:
+                     -----  -----
+                     x = a  y = b
+                    --------------cong
+                     x + y = a + b
+                    
+                    to the following derivation:
+                    -----  --------------eqp2
+                    y = b  ~(y = b), ~y, b
+                    ----------------------res  --------------xorp1  ------------xorn1  ---------------------------eqn2
+                            ~y, b              ~(x + y), x, y       a + b, a, ~b       x + y = a + b, x + y, a + b
+                            --------------------------------------------------------------------------------------res
+                                                                 a + b, x, a --(1)
+                    -----  --------------eqp1                                                                                                 -----  --------------eqp1
+                    y = b  ~(y = b), y, ~b                                                                                                    x = a  ~(x = a), x, ~a
+                    ----------------------res  ------------xorn1  --------------xorp1  ---------------------------------eqn1  -----------(1)  ----------------------res 
+                            y, ~b              x + y, x, ~y       ~(a + b), a, b       x + y = a + b, ~(x + y), ~(a + b)      a + b, x, a             x, ~a
+                            -------------------------------------------------------------------------------------------------------------------------------res
+                                                                                          x --(2)
+                    -----  ---------------eqp2
+                    x = a  ~(x = a), ~x, a
+                    ----------------------res  --(2)
+                            ~x, a              x
+                            --------------------res
+                                      a --(3)
+                                                                                                 -----  --------------eqp1
+                                                                                                 y = b  ~(y = b), y, ~b
+                    ---------------------------------eqn1  ------------xorn2  ------------xorn2  ----------------------res  --(3)  --(2)
+                    x + y = a + b, ~(x + y), ~(a + b)      a + b, ~a, b       x + y, ~x, y               y, ~b              a      x
+                    ----------------------------------------------------------------------------------------------------------------res
+                                                                          y --(4)
+                    -----  --------------eqp2
+                    y = b  ~(y = b), ~y, b
+                    ----------------------res  --(4)
+                            ~y, b              y
+                            --------------------res
+                                      b --(5)
+                    ----------------xorp2  --(4)  --(2)
+                    ~(x + y), ~x, ~y       y      x
+                    -------------------------------res
+                               ~(x + y) --(6)
+                    ----------------xorp2  --(5)  --(3)
+                    ~(a + b), ~a, ~b       b      a
+                    -------------------------------res
+                               ~(a + b) --(7)
+                    ---------------------------eqn2  --------(6)  --------(7)
+                    x + y = a + b, x + y, a + b      ~(x + y)     ~(a + b)
+                    ------------------------------------------------------res
+                                       x + y = a + b
+                 *)
+                 | Eq (Xor [x; y], Xor [a; b]) as eq ->
+                   (* Given x + y = a + b in the conclusion, *)
+                   (* 1. Generate ~(y = b), ~y, b by eqp2 and resolve it with y = b to get ~y, b. *)
+                   let eqp2i1 = generate_id () in
+                   let resi1 = generate_id () in
+                   (* 2. Resolve 1., ~(x + y), x, y by xorp1, a + b, a, ~b by xorn1, and x + y = a + b, x + y, a + b by eqn2 to get a + b, x, a *)
+                   let xorp1i1 = generate_id () in
+                   let xorn1i1 = generate_id () in
+                   let eqn2i1 = generate_id () in
+                   let resi2 = generate_id () in
+                   (* 3. Generate ~(y = b), y, ~b by eqp1 and resolve it with y = b to get y, ~b.  *)
+                   let eqp1i1 = generate_id () in
+                   let resi3 = generate_id () in
+                   (* 4. Generate ~(x = a), x, ~a by eqp1 and resolve it with x = a to get x, ~a. *)
+                   let eqp1i2 = generate_id () in
+                   let resi4 = generate_id () in
+                   (* 5. Resolve 3., x + y, x, ~y by xorn1, ~(a + b), a, b by xorp1, x + y = a + b, ~(x + y), ~(a + b) eqn1, 2., and 4. to get x. *)
+                   let xorn1i2 = generate_id () in
+                   let xorp1i2 = generate_id () in
+                   let eqn1i1 = generate_id () in
+                   let resi5 = generate_id () in
+                   (* 6. Generate ~(x = a), ~x, a by eqp2 and resolve it with x = a to get ~x, a *)
+                   let eqp2i2 = generate_id () in
+                   let resi6 = generate_id () in
+                   (* 7. Resolve 6. and 5. to get a. *)
+                   let resi7 = generate_id () in
+                   (* 8. Resolve x + y = a + b, ~(x + y), ~(a + b) by eqn1 (reuse from 5.), a + b, ~a, b by xorn2, x + y, ~x, y by xorn2, 3., 7., and 5. to get y. *)
+                   let xorn2i1 = generate_id () in
+                   let xorn2i2 = generate_id () in
+                   let resi8 = generate_id () in
+                   (* 9. Resolve 1. and 8. to get b. *)
+                   let resi9 = generate_id () in
+                   (* 10. Resolve ~(x + y), ~x, ~y by xorp2, 8., and 5. to get ~(x + y). *)
+                   let xorp2i1 = generate_id () in
+                   let resi10 = generate_id () in
+                   (* 11. Resolve ~(a + b), ~a, ~b by xorp2, 9., and 7. to get ~(a + b). *)
+                   let xorp2i2 = generate_id () in
+                   let resi11 = generate_id () in
+                   (* Get premise ids *)
+                   let p1 = (match (List.nth ptuples 0) with
+                             | (pid, _) -> pid) in
+                   let p2 = (match (List.nth ptuples 1) with
+                             | (pid, _) -> pid) in
+                   let xorxy = Xor [x; y] in
+                   let xorab = Xor [a; b] in
+                   let eqxa = Eq (x, a) in
+                   let eqyb = Eq (y, b) in
+                   (eqp2i1, Equp2AST, [Not eqyb; Not y; b], [], []) ::
+                   (resi1, ResoAST, [Not y; b], [eqp2i1; p2], []) ::
+                   (xorp1i1, Xorp1AST, [Not xorxy; x; y], [], []) ::
+                   (xorn1i1, Xorn1AST, [xorab; a; Not b], [], []) ::
+                   (eqn2i1, Equn2AST, [eq; xorxy; xorab], [], []) ::
+                   (resi2, ResoAST, [xorab; x; a], [resi1; xorp1i1; xorn1i1; eqn2i1], []) ::
+                   (eqp1i1, Equp1AST, [Not eqyb; y; Not b], [], []) ::
+                   (resi3, ResoAST, [y; Not b], [eqp1i1; p2], []) ::
+                   (eqp1i2, Equp1AST, [Not eqxa; x; Not a], [], []) ::
+                   (resi4, ResoAST, [x; Not a], [eqp1i2; p1], []) ::
+                   (xorn1i2, Xorn1AST, [xorxy; x; Not y], [], []) ::
+                   (xorp1i2, Xorp1AST, [Not xorab; a; b], [], []) ::
+                   (eqn1i1, Equn1AST, [eq; Not xorxy; Not xorab], [], []) ::
+                   (resi5, ResoAST, [x], [resi3; xorn1i2; xorp1i2; eqn1i1; resi2; resi4], []) ::
+                   (eqp2i2, Equp2AST, [Not eqxa; Not x; a], [], []) ::
+                   (resi6, ResoAST, [Not x; a], [eqp2i2; p1], []) ::
+                   (resi7, ResoAST, [a], [resi6; resi5], []) ::
+                   (xorn2i1, Xorn2AST, [xorab; Not a; b], [], []) ::
+                   (xorn2i2, Xorn2AST, [xorxy; Not x; y], [], []) ::
+                   (resi8, ResoAST, [y], [eqn1i1; xorn2i1; xorn2i2; resi3; resi7; resi5], []) ::
+                   (resi9, ResoAST, [b], [resi1; resi8], []) ::
+                   (xorp2i1, Xorp2AST, [Not xorxy; Not x; Not y], [], []) ::
+                   (resi10, ResoAST, [Not xorxy], [xorp2i1; resi8; resi5], []) ::
+                   (xorp2i2, Xorp2AST, [Not xorab; Not a; Not b], [], []) ::
+                   (resi11, ResoAST, [Not xorab], [xorp2i2; resi9; resi7], []) ::
+                   (* 12. Resolve x + y = a + b, x + y, a + b by eqn2 (reuse from 2.), 10. and 11. to get x + y = a + b *)
+                   (i, ResoAST, [eq], [eqn2i1; resi10; resi11], []) ::
+                   process_cong_aux t cog
                  (* ite predicate
                     -----  ---------------eqp2
                     z = c  ~(z = c), ~z, c
