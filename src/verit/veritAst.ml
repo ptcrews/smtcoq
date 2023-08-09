@@ -748,7 +748,7 @@ let process_rule (r: rule) : VeritSyntax.typ =
   | AssumeAST -> Assume
   | TrueAST -> True
   | FalsAST -> Fals
-  | NotnotAST -> Notnot
+  | NotnotAST -> raise (Debug ("| process_rule: notnot should be eliminated|"))
   | ThresoAST -> Threso
   | ResoAST -> Reso
   | TautAST -> Taut
@@ -4239,11 +4239,14 @@ let rec process_certif (c : certif) : VeritSyntax.id list =
   match c with
   | (i, r, c, p, a) :: t ->
       let i' = VeritSyntax.id_of_string i in
-      let r' = process_rule r in
+      let r' = try process_rule r with
+               | Debug s -> raise (Debug 
+                  ("| VeritAst.process_certif: can't process clause at id "
+                  ^i^"|"^s)) in
       let c' = try process_cl c with
                | Debug s -> raise (Debug 
                   ("| VeritAst.process_certif: can't process clause at id "
-                  ^i^" |")) in
+                  ^i^" |"^s)) in
       let p' = List.map (VeritSyntax.id_of_string) p in
       let a' = List.map (VeritSyntax.id_of_string) a in
       (* Must do this in this order to avoid side effects *)

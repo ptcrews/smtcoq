@@ -24,7 +24,6 @@ type typ =
   | Assume (* Inpu *)
   | True
   | Fals
-  | Notnot (* New *)
   | Threso (* New *)
   | Reso
   | Taut (* New *)
@@ -487,7 +486,6 @@ let to_add = ref []
   | Assume -> "Assume"
   | True -> "True"
   | Fals -> "Fals"
-  | Notnot -> "Notnot"
   | Threso -> "Threso"
   | Reso -> "Reso"
   | Taut -> "Taut"
@@ -579,10 +577,6 @@ let mk_clause (id,typ,value,ids_params,args) =
       (* Cnf conversion *)
       | True -> Other SmtCertif.True
       | Fals -> Other False
-      | Notnot -> 
-        (match value with
-          | l::_ -> Other (NotNot l)
-          | _ -> assert false)
       | Taut -> 
         (match ids_params with
           | [i] -> (match value with

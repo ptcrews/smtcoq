@@ -27,8 +27,6 @@ type 'hform rule =
     (*  * true            : {true} *)
   | False
     (* * false            : {(not false)} *)
-  | NotNot of 'hform
-    (* * notnot           : {(not not x) --> x} *)
   | Tautology of 'hform clause * 'hform
     (* * tautology        : {(x_1 ... x_i ... (not x_i) ... x_n) --> true)} *)
   | Contraction of 'hform clause * 'hform list
@@ -352,7 +350,7 @@ let used_clauses r =
   | Hole (cs, _) | IffTrans (cs, _) | IffCong (cs, _) -> cs
   | Forall_inst (c, _) | Qf_lemma (c, _) -> [c]
 
-  | True | False | NotNot _ | BuildDef _ 
+  | True | False | BuildDef _ 
   | BuildDef2 _ | BuildProj _ | NotSimplify _ 
   | AndSimplify _ | OrSimplify _ | ImpSimplify _ 
   | EquivSimplify _ | BoolSimplify _ | ConnDef _
@@ -377,7 +375,6 @@ let to_string r =
                            | ImmFlatten _ -> "ImmFlatten"
                            | True -> "True"
                            | False -> "False"
-                           | NotNot _ -> "NotNot"
                            | Tautology _ -> "Tautology"
                            | Contraction _ -> "Contraction"
                            | BuildDef _ -> "BuildDef"

@@ -25,8 +25,6 @@ type 'hform rule =
     (*  * true            : {true} *)
   | False
     (* * false            : {(not false)} *)
-  | NotNot of 'hform
-    (* * notnot           : {(not not x) --> x} *)
   | Tautology of 'hform clause * 'hform
     (* * tautology        : {(x_1 ... x_i ... (not x_i) ... x_n) --> true)} *)
   | Contraction of 'hform clause * 'hform list

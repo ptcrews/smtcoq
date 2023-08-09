@@ -370,7 +370,7 @@ coqTerm * coqTerm * coqTerm *
 coqTerm * coqTerm * coqTerm *
 coqTerm * coqTerm * coqTerm *
 coqTerm * coqTerm * coqTerm *
-coqTerm * coqTerm * coqTerm
+coqTerm * coqTerm
 let make_certif_ops prefix args =
   let gc = gc prefix in
   let gen_constant c =
@@ -379,7 +379,7 @@ let make_certif_ops prefix args =
       | None -> gc c in
  (gen_constant "step",
   gen_constant "Res", gen_constant "Weaken", gen_constant "ImmFlatten",
-  gen_constant "CTrue", gen_constant "CFalse", gen_constant "NotNot",
+  gen_constant "CTrue", gen_constant "CFalse",
   gen_constant "Tautology", gen_constant "Contraction",
   gen_constant "BuildDef", gen_constant "BuildDef2",
   gen_constant "BuildProj",

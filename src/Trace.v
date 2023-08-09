@@ -329,7 +329,6 @@ Inductive step :=
   | ImmFlatten (pos:int) (cid:clause_id) (lf:_lit)
   | CTrue (pos:int)
   | CFalse (pos:int)
-  | NotNot (pos:int) (l:_lit)
   | Tautology (pos:int) (cid:clause_id) (l:_lit)
   | Contraction (pos:int) (cid:clause_id) (cl:list _lit)
   | BuildDef (pos:int) (l:_lit)
@@ -397,7 +396,6 @@ Inductive step :=
       | ImmFlatten pos cid lf => S.set_clause s pos (check_flatten t_atom t_form s cid lf)
       | CTrue pos => S.set_clause s pos Cnf.check_True
       | CFalse pos => S.set_clause s pos Cnf.check_False
-      | NotNot pos l => S.set_clause s pos (check_NotNot (*t_form*) l)
       | Tautology pos cid l => S.set_clause s pos (check_Tautology s cid l)
       | Contraction pos cid1 cid2 => S.set_clause s pos (check_Contraction s cid1 cid2)
       | BuildDef pos l => S.set_clause s pos (check_BuildDef t_form l)
@@ -461,7 +459,7 @@ Inductive step :=
     set (empty_bv := (fun (a:Atom.atom) s => BITVECTOR_LIST.zeros s)).
     intros rho H1 H2 H10 s Hs. destruct (Form.check_form_correct (Atom.interp_form_hatom t_i t_func t_atom) (Atom.interp_form_hatom_bv t_i t_func t_atom) _ H1)
     as [[Ht1 Ht2] Ht3]. destruct (Atom.check_atom_correct _ H2) as
-    [Ha1 Ha2]. intros [pos res|pos cid c|pos cid lf|pos|pos|pos l|pos cid l|pos cid1 cid2|pos l|pos l|pos l i|pos cid
+    [Ha1 Ha2]. intros [pos res|pos cid c|pos cid lf|pos|pos|pos cid l|pos cid1 cid2|pos l|pos l|pos l i|pos cid
     |pos cid|pos cid i|pos l|pos l|pos l|pos l|pos l|pos l|pos l|pos l|pos l|pos cl l|pos l fl|pos l fl
     |pos l1 l2 fl|pos l c|pos l c| pos cl c|pos l|pos orig res l|pos orig res|pos res|pos res|pos orig1 orig2 res
     |pos orig res|pos orig res|pos orig1 orig2 res|pos orig1 orig2 res
@@ -475,7 +473,6 @@ Inductive step :=
       + rewrite (Syntactic.check_neg_hatom_correct_bool _ _ _ H10 Ha1 Ha2 _ _ H); auto with smtcoq_core.
     - apply valid_check_True; auto with smtcoq_core.
     - apply valid_check_False; auto with smtcoq_core.
-    - apply valid_check_NotNot; auto with smtcoq_core.
     - apply valid_check_Tautology; auto with smtcoq_core.
     - apply valid_check_Contraction; auto with smtcoq_core.
     - apply valid_check_BuildDef; auto with smtcoq_core.
@@ -593,7 +590,6 @@ Inductive step :=
       | ImmFlatten pos _ _
       | CTrue pos
       | CFalse pos
-      | NotNot pos _
       | Tautology pos _ _
       | Contraction pos _ _
       | BuildDef pos _
@@ -665,7 +661,6 @@ Inductive step :=
   | Name_ImmFlatten
   | Name_CTrue
   | Name_CFalse
-  | Name_NotNot
   | Name_Tautology
   | Name_Contraction
   | Name_BuildDef
@@ -723,7 +718,6 @@ Inductive step :=
     | ImmFlatten _ _ _ => Name_ImmFlatten
     | CTrue _ => Name_CTrue
     | CFalse _ => Name_CFalse
-    | NotNot _ _ => Name_NotNot
     | Tautology _ _ _ => Name_Tautology
     | Contraction _ _ _ => Name_Contraction
     | BuildDef _ _ => Name_BuildDef
@@ -912,7 +906,6 @@ Register Euf_Checker.Name_Weaken as SMTCoq.Trace.Euf_Checker.Name_Weaken.
 Register Euf_Checker.Name_ImmFlatten as SMTCoq.Trace.Euf_Checker.Name_ImmFlatten.
 Register Euf_Checker.Name_CTrue as SMTCoq.Trace.Euf_Checker.Name_CTrue.
 Register Euf_Checker.Name_CFalse as SMTCoq.Trace.Euf_Checker.Name_CFalse.
-Register Euf_Checker.Name_NotNot as SMTCoq.Trace.Euf_Checker.Name_NotNot.
 Register Euf_Checker.Name_Tautology as SMTCoq.Trace.Euf_Checker.Name_Tautology.
 Register Euf_Checker.Name_Contraction as SMTCoq.Trace.Euf_Checker.Name_Contraction.
 Register Euf_Checker.Name_BuildDef as SMTCoq.Trace.Euf_Checker.Name_BuildDef.
@@ -967,7 +960,6 @@ Register Euf_Checker.Weaken as SMTCoq.Trace.Euf_Checker.Weaken.
 Register Euf_Checker.ImmFlatten as SMTCoq.Trace.Euf_Checker.ImmFlatten.
 Register Euf_Checker.CTrue as SMTCoq.Trace.Euf_Checker.CTrue.
 Register Euf_Checker.CFalse as SMTCoq.Trace.Euf_Checker.CFalse.
-Register Euf_Checker.NotNot as SMTCoq.Trace.Euf_Checker.NotNot.
 Register Euf_Checker.Tautology as SMTCoq.Trace.Euf_Checker.Tautology.
 Register Euf_Checker.Contraction as SMTCoq.Trace.Euf_Checker.Contraction.
 Register Euf_Checker.BuildDef as SMTCoq.Trace.Euf_Checker.BuildDef.

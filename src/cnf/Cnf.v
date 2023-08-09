@@ -135,18 +135,6 @@ Section CHECKER.
   Definition check_False  := Lit.neg (Lit._false)::nil.
 
 
-  (* * notnot           : {(not (not not x)) x} *)
-  Definition check_NotNot l :=
-    if Lit.is_pos l then C._true
-    else
-      l :: Lit.neg l :: nil.
-    (*match get_hash (Lit.blit l) with
-      | Fnot2 i x => (*if (i =? 1) then*) l :: x :: nil
-                     (*else (Lit.neg l) :: (Fnot2 (i-1) x) :: nil*)
-      | _ => C._true
-      end.*)
-
-  
   (*  * tautology        : {(x_1 ... x_i ... (not x_i) ... x_n) --> true)}
      *)
 
@@ -966,11 +954,6 @@ Section CHECKER.
    repeat 
      match goal with |- context [Lit.interp rho ?x] => 
      destruct (Lit.interp rho x);trivial end.
-
-  Lemma valid_check_NotNot : forall l, C.valid rho (check_NotNot l).
-  Proof.
-    admit.
-  Admitted.
 
   Lemma valid_check_Tautology : forall pos l, C.valid rho (check_Tautology pos l).
   Proof.

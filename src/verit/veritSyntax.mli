@@ -18,7 +18,6 @@ type typ =
   | Assume (* Inpu *)
   | True
   | Fals
-  | Notnot (* New *)
   | Threso (* New *)
   | Reso
   | Taut (* New *)

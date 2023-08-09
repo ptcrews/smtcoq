@@ -251,7 +251,7 @@ type certif_ops =
   coqTerm * coqTerm * coqTerm *
   coqTerm * coqTerm * coqTerm *
   coqTerm * coqTerm * coqTerm *
-  coqTerm * coqTerm * coqTerm
+  coqTerm * coqTerm
 
 val csat_checker_valid : coqTerm
 val csat_checker_interp_var : coqTerm
