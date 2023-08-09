@@ -40,7 +40,6 @@ type rule =
   | ThresoAST
   | ResoAST
   | TautAST
-  | ContAST
   | ReflAST
   | TransAST
   | CongAST

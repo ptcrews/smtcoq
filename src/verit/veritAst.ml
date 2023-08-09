@@ -49,7 +49,6 @@ type rule =
   | ThresoAST
   | ResoAST
   | TautAST
-  | ContAST
   | ReflAST
   | TransAST
   | CongAST
@@ -223,7 +222,6 @@ and string_of_rule (r : rule) : string =
   | ThresoAST -> "ThresoAST"
   | ResoAST -> "ResoAST"
   | TautAST -> "TautAST"
-  | ContAST -> "ContAST"
   | ReflAST -> "ReflAST"
   | TransAST -> "TransAST"
   | CongAST -> "CongAST"
@@ -754,7 +752,6 @@ let process_rule (r: rule) : VeritSyntax.typ =
   | ThresoAST -> Threso
   | ResoAST -> Reso
   | TautAST -> Taut
-  | ContAST -> Cont
   | ReflAST -> Refl
   | TransAST -> Trans
   | CongAST -> Cong

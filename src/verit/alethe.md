@@ -302,8 +302,9 @@ cvc5 filename.smt2 --dump-proofs --proof-format-mode=alethe --proof-granularity=
 ### Processing `evaluate` Rule Instances from cvc5 (Constant Folding)
 Conjecture: all constant folding instances for Booleans can be represented by veriT's `_simplify`
 rules.
+
 Conjecture: LIA constant folding can be handled by the Micromega decision procedure used by SMTCoq. 
-[x] Change the alethe printer to print `op_simplify` where `op` is the head of the term 
+- [x] Change cvc5's alethe printer to print `op_simplify` where `op` is the head of the term 
 being rewritten.
 
 ### Processing `symm`, `reordering`, `factoring` from cvc5

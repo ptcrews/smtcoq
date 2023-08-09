@@ -262,7 +262,7 @@ rulename:
   | THRESO                                  { ThresoAST }
   | RESO                                    { ResoAST }
   | TAUT                                    { TautAST }
-  | CONT                                    { ContAST }
+  | CONT                                    { SameAST }
   | REFL                                    { ReflAST }
   | TRANS                                   { TransAST }
   | CONG                                    { CongAST }
