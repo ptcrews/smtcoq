@@ -28,16 +28,18 @@ produce them.
 
 ## Transformations
 We perform the following transformations on the parsed AST:
-1. Storing shared terms
-2. Processing `forall_inst` rule
-3. Processing `notnot` rule
-4. Processing `_simplify` rules
-5. Processing `_subproof` rules
-6. Processing projection rules
-7. Processing `_cong` and `trans` rules
-8. Processing `all_simplify` rules (cvc5 rewrites)
-9. Processing `evaluate` rules (cvc5 constant folding)
-10. Processing `symm`, `reordering`, and `factoring` (from cvc5)
+1. [x] Storing shared terms
+2. [x] Processing `forall_inst` rule
+3. [x] Processing `notnot` rule
+4. [x] Processing `_simplify` rules
+5. [x] Processing `_subproof` rules
+6. [x] Processing projection rules
+7. [x] Processing `_cong` and `trans` rules
+8. [x] Processing `all_simplify` rules (cvc5 rewrites)
+9. [x] Processing `evaluate` rules (cvc5 constant folding)
+10. [x] Processing `symm`, `reordering`, and `factoring` (from cvc5)
+11. [ ] Other rules: `tautology`, `ac_simp`, `ite_intro`, `distinct_elim`, `bfun_elim`
+[ ] Testing
 
 | ![Transformations](Alethe.jpg) |
 |-|
@@ -322,6 +324,20 @@ changes to
 ...
 (step z ... :premises (x, ...))
 ```
+
+### Processing Other Rules
+- `tautology` has a simple checker but it must be proved correct.
+- `ac_simp` might be complicated to check and also to prove correct. A draft incomplete checker is commented.
+- `distinct_elim` was previously partially implemented. We need to determine what's done and what needs to be done.
+-  `ite_intro` and `bfun_elim` haven't been implemented yet (also haven't occurred in proofs we've seen yet).
+
+### Testing
+- [ ] Determine whether Micromega is good enough for new LIA rules and LIA simplification rules/rewrites.
+- [ ] Get all sanity test benchmarks to pass - currently 4 cvc5 ones and 2 veriT ones fail.
+- [ ] Set up tests with QF_UFLIA benchmarks (and maybe some quantified benchmarks with only forall instantiation), 
+run cvc5 and veriT to get their corresponding proofs and check both using the alethe checker.
+- [ ] Set up a more automated single-file testing system with the help of Andrew Samokish's scripts.
+
 
 ## Rules
 This section at coverage in terms of rules in alethe and verit-2016. 
