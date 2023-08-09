@@ -39,7 +39,6 @@ We perform the following transformations on the parsed AST:
 9. [x] Processing `evaluate` rules (cvc5 constant folding)
 10. [x] Processing `symm`, `reordering`, and `factoring` (from cvc5)
 11. [ ] Other rules: `tautology`, `ac_simp`, `ite_intro`, `distinct_elim`, `bfun_elim`
-[ ] Testing
 
 | ![Transformations](Alethe.jpg) |
 |-|
@@ -331,7 +330,14 @@ changes to
 - `distinct_elim` was previously partially implemented. We need to determine what's done and what needs to be done.
 -  `ite_intro` and `bfun_elim` haven't been implemented yet (also haven't occurred in proofs we've seen yet).
 
-### Testing
+## Testing
+This is a big addition to SMTCoq in the order of 1000s of lines of code. The only way to validate its
+soundness is by testing. We want Alethe proofs with enough rule coverage so we are able to test all
+the rules in the Alethe specfication and all its variants. The bad new is that in these 1000s of lines
+of code added by a single person, there are bound to be a lot of bugs. The good news is that these won't
+affect the soundness of SMTCoq. A proof must prove the formula it claims to prove, otherwise SMTCoq will
+fail. In the worst case, if a rule isn't encoded properly, proofs that contain instances of that rule
+won't work, making SMTCoq more incomplete, but it won't be able to prove things that don't stand. 
 - [ ] Determine whether Micromega is good enough for new LIA rules and LIA simplification rules/rewrites.
 - [ ] Get all sanity test benchmarks to pass - currently 4 cvc5 ones and 2 veriT ones fail.
 - [ ] Set up tests with QF_UFLIA benchmarks (and maybe some quantified benchmarks with only forall instantiation), 
@@ -340,7 +346,7 @@ run cvc5 and veriT to get their corresponding proofs and check both using the al
 
 
 ## Rules
-This section at coverage in terms of rules in alethe and verit-2016. 
+This section tracks coverage in terms of rules in alethe and verit-2016. 
 ### No Modifications
 These are the rules that require no work since both alethe and verit-2016 
 have the same version of them.
@@ -426,10 +432,10 @@ to work with SMTCoq.
 | ac_simp               | EUF    | Add                                               | [ ]  |
 | refl                  | EUF    | Dealt with when used with `forall_inst`           | [ ]  |
 | tautology             | EUF    | Add                                               | [ ]  |
-| contraction           | EUF    | Add                                               | [ ]  |
+| contraction           | EUF    | Ignore                                            | [x]  |
 | distinct_elim         | EUF    | Modify `tmp_distinct_elim`                        | [ ]  |
 | ite_intro             | EUF    | Add                                               | [ ]  |
-| bfun_elim             | EUF    | Add                                               | [ ]  |
+| bfun_elim             | Misc   | Add                                               | [ ]  |
 | let                   | Misc   | Not sure what's done with `Tple` (`tmp_let_elim`) | [ ]  |
 | nary_elim             | Misc   | Add                                               | [ ]  |
 | qnt_simplify          | Quant  | Add                                               | [ ]  |
@@ -440,12 +446,3 @@ to work with SMTCoq.
 | qnt_rm_unused         | Quant  | Add                                               | [ ]  |
 | sko_ex                | Quant  | Add                                               | [ ]  |
 | sko_forall            | Quant  | Add                                               | [ ]  |
-
-# Tests
-This is a big addition to SMTCoq in the order of 1000s of lines of code. The only way to validate its
-soundness is by testing. We want Alethe proofs with enough rule coverage so we are able to test all
-the rules in the Alethe specfication and all its variants. The bad new is that in these 1000s of lines
-of code added by a single person, there are bound to be a lot of bugs. The good news is that these won't
-affect the soundness of SMTCoq. A proof must prove the formula it claims to prove, otherwise SMTCoq will
-fail. In the worst case, if a rule isn't encoded properly, proofs that contain instances of that rule
-won't work, making SMTCoq more incomplete, but it won't be able to prove things that don't stand. 
