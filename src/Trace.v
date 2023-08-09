@@ -330,28 +330,16 @@ Inductive step :=
   | CTrue (pos:int)
   | CFalse (pos:int)
   | Tautology (pos:int) (cid:clause_id) (l:_lit)
-  | Contraction (pos:int) (cid:clause_id) (cl:list _lit)
   | BuildDef (pos:int) (l:_lit)
   | BuildDef2 (pos:int) (l:_lit)
   | BuildProj (pos:int) (l:_lit) (i:int)
   | ImmBuildDef (pos:int) (cid:clause_id)
   | ImmBuildDef2 (pos:int) (cid:clause_id)
   | ImmBuildProj (pos:int) (cid:clause_id) (i:int)
-  | NotSimplify (pos:int) (l:_lit)
-  | AndSimplify (pos:int) (l:_lit)
-  | OrSimplify (pos:int) (l:_lit)
-  | ImpSimplify (pos:int) (l:_lit)
-  | EquivSimplify (pos:int) (l:_lit)
-  | BoolSimplify (pos:int) (l:_lit)
-  | ConnDef (pos:int) (l:_lit)
-  | IteSimplify (pos:int) (l:_lit)
-  | EqSimplify (pos:int) (l:_lit)
   | DistElim (pos:int) (cl:list _lit) (l:_lit)
   | EqTr (pos:int) (l:_lit) (fl: list _lit)
   | EqCgr (pos:int) (l:_lit) (fl: list (option _lit))
   | EqCgrP (pos:int) (l1:_lit) (l2:_lit) (fl: list (option _lit))
-  | IffTrans (pos:int) (ls: list _lit) (l: _lit)
-  | IffCong (pos:int) (ls: list _lit) (l: _lit)
   | LiaMicromega (pos:int) (cl:list _lit) (c:list ZMicromega.ZArithProof)
   | LiaDiseq (pos:int) (l:_lit)
   | SplArith (pos:int) (orig:clause_id) (res:_lit) (l:list ZMicromega.ZArithProof)
@@ -397,28 +385,16 @@ Inductive step :=
       | CTrue pos => S.set_clause s pos Cnf.check_True
       | CFalse pos => S.set_clause s pos Cnf.check_False
       | Tautology pos cid l => S.set_clause s pos (check_Tautology s cid l)
-      | Contraction pos cid1 cid2 => S.set_clause s pos (check_Contraction s cid1 cid2)
       | BuildDef pos l => S.set_clause s pos (check_BuildDef t_form l)
       | BuildDef2 pos l => S.set_clause s pos (check_BuildDef2 t_form l)
       | BuildProj pos l i => S.set_clause s pos (check_BuildProj t_form l i)
       | ImmBuildDef pos cid => S.set_clause s pos (check_ImmBuildDef t_form s cid)
       | ImmBuildDef2 pos cid => S.set_clause s pos (check_ImmBuildDef2 t_form s cid)
       | ImmBuildProj pos cid i => S.set_clause s pos (check_ImmBuildProj t_form s cid i)
-      | NotSimplify pos l => S.set_clause s pos (check_NotSimplify t_form l)
-      | AndSimplify pos l => S.set_clause s pos (check_AndSimplify t_form l)
-      | OrSimplify pos l => S.set_clause s pos (check_OrSimplify t_form l)
-      | ImpSimplify pos l => S.set_clause s pos (check_ImpliesSimplify t_form l)
-      | EquivSimplify pos l => S.set_clause s pos (check_EquivSimplify t_form l)
-      | BoolSimplify pos l => S.set_clause s pos (check_BoolSimplify t_form l)
-      | ConnDef pos l => S.set_clause s pos (check_ConnDef t_form l)
-      | IteSimplify pos l => S.set_clause s pos (check_IteSimplify t_form l)
-      | EqSimplify pos l => S.set_clause s pos (check_eqsimplify t_form t_atom l)
       | DistElim pos cl l => S.set_clause s pos (check_DistElim t_form t_atom cl l)
       | EqTr pos l fl => S.set_clause s pos (check_trans t_form t_atom l fl)
       | EqCgr pos l fl => S.set_clause s pos (check_congr t_form t_atom l fl)
       | EqCgrP pos l1 l2 fl => S.set_clause s pos (check_congr_pred t_form t_atom l1 l2 fl)
-      | IffTrans pos ls l => S.set_clause s pos (check_ifftrans t_form s ls l)
-      | IffCong pos ls l => S.set_clause s pos (check_iffcong t_form t_atom s ls l)
       | LiaMicromega pos cl c => S.set_clause s pos (check_micromega t_form t_atom cl c)
       | LiaDiseq pos l => S.set_clause s pos (check_diseq t_form t_atom l)
       | SplArith pos orig res l => S.set_clause s pos (check_spl_arith t_form t_atom (S.get s orig) res l)
@@ -459,9 +435,9 @@ Inductive step :=
     set (empty_bv := (fun (a:Atom.atom) s => BITVECTOR_LIST.zeros s)).
     intros rho H1 H2 H10 s Hs. destruct (Form.check_form_correct (Atom.interp_form_hatom t_i t_func t_atom) (Atom.interp_form_hatom_bv t_i t_func t_atom) _ H1)
     as [[Ht1 Ht2] Ht3]. destruct (Atom.check_atom_correct _ H2) as
-    [Ha1 Ha2]. intros [pos res|pos cid c|pos cid lf|pos|pos|pos cid l|pos cid1 cid2|pos l|pos l|pos l i|pos cid
-    |pos cid|pos cid i|pos l|pos l|pos l|pos l|pos l|pos l|pos l|pos l|pos l|pos cl l|pos l fl|pos l fl
-    |pos l1 l2 fl|pos l c|pos l c| pos cl c|pos l|pos orig res l|pos orig res|pos res|pos res|pos orig1 orig2 res
+    [Ha1 Ha2]. intros [pos res|pos cid c|pos cid lf|pos|pos|pos cid l|pos l|pos l|pos l i|pos cid
+    |pos cid|pos cid i|pos cl l|pos l fl|pos l fl
+    |pos l1 l2 fl| pos cl c|pos l|pos orig res l|pos orig res|pos res|pos res|pos orig1 orig2 res
     |pos orig res|pos orig res|pos orig1 orig2 res|pos orig1 orig2 res
     |pos orig1 orig2 res|pos orig1 orig2 res|pos orig1 orig2 res|pos orig1 orig2 res
     |pos cl |pos orig res |pos orig res |pos orig res | pos orig1 orig2 res | pos orig1 orig2 res |pos res|pos res
@@ -474,28 +450,16 @@ Inductive step :=
     - apply valid_check_True; auto with smtcoq_core.
     - apply valid_check_False; auto with smtcoq_core.
     - apply valid_check_Tautology; auto with smtcoq_core.
-    - apply valid_check_Contraction; auto with smtcoq_core.
     - apply valid_check_BuildDef; auto with smtcoq_core.
     - apply valid_check_BuildDef2; auto with smtcoq_core.
     - apply valid_check_BuildProj; auto with smtcoq_core.
     - apply valid_check_ImmBuildDef; auto with smtcoq_core.
     - apply valid_check_ImmBuildDef2; auto with smtcoq_core.
     - apply valid_check_ImmBuildProj; auto with smtcoq_core.
-    - apply valid_check_NotSimplify; auto with smtcoq_core.
-    - apply valid_check_AndSimplify; auto with smtcoq_core.
-    - apply valid_check_OrSimplify; auto with smtcoq_core.
-    - apply valid_check_ImpliesSimplify; auto with smtcoq_core.
-    - apply valid_check_EquivSimplify; auto with smtcoq_core.
-    - apply valid_check_BoolSimplify; auto with smtcoq_core.
-    - apply valid_check_ConnDef; auto with smtcoq_core.
-    - apply valid_check_IteSimplify; auto with smtcoq_core.
-    - apply valid_check_eqsimplify; auto with smtcoq_core.
     - apply valid_check_DistElim; auto with smtcoq_core.
     - apply valid_check_trans; auto with smtcoq_core.
     - apply valid_check_congr; auto with smtcoq_core.
     - apply valid_check_congr_pred; auto with smtcoq_core.
-    - apply valid_check_ifftrans; auto with smtcoq_core.
-    - apply valid_check_iffcong; auto with smtcoq_core.
     - apply valid_check_micromega; auto with smtcoq_core.
     - apply valid_check_diseq; auto with smtcoq_core.
     - apply valid_check_spl_arith; auto with smtcoq_core.
@@ -591,28 +555,16 @@ Inductive step :=
       | CTrue pos
       | CFalse pos
       | Tautology pos _ _
-      | Contraction pos _ _
       | BuildDef pos _
       | BuildDef2 pos _
       | BuildProj pos _ _
       | ImmBuildDef pos _
       | ImmBuildDef2 pos _
       | ImmBuildProj pos _ _
-      | NotSimplify pos _
-      | AndSimplify pos _
-      | OrSimplify pos _
-      | ImpSimplify pos _
-      | EquivSimplify pos _
-      | BoolSimplify pos _
-      | ConnDef pos _
-      | IteSimplify pos _
-      | EqSimplify pos _
       | DistElim pos _ _
       | EqTr pos _ _
       | EqCgr pos _ _
       | EqCgrP pos _ _ _
-      | IffTrans pos _ _
-      | IffCong pos _ _
       | LiaMicromega pos _ _
       | LiaDiseq pos _
       | SplArith pos _ _ _
@@ -662,28 +614,16 @@ Inductive step :=
   | Name_CTrue
   | Name_CFalse
   | Name_Tautology
-  | Name_Contraction
   | Name_BuildDef
   | Name_BuildDef2
   | Name_BuildProj
   | Name_ImmBuildDef
   | Name_ImmBuildDef2
   | Name_ImmBuildProj
-  | Name_NotSimplify
-  | Name_AndSimplify
-  | Name_OrSimplify
-  | Name_ImpSimplify
-  | Name_EquivSimplify
-  | Name_BoolSimplify
-  | Name_ConnDef
-  | Name_IteSimplify
-  | Name_EqSimplify
   | Name_DistElim
   | Name_EqTr
   | Name_EqCgr
   | Name_EqCgrP
-  | Name_IffTrans
-  | Name_IffCong
   | Name_LiaMicromega
   | Name_LiaDiseq
   | Name_SplArith
@@ -719,28 +659,16 @@ Inductive step :=
     | CTrue _ => Name_CTrue
     | CFalse _ => Name_CFalse
     | Tautology _ _ _ => Name_Tautology
-    | Contraction _ _ _ => Name_Contraction
     | BuildDef _ _ => Name_BuildDef
     | BuildDef2 _ _ => Name_BuildDef2
     | BuildProj _ _ _ => Name_BuildProj
     | ImmBuildDef _ _ => Name_ImmBuildDef
     | ImmBuildDef2 _ _ => Name_ImmBuildDef2
     | ImmBuildProj _ _ _ => Name_ImmBuildProj
-    | NotSimplify _ _ => Name_NotSimplify
-    | AndSimplify _ _ => Name_AndSimplify
-    | OrSimplify _ _ => Name_OrSimplify
-    | ImpSimplify _ _ => Name_ImpSimplify
-    | EquivSimplify _ _ => Name_EquivSimplify
-    | BoolSimplify _ _ => Name_BoolSimplify
-    | ConnDef _ _ => Name_ConnDef
-    | IteSimplify _ _ => Name_IteSimplify
-    | EqSimplify _ _ => Name_EqSimplify
     | DistElim _ _ _ => Name_DistElim
     | EqTr _ _ _ => Name_EqTr
     | EqCgr _ _ _ => Name_EqCgr
     | EqCgrP _ _ _ _ => Name_EqCgrP
-    | IffTrans _ _ _ => Name_IffTrans
-    | IffCong _ _ _ => Name_IffCong
     | LiaMicromega _ _ _ => Name_LiaMicromega
     | LiaDiseq _ _ => Name_LiaDiseq
     | SplArith _ _ _ _ => Name_SplArith
@@ -907,28 +835,16 @@ Register Euf_Checker.Name_ImmFlatten as SMTCoq.Trace.Euf_Checker.Name_ImmFlatten
 Register Euf_Checker.Name_CTrue as SMTCoq.Trace.Euf_Checker.Name_CTrue.
 Register Euf_Checker.Name_CFalse as SMTCoq.Trace.Euf_Checker.Name_CFalse.
 Register Euf_Checker.Name_Tautology as SMTCoq.Trace.Euf_Checker.Name_Tautology.
-Register Euf_Checker.Name_Contraction as SMTCoq.Trace.Euf_Checker.Name_Contraction.
 Register Euf_Checker.Name_BuildDef as SMTCoq.Trace.Euf_Checker.Name_BuildDef.
 Register Euf_Checker.Name_BuildDef2 as SMTCoq.Trace.Euf_Checker.Name_BuildDef2.
 Register Euf_Checker.Name_BuildProj as SMTCoq.Trace.Euf_Checker.Name_BuildProj.
 Register Euf_Checker.Name_ImmBuildDef as SMTCoq.Trace.Euf_Checker.Name_ImmBuildDef.
 Register Euf_Checker.Name_ImmBuildDef2 as SMTCoq.Trace.Euf_Checker.Name_ImmBuildDef2.
 Register Euf_Checker.Name_ImmBuildProj as SMTCoq.Trace.Euf_Checker.Name_ImmBuildProj.
-Register Euf_Checker.Name_NotSimplify as SMTCoq.Trace.Euf_Checker.Name_NotSimplify.
-Register Euf_Checker.Name_AndSimplify as SMTCoq.Trace.Euf_Checker.Name_AndSimplify.
-Register Euf_Checker.Name_OrSimplify as SMTCoq.Trace.Euf_Checker.Name_OrSimplify.
-Register Euf_Checker.Name_ImpSimplify as SMTCoq.Trace.Euf_Checker.Name_ImpSimplify.
-Register Euf_Checker.Name_EquivSimplify as SMTCoq.Trace.Euf_Checker.Name_EquivSimplify.
-Register Euf_Checker.Name_BoolSimplify as SMTCoq.Trace.Euf_Checker.Name_BoolSimplify.
-Register Euf_Checker.Name_ConnDef as SMTCoq.Trace.Euf_Checker.Name_ConnDef.
-Register Euf_Checker.Name_IteSimplify as SMTCoq.Trace.Euf_Checker.Name_IteSimplify.
-Register Euf_Checker.Name_EqSimplify as SMTCoq.Trace.Euf_Checker.Name_EqSimplify.
 Register Euf_Checker.Name_DistElim as SMTCoq.Trace.Euf_Checker.Name_DistElim.
 Register Euf_Checker.Name_EqTr as SMTCoq.Trace.Euf_Checker.Name_EqTr.
 Register Euf_Checker.Name_EqCgr as SMTCoq.Trace.Euf_Checker.Name_EqCgr.
 Register Euf_Checker.Name_EqCgrP as SMTCoq.Trace.Euf_Checker.Name_EqCgrP.
-Register Euf_Checker.Name_IffTrans as SMTCoq.Trace.Euf_Checker.Name_IffTrans.
-Register Euf_Checker.Name_IffCong as SMTCoq.Trace.Euf_Checker.Name_IffCong.
 Register Euf_Checker.Name_LiaMicromega as SMTCoq.Trace.Euf_Checker.Name_LiaMicromega.
 Register Euf_Checker.Name_LiaDiseq as SMTCoq.Trace.Euf_Checker.Name_LiaDiseq.
 Register Euf_Checker.Name_SplArith as SMTCoq.Trace.Euf_Checker.Name_SplArith.
@@ -961,28 +877,16 @@ Register Euf_Checker.ImmFlatten as SMTCoq.Trace.Euf_Checker.ImmFlatten.
 Register Euf_Checker.CTrue as SMTCoq.Trace.Euf_Checker.CTrue.
 Register Euf_Checker.CFalse as SMTCoq.Trace.Euf_Checker.CFalse.
 Register Euf_Checker.Tautology as SMTCoq.Trace.Euf_Checker.Tautology.
-Register Euf_Checker.Contraction as SMTCoq.Trace.Euf_Checker.Contraction.
 Register Euf_Checker.BuildDef as SMTCoq.Trace.Euf_Checker.BuildDef.
 Register Euf_Checker.BuildDef2 as SMTCoq.Trace.Euf_Checker.BuildDef2.
 Register Euf_Checker.BuildProj as SMTCoq.Trace.Euf_Checker.BuildProj.
 Register Euf_Checker.ImmBuildProj as SMTCoq.Trace.Euf_Checker.ImmBuildProj.
 Register Euf_Checker.ImmBuildDef as SMTCoq.Trace.Euf_Checker.ImmBuildDef.
 Register Euf_Checker.ImmBuildDef2 as SMTCoq.Trace.Euf_Checker.ImmBuildDef2.
-Register Euf_Checker.NotSimplify as SMTCoq.Trace.Euf_Checker.NotSimplify.
-Register Euf_Checker.AndSimplify as SMTCoq.Trace.Euf_Checker.AndSimplify.
-Register Euf_Checker.OrSimplify as SMTCoq.Trace.Euf_Checker.OrSimplify.
-Register Euf_Checker.ImpSimplify as SMTCoq.Trace.Euf_Checker.ImpSimplify.
-Register Euf_Checker.EquivSimplify as SMTCoq.Trace.Euf_Checker.EquivSimplify.
-Register Euf_Checker.BoolSimplify as SMTCoq.Trace.Euf_Checker.BoolSimplify.
-Register Euf_Checker.ConnDef as SMTCoq.Trace.Euf_Checker.ConnDef.
-Register Euf_Checker.IteSimplify as SMTCoq.Trace.Euf_Checker.IteSimplify.
-Register Euf_Checker.EqSimplify as SMTCoq.Trace.Euf_Checker.EqSimplify.
 Register Euf_Checker.DistElim as SMTCoq.Trace.Euf_Checker.DistElim.
 Register Euf_Checker.EqTr as SMTCoq.Trace.Euf_Checker.EqTr.
 Register Euf_Checker.EqCgr as SMTCoq.Trace.Euf_Checker.EqCgr.
 Register Euf_Checker.EqCgrP as SMTCoq.Trace.Euf_Checker.EqCgrP.
-Register Euf_Checker.IffTrans as SMTCoq.Trace.Euf_Checker.IffTrans.
-Register Euf_Checker.IffCong as SMTCoq.Trace.Euf_Checker.IffCong.
 Register Euf_Checker.LiaMicromega as SMTCoq.Trace.Euf_Checker.LiaMicromega.
 Register Euf_Checker.LiaDiseq as SMTCoq.Trace.Euf_Checker.LiaDiseq.
 Register Euf_Checker.SplArith as SMTCoq.Trace.Euf_Checker.SplArith.

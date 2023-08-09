@@ -366,10 +366,6 @@ coqTerm * coqTerm * coqTerm *
 coqTerm * coqTerm * coqTerm *
 coqTerm * coqTerm * coqTerm *
 coqTerm * coqTerm * coqTerm *
-coqTerm * coqTerm * coqTerm *
-coqTerm * coqTerm * coqTerm *
-coqTerm * coqTerm * coqTerm *
-coqTerm * coqTerm * coqTerm *
 coqTerm * coqTerm
 let make_certif_ops prefix args =
   let gc = gc prefix in
@@ -380,18 +376,13 @@ let make_certif_ops prefix args =
  (gen_constant "step",
   gen_constant "Res", gen_constant "Weaken", gen_constant "ImmFlatten",
   gen_constant "CTrue", gen_constant "CFalse",
-  gen_constant "Tautology", gen_constant "Contraction",
+  gen_constant "Tautology",
   gen_constant "BuildDef", gen_constant "BuildDef2",
   gen_constant "BuildProj",
   gen_constant "ImmBuildProj", gen_constant"ImmBuildDef",
-  gen_constant "ImmBuildDef2", gen_constant "NotSimplify",
-  gen_constant "AndSimplify", gen_constant "OrSimplify",
-  gen_constant "ImpSimplify", gen_constant "EquivSimplify",
-  gen_constant "BoolSimplify", gen_constant "ConnDef",
-  gen_constant "IteSimplify", gen_constant "EqSimplify",
+  gen_constant "ImmBuildDef2",
   gen_constant "DistElim", gen_constant "Ident",
   gen_constant "EqTr", gen_constant "EqCgr", gen_constant "EqCgrP", 
-  gen_constant "IffTrans", gen_constant "IffCong",
   gen_constant "LiaMicromega", gen_constant "LiaDiseq",
   gen_constant "SplArith", gen_constant "SplDistinctElim",
   gen_constant "BBVar", gen_constant "BBConst",

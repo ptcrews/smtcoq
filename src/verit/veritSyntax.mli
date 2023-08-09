@@ -21,10 +21,7 @@ type typ =
   | Threso (* New *)
   | Reso
   | Taut (* New *)
-  | Cont (* New *)
   | Refl (* New *)
-  | Trans (* New *)
-  | Cong (* New *)
   | Eqre
   | Eqtr
   | Eqco
@@ -67,16 +64,7 @@ type typ =
   | Iten2
   | Nite1
   | Nite2
-  | Conndef (* New *)
-  | Andsimp (* New *)
-  | Orsimp (* New *)
-  | Notsimp (* New *)
-  | Impsimp (* New *)
-  | Eqsimp (* New *)
-  | Boolsimp (* New *)
   | Acsimp (* New *)
-  | Itesimp (* New *)
-  | Equalsimp (* New *)
   | Distelim (* New *)
   | Lage
   | Liage

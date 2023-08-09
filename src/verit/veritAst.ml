@@ -753,8 +753,8 @@ let process_rule (r: rule) : VeritSyntax.typ =
   | ResoAST -> Reso
   | TautAST -> Taut
   | ReflAST -> Refl
-  | TransAST -> Trans
-  | CongAST -> Cong
+  | TransAST -> raise (Debug ("| process_rule: trans should be eliminated|"))
+  | CongAST -> raise (Debug ("| process_rule: cong should be eliminated|"))
   | EqreAST -> Eqre
   | EqtrAST -> Eqtr
   | EqcoAST -> Eqco
@@ -797,16 +797,16 @@ let process_rule (r: rule) : VeritSyntax.typ =
   | Iten2AST -> Iten2
   | Nite1AST -> Nite1
   | Nite2AST -> Nite2
-  | ConndefAST -> Conndef
-  | AndsimpAST -> Andsimp
-  | OrsimpAST -> Orsimp
-  | NotsimpAST -> Notsimp
-  | ImpsimpAST -> Impsimp
-  | EqsimpAST -> Eqsimp
-  | BoolsimpAST -> Boolsimp
+  | ConndefAST -> raise (Debug ("| process_rule: connective_def should be eliminated|"))
+  | AndsimpAST -> raise (Debug ("| process_rule: and_simplify should be eliminated|"))
+  | OrsimpAST -> raise (Debug ("| process_rule: or_simplify should be eliminated|"))
+  | NotsimpAST -> raise (Debug ("| process_rule: not_simplify should be eliminated|"))
+  | ImpsimpAST -> raise (Debug ("| process_rule: implies_simplify should be eliminated|"))
+  | EqsimpAST -> raise (Debug ("| process_rule: equiv_simplify should be eliminated|"))
+  | BoolsimpAST -> raise (Debug ("| process_rule: bool_simplify should be eliminated|"))
   | AcsimpAST -> Acsimp
-  | ItesimpAST -> Itesimp
-  | EqualsimpAST -> Equalsimp
+  | ItesimpAST -> raise (Debug ("| process_rule: ite_simplify should be eliminated|"))
+  | EqualsimpAST -> raise (Debug ("| process_rule: equal_simplify should be eliminated|"))
   | DistelimAST -> Distelim
   | LageAST -> Lage
   | LiageAST -> Liage

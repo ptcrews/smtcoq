@@ -27,10 +27,7 @@ type typ =
   | Threso (* New *)
   | Reso
   | Taut (* New *)
-  | Cont (* New *)
   | Refl (* New *)
-  | Trans (* New *)
-  | Cong (* New *)
   | Eqre
   | Eqtr
   | Eqco
@@ -73,16 +70,7 @@ type typ =
   | Iten2
   | Nite1
   | Nite2
-  | Conndef (* New *)
-  | Andsimp (* New *)
-  | Orsimp (* New *)
-  | Notsimp (* New *)
-  | Impsimp (* New *)
-  | Eqsimp (* New *)
-  | Boolsimp (* New *)
   | Acsimp (* New *)
-  | Itesimp (* New *)
-  | Equalsimp (* New *)
   | Distelim (* New *)
   | Lage
   | Liage
@@ -489,10 +477,7 @@ let to_add = ref []
   | Threso -> "Threso"
   | Reso -> "Reso"
   | Taut -> "Taut"
-  | Cont -> "Cont"
   | Refl -> "Refl"
-  | Trans -> "Trans"
-  | Cong -> "Cong"
   | Eqre -> "Eqre"
   | Eqtr -> "Eqtr"
   | Eqco -> "Eqco"
@@ -535,16 +520,7 @@ let to_add = ref []
   | Iten2 -> "Iten2"
   | Nite1 -> "Nite1"
   | Nite2 -> "Nite2"
-  | Conndef -> "Conndef"
-  | Andsimp -> "Andsimp"
-  | Orsimp -> "Orsimp"
-  | Notsimp -> "Notsimp"
-  | Impsimp -> "Impsimp"
-  | Eqsimp -> "Eqsimp"
-  | Boolsimp -> "Boolsimp"
   | Acsimp -> "Acsimp"
-  | Itesimp -> "Itesimp"
-  | Equalsimp -> "Equalsimp"
   | Distelim -> "Distelim"
   | Lage -> "Lage"
   | Liage -> "Liage"
@@ -582,10 +558,6 @@ let mk_clause (id,typ,value,ids_params,args) =
           | [i] -> (match value with
                     | l :: nil -> Other (Tautology ((get_clause i), l))
                     | _ -> assert false)
-          | _ -> assert false)
-      | Cont ->
-        (match ids_params with
-          | [i] -> Other (Contraction ((get_clause i), value))
           | _ -> assert false)
       | Andn | Orp | Impp | Xorp1 | Xorn1 | Equp1 | Equn1 | Itep1 | Iten1 ->
         (match value with
@@ -635,42 +607,6 @@ let mk_clause (id,typ,value,ids_params,args) =
         (match ids_params with
           | [i] -> Other (ImmBuildProj (get_clause i,1))
           | _ -> assert false)
-      | Notsimp ->
-        (match value with
-          | l::_ -> Other (NotSimplify l)
-          | _ -> assert false)
-      | Andsimp ->
-        (match value with
-          | l::_ -> Other (AndSimplify l)
-          | _ -> assert false)
-      | Orsimp ->
-        (match value with
-          | l::_ -> Other (OrSimplify l)
-          | _ -> assert false)
-      | Impsimp ->
-        (match value with
-          | l::_ -> Other (ImpSimplify l)
-          | _ -> assert false)
-      | Eqsimp ->
-        (match value with
-          | l::_ -> Other (EquivSimplify l)
-          | _ -> assert false)
-      | Boolsimp ->
-        (match value with
-          | l::_ -> Other (BoolSimplify l)
-          | _ -> assert false)
-      | Conndef ->
-        (match value with
-          | l::_ -> Other (ConnDef l)
-          | _ -> assert false)
-      | Itesimp ->
-        (match value with
-          | l::_ -> Other (IteSimplify l)
-          | _ -> assert false)
-      | Equalsimp ->
-        (match value with
-          | l::_ -> Other (EqSimplify l)
-          | _ -> assert false)
       (* From cvc5 *)
       | Allsimp ->
         Other (SmtCertif.Hole ([], value))
@@ -680,14 +616,6 @@ let mk_clause (id,typ,value,ids_params,args) =
       | Eqco -> mkCongr value
       | Eqcp -> mkCongrPred value
       | Refl -> mkTrans value
-      | Trans -> let prems = List.map get_clause ids_params in
-        (match value with
-          | l::_ -> Other (IffTrans (prems, l))
-          | _ -> assert false)
-      | Cong -> let prems = List.map get_clause ids_params in
-          (match value with
-            | l::_ -> Other (IffCong (prems, l))
-            | _ -> assert false)
       | Distelim ->
           (match value with
           | l :: nil -> if is_iff l then

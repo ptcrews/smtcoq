@@ -27,10 +27,6 @@ type 'hform rule =
     (* * false            : {(not false)} *)
   | Tautology of 'hform clause * 'hform
     (* * tautology        : {(x_1 ... x_i ... (not x_i) ... x_n) --> true)} *)
-  | Contraction of 'hform clause * 'hform list
-    (* * contraction      : {(x_1 ... x_n) --> (x_k1 ... x_kn)}, 
-          where duplicates are removed and order is preserved 
-    *)
   | BuildDef of 'hform (* the first literal of the clause *)
     (* * and_neg          : {(and a_1 ... a_n) (not a_1) ... (not a_n)}
        * or_pos           : {(not (or a_1 ... a_n)) a_1 ... a_n}
@@ -84,80 +80,6 @@ type 'hform rule =
        * not_implies2     : {(not (implies a b))} --> {(not b)}
     *)
 
-  (* Simplification Rules *)
-  | NotSimplify of 'hform
-    (* *  not_simplify    : {iff (not (not x)) x}
-                            {iff (not false) true}
-                            {iff (not true) false}
-    *)
-  | AndSimplify of 'hform
-    (* * and_simplify     : {iff (and true ... true) true}
-                            {iff (and x_1 ... x_n) (and x_1 ... x_n'), removing all true from x_1,...,x_n}
-                            {iff (and x_1 ... x_n) (and x_1 ... x_n'), removing all repeated literals from x_1,...,x_n}
-                            {iff (and x_1 ... false ... x_n) false}
-                            {iff (and x_1 ... x_i ... x_j ... x_n) false, if x_i = not x_j}
-    *)
-  | OrSimplify of 'hform
-    (* * or_simplify      : {iff (or false ... false) false}
-                            {iff (or x_1 ... x_n) (or x_1 ... x_n'), removing all false from x_1,...,x_n}
-                            {iff (or x_1 ... x_n) (or x_1 ... x_n'), removing all repeated literals from x_1,...,x_n}
-                            {iff (or x_1 ... true ... x_n) true}
-                            {iff (or x_1 ... x_i ... x_j ... x_n) true, if x_i = not x_j}
-    *)
-  | ImpSimplify of 'hform
-    (* * implies_simplify : {iff (not x -> not y) (y -> x)}
-                            {iff (false -> x) true}
-                            {iff (x -> true) true}
-                            {iff (true -> x) x}
-                            {iff (x -> false) (not x)}
-                            {iff (x -> x) true}
-                            {iff (not x -> x) x}
-                            {iff (x -> not x) (not x)}
-                            {iff ((x -> y) -> y) (or x y)}
-      *)
-  | EquivSimplify of 'hform
-    (* * equiv_simplify   : {iff (iff (not x) (not y)) (iff x y)}
-                            {iff (iff x x) true}
-                            {iff (iff x (not x)) false}
-                            {iff (iff (not x) x) false}
-                            {iff (iff true x) x}
-                            {iff (iff x true) x}
-                            {iff (iff false x) (not x)}
-                            {iff (iff x false) (not x)}
-    *)
-  | BoolSimplify of 'hform
-    (* * bool_simplify   :  {iff (not (x -> y)) (and x (not y))}
-                            {iff (not (or x y)) (and (not x) (not y))}
-                            {iff (not (and x y)) (or (not x) (not y))}
-                            {iff (x -> (y -> z)) ((and x y) -> z)}
-                            {iff ((x -> y) -> y) (or x y)}
-                            {iff (and x (x -> y)) (and x y)}
-                            {iff (and (x -> y) x) (and x y)}
-     *)
-  | ConnDef of 'hform
-    (* * connective_def  :  {iff (xor x y) (or (and (not x) y) (and x (not y)))}
-                            {iff (iff x y) (and (x -> y) (y -> x)))}
-                            {iff (ite f x y) (and (f -> x) ((not f) -> (not y))))}
-    *)
-  | IteSimplify of 'hform
-    (* * ite_simplify    :  {iff (ite true x y) x}
-                            {iff (ite false x y) y)}
-                            {iff (ite f x x) x}
-                            {iff (ite (not f) x y) (ite f y x)}
-                            {iff (ite f (ite f x y) z) (ite f x z)}
-                            {iff (ite f x (ite f y z)) (ite f x z)}
-                            {iff (ite f true false) f}
-                            {iff (ite f false true) (not f)}
-                            {iff (ite f true x) (or f x)}
-                            {iff (ite f x false) (and f x)}
-                            {iff (ite f false x) (and (not f) x)}
-                            {iff (ite f x true) (or (not f) x)}
-    *)
-  | EqSimplify of 'hform
-    (* * eq_simplify     :  {iff (x = x) true}
-                            {iff (x = y) false} if x and y are different numeric constants
-                            {iff (not (x = x)) false} if x is a numeric constant
-    *)
   | DistElim  of 'hform list * 'hform
     (* * distinct_elim   :  {iff (distinct x) y where distinct is eliminated in y} *)
   
@@ -173,14 +95,6 @@ type 'hform rule =
   | EqCgrP of 'hform * 'hform * ('hform option) list
     (* * eq_congruent_pred: {(not (= x_1 y_1)) ... (not (= x_n y_n))
                              (not (p x_1 ... x_n)) (p y_1 ... y_n)}
-    *)
-  | IffTrans of ('hform clause) list * 'hform
-    (* * trans            : {(= x_1 x_2) --> (= x_2 x_1) --> ... --> (= x_{n-1} x_n) 
-                             --> (= x_1 x_n)}
-    *)
-  | IffCong of ('hform clause) list * 'hform
-    (* * cong            : {(= x_1 y_1) --> (= x_2 y_2) --> ... --> (= x_n y_n)
-                            --> (= f(x_1, ..., x_n) f(y_1, ..., y_n)
     *)
   
   (* Linear arithmetic *)

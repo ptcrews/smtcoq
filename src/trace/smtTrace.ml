@@ -352,11 +352,10 @@ let build_certif first_root confl =
 
 let to_coq to_lit interp (cstep,
     cRes, cWeaken, cImmFlatten,
-    cTrue, cFalse, cTaut, cCont, cBuildDef, 
+    cTrue, cFalse, cTaut, cBuildDef, 
     cBuildDef2, cBuildProj, cImmBuildProj,cImmBuildDef,
-    cImmBuildDef2, cNotSimp, cAndSimp, cOrSimp, cImpSimp,
-    cEquivSimp, cBoolSimp, cConnDef, cIteSimp, cEqSimp,
-    cDistElim, cIdent, cEqTr, cEqCgr, cEqCgrP, cIffTrans, cIffCong,
+    cImmBuildDef2, cDistElim, cIdent, 
+    cEqTr, cEqCgr, cEqCgrP,
     cLiaMicromega, cLiaDiseq, cSplArith, cSplDistinctElim,
     cBBVar, cBBConst, cBBOp, cBBNot, cBBEq, cBBDiseq,
     cBBNeg, cBBAdd, cBBMul, cBBUlt, cBBSlt, cBBConc,
@@ -397,23 +396,12 @@ let to_coq to_lit interp (cstep,
 	            | False -> mklApp cFalse [|out_c c|]
               | Tautology (c', l) -> 
                 mklApp cTaut [|out_c c; out_c c'; out_f l|]
-              | Contraction (c', fl) -> 
-                mklApp cCont [|out_c c; out_c c'; out_cl fl|]
-	            | BuildDef f -> mklApp cBuildDef [|out_c c; out_f f|]
+              | BuildDef f -> mklApp cBuildDef [|out_c c; out_f f|]
 	            | BuildDef2 f -> mklApp cBuildDef2 [|out_c c;out_f f|]
 	            | BuildProj (f, i) -> mklApp cBuildProj [|out_c c; out_f f;mkInt i|]
 	            | ImmBuildDef c' -> mklApp cImmBuildDef [|out_c c; out_c c'|]
 	            | ImmBuildDef2 c' -> mklApp cImmBuildDef2 [|out_c c;out_c c'|]
 	            | ImmBuildProj(c', i) -> mklApp cImmBuildProj [|out_c c; out_c c';mkInt i|]
-              | NotSimplify f -> mklApp cNotSimp [|out_c c;out_f f|]
-              | AndSimplify f -> mklApp cAndSimp [|out_c c;out_f f|]
-              | OrSimplify f -> mklApp cOrSimp [|out_c c;out_f f|]
-              | ImpSimplify f -> mklApp cImpSimp [|out_c c; out_f f|]
-              | EquivSimplify f -> mklApp cEquivSimp [|out_c c; out_f f|]
-              | BoolSimplify f -> mklApp cBoolSimp [|out_c c; out_f f|]
-              | ConnDef f -> mklApp cConnDef [|out_c c; out_f f|]
-              | IteSimplify f -> mklApp cIteSimp [|out_c c; out_f f|]
-              | EqSimplify f -> mklApp cEqSimp [|out_c c; out_f f|]
               | DistElim (fl, f) -> 
                 mklApp cDistElim [|out_c c; out_f f; out_cl fl|]
               | Ident c' -> mklApp cIdent [|out_c c; out_c c'|]
@@ -434,13 +422,7 @@ let to_coq to_lit interp (cstep,
                                                         | None -> mklApp cNone [|Lazy.force cint|]); l|]) 
                                           fl (mklApp cnil [|mklApp coption [|Lazy.force cint|]|]) in
                 mklApp cEqCgrP [|out_c c; out_f f1; out_f f2; res|]
-              | IffTrans (prem, f) -> 
-                let prems = List.fold_right (fun c l -> mklApp ccons [|Lazy.force cint; out_c c; l|]) prem (mklApp cnil [|Lazy.force cint|]) in
-                mklApp cIffTrans [|out_c c; prems; out_f f|]
-              | IffCong (prem, f) ->
-                let prems = List.fold_right (fun c l -> mklApp ccons [|Lazy.force cint; out_c c; l|]) prem (mklApp cnil [|Lazy.force cint|]) in
-                mklApp cIffCong [|out_c c; prems; out_f f|]
-	            | LiaMicromega (cl,d) ->
+              | LiaMicromega (cl,d) ->
                 let cl' = List.fold_right (fun f l -> mklApp ccons [|Lazy.force cint; out_f f; l|]) cl (mklApp cnil [|Lazy.force cint|]) in
                 let c' = List.fold_right (fun f l -> mklApp ccons [|Lazy.force CoqTerms.micromega_coq_proofTerm; CoqInterface.micromega_dump_proof_term f; l|]) d 
                                          (mklApp cnil [|Lazy.force CoqTerms.micromega_coq_proofTerm|]) in
