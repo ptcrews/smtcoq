@@ -4205,6 +4205,21 @@ let rec process_simplify (c : certif) : certif =
        (* ~(t = t) <-> F, if t is a numeric constant *)
        | _ -> raise (Debug ("| process_simplify: expecting argument of eq_simplify to be an equivalence at id "^i^" |"))
       )
+  (* ac_simp: x <-> y, where 
+       - x contains arbitrarily nested `and`s and `or`s of literals
+       - all `and`s and `or`s from `x` are flattened in `y`
+       - all duplicates are removed in `y` (after flattening)
+  *)
+  | (i, AcsimpAST, cl, p, a) :: tl ->
+      (match (get_expr_cl cl) with
+      | [Eq (x, y)] -> (i, AcsimpAST, [x; y], p, a) :: process_simplify tl
+      | _ -> raise (Debug ("| process_simplify: expecting argument of ac_simp to be an equivalence at id "^i^" |"))
+      (* x1 ^ ... ^ xn <-> y1 ^ ... ^ ym
+      | [Eq ((And xs), (And ys))] ->
+      (* x1 v ... v xn <-> y1 v ... v ym *)
+      | [Eq ((And xs), (And ys))] ->
+      | _ -> raise (Debug ("| process_simplify: expecting argument of ac_simp to be an equivalence over both conjunctions/disjunctions at id "^i^" |"))*)
+      )
   | h :: tl -> h :: process_simplify tl
   | nil -> nil
 

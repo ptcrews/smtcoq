@@ -315,7 +315,7 @@ rulename:
   | IMPSIMP                                 { ImpsimpAST }
   | EQSIMP                                  { EqsimpAST }
   | BOOLSIMP                                { BoolsimpAST }
-  (*| ACSIMP                                  { HoleAST }*)
+  | ACSIMP                                  { AcsimpAST }
   | ITESIMP                                 { ItesimpAST }
   | EQUALSIMP                               { EqualsimpAST }
   | DISTELIM                                { DistelimAST }

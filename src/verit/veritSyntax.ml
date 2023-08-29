@@ -607,6 +607,11 @@ let mk_clause (id,typ,value,ids_params,args) =
         (match ids_params with
           | [i] -> Other (ImmBuildProj (get_clause i,1))
           | _ -> assert false)
+      | Acsimp ->
+        (match value with
+        | x :: tl -> let c = mkRootV tl in
+                     Other (ImmFlatten(c, x))
+        | _ -> raise (Debug ("| mk_clause: unexpected form of ac_simp |")))
       (* From cvc5 *)
       | Allsimp ->
         Other (SmtCertif.Hole ([], value))
@@ -668,8 +673,7 @@ let mk_clause (id,typ,value,ids_params,args) =
           | _ -> raise (Debug ("| mk_clause: unexpected form of Weaken, expected exactly one premise |")))
       (* Not implemented *)
       | Bind -> raise (Debug ("| mk_clause: unimplemented rule bind |"))
-      | Qcnf -> raise (Debug ("| mk_clause: unimplemented rule qnt_cnf |"))
-      | Acsimp -> raise (Debug ("| mk_clause: unimplemented rule acsimp |")))
+      | Qcnf -> raise (Debug ("| mk_clause: unimplemented rule qnt_cnf |")))
       with | Debug s -> raise (Debug ("| VeritSyntax.mk_clause: failing at id "^id^" |"^s))
   in
   let cl =
