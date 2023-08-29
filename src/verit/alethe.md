@@ -34,7 +34,7 @@ We perform the following transformations on the parsed AST:
 4. [x] Processing `_simplify` rules
 5. [x] Processing `_subproof` rules
 6. [x] Processing projection rules
-7. [x] Processing `_cong` and `trans` rules
+7. [x] Processing `cong` and `trans` rules
 8. [x] Processing `all_simplify` rules (cvc5 rewrites)
 9. [x] Processing `evaluate` rules (cvc5 constant folding)
 10. [x] Processing `symm`, `reordering`, and `factoring` (from cvc5)
