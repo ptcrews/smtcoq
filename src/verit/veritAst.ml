@@ -4212,7 +4212,12 @@ let rec process_simplify (c : certif) : certif =
   *)
   | (i, AcsimpAST, cl, p, a) :: tl ->
       (match (get_expr_cl cl) with
-      | [Eq (x, y)] -> (i, AcsimpAST, [x; y], p, a) :: process_simplify tl
+      | [Eq (x, y)] ->
+        let a2bi = generate_id () in
+        let b2ai = generate_id () in
+        let a2b = [(generate_id (), AcsimpAST, [y], [a2bi], [])] in
+        let b2a = [(generate_id (), AcsimpAST, [x], [b2ai], [])] in
+         (simplify_to_subproof i a2bi b2ai x y a2b b2a) @ process_simplify tl
       | _ -> raise (Debug ("| process_simplify: expecting argument of ac_simp to be an equivalence at id "^i^" |"))
       (* x1 ^ ... ^ xn <-> y1 ^ ... ^ ym
       | [Eq ((And xs), (And ys))] ->
