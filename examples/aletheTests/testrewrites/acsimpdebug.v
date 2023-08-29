@@ -37,4 +37,4 @@ Section TestacsimpDebug.
   Print s2_1.
   (* s2_1 = ({| [17] |} *)
 
-End Test1Debug.
+End TestacsimpDebug.
