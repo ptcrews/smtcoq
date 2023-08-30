@@ -89,6 +89,7 @@ type typ =
   | Allsimp (* New(cvc5) *)
   | Same
   | Weaken
+  | Flatten
   | Hole
 
 
@@ -539,6 +540,7 @@ let to_add = ref []
   | Allsimp -> "Allsimp"
   | Same -> "Same"
   | Weaken -> "Weaken"
+  | Flatten -> "Flatten"
   | Hole -> "Hole"
 
 let mk_clause_to_string (id,typ,value,ids_params,args) = 
@@ -670,6 +672,10 @@ let mk_clause (id,typ,value,ids_params,args) =
         (match ids_params with
           | [i] -> Other (Weaken ((get_clause i), value))
           | _ -> raise (Debug ("| mk_clause: unexpected form of Weaken, expected exactly one premise |")))
+      | Flatten ->
+        (match ids_params, value with
+          | [i], [v] -> Other(ImmFlatten ((get_clause i), v))
+          | _ -> raise (Debug ("| mk_clause: unexpected form of Flatten, expected exactly one premise |")))
       (* Not implemented *)
       | Bind -> raise (Debug ("| mk_clause: unimplemented rule bind |"))
       | Qcnf -> raise (Debug ("| mk_clause: unimplemented rule qnt_cnf |")))

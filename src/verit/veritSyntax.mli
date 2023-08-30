@@ -83,6 +83,7 @@ type typ =
   | Allsimp (* New(cvc5) *)
   | Same (* Internal *)
   | Weaken
+  | Flatten
   | Hole
 
 val is_iff : SmtAtom.Form.t -> bool

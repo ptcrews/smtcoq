@@ -123,6 +123,7 @@ type rule =
   | AllsimpAST
   | SameAST
   | WeakenAST
+  | FlattenAST
   | DischargeAST
   | SubproofAST of certif
 and step = id * rule * clause * params * args
@@ -295,6 +296,7 @@ and string_of_rule (r : rule) : string =
   | AllsimpAST -> "AllsimpAST"
   | SameAST -> "SameAST"
   | WeakenAST -> "WeakenAST"
+  | FlattenAST -> "FlattenAST"
   | AnchorAST -> "AnchorAST"
   | DischargeAST -> "DischargeAST"
   | SubproofAST c -> "SubproofAST\n\t"^(string_of_certif c)^"\t"
@@ -804,7 +806,7 @@ let process_rule (r: rule) : VeritSyntax.typ =
   | ImpsimpAST -> raise (Debug ("| process_rule: implies_simplify should be eliminated|"))
   | EqsimpAST -> raise (Debug ("| process_rule: equiv_simplify should be eliminated|"))
   | BoolsimpAST -> raise (Debug ("| process_rule: bool_simplify should be eliminated|"))
-  | AcsimpAST -> Acsimp
+  | AcsimpAST -> Flatten
   | ItesimpAST -> raise (Debug ("| process_rule: ite_simplify should be eliminated|"))
   | EqualsimpAST -> raise (Debug ("| process_rule: equal_simplify should be eliminated|"))
   | DistelimAST -> Distelim
@@ -825,6 +827,7 @@ let process_rule (r: rule) : VeritSyntax.typ =
   | AllsimpAST -> Allsimp
   | SameAST -> Same
   | WeakenAST -> Weaken
+  | FlattenAST -> Flatten
   | AnchorAST -> Hole
   | DischargeAST -> Hole
   | SubproofAST c -> Hole
@@ -4209,7 +4212,7 @@ let rec process_simplify (c : certif) : certif =
        - x contains arbitrarily nested `and`s and `or`s of literals
        - all `and`s and `or`s from `x` are flattened in `y`
        - all duplicates are removed in `y` (after flattening)
-  *)
+  
   | (i, AcsimpAST, cl, p, a) :: tl ->
       (match (get_expr_cl cl) with
       | [Eq (x, y)] ->
@@ -4219,12 +4222,7 @@ let rec process_simplify (c : certif) : certif =
         let b2a = [(generate_id (), AcsimpAST, [x], [b2ai], [])] in
          (simplify_to_subproof i a2bi b2ai x y a2b b2a) @ process_simplify tl
       | _ -> raise (Debug ("| process_simplify: expecting argument of ac_simp to be an equivalence at id "^i^" |"))
-      (* x1 ^ ... ^ xn <-> y1 ^ ... ^ ym
-      | [Eq ((And xs), (And ys))] ->
-      (* x1 v ... v xn <-> y1 v ... v ym *)
-      | [Eq ((And xs), (And ys))] ->
-      | _ -> raise (Debug ("| process_simplify: expecting argument of ac_simp to be an equivalence over both conjunctions/disjunctions at id "^i^" |"))*)
-      )
+      )*)
   | h :: tl -> h :: process_simplify tl
   | nil -> nil
 

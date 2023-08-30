@@ -23,9 +23,11 @@ case and xs, and ys:
       if x is in top-level(ys)
         
       else recurse into each 
+Encode      
 -------------------------------------------------------ac_simp
 a ^ (b ^ c) ^ (x v (y v z)) <-> a ^ b ^ c ^ (x v y v z)
-
+Into:
+RTL:
 -----------------------asmp  -----------------------------andp
 a ^ b ^ c ^ (x v y v c)      ~(a ^ b ^ c ^ (x v y v z)), a
 ----------------------------------------------------------res
