@@ -1,0 +1,4 @@
+(assume h1 (not (or a b c (and w x y z))))
+(assume h2 (or a b (or c (and (w x (and y z))))))
+(step t3 (cl (or a b c (and w x y z))) :rule ac_simp :premises (h2))
+(step t4 (cl) :rule resolution :premises (h1 t3))

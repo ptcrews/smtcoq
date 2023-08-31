@@ -27,6 +27,10 @@
    Local Open Scope array_scope.
    Local Open Scope int63_scope.
    
-   Section Acsimp.
+   Section Acsimp1.
      Verit_Checker "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/aletheTests/testrewrites/smt/immflatten.smt2" "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/aletheTests/testrewrites/proof/immflatten.pf".
-   End Acsimp.
+   End Acsimp1.
+
+   Section Acsimp2.
+     Verit_Checker "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/aletheTests/testrewrites/smt/immflatten2.smt2" "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/aletheTests/testrewrites/proof/immflatten2.pf".
+   End Acsimp2.
