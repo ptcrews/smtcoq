@@ -1853,7 +1853,7 @@ let process_trans (c : certif) : certif =
                [(eqti, EqtrAST, prem_negs @ cl, [], []);
                 (i, ResoAST, cl, eqti :: p, [])] @
                (process_trans_aux t cog)
-             (* transitivity over fpr,i;as *)
+             (* transitivity over formulas *)
              else if is_iff l then
                (* trans over single premise can occur if all other premises have been eliminated, 
                   e.g., by notnot elimination *)
@@ -1952,6 +1952,32 @@ let process_trans (c : certif) : certif =
              else
                raise (Debug ("| process_trans: expecting head of clause to be either an equality or an iff at id "^i^" |"))
           | _ -> raise (Debug ("| process_trans: expecting clause to have one literal at id "^i^" |")))
+     | (i, ReflAST, cl, p, a) :: t -> 
+        (* To differentiate between the formula and term case, we need to process
+           the clause because we treat equality and iff as the same at the AST level *)
+        let c' = process_cl cl in
+        (match c' with
+          (* We need to encode the formula case, the checker can handle the term case *)
+          | l :: _ when is_iff l ->
+             (* Convert:
+                --------refl
+                 x = x
+                to:
+                ---------eqn1  ---------eqn2
+                x = x, ~x       x = x, x
+                ------------------------res
+                           x = x
+             *)
+             (match cl with
+             | [Eq (x, y) as eq] when x = y ->
+                let eqn1i = generate_id () in
+                let eqn2i = generate_id () in
+                (eqn1i, Equn1AST, [eq; Not x], [], []) ::
+                (eqn2i, Equn2AST, [eq; x], [], []) ::
+                (i, ResoAST, [eq], [eqn1i; eqn2i], []) 
+                :: process_trans_aux t cog
+             | _ -> raise (Debug ("| process_trans: expecting clause for refl to be a singleton iff at id "^i^" |")))
+          | _ -> (i, ReflAST, cl, p, a) :: process_trans_aux t cog)
      | h :: t -> h :: (process_trans_aux t cog)
      | [] -> []
    in process_trans_aux c c
@@ -2493,6 +2519,32 @@ let rec process_simplify (c : certif) : certif =
                     [(andni, AndnAST, lhs :: projnegl2, [], []);
                      (generate_id (), ResoAST, [lhs], andni :: proj_ids2, [])] in
           (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
+       (* x_1 ^ ... ^ x_n <-> x_i, RHS has all repeated literals removed (singleton `and` case) *)
+       | [Eq ((And xs as lhs), x)] ->
+         (* x ^ ... ^ x <-> x
+            LTR:
+            -----------asmp ----------------andp
+            x ^ ... ^ x     ~(x ^ ... ^ x), x   
+            ------------------------------res
+                          x
+         *)
+         let a2bi = generate_id () in
+         let andpi = generate_id () in
+         let a2b = [(andpi, AndpAST, [Not lhs; x], [], ["0"]);
+                    (generate_id (), ResoAST, [x], [a2bi; andpi], [])] in
+         (*
+            RTL: Note that andn would project the repeated literals (another ~x here), but 
+                 SMTCoq's representation would remove repeats
+            ---asmp  ---------------andn
+             x       x ^ ... ^ x, ~x    
+            ------------------------res 
+                  x ^ ... ^ x
+         *)
+         let b2ai = generate_id () in
+         let andni = generate_id () in
+         let b2a = [(andni, AndnAST, [lhs; Not x], [], []);
+                    (generate_id (), ResoAST, [lhs], [b2ai; andni], [])] in
+         (simplify_to_subproof i a2bi b2ai lhs x a2b b2a) @ process_simplify tl
        | [Eq _] -> raise (Debug ("| process_simplify: unexpected form of equivalence for and_simplify at id "^i^" |"))
        | _ -> raise (Debug ("| process_simplify: expecting and_simplify to derive a singleton equivalence at id "^i^" |")))
   (* x_1 v ... v x_n <-> y *)
