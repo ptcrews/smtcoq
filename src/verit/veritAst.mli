@@ -126,6 +126,7 @@ val mk_cl : term list -> clause
 val mk_step : id * rule * clause * params * args -> step
 val mk_cert : step list -> certif
 
+val string_of_term : term -> string
 val string_of_certif : certif -> string
 val preprocess_certif : certif -> certif
 val process_certif : certif -> VeritSyntax.id list

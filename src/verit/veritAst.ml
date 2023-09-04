@@ -4223,9 +4223,26 @@ let rec process_simplify (c : certif) : certif =
          (simplify_to_subproof i a2bi b2ai x y a2b b2a) @ process_simplify tl
       | _ -> raise (Debug ("| process_simplify: expecting argument of ac_simp to be an equivalence at id "^i^" |"))
       )*)
+  (* all_simplify represents rewrite rules from cvc5. We assume that these come 
+     from a version that uses the DSL which will specify cvc5 rewrites in terms
+     of veriT rewrites (the rest of the simp rules) as specified by the arg of the
+     rule, which we need to pattern-match on *)
+  | (i, AllsimpAST, cl, p, a) :: tl ->
+   let compare_sub (s1 : string) (s2 : string) : bool =
+      let l2 = String.length s2 in
+      let s1' = (try (String.sub s1 0 l2) with
+                | Invalid_argument s -> "") in
+      if (s1' <> "") && s1' = s2 then true else false 
+   in
+   (match a with
+    | a1 :: _ when (compare_sub (String.trim a1) "and_simplify") -> process_simplify ((i, AndsimpAST, cl, p, []) :: tl)
+    | a1 :: _ when (compare_sub (String.trim a1) "connective_def") -> process_simplify ((i, ConndefAST, cl, p, []) :: tl)
+    | a1 :: _ when (compare_sub (String.trim a1) "implies_simplify") -> process_simplify ((i, ImpsimpAST, cl, p, []) :: tl)
+    | a1 :: _ -> raise (Debug ("| process_simplify: expecting arg of all_simplify step to have a rewrite rule via DSL at id "^i^", instead I have "^a1^" |"))
+    | [] -> raise (Debug ("| process_simplify: expecting arg of all_simplify step to have a rewrite rule via DSL at id "^i^", instead I have no args |")))
   | h :: tl -> h :: process_simplify tl
   | nil -> nil
-
+  
 
 (* Final processing and linking of AST *)
 

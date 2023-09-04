@@ -170,6 +170,7 @@ discharge:
 argument:
   | s=SYMBOL                                { s }
   | LPAREN s=SYMBOL RPAREN                  { s } (* Negative ints are parameterized *)
+  | t=term                                  { string_of_term t }
   | LPAREN MINUS i=INT RPAREN               { string_of_int (-i) }
   | i=INT                                   { string_of_int i }
   | LPAREN COLEQ sv=sorted_var s=SYMBOL RPAREN 
@@ -251,7 +252,7 @@ sort:
 ;
 
 sorted_var:
-  | LPAREN s=SYMBOL t=sort RPAREN           { (s,t) }
+  | LPAREN s=SYMBOL t=sort RPAREN           { (s, t) }
 ;
 
 rulename:
