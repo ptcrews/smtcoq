@@ -33,6 +33,7 @@
         (*true*)
         (*false*)
         "not_not", NOTNOT;
+        "hole", HOLE;
 
       (* Resolution rules and clause simplifications *)
         "th_resolution", THRESO;

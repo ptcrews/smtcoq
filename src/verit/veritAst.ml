@@ -116,12 +116,14 @@ type rule =
   | SumsimpAST
   | CompsimpAST
   | LarweqAST
+  | ArithpolynormAST
   | BindAST
   | FinsAST
   | QcnfAST
   | AnchorAST
   | AllsimpAST
   | SameAST
+  | HoleAST
   | WeakenAST
   | FlattenAST
   | DischargeAST
@@ -290,11 +292,13 @@ and string_of_rule (r : rule) : string =
   | SumsimpAST -> "SumsimpAST"
   | CompsimpAST -> "CompsimpAST"
   | LarweqAST -> "LarweqAST"
+  | ArithpolynormAST -> "ArithpolynormAST"
   | BindAST -> "BindAST"
   | FinsAST -> "FinsAST"
   | QcnfAST -> "QcnfAST"
   | AllsimpAST -> "AllsimpAST"
   | SameAST -> "SameAST"
+  | HoleAST -> "HoleAST"
   | WeakenAST -> "WeakenAST"
   | FlattenAST -> "FlattenAST"
   | AnchorAST -> "AnchorAST"
@@ -821,11 +825,13 @@ let process_rule (r: rule) : VeritSyntax.typ =
   | SumsimpAST -> Sumsimp
   | CompsimpAST -> Compsimp
   | LarweqAST -> Larweq
+  | ArithpolynormAST -> Arithpolynorm
   | BindAST -> Bind
   | FinsAST -> Fins
   | QcnfAST -> Qcnf
   | AllsimpAST -> Allsimp
   | SameAST -> Same
+  | HoleAST -> Hole
   | WeakenAST -> Weaken
   | FlattenAST -> Flatten
   | AnchorAST -> Hole
@@ -2279,7 +2285,13 @@ let repeat (x : 'a) (n : int) : 'a list =
 let rec exists_dup (xs : 'a list) : bool =
   match xs with
   | h :: t -> if List.exists ((=) h) t then true else exists_dup t
-  | [] -> false 
+  | [] -> false
+(* Returns true if s1 is non-empty and s2 is a prefix of s1 *)
+let compare_sub (s1 : string) (s2 : string) : bool =
+      let l2 = String.length s2 in
+      let s1' = (try (String.sub s1 0 l2) with
+                | Invalid_argument s -> "") in
+      if (s1' <> "") && s1' = s2 then true else false 
 let rec process_simplify (c : certif) : certif =
   match c with
   (* x_1 ^ ... ^ x_n <-> y *)
@@ -4280,21 +4292,33 @@ let rec process_simplify (c : certif) : certif =
      of veriT rewrites (the rest of the simp rules) as specified by the arg of the
      rule, which we need to pattern-match on *)
   | (i, AllsimpAST, cl, p, a) :: tl ->
-   let compare_sub (s1 : string) (s2 : string) : bool =
-      let l2 = String.length s2 in
-      let s1' = (try (String.sub s1 0 l2) with
-                | Invalid_argument s -> "") in
-      if (s1' <> "") && s1' = s2 then true else false 
-   in
    (match a with
     | a1 :: _ when (compare_sub (String.trim a1) "and_simplify") -> process_simplify ((i, AndsimpAST, cl, p, []) :: tl)
-    | a1 :: _ when (compare_sub (String.trim a1) "connective_def") -> process_simplify ((i, ConndefAST, cl, p, []) :: tl)
+    | a1 :: _ when (compare_sub (String.trim a1) "or_simplify") -> process_simplify ((i, OrsimpAST, cl, p, []) :: tl)
+    | a1 :: _ when (compare_sub (String.trim a1) "not_simplify") -> process_simplify ((i, NotsimpAST, cl, p, []) :: tl)
     | a1 :: _ when (compare_sub (String.trim a1) "implies_simplify") -> process_simplify ((i, ImpsimpAST, cl, p, []) :: tl)
-    | a1 :: _ -> raise (Debug ("| process_simplify: expecting arg of all_simplify step to have a rewrite rule via DSL at id "^i^", instead I have "^a1^" |"))
+    | a1 :: _ when (compare_sub (String.trim a1) "equiv_simplify") -> process_simplify ((i, EqsimpAST, cl, p, []) :: tl)
+    | a1 :: _ when (compare_sub (String.trim a1) "bool_simplify") -> process_simplify ((i, BoolsimpAST, cl, p, []) :: tl)
+    | a1 :: _ when (compare_sub (String.trim a1) "connective_def") -> process_simplify ((i, ConndefAST, cl, p, []) :: tl)
+    | a1 :: _ when (compare_sub (String.trim a1) "eq_simplify") -> process_simplify ((i, EqualsimpAST, cl, p, []) :: tl)
+    | a1 :: _ when (compare_sub (String.trim a1) "ite_simplify") -> process_simplify ((i, ItesimpAST, cl, p, []) :: tl)
+    | a1 :: _ -> raise (Debug ("| process_simplify: DSL failure! Expecting arg of all_simplify step to have a rewrite rule via DSL at id "^i^", instead I have "^a1^" |"))
     | [] -> raise (Debug ("| process_simplify: expecting arg of all_simplify step to have a rewrite rule via DSL at id "^i^", instead I have no args |")))
   | h :: tl -> h :: process_simplify tl
   | nil -> nil
   
+
+(* Process holes in proof. cvc5 produces holes with arg ARITH_POLY_NORM which are tautologies 
+   that can be sent to Micromega *)
+let rec process_hole (c : certif) : certif = 
+  match c with
+  | (i, HoleAST, cl, p, a) :: tl when 
+      (if (List.length a > 0) then 
+        (compare_sub (String.trim (List.hd a)) "ARITH_POLY_NORM")
+      else false) -> (i, ArithpolynormAST, cl, p, a) :: process_hole tl
+  | h :: tl -> h :: process_hole tl
+  | [] -> []
+
 
 (* Final processing and linking of AST *)
 
@@ -4305,21 +4329,23 @@ let preprocess_certif (c: certif) : certif =
   Printf.printf ("Certif after storing shared terms: \n%s\n") (string_of_certif c1);
   let c2 = process_fins c1 in
   Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2);
-  let c3 = process_notnot c2 in
-  Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c3);
-  let c4 = process_same c3 in
-  Printf.printf ("Certif after process_same: \n%s\n") (string_of_certif c4);
-  let c5 = process_cong c4 in
-  Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c5);
-  let c6 = process_trans c5 in
-  Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c6);
-  let c7 = process_simplify c6 in
-  Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c7);
-  let c8 = process_subproof c7 in
-  Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c8);
-  let c9 = process_proj c8 in
-  Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c9);
-  c9) with
+  let c3 = process_hole c2 in
+  Printf.printf ("Certif after process_hole: \n%s\n") (string_of_certif c3);
+  let c4 = process_notnot c3 in
+  Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c4);
+  let c5 = process_same c4 in
+  Printf.printf ("Certif after process_same: \n%s\n") (string_of_certif c5);
+  let c6 = process_cong c5 in
+  Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c6);
+  let c7 = process_trans c6 in
+  Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c7);
+  let c8 = process_simplify c7 in
+  Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c8);
+  let c9 = process_subproof c8 in
+  Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c9);
+  let c10 = process_proj c9 in
+  Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c10);
+  c10) with
   | Debug s -> raise (Debug ("| VeritAst.preprocess_certif: failed to preprocess |"^s))
 
 let rec process_certif (c : certif) : VeritSyntax.id list =

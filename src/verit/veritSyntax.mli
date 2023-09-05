@@ -77,10 +77,11 @@ type typ =
   | Sumsimp (* New *)
   | Compsimp (* New *)
   | Larweq (* New *)
+  | Arithpolynorm (* New (cvc5) *)
   | Bind (* New *)
   | Fins
   | Qcnf (* New *)
-  | Allsimp (* New(cvc5) *)
+  | Allsimp (* New (cvc5) *)
   | Same (* Internal *)
   | Weaken
   | Flatten

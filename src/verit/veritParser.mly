@@ -62,7 +62,7 @@
 %token LET FORALL EXISTS MATCH TINT TBOOL NAMED
 
 %token TRUE FALSE NOT IMPLIES AND OR XOR DIST ITE
-%token NOTNOT
+%token NOTNOT HOLE
 %token THRESO RESO TAUT CONT
 %token REFL TRANS CONG EQRE EQTR EQCO EQCP
 %token NOTOR NOTAND XOR1 XOR2 NXOR1 NXOR2 IMP NIMP1 NIMP2
@@ -260,6 +260,7 @@ rulename:
   | TRUE                                    { TrueAST }
   | FALSE                                   { FalsAST }
   | NOTNOT                                  { NotnotAST }
+  | HOLE                                    { HoleAST }
   | THRESO                                  { ThresoAST }
   | RESO                                    { ResoAST }
   | TAUT                                    { TautAST }

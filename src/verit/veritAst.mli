@@ -107,12 +107,14 @@ type rule =
   | SumsimpAST
   | CompsimpAST
   | LarweqAST
+  | ArithpolynormAST
   | BindAST
   | FinsAST
   | QcnfAST
   | AnchorAST
   | AllsimpAST
   | SameAST
+  | HoleAST
   | WeakenAST
   | FlattenAST
   | DischargeAST
