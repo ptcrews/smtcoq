@@ -117,6 +117,7 @@ type rule =
   | CompsimpAST
   | LarweqAST
   | ArithpolynormAST
+  | LiaRewriteAST
   | BindAST
   | FinsAST
   | QcnfAST
@@ -293,6 +294,7 @@ and string_of_rule (r : rule) : string =
   | CompsimpAST -> "CompsimpAST"
   | LarweqAST -> "LarweqAST"
   | ArithpolynormAST -> "ArithpolynormAST"
+  | LiaRewriteAST -> "LiaRewriteAST"
   | BindAST -> "BindAST"
   | FinsAST -> "FinsAST"
   | QcnfAST -> "QcnfAST"
@@ -544,7 +546,8 @@ let process_fins (c : certif) : certif =
         process_fins_aux t cog
     (* Step 3 *)
     | (i, FinsAST, c, p, a) :: tl -> 
-        let st = (match (List.hd c) with
+        let st = (match (try (List.hd c) with | Failure _ -> 
+                        raise (Debug ("| process_fins: clause produced by forall_inst is empty at id "^i^" |"))) with
         | Or [e; t2] ->
           let t = get_expr e in
             (match t with
@@ -826,6 +829,7 @@ let process_rule (r: rule) : VeritSyntax.typ =
   | CompsimpAST -> Compsimp
   | LarweqAST -> Larweq
   | ArithpolynormAST -> Arithpolynorm
+  | LiaRewriteAST -> LiaRewrite
   | BindAST -> Bind
   | FinsAST -> Fins
   | QcnfAST -> Qcnf
@@ -976,7 +980,8 @@ let process_cong (c : certif) : certif =
         let c' = process_cl cl in
         (match c' with
         | l :: _ ->
-            let conc = get_expr (List.hd cl) in
+            let conc = get_expr (try (List.hd cl) with | Failure _ -> 
+                                 raise (Debug ("| process_cong: clause produced by cong is empty at id "^i^" |"))) in
             (* congruence over functions *)
             if is_eq l then
               (*
@@ -1010,7 +1015,8 @@ let process_cong (c : certif) : certif =
                                  | Debug s -> raise (Debug ("| process_cong: can't find premise(s) to congr at id "^i^" |"^s)) in
               let pids, peqs = List.split ptuples in
               let prems_neg = List.map (fun x -> Not x) peqs in
-              let eq = List.hd cl in
+              let eq = (try (List.hd cl) with | Failure _ -> 
+                        raise (Debug ("| process_cong: clause produced by cong is empty at id "^i^" |"))) in
                  (match (get_expr eq) with
                  (* and predicate
                     Convert a proof of the form:
@@ -1734,7 +1740,8 @@ let process_cong (c : certif) : certif =
                     (* 1. generate `~(x = a), ~x, a` by `eqp1` and resolve it with `x = a`, to get `~x, a` *)
                     let eqp1i = generate_id () in
                     let resi1 = generate_id () in
-                    let pxa = (match (List.hd ptuples) with
+                    let pxa = (match (try (List.hd ptuples) with | Failure _ -> raise (Debug 
+                                      ("| process_cong: no premises found in cong over negation case at id "^i^" |"))) with
                              | (pid, _) -> pid) in
                     (* 2. generate `~x = ~a, x, a` by `eqn1` *)
                     let eqn1i = generate_id () in
@@ -1864,7 +1871,9 @@ let process_trans (c : certif) : certif =
                (* trans over single premise can occur if all other premises have been eliminated, 
                   e.g., by notnot elimination *)
                if List.length p = 1 then
-                 let prem = (match (get_cl (List.hd p) cog) with
+                 let phd = (try (List.hd p) with | Failure _ -> raise (Debug 
+                              ("| process_trans : no premise to trans found at id "^i^" |"))) in
+                 let prem = (match (get_cl phd cog) with
                              | Some x -> x
                              | None -> raise (Debug ("| process_trans: can't fetch premise to trans at id "^i^" |"))) in
                  (i, ResoAST, prem, p, []) :: process_trans_aux t cog
@@ -1900,9 +1909,12 @@ let process_trans (c : certif) : certif =
                                                               a = c, ~a   ---(2)   
                  *)
                  let p' = List.map (fun x -> match get_cl x cog with
-                         | Some x' -> (x, List.hd x')
+                         | Some x' -> let x'hd = (try (List.hd x') with | Failure _ -> raise 
+                                                   (Debug ("| process_trans: premise "^x^" retuerns an empty clause in id "^i^" |"))) in
+                                      (x, x'hd)
                          | None -> raise (Debug ("| process_trans: can't fetch premises to `and` at id "^i^" |"))) p in
-                 let eq = List.hd cl in
+                 let eq = (try (List.hd cl) with | Failure _ -> 
+                           raise (Debug ("| process_trans: clause produced by trans is empty at id "^i^" |"))) in
                  let x1, xn = (match (get_expr eq) with
                               | Eq (x', y') -> x', y'
                               | _ -> raise (Debug ("| process_trans: expecting premise of trans to be iff at id "^i^" |"))) in
@@ -2002,19 +2014,24 @@ let findi (p : 'a -> bool) (l : 'a list) : int =
   let rec findi' (p : 'a -> bool) (l : 'a list) (n : int) : int = 
     match l with
     | h :: t -> if p h then n else findi' p t (n+1)
-    | [] -> raise (Debug ("| findi : element not found |")) in
+    | [] -> raise (Debug ("| findi: element not found |")) in
   findi' p l 0
 
 let process_proj (c: certif): certif =
   let rec aux (c: certif) (cog: certif) : certif =
     match c with
     | (i, AndAST, cl, p, a) :: tl when a = [] ->
-        let p' = List.map (fun x -> match get_cl x cog with
-                           | Some x' -> List.hd x'
-                           | None -> raise (Debug ("Can't fetch premises to `and` at id "
-                                            ^i^" |"))) 
+        let p' = List.map (fun x -> (match get_cl x cog with
+                           | Some x' -> let x'hd = (try (List.hd x') with | Failure _ -> raise 
+                                         (Debug ("| process_proj: premise "^x^" is an empty clause at id "^i^" |"))) in
+                                        x'hd
+                           | None -> raise (Debug ("| process_proj: can't fetch premises to `and` at id "^i^" |"))))
                  p in
-        (match (get_expr (List.hd p')), (List.hd cl) with
+        (match (get_expr (try (List.hd p') with | Failure _ -> 
+                          raise (Debug ("| process_proj: and rule has no premises at id "^i^" |")))), 
+               (get_expr (try (List.hd cl) with | Failure _ -> 
+                raise (Debug ("| process_proj: clause produced by and is empty at id "^i^" |"))))
+         with
         | And ts, x ->
             let i' = try findi (term_eq x) ts with
                      | Debug s -> raise (Debug ("| process_proj: fails at id "
@@ -2024,12 +2041,15 @@ let process_proj (c: certif): certif =
                          ^i^" |")))
     | (i, NorAST, cl, p, a) :: tl when a = [] ->
         let p' = List.map (fun x -> match get_cl x cog with
-                           | Some x' -> List.hd x'
-                           | None -> raise (Debug 
-                              ("| process_proj: can't fetch premises to `and` at id "
-                              ^i^" |")))
+                           | Some x' -> let x'hd = (try (List.hd x') with | Failure _ -> raise 
+                                         (Debug ("| process_proj: premise "^x^" is an empty clause at id "^i^" |"))) in
+                                        x'hd
+                           | None -> raise (Debug ("| process_proj: can't fetch premises to `and` at id "^i^" |")))
                  p in
-        (match (get_expr (List.hd p')), (get_expr (List.hd cl)) with
+        (match (get_expr (try (List.hd p') with | Failure _ -> 
+                         raise (Debug ("| process_proj: not_or rule has no premises at id "^i^" |")))), 
+               (get_expr (try (List.hd cl) with | Failure _ -> 
+                         raise (Debug ("| process_proj: clause produced by not_or is empty at id "^i^" |")))) with
         | Not (Or ts), Not x -> 
             let i' = try findi (term_eq x) ts with
                      | Debug s -> raise (Debug ("| process_proj: fails at id "^i^" |"^s)) in
@@ -2045,7 +2065,7 @@ let process_proj (c: certif): certif =
         | _, _ -> raise (Debug 
                   ("| process_proj: expecting clause with `or` and `not` at id "^i^" |")))
     | (i, AndpAST, cl, p, a) :: tl when a = [] ->
-        (match get_expr (List.nth cl 0), (List.nth cl 1) with
+        (match get_expr (List.nth cl 0), get_expr (List.nth cl 1) with
         | Not (And ts), x ->
             let i' = try findi (term_eq x) ts with
                      | Debug s -> raise (Debug ("| process_proj: fails at id "^i^" |"^s)) in
@@ -2108,7 +2128,8 @@ let clear_cids () = Hashtbl.clear cids
 (* Replace every derivation R, to derive (h ^ ~g) v R if it 
   (in)directly uses andn_id as a premise *)
 let extend_cl_aux (r : rule) (p : params) (a : args) (pi3 : certif) : rule * clause =
-  match r, (get_cl (List.hd p) pi3) with
+  let pi3hd = (try (List.hd p) with | Failure _ -> raise (Debug ("| extend_cl_aux: no premises to rule |"))) in
+  match r, (get_cl pi3hd pi3) with
   | NandAST, Some [Not (And xs)] -> (AndnAST, And xs :: (List.map (fun x -> Not x) xs))
   | OrAST, Some [Or xs] -> (OrpAST, Not (Or xs) :: xs)
   | ImpAST, Some [Imp xs] -> (ImppAST, [Not (Imp xs); Not (List.nth xs 0); List.nth xs 1])
@@ -2124,13 +2145,18 @@ let extend_cl_aux (r : rule) (p : params) (a : args) (pi3 : certif) : rule * cla
   | Nequ1AST, Some [Not (Eq (x, y))] -> (Equn2AST, [Eq (x, y); x;y])
   | Equ2AST, Some [Eq (x, y)] -> (Equp1AST, [Not (Eq (x, y)); x; Not y])
   | Nequ2AST, Some [Not (Eq (x, y))] -> (Equn1AST, [Eq (x, y); x; Not y])
-  | AndAST, Some [And xs] -> let n = int_of_string (List.hd a) in
-                              (AndpAST, [Not (And xs); List.nth xs n])
-  | NorAST, Some [Not (Or xs)] -> let n = int_of_string (List.hd a) in
-                              (OrnAST, [Or xs; List.nth xs n])
+  | AndAST, Some [And xs] -> 
+      let ahd = try (List.hd a) with | Failure _ -> raise (Debug ("| extend_cl_aux: no args to `and` rule |")) in
+      let n = int_of_string ahd in
+      (AndpAST, [Not (And xs); List.nth xs n])
+  | NorAST, Some [Not (Or xs)] -> 
+      let ahd = try (List.hd a) with | Failure _ -> raise (Debug ("| extend_cl_aux: no args to `not_or` rule |")) in
+      let n = int_of_string ahd in
+      (OrnAST, [Or xs; List.nth xs n])
   | Nimp1AST, Some [Not (Imp xs)] -> (Impn1AST, [Imp xs; List.nth xs 0])
   | Nimp2AST, Some [Not (Imp xs)] -> (Impn2AST, [Imp xs; Not (List.nth xs 1)])
-  | r, Some t -> raise (Debug ("| extend_cl_aux: unexpected rule "^(string_of_rule r)^"to extend_cl, or premise "^(string_of_clause t)^" to the rule at id "^(List.hd p)^" |"))
+  | r, Some t -> raise (Debug ("| extend_cl_aux: unexpected rule "^(string_of_rule r)^
+                        "to extend_cl, or premise "^(string_of_clause t)^" to the rule at id "^pi3hd^" |"))
   | r, None -> raise (Debug ("| extend_cl_aux: rule "^(string_of_rule r)^" has no premise"^" |")) 
 let rec extend_cl (andn_id : id) (h : term) (g : term) (pi3 : certif) (pi3og : certif): certif =
   match pi3 with
@@ -2163,7 +2189,8 @@ let rec extend_cl (andn_id : id) (h : term) (g : term) (pi3 : certif) (pi3og : c
       (* ImmBuilddef(2)/ImmBuildProj that indirectly uses andn_id *)
       (List.exists (fun x -> List.mem x (get_cids andn_id)) p)) ->
         add_cid andn_id i;
-        let rul, claus = extend_cl_aux r p a pi3og in
+        let rul, claus = try extend_cl_aux r p a pi3og with
+                         | Debug s -> raise (Debug ("| extend_cl : failed at id "^i^" |"^s)) in
         let taut_id = generate_id () in
         (taut_id, rul, claus, [], []) ::                    (* (1) *)
         (i, ResoAST, ((And [h; Not g]) :: List.tl claus), taut_id :: p, []) ::  (* (2) *)
@@ -2171,7 +2198,9 @@ let rec extend_cl (andn_id : id) (h : term) (g : term) (pi3 : certif) (pi3og : c
   | hd :: tl -> hd :: (extend_cl andn_id h g tl pi3og)
   | [] -> []
 let process_subproof_aux (andn_id : id) (new_h_id : id) (g_id : id) (pi2 : certif ) (pi3 : certif) (h : term) (g : term) : certif =
-  let (andi, andc) = match List.hd (List.rev pi3) with
+  let revpi3hd = try (List.hd (List.rev pi3)) with | Failure _ -> raise (Debug 
+               ("| process_subproof_aux: subproof step is the last step of the proof, this is unexpected |")) in
+  let (andi, andc) = match revpi3hd with
                      | (i, _, c, _, _) -> (i, c) in
   let andpi1 = generate_id () in
   let andpi2 = generate_id () in
@@ -2190,22 +2219,26 @@ let process_subproof_aux (andn_id : id) (new_h_id : id) (g_id : id) (pi2 : certi
 let rec process_subproof (c : certif) : certif =
   match c with
   | (i, SubproofAST cert, cl, p, a) :: pi3' ->
-      let pi3 = process_subproof pi3' in
-      (match List.hd (List.rev cert) with
-      | (andn_id, DischargeAST, [Not h; g; ], p', a') ->
-          (* Remove first and last element of sub-proof certificate *)
-          let certtl = List.tl cert in
-          let rev_certtl = List.rev certtl in
-          let g_id = get_id (List.hd (List.tl rev_certtl)) in
-          let subp = List.rev (List.tl rev_certtl) in
-          (* The assumption of the subproof will be derived in a new rule,
-             we need to replace all calls to it with calls to the replaced
-             rule *)
-          let new_h_id = generate_id () in
-          let h_id = get_id (List.hd cert) in
-          let pi2 = subst_ids subp [(h_id, new_h_id)] in
-          process_subproof_aux andn_id new_h_id g_id pi2 pi3 h g
-      | _ -> raise (Debug ("| process_subproof: expecting the last step of the certificate to be a discharge step at id "^i^" |")))
+      if List.length cert < 2 then
+         raise (Debug ("| process_subproof: expecting length of subproof to be at least 2 steps at id "^i^" |"))
+      else
+         let pi3 = process_subproof pi3' in
+         (match List.hd (List.rev cert) with
+         | (andn_id, DischargeAST, [Not h; g; ], p', a') ->
+             (* Remove first and last element of sub-proof certificate *)
+             let certtl = List.tl cert in
+             let rev_certtl = List.rev certtl in
+             let g_id = get_id (List.hd (List.tl rev_certtl)) in
+             let subp = List.rev (List.tl rev_certtl) in
+             (* The assumption of the subproof will be derived in a new rule,
+                we need to replace all calls to it with calls to the replaced
+                rule *)
+             let new_h_id = generate_id () in
+             let h_id = get_id (List.hd cert) in
+             let pi2 = subst_ids subp [(h_id, new_h_id)] in
+             (try process_subproof_aux andn_id new_h_id g_id pi2 pi3 h g with
+             | Debug s -> raise (Debug ("| process_subproof: failed at id "^i^" |"^s)))
+         | _ -> raise (Debug ("| process_subproof: expecting the last step of the certificate to be a discharge step at id "^i^" |")))
   | h :: tl -> h :: process_subproof tl
   | [] -> clear_cids (); []
 
@@ -4303,7 +4336,7 @@ let rec process_simplify (c : certif) : certif =
     | a1 :: _ when (compare_sub (String.trim a1) "eq_simplify") -> process_simplify ((i, EqualsimpAST, cl, p, []) :: tl)
     | a1 :: _ when (compare_sub (String.trim a1) "ite_simplify") -> process_simplify ((i, ItesimpAST, cl, p, []) :: tl)
     | a1 :: _ -> raise (Debug ("| process_simplify: DSL failure! Expecting arg of all_simplify step to have a rewrite rule via DSL at id "^i^", instead I have "^a1^" |"))
-    | [] -> raise (Debug ("| process_simplify: expecting arg of all_simplify step to have a rewrite rule via DSL at id "^i^", instead I have no args |")))
+    | [] -> (i, LiaRewriteAST, cl, p, a) :: process_simplify tl)
   | h :: tl -> h :: process_simplify tl
   | nil -> nil
   

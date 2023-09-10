@@ -78,6 +78,7 @@ type typ =
   | Compsimp (* New *)
   | Larweq (* New *)
   | Arithpolynorm (* New (cvc5) *)
+  | LiaRewrite (* New (cvc5) *)
   | Bind (* New *)
   | Fins
   | Qcnf (* New *)

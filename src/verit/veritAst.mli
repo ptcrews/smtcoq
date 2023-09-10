@@ -108,6 +108,7 @@ type rule =
   | CompsimpAST
   | LarweqAST
   | ArithpolynormAST
+  | LiaRewriteAST
   | BindAST
   | FinsAST
   | QcnfAST
