@@ -191,7 +191,7 @@ Tactic Notation "verit"           :=
          [ .. | verit_bool_base_auto Hs; vauto ]
   ])).
 
-  Tactic Notation "abduce" int_or_var(i) :=
+Tactic Notation "abduce" int_or_var(i) :=
   let tac :=
   ltac2:(i |- intros ; get_hyps_cont_ltac1
   (ltac1:(i hs |-
@@ -201,8 +201,21 @@ Tactic Notation "verit"           :=
          | Some ?hs => prop2bool_hyps hs
          | None => idtac
          end;
-         [ .. | cvc5_bool_abduct i hs; vauto ]
+         [ .. | cvc5_bool_abduct i 0 hs; vauto ]
   ]) i)) in tac i.
+
+Tactic Notation "abduce" int_or_var(i) int_or_var(j) :=
+  let tac :=
+  ltac2:(i j |- intros ; get_hyps_cont_ltac1
+  (ltac1:(i j hs |-
+  add_compdecs hs;
+  [ .. | prop2bool;
+         lazymatch hs with
+         | Some ?hs => prop2bool_hyps hs
+         | None => idtac
+         end;
+         [ .. | cvc5_bool_abduct i j hs; vauto ]
+  ]) i)) in tac i j.
 
 Tactic Notation "verit_no_check" constr(h) :=
   let tac :=

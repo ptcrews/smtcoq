@@ -42,7 +42,7 @@ val checker :
   unit
 
 val tactic :
-  int -> (int -> Environ.env ->
+  int -> int -> (int -> int -> Environ.env ->
    SmtBtype.reify_tbl ->
    SmtAtom.Op.reify_tbl ->
    SmtAtom.Atom.reify_tbl ->

@@ -344,10 +344,35 @@ let string_logic ro f =
     (if SL.mem LBitvectors l then "BV" else "")
     (if SL.mem LLia l then "LIA" else "")
 
-let call_abduce i env rt ro ra rf root lsmt =
+let call_abduce i j env rt ro ra rf root lsmt =
     let open Smtlib2_solver in
     let fl = Form.neg (snd root) in
-    let solver_call = [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; "--dag-thresh=0"; "--no-sygus-core-connective" |] in
+    let solver_call = 
+      (match j with
+       | 1 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; 
+                 "--dag-thresh=0"; "--sygus-enum=fast"; "--no-sygus-core-connective"; "--sygus-rewrite=none" |] 
+       | 2 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; 
+                 "--dag-thresh=0"; "--sygus-enum=fast"; "--sygus-rewrite=none" |] 
+       | 3 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; 
+                 "--dag-thresh=0"; "--sygus-enum=fast"; "--no-sygus-core-connective" |] 
+       | 4 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; 
+                 "--dag-thresh=0"; "--sygus-enum=fast" |]
+       | 5 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; 
+                 "--dag-thresh=0"; "--sygus-enum=smart"; "--no-sygus-core-connective"; "--sygus-rewrite=none" |] 
+       | 6 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; 
+                 "--dag-thresh=0"; "--sygus-enum=smart"; "--sygus-rewrite=none" |] 
+       | 7 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; 
+                 "--dag-thresh=0"; "--sygus-enum=smart"; "--no-sygus-core-connective" |] 
+       | 8 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; 
+                 "--dag-thresh=0"; "--sygus-enum=smart" |]
+       | 9 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; 
+                 "--dag-thresh=0"; "--no-sygus-core-connective"; "--sygus-rewrite=none" |] 
+       | 10 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000";
+                  "--dag-thresh=0"; "--sygus-rewrite=none" |] 
+       | 11 -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000";
+                  "--dag-thresh=0"; "--no-sygus-core-connective" |] 
+       | _ -> [| "cvc5"; "--produce-abducts"; "--incremental"; "--tlimit-per=60000"; 
+                 "--dag-thresh=0"; "--no-sygus-core-connective" |]) in
     let cvc5 = create solver_call in
 
     set_option cvc5 "print-success" true;
@@ -389,7 +414,7 @@ let call_abduce i env rt ro ra rf root lsmt =
     proof
 
 
-let call_cvc4_abduct i env rt ro ra rf root lsmt =
+let call_cvc4_abduct i j env rt ro ra rf root lsmt =
   let open Smtlib2_solver in
   let fl = snd root in
 
@@ -430,13 +455,13 @@ let call_cvc4_abduct i env rt ro ra rf root lsmt =
   let proof =
     match check_sat cvc4 with
     | Unsat -> CoqInterface.error "CVC4 returned UNSAT, try the smt tactic instead."
-    | Sat -> call_abduce i env rt ro ra rf root lsmt
+    | Sat -> call_abduce i j env rt ro ra rf root lsmt
   in
 
   quit cvc4;
   proof
 
-let call_cvc4 _ env rt ro ra rf root lsmt =
+let call_cvc4 _ _ env rt ro ra rf root lsmt =
   let open Smtlib2_solver in
   let fl = snd root in
 
@@ -531,7 +556,7 @@ let get_model_from_file filename =
   | _ -> CoqInterface.error "CVC4 returned SAT but no model"
 
 
-let call_cvc4_file _ env rt ro ra rf root =
+let call_cvc4_file _ _ env rt ro ra rf root =
   let fl = snd root in
   let (filename, outchan) = Filename.open_temp_file "cvc4_coq" ".smt2" in
   export outchan rt ro fl;
@@ -587,12 +612,12 @@ let cvc4_logic =
     let rf = Tosmtcoq.rf in
     let ra' = Tosmtcoq.ra in
     let rf' = Tosmtcoq.rf in
-    SmtCommands.tactic 0 call_cvc4 cvc4_logic rt ro ra rf ra' rf' vm_cast [] []
+    SmtCommands.tactic 0 0 call_cvc4 cvc4_logic rt ro ra rf ra' rf' vm_cast [] []
     (* (\* Currently, quantifiers are not handled by the cvc4 tactic: we pass
      *    the same ra and rf twice to have everything reifed *\)
-     * SmtCommands.tactic call_cvc4 cvc4_logic rt ro ra rf ra rf vm_cast [] [] *)
+     * SmtCommands.tactic 0 0 call_cvc4 cvc4_logic rt ro ra rf ra rf vm_cast [] [] *)
 
-let tactic_gen_abduct i vm_cast lcpl lcepl =
+let tactic_gen_abduct i j vm_cast lcpl lcepl =
   (* Transform the tuple of lemmas given by the user into a list *)
   let lcpl =
     let lcpl = EConstr.Unsafe.to_constr lcpl in
@@ -610,8 +635,8 @@ let tactic_gen_abduct i vm_cast lcpl lcepl =
   let rf = Tosmtcoq.rf in
   let ra' = Tosmtcoq.ra in
   let rf' = Tosmtcoq.rf in
-  SmtCommands.tactic i call_cvc4_abduct cvc4_logic rt ro ra rf ra' rf' vm_cast lcpl lcepl
+  SmtCommands.tactic i j call_cvc4_abduct cvc4_logic rt ro ra rf ra' rf' vm_cast lcpl lcepl
 
 let tactic () = tactic_gen vm_cast_true
 let tactic_no_check () = tactic_gen (fun _ -> vm_cast_true_no_check)
-let tactic_abduct i = tactic_gen_abduct i vm_cast_true
+let tactic_abduct i j = tactic_gen_abduct i j vm_cast_true
