@@ -215,7 +215,7 @@ Tactic Notation "abduce" int_or_var(i) int_or_var(j) :=
          | None => idtac
          end;
          [ .. | cvc5_bool_abduct i j hs; vauto ]
-  ]) i)) in tac i j.
+  ]) i j)) in tac i j.
 
 Tactic Notation "verit_no_check" constr(h) :=
   let tac :=
