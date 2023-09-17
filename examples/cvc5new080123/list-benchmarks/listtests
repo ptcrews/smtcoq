@@ -1,0 +1,73 @@
+app_nil_r : forall (l:list A), l ++ [] = l
+	1. -----------
+	   l = l ++ []
+	2. -----------
+	   y ++ [] = y
+	3. --------------------
+	   x = x ++ [] /\ a = b
+F	4. l1 ++ [] = l2 ++ []
+	   -------------------
+	         l1 = l2
+P	5. -----------------------		l ++ (removelast (a :: [])) = l
+	   l ++ removelast [a] = l
+	6. -------------------
+	   rev y = rev y ++ []
+	7. -------------------
+	   rev l = rev l ++ []
+N/A	8. ----------------------------------------
+	   firstn (length l1) (l1 ++ l2) = l1 ++ []
+	9. --------------------------------
+	   firstn (length l1) l1 ++ [] = l1
+N/A	10. ----------------------------------------------
+	    firstn (length l1 + S k) (l1 ++ []) = l1 ++ []
+N/A	11. -----------------------------------------------------------------------
+	    firstn x l = firstn x l ++ rev (skipn (length l - x) (rev (skipn x l)))
+N/A	12. NoDup (l ++ []) 			(Unsupported Pred)
+	    ---------------
+	    	NoDup l
+N/A	13. NoDup l -> NoDup (rev l)		(Unsupported Pred)
+	    NoDup l
+	    ------------------------
+	    NoDup (rev l ++ [a])
+	    
+app_length : forall (l l' : list A), length (l++l') = length l + length l'
+N/A	1. --------------------------------
+	   length (l ++ [a]) = S (length l)
+N/A	2. 	length (rev l) = length l
+	   ------------------------------------
+	   length (rev l ++ [a]) = S (length l)
+N/A	3. forall n : nat, n < length l -> nth n (rev l) d = nth (length l - S n) l d
+	   --------------------------------------------------------------------------------------------------------------
+	   forall n : nat, n < length (l ++ [a]) -> nth n (rev (l ++ [a])) d = nth (length (l ++ [a]) - S n) (l ++ [a]) d
+N/A	4. fold_left (fun (x : nat) (_ : A) => S x) l 0 = length l
+	   -----------------------------------------------------------------------------
+	   fold_left (fun (x0 : nat) (_ : A) => S x0) [x] (length l) = length (l ++ [x])
+
+N/A	5. ------------------------------------------------------------------------------------------
+	   length (map (fun y : B => (a, y)) l' ++ list_prod l l') = length l' + length l * length l'
+N/A	6. Unsupported Pred
+N/A	7. Unsupported Pred
+N/A	8. Unsupported Pred
+F	9. length (concat l) = list_sum (map (length (A:=A)) l)
+	   --------------------------------------------------------------------
+	   length (a ++ concat l) = length a + list_sum (map (length (A:=A)) l)
+	   
+app_assoc : forall (l m n:list A) : l ++ m ++ n = (l ++ m) ++ n
+F	1. ----------------------------
+	   (l ++ m) ++ n = l ++ m ++ n
+N/A	2. ------------------------------------------
+	   l1 ++ [a] ++ l = l2 ++ [a] ++ l -> l1 = l2
+F	3. -----------------------------------------------
+ 	   (rev y ++ rev l) ++ [a] = rev y ++ rev l ++ [a]
+N/A 	4. ---------------------------------------------
+ 	   rev_append l (a :: l') = (rev l ++ [a]) ++ l'
+F	5. -----------------------------------------------------------
+ 	   x ++ concat l1 ++ concat l2 = (x ++ concat l1) ++ concat l2
+
+rev_involutive : forall (l:list A), rev (rev l) = l
+	1. rev l = l1 ++ l2
+	   --------------------
+	   l = rev l2 ++ rev l1
+	2. forall (x : A) (l : list A), P l -> P (l ++ [x])
+	   ------------------------------------------------
+	   			P l

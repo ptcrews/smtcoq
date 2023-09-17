@@ -35,10 +35,24 @@ end.
 
 (** Collect all the hypotheses from the context *)
 
+(*
 Ltac2 get_hyps_aux () :=
 let h := Control.hyps () in
 List.filter (fun x => match x with
                     | (id, opt, c) => let ty := Constr.type c in Constr.equal ty '(Prop)
+                    end) h.
+*)
+Ltac2 get_hyps_aux () :=
+let h := Control.hyps () in
+List.filter (fun x => match x with
+                    | (id, opt, c) => let ty := Constr.type c in 
+                                      let knd := Constr.Unsafe.kind c in
+                                      if Constr.equal ty '(Prop) then
+                                        match knd with
+                                          | Constr.Unsafe.Prod _ _ => false
+                                          | _ => true
+                                        end
+                                      else false
                     end) h.
 
 Ltac2 get_hyps_ltac2 () :=
