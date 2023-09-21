@@ -14,35 +14,19 @@
    If you are using native-coq instead of Coq 8.9, replace it with:
      Require Import SMTCoq.
    *)
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/src" as SMTCoq.
+   Add Rec LoadPath "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/src" as SMTCoq.
 
-Require Import SMTCoq.SMTCoq.
-Require Import Bool.
-
-Require Import ZArith.
-Require Import Int31.
-
-Import BVList.BITVECTOR_LIST.
-Local Open Scope bv_scope.
-
-Import FArray.
-Local Open Scope farray_scope.
-
-(* Examples that check ZChaff certificates *)
-
-(*Local Open Scope int63_scope.*)
-Local Open Scope int31_scope.
-Local Open Scope array_scope.
-
-Local Open Scope Z_scope.
-
-Section Test7.
-     Verit_Checker "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/aletheTests/sanitychecktests/test7.smt2" "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/aletheTests/sanitychecktests/test7.veritpf".
-End Test7.
-
-(* Success:
-Variable P : Z -> bool.
-Variable a : Z.
-Goal (forall (x : Z), P x) -> P a.
-Proof. verit. Qed.
-*)
+   Require Import SMTCoq.SMTCoq.
+   Require Import Bool.
+   
+   Require Import ZArith.
+   Require Import Int31.
+   
+   (*Local Open Scope int63_scope.*)
+   Local Open Scope int31_scope.
+   Local Open Scope array_scope.
+   Local Open Scope int63_scope.
+   
+   Section Test8cvc5.
+     Verit_Checker "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/aletheTests/sanitychecktests/test8.smt2" "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/aletheTests/sanitychecktests/test8.cvc5pf".
+   End Test8cvc5.

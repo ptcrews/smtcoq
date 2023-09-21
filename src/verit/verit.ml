@@ -102,9 +102,10 @@ let import_trace ra_quant rf_quant filename first lsmt =
          occur !confl;
          (alloc !cfirst, !confl)
     with
-    | VeritSyntax.Debug s -> CoqInterface.error ("Verit.import_trace: processing certificate \nError: VeritSyntax.Debug\nMessage: "^s^
+    | VeritSyntax.Debug s -> CoqInterface.error ("Verit.import_trace: processing certificate\nError: VeritSyntax.Debug\nMessage: "^s^
       "\nPosition: "^(print_position lexbuf)^"\nCertificate:\n"^(VeritAst.string_of_certif (cert'))^"\nHash Table:\n"^(VeritSyntax.clauses_to_string))
     | Failure f -> CoqInterface.error ("Verit.import_trace: processing certificate \nError: Failure\nMessage: "^f^"\nPosition: "^(print_position lexbuf))
+    | Form.NotWellTyped p -> CoqInterface.error ("VeritAst.import_trace: processing certificate\nError: formula "^(Form.pform_to_string p)^" is not well-typed\nPosition: "^(print_position lexbuf))
     | x -> CoqInterface.error ("Verit.import_trace: processing certificate \nError: "^(Printexc.to_string x)^"\nPosition: "^(print_position lexbuf))
   with
   | VeritParser.Error -> CoqInterface.error ("Verit.import_trace: preprocessing certificate \nError: VeritParser.Error\nPosition: "^(print_position lexbuf))

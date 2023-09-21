@@ -36,13 +36,13 @@ Local Open Scope array_scope.
 
 Local Open Scope Z_scope.
 
-Section Test7.
-     Verit_Checker "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/aletheTests/sanitychecktests/test7.smt2" "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/aletheTests/sanitychecktests/test7.veritpf".
-End Test7.
-
-(* Success:
-Variable P : Z -> bool.
-Variable a : Z.
-Goal (forall (x : Z), P x) -> P a.
-Proof. verit. Qed.
+Section Test6cvc5.
+     Verit_Checker "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/aletheTests/sanitychecktests/test6.smt2" "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/aletheTests/sanitychecktests/test6.cvc5pf".
+End Test6cvc5.
+(*
+Goal forall (a b : Z) (P : Z -> bool) (f : Z -> Z),
+  (negb (Z.eqb (f a) b)) || (negb (P (f a))) || (P b).
+Proof.
+  verit_bool.
+Qed.
 *)

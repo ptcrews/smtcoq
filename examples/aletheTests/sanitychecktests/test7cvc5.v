@@ -36,9 +36,9 @@ Local Open Scope array_scope.
 
 Local Open Scope Z_scope.
 
-Section Test7.
-     Verit_Checker "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/aletheTests/sanitychecktests/test7.smt2" "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/aletheTests/sanitychecktests/test7.veritpf".
-End Test7.
+Section Test7cvc5.
+     Verit_Checker "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/aletheTests/sanitychecktests/test7.smt2" "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/aletheTests/sanitychecktests/test7.cvc5pf".
+End Test7cvc5.
 
 (* Success:
 Variable P : Z -> bool.

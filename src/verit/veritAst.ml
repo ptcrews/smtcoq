@@ -2261,7 +2261,7 @@ let rec process_subproof (c : certif) : certif =
 (* This is a cool function but currently useless since the two places 
    we can use them (process_notnot and process_simpify_ltr) have many case
    specific requirements, but in the future, we may be able to generalize 
-   this if we find that it will save some repeated work.contents
+   this if we find that it will save some repeated work.
    
    remove_step p f:
    remove c, remove all steps s, such that p(s), and
@@ -4354,7 +4354,10 @@ let rec process_hole (c : certif) : certif =
 
 
 (* Final processing and linking of AST *)
-
+(* Ordering constraint:
+   1. process_proj before process_subproof because subproof turns all projection
+      rules to tautological rules and needs them to have arguments for this. To remove 
+      constraint, search for projection within `extend_cl`. *)
 let preprocess_certif (c: certif) : certif =
   Printf.printf ("Certif before preprocessing: \n%s\n") (string_of_certif c);
   try 
@@ -4374,10 +4377,10 @@ let preprocess_certif (c: certif) : certif =
   Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c7);
   let c8 = process_simplify c7 in
   Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c8);
-  let c9 = process_subproof c8 in
-  Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c9);
-  let c10 = process_proj c9 in
-  Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c10);
+  let c9 = process_proj c8 in
+  Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c9);
+  let c10 = process_subproof c9 in
+  Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c10);
   c10) with
   | Debug s -> raise (Debug ("| VeritAst.preprocess_certif: failed to preprocess |"^s))
 
