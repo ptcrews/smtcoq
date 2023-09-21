@@ -109,7 +109,7 @@ let import_trace ra_quant rf_quant filename first lsmt =
     | x -> CoqInterface.error ("Verit.import_trace: processing certificate \nError: "^(Printexc.to_string x)^"\nPosition: "^(print_position lexbuf))
   with
   | VeritParser.Error -> CoqInterface.error ("Verit.import_trace: preprocessing certificate \nError: VeritParser.Error\nPosition: "^(print_position lexbuf))
-  | CErrors.UserError (x,y) -> CoqInterface.error ("Verit.import_trace: processing certificate \nError: Cerrors.UserError "^(Pp.string_of_ppcmds y)^"\nPosition: "^(print_position lexbuf))
+  | CErrors.UserError (x,y) -> CoqInterface.error ("Verit.import_trace: preprocessing certificate \nError: Cerrors.UserError "^(Pp.string_of_ppcmds y)^"\nPosition: "^(print_position lexbuf))
   | x -> CoqInterface.error ("Verit.import_trace: preprocessing certificate \n\nError: "^(Printexc.to_string x)^"\nPosition: "^(print_position lexbuf))
 
 
