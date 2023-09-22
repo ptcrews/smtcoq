@@ -940,8 +940,8 @@ let cong_find_implicit_args (ft : term) (p : params) (cog : certif) (is_form : b
                               let cert = (if is_form then
                                            let eqn1i = generate_id () in
                                            let eqn2i = generate_id () in
-                                           (eqn1i, Equn1AST, [Eq (fxa', fya'); px'], [], []) ::
-                                           (eqn2i, Equn2AST, [Eq (fxa', fya'); Not px'], [], []) ::
+                                           (eqn1i, Equn1AST, [Eq (fxa', fya'); fxa'], [], []) ::
+                                           (eqn2i, Equn2AST, [Eq (fxa', fya'); Not fxa'], [], []) ::
                                            (impi, ResoAST, [Eq (fxa', fya')], [eqn1i; eqn2i], []) :: imp
                                          else
                                            (impi, ReflAST, [Eq (fxa', fya')], [], []) :: imp) in
@@ -4393,6 +4393,8 @@ let rec process_certif (c : certif) : VeritSyntax.id list =
                   ("| VeritAst.process_certif: can't process clause at id "
                   ^i^"|"^s)) in
       let c' = try process_cl c with
+               | Form.NotWellTyped p -> raise (Debug ("VeritAst.process_certif: formula "^
+                            (Form.pform_to_string p)^" is not well-typed at id "^i))
                | Debug s -> raise (Debug 
                   ("| VeritAst.process_certif: can't process clause at id "
                   ^i^" |"^s)) in
