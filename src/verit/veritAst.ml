@@ -847,15 +847,16 @@ let process_rule (r: rule) : VeritSyntax.typ =
 (* Removing occurrences of the cong rule using other rules 
    including eq_congruent, eq_congruent_pred, reso *)
 (* This can be divided into 4 cases:
-      Name  App of            Args
-   1. F_x   Unintr funcs      Terms
-   2. I_x   Intr funcs        Terms
-   3. P_phi Unintr preds      Formulas
-   4. I_phi Intr preds        Formulas
+      Output         Input       Interpreted?      Encoding
+      -------------------------------------------------------------------
+      Bool           _           No                Using eq_congr_pred
+      Bool           Bool        Yes               Using connective rules
+      Bool           Non-bool    Yes               ? (ex: <)
+      Non-bool       _           _                 Using eq_congr
    Note that even though we don't differentiate terms and formulas at the AST level,
    SMTCoq does differentiate them. This is due to veriT's previous stratification of
    terms and formulas, and complicates things for us because many of these differences
-   must be inferred from the alethe certificates. 
+   must be inferred from the alethe certificates.
 *)
 
 (* Get arguments of function/predicate application. Used to determine 
@@ -903,6 +904,7 @@ let cong_find_implicit_args (ft : term) (p : params) (cog : certif) (is_form : b
                                                            | Not_found -> raise (Debug ("| cong_find_implicit_args: premise "^x^" to cong has no equalities |")))
                                            | None -> raise (Debug ("| cong_find_implicit_args: can't fetch premises to congr (no implicit equalities case) |")))) p in
                      ([], ptuples)
+                   (* at least 1 implicit equality *)
                    else
                      (* Congruence over equality is a special case. Since we have to check modulo symmetry
                         the arguments may be reversed, which we don't account for in other functions. We 
@@ -914,28 +916,28 @@ let cong_find_implicit_args (ft : term) (p : params) (cog : certif) (is_form : b
                      let fxas = get_args fx' in
                      let fyas = get_args fy' in
                      (* get all equalities from params *)
-                     let (pids, peqs) = List.split (List.map (fun x -> (match (get_cl x cog) with
+                     let p_ids_eqs = List.map (fun x -> (match (get_cl x cog) with
                                              | Some c -> let eq = try (List.find (fun y -> match (get_expr y) with
                                                                             | Eq _ -> true
                                                                             | _ -> false) c) with
                                                                   | Not_found -> raise (Debug ("| cong_find_implicit_args: premise "^x^" to cong has no equalities |")) in
                                                          (x, eq)
-                                             | None -> raise (Debug ("| cong_find_implicit_args: can't fetch premises to congr (implicit equalities case) |")))) p) in
+                                             | None -> raise (Debug ("| cong_find_implicit_args: can't fetch premises to congr (implicit equalities case) |")))) p in
                      (* function that checks pairwise equality of arguments *)
-                     let rec f (fxas : term list) (fyas : term list) (pids : id list) (peqs : term list) : (step list * ((id * term) list)) =
-                        match fxas, fyas, pids, peqs with
-                        | fxa :: fxat, fya :: fyat, pid :: pidt, Eq (px, py) :: peqt ->
+                     let rec f (fxas : term list) (fyas : term list) (p_ids_eqs : (id * term) list) : (step list * ((id * term) list)) =
+                        match fxas, fyas, p_ids_eqs with
+                        | fxa :: fxat, fya :: fyat, (pid, Eq (px, py)) :: p_ids_eqs_t ->
                            let fxa' = get_expr fxa in
                            let fya' = get_expr fya in
                            let px' = get_expr px in
                            let py' = get_expr py in
                            (* no implicit equality *)
                            if ((fxa' = px' && fya' = py') || (fxa' = py' && fya' = px')) then
-                              let (imp, ptuples) = f fxat fyat pidt peqt in
+                              let (imp, ptuples) = f fxat fyat p_ids_eqs_t in
                               (imp, (pid, (Eq (px', py'))) :: ptuples)
                            (* implicit equality found *)
                            else if (fxa' = fya') then
-                              let (imp, ptuples) = f fxat fyat (pid :: pidt) (Eq (px', py') :: peqt) in
+                              let (imp, ptuples) = f fxat fyat ((pid, Eq (px', py')) :: p_ids_eqs_t) in
                               let impi = generate_id () in
                               let cert = (if is_form then
                                            let eqn1i = generate_id () in
@@ -949,11 +951,11 @@ let cong_find_implicit_args (ft : term) (p : params) (cog : certif) (is_form : b
                            else
                               raise (Debug ("| cong_find_implicit_args.f: can't find implicit premise to congr |"))
                         (* implicit equalities at the end *)
-                        | fxa :: fxat, fya :: fyat, [], [] ->
+                        | fxa :: fxat, fya :: fyat, [] ->
                            let fxa' = get_expr fxa in
                            let fya' = get_expr fya in
                            if (fxa' = fya') then
-                              let (imp, ptuples) = f fxat fyat [] [] in
+                              let (imp, ptuples) = f fxat fyat [] in
                               let impi = generate_id () in
                               let cert = (if is_form then
                                            let eqn1i = generate_id () in
@@ -966,9 +968,9 @@ let cong_find_implicit_args (ft : term) (p : params) (cog : certif) (is_form : b
                               (cert, (impi, Eq (fxa', fya')) :: ptuples)
                            else
                               raise (Debug ("| cong_find_implicit_args.f: can't find implicit premise to congr |"))
-                        | [], [] ,[] ,[] -> ([], [])
+                        | [], [] ,[] -> ([], [])
                         | _ -> raise (Debug ("| cong_find_implicit_args.f: number of arguments don't match with premises |"))
-                     in f fxas fyas pids peqs
+                     in f fxas fyas p_ids_eqs
    | _ -> raise (Debug ("| cong_find_implicit_args: expecting head of clause to be an equality |"))
 
 let process_cong (c : certif) : certif =
