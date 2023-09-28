@@ -1,16 +1,86 @@
-We have 7 sanity check tests:
-| Test | Goal | Success | # Steps Before AST | # Steps After AST | Comments |
-|------|------|---------|--------------------|-------------------|----------|
-|ex1   |$\neg (\top \land \neg \top)$|Fail|1 + 9|1 + 37||
-|ex2   |$\top \lor \bot$|Fail|1+12|1+46||
-|ex3   |$\forall p,\ \neg (p \land \neg p)$|Fail|1+5|1+14||
-|ex4   |$\forall a\ b\ c,\ ((a \lor b \lor c) \land (\neg a \lor \neg b \lor \neg c) \land (\neg a \lor b) \land (\neg b \lor c) \land (\neg c \lor a)) = false$| Success|1+14|1+14| No simplify rules|
-|ex5   |$\forall p,\ p \lor \neg p$|Fail|1+10|1+30||
-|ex6   |$\forall (a\ b : \mathbb{Z})\ (P : \mathbb{Z} -> Bool)\ (f : \mathbb{Z} -> \mathbb{Z}),\ (f\ a \neq b) \lor (\neg P (f\ a)) \lor (P\ b)$|Success|1+9|1+7|No simplify rules|
-|ex7   |$(\forall (x : \mathbb{Z}),\ P\ x) -> P\ a$|Success|1+16|1+4|No simplify rules|
 
-Tests 4, 6, 7 pass. Tests 1, 2, 3, 5 fail with the message `SMTCoq was not able to check the proof certificate`. The difference between these is that there are no `simp` rules in the ones that pass. So we don't have any proofs that work with simp rules in them.
-Next steps:
-1. 3 is the smallest of the certificates that fails, do step-by-step debugging on it.
-2. Once all the sanity check tests pass with process_simplify, we want to try out `sledgehammerTests.v` which consists of a much bigger suite.
-3. Finally, we need to run `cvc5` on the same set of tests and maybe take stock of the `all_simplify` rules, and use the DSL to rewrite these in terms of the alethe `_simplify` rules.
+# Sanity Check Tests
+We have 8 sanity check tests:
+| Test | Formula                                        | veriT Proof | Comments | cvc5 Proof | Comments     | 
+|------|------------------------------------------------|-------------|----------|------------|--------------|
+|test1 |`~(T ^ ~T)`                                     | Sucess      |          | Failure    | Step-by-step |
+|test2 |`T v F`                                         | Sucess      |          | Sucess     |              |
+|test3 |`forall p, ~(p ^ ~p)`                           | Sucess      |          | Sucess     |              |
+|test4 |`forall a b c, (a v b v c) ^ (~a v ~b v ~c) ^ (~a v b) ^ (~b v c) ^ (~c v a)`    | Sucess      |          | Sucess     |              | 
+|test5 |`forall p, p v ~p`                              | Sucess      |          | Sucess     |              |
+|test6 |`forall (a b : Z) (p : Z -> bool) (f : Z -> Z), ~(f a = b) v (~ P (f a)) v P b`| Success     |          | Failure    | SMTCoq iff not mapped to Micromega iff |      
+|test7 |`(forall (x : Z) (P : Z -> bool), P x) ->  P a` | Failure     |          | Failure    |              |
+|test8 |`forall (x y: Z) (f: Z -> Z), x = y + 1 -> f y = f (x - 1)`                  | Failure     |          | Failure    |              |
+
+## Issues:
+
+### Test1cvc5
+checker returns `false`
+
+### Test6cvc5
+```
+File "./test6cvc5.v", line 23, characters 5-255:
+Error:
+Verit.import_trace: processing certificate 
+Error: Cerrors.UserError SMTCoq was not able to check the certificate for the following reason.
+todo:Fiff
+Position: Line 38 Position 1
+```
+
+### Test7verit
+```
+nwt: (+ (* 2 op_3 (aka Smt_var_op_3)) 1)File "./test7verit.v", line 23, characters 5-256:
+Error:
+Verit.import_trace: processing certificate
+Error: VeritSyntax.Debug
+Message: VeritAst.process_certif: formula Fatom +2*1*3++1 is not well-typed at id x1
+Position: Line 82 Position 1
+```
+Offending step from certificate:
+```
+(x1, Equp1AST, (cl  ((not (((2 * op_3) + 1) = (1 + (2 * op_3))))) (((2 * op_3) + 1)) ((not (1 + (2 * op_3))))), [], [])
+```
+
+### Test7cvc5
+```
+nwt: (+ (* 2 op_3 (aka Smt_var_op_3)) 1)File "./test7cvc5.v", line 23, characters 5-255:
+Error:
+Verit.import_trace: processing certificate
+Error: VeritSyntax.Debug
+Message: VeritAst.process_certif: formula Fatom +2*1*3++1 is not well-typed at id x1
+Position: Line 61 Position 1
+
+```
+Offending step from certificate:
+```
+(x1, Equp1AST, (cl  ((not (((2 * op_3) + 1) = (1 + (2 * op_3))))) (((2 * op_3) + 1)) ((not (1 + (2 * op_3))))), [], [])
+```
+
+### Test8verit
+```
+nwt: (+ op_1 (aka Smt_var_op_1) 1)File "./test8verit.v", line 23, characters 5-256:
+Error:
+Verit.import_trace: processing certificate
+Error: VeritSyntax.Debug
+Message: VeritAst.process_certif: formula Fatom 1++1 is not well-typed at id x4
+Position: Line 24 Position 1
+```
+Offending step from certificate:
+```
+(x4, Equp1AST, (cl  ((not ((op_1 + 1) = (1 + op_1)))) ((op_1 + 1)) ((not (1 + op_1)))), [], [])
+```
+
+### Test8cvc5
+```
+nwt: (+ op_1 (aka Smt_var_op_1) 1)File "./test8cvc5.v", line 23, characters 5-255:
+Error:
+Verit.import_trace: processing certificate
+Error: VeritSyntax.Debug
+Message: VeritAst.process_certif: formula Fatom 1++1 is not well-typed at id x1
+Position: Line 37 Position 1
+
+```
+Offending step from certificate:
+```
+(x1, Equp1AST, (cl  ((not ((op_1 + 1) = (1 + op_1)))) ((op_1 + 1)) ((not (1 + op_1)))), [], [])
+```

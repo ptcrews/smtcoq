@@ -1,0 +1,3 @@
+(assume h1 (not (< x (+ x 1))))
+(step t2 (cl (< x (+ x 1))) :rule sum_simplify)
+(step t3 (cl) :rule resolution :premises (h1 t2))

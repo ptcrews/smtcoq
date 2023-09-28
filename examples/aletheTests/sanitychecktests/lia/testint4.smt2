@@ -1,0 +1,6 @@
+(set-option :produce-assignments true)
+(set-option :produce-proofs true)
+(set-logic QF_UFLIA)
+(declare-fun x () Int)
+(assert (not (< x (+ x 1))))
+(check-sat)
