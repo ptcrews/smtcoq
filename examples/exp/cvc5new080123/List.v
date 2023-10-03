@@ -7,7 +7,6 @@
 (*         *     GNU Lesser General Public License Version 2.1          *)
 (*         *     (see LICENSE file for the text of the license)         *)
 (************************************************************************)
-
 Require Import PeanoNat.
 Require Import SMTCoq.SMTCoq.
 Set Implicit Arguments.
@@ -973,7 +972,12 @@ now rewrite app_assoc.
 
   Remark rev_unit : forall (l:list A) (a:A), rev (l ++ [a]) = a :: rev l.
   Proof.
-    intros l a. apply rev_app_distr.
+    intros l a.
+(* 1. rev_app_distr Failure!
+Fail Timeout 20 (time abduce 1).
+The command has indeed failed with message:
+Timeout! *)
+    apply rev_app_distr.
   Qed.
 
   Lemma rev_involutive : forall l:list A, rev (rev l) = l.
@@ -991,6 +995,10 @@ Fail Timeout 20 (time abduce 1).
 The command has indeed failed with message:
 Timeout! *)
     rewrite <- (rev_involutive l). rewrite Heq.
+(* 2. rev_app_distr Failure!
+Fail Timeout 20 (time abduce 1).
+The command has indeed failed with message:
+Timeout!*)
     apply rev_app_distr.
   Qed.
 
@@ -1010,8 +1018,8 @@ Timeout! *)
     P [] ->
     (forall (x:A) (l:list A), P l -> P (l ++ [x])) -> forall l:list A, P l.
   Proof. 
-    intros P ? ? l. 
-(* 2. rev_involutive Failure! 
+    intros P ? ? l.
+(* 2. rev_involutive N/A! 
 Fail Timeout 20 (time abduce 1).
 Tactic call ran for 0.002 secs (0.u,0.002s) (failure)
 The command has indeed failed with message:
@@ -1045,6 +1053,7 @@ Timeout! *)
   Proof.
     intros l d; induction l as [|a l IHl] using rev_ind; [easy|].
 (* 3. app_length N/A! Doesn't apply for quantified goal *)
+(* 3. rev_app_distr N/A! Doesn't apply for quantified goal *)
     rewrite rev_app_distr, app_length, Nat.add_comm. cbn. intros [|n].
     - now rewrite Nat.sub_0_r, nth_middle.
     - intros Hn %Nat.succ_lt_mono.
@@ -1394,7 +1403,20 @@ Proof.
   intros l n d ln dn Hlen.
   rewrite <- (map_nth (fun m => nth m l d)).
   destruct Hlen.
-  - apply nth_indep. now rewrite map_length.
+  - apply nth_indep. 
+(* 1. map_length Success! Sniper should be able to handle the conversion.
+    assert (forall m n, m < n -> m <? n = true). { admit. } 
+    assert (forall m n, m <? n = true -> m < n). { admit. } 
+    apply H0 in H. apply H1. Fail Timeout 20 (time abduce 2).
+    Tactic call ran for 1.963 secs (0.009u,0.011s) (failure)
+The command has indeed failed with message:
+cvc5 returned SAT.
+The solver cannot prove the goal, but one of the following hypotheses would make it provable:
+(Nat.ltb n ((length (A:=A)) ((map (A:=nat) (B:=A)) (fun x : nat => nth x l d) ln)))
+((length (A:=A)) ((map (A:=nat) (B:=A)) (fun x : nat => nth x l d) ln)) = ((length (A:=nat)) ln)
+    assert (length (map (fun x : nat => nth x l d) ln) = 
+    length ln). {apply map_length. } smt. *)
+    now rewrite map_length.
   - now rewrite (nth_overflow l).
 Qed.
 
@@ -1970,10 +1992,18 @@ End Fold_Right_Recursor.
       intro l; induction l as [|? ? IHl]; simpl; [easy|].
       intros.
 (* 5. app_length N/A!
-Fail Timeout 20 (time abduce 1). 
+Fail Timeout 20 (time abduce 1).
 The command has indeed failed with message:
-Timeout! *)
-now rewrite app_length, map_length, IHl. Qed.
+Timeout! *) 
+      rewrite app_length. rewrite IHl.
+(* 2. map_length Success!
+      Fail Timeout 20 (time abduce 1). 
+Tactic call ran for 2.867 secs (0.004u,0.016s) (failure)
+The command has indeed failed with message:
+cvc5 returned SAT.
+The solver cannot prove the goal, but one of the following hypotheses would make it provable:
+((length (A:=A * B)) ((map (A:=B) (B:=A * B)) (fun y : B => (a, y)) l')) = ((length (A:=B)) l') *)
+       now rewrite map_length. Qed.
 
   End ListPairs.
 
@@ -2246,7 +2276,7 @@ cvc5 returned SAT.
 The solver cannot prove the goal, but one of the following hypotheses would make it provable:
 ((app (A:=A)) (firstn ((length (A:=A)) l1) l1) []) = l1
 
-firstn_all Success! without the previous app_nil_r
+1. firstn_all Success! without the previous app_nil_r
 Fail Timeout 20 (time abduce 1). 
 Tactic call ran for 0.545 secs (0.u,0.019s) (failure)
 The command has indeed failed with message:
@@ -2313,7 +2343,8 @@ Solver returned uknown.
 
   Lemma skipn_all2 n: forall l, length l <= n -> skipn n l = [].
   Proof.
-    intros l L%Nat.sub_0_le; rewrite <-(firstn_all l) at 1.
+    intros l L%Nat.sub_0_le. 
+(* 2. firstn_all N/A! *) rewrite <-(firstn_all l) at 1.
     now rewrite skipn_firstn_comm, L.
   Qed.
 
@@ -2355,20 +2386,25 @@ Solver returned uknown.
       firstn x l = rev (skipn (length l - x) (rev l)).
   Proof.
     intros x l; rewrite <-(firstn_skipn x l) at 3.
+(* 4. 5. rev_app_distr N/A! *)
     rewrite rev_app_distr. rewrite skipn_app. rewrite rev_app_distr.
-    rewrite rev_length. rewrite skipn_length.  rewrite Nat.sub_diag. 
-    simpl. 
+(* 1. rev_length N/A! *)
+    rewrite rev_length. rewrite skipn_length. rewrite Nat.sub_diag.
+    simpl.
 (* 3. rev_involutive N/A!
   Fail Timeout 20 (time abduce 1).
 The command has indeed failed with message:
 Timeout! *)
-rewrite rev_involutive.
+    rewrite rev_involutive.
 (* 11. app_nil_r N/A! 
 Fail Timeout 20 (time abduce 1).
 The command has indeed failed with message:
 Timeout!
 *)  rewrite <-app_nil_r at 1. f_equal. symmetry. apply length_zero_iff_nil.
-    repeat rewrite rev_length, skipn_length; apply Nat.sub_diag.
+(* 2. 3. rev_length N/A! *)
+    rewrite rev_length. rewrite skipn_length. 
+    rewrite rev_length. rewrite skipn_length.
+    apply Nat.sub_diag.
   Qed.
 
   Lemma firstn_rev: forall x l,
@@ -2383,7 +2419,7 @@ cvc5 returned SAT.
 The solver cannot prove the goal, but one of the following hypotheses would make it provable:
 ((rev (A:=A)) l) = l *)
 rewrite rev_involutive. 
-(* rev_length Success!
+(* 4. rev_length Success!
 Fail Timeout 20 (time abduce 2). 
 Tactic call ran for 6.381 secs (0.008u,0.035s) (failure)
 The command has indeed failed with message:
@@ -2397,11 +2433,26 @@ now rewrite rev_length.
   Lemma skipn_rev: forall x l,
       skipn x (rev l) = rev (firstn (length l - x) l).
   Proof.
-    intros x l; rewrite firstn_skipn_rev, rev_involutive, <-rev_length.
+    intros x l; rewrite firstn_skipn_rev. 
+(* 5. rev_length N/A! *) rewrite <-rev_length.
+(* 5. rev_involutive N/A!
+    Fail Timeout 20 (time abduce 1).
+The command has indeed failed with message:
+Timeout! *)
+    rewrite rev_involutive.
     destruct (Nat.le_ge_cases (length (rev l)) x) as [L | L].
     - rewrite skipn_all2; [apply Nat.sub_0_le in L | trivial].
-      now rewrite L, Nat.sub_0_r, skipn_all.
-    - f_equal. now apply Nat.eq_sym, Nat.add_sub_eq_l, Nat.sub_add.
+      rewrite L, Nat.sub_0_r. 
+(* 1. skipn_all Success!
+Fail Timeout 20 (time abduce 1). 
+Tactic call ran for 10.434 secs (0.013u,0.042s) (failure)
+The command has indeed failed with message:
+cvc5 returned SAT.
+The solver cannot prove the goal, but one of the following hypotheses would make it provable:
+(skipn ((length (A:=A)) ((rev (A:=A)) l)) ((rev (A:=A)) l)) = [] *)
+now rewrite skipn_all.
+    - f_equal. apply Nat.eq_sym. apply Nat.add_sub_eq_l.
+      now apply Nat.sub_add.
   Qed.
 
   Lemma removelast_firstn : forall n l, n < length l ->
@@ -3670,7 +3721,14 @@ Proof.
   induction l as [ | a m IH ]; [reflexivity|].
   cbn. rewrite flat_map_constant_length with (c := length l').
   - rewrite IH. apply Nat.mul_comm.
-  - intros x H. apply map_length.
+  - intros x H. 
+(* 3. map_length Success!
+Fail Timeout 20 (time abduce 1).
+Tactic call ran for 2.188 secs (0.013u,0.024s) (failure)
+The command has indeed failed with message:
+cvc5 returned SAT.
+The solver cannot prove the goal, but one of the following hypotheses would make it provable:
+((length (A:=list (A * B))) ((map (A:=B) (B:=list (A * B))) (fun y : B => (a, y) :: x) l')) = ((length (A:=B)) l') *) apply map_length.
 Qed.
 
 (** Max of elements of a list of [nat]: [list_max] *)

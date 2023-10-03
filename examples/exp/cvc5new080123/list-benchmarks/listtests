@@ -65,9 +65,25 @@ F	5. -----------------------------------------------------------
  	   x ++ concat l1 ++ concat l2 = (x ++ concat l1) ++ concat l2
 
 rev_involutive : forall (l:list A), rev (rev l) = l
-	1. rev l = l1 ++ l2
+N/A	1. rev l = l1 ++ l2
 	   --------------------
 	   l = rev l2 ++ rev l1
-	2. forall (x : A) (l : list A), P l -> P (l ++ [x])
+N/A	2. forall (x : A) (l : list A), P l -> P (l ++ [x])
 	   ------------------------------------------------
 	   			P l
+N/A	3. ----------------------------------------------------------------------------------
+	   firstn x l = rev (rev (firstn x l)) ++ rev (skipn (length l - x) (rev (skipn x l)))
+N/A	4. -----------------------------------------------------------------------------
+	   rev (skipn (length (rev l) - x) (rev (rev l))) = rev (skipn (length l - x) l)
+N/A	5. -----------------------------------------------------------------------------------
+	   skipn x (rev l) = rev (rev (skipn (length (rev l) - (length (rev l) - x)) (rev l)))
+
+
+map_length : forall l, length (map l) = length l
+	1. n < length ln
+	   ----------------------------------------------
+	   n < length (map (fun x : nat => nth x l d) ln)
+	2. -----------------------------------------------------------------------------------------------
+	   length (map (fun y : B => (a, y)) l') + length l * length l' = length l' + length l * length l'
+	3. ------------------------------------------------------
+	   length (map (fun y : B => (a, y) :: x) l') = length l'
