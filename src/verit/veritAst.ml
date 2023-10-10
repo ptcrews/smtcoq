@@ -849,9 +849,8 @@ let process_rule (r: rule) : VeritSyntax.typ =
 (* This can be divided into 4 cases:
       Output         Input       Interpreted?      Encoding
       -------------------------------------------------------------------
-      Bool           _           No                Using eq_congr_pred
+      Bool           _           _                 Using eq_congruent_pred
       Bool           Bool        Yes               Using connective rules
-      Bool           Non-bool    Yes               ? (ex: <)
       Non-bool       _           _                 Using eq_congr
    Note that even though we don't differentiate terms and formulas at the AST level,
    SMTCoq does differentiate them. This is due to veriT's previous stratification of
@@ -1007,7 +1006,7 @@ let process_cong (c : certif) : certif =
               let eqci = generate_id () in
                 imp @
                 ((eqci, EqcoAST, (prems_neg @ cl), [], []) ::
-                 (i, ResoAST, cl, eqci :: (p @ pids), a) :: 
+                 (i, ResoAST, cl, eqci :: pids, a) :: 
                  process_cong_aux t cog)
             (* congruence over predicates *)
             (* ASSUMPTION: we're assuming that x = a is the first premise and y = b 
@@ -1646,7 +1645,20 @@ let process_cong (c : certif) : certif =
                     -----------------------------------------------------------------------------------------------------------------------------------------------------------res
                                                                                            (x = y) = (a = b)
                  *)
-                 | Eq (Eq (x, y), Eq (a, b)) as eq ->
+                 | Eq (Eq (x, y), Eq (a, b)) as eq when 
+                     (* We only want equivalences over bools and not equalities over non-bool types 
+                        and we need to check the types of the internal terms for x and a since we don't
+                        carry type information in the AST *)
+                     try (
+                        match Form.pform l with
+                        | Fapp (Fiff, args) -> (match Form.pform (Array.get args 0), Form.pform (Array.get args 1) with
+                                               | Fapp (Fiff, args0), Fapp (Fiff, args1) -> 
+                                                   is_form (Array.get args0 0) && is_form (Array.get args0 1)
+                                               | _, _ -> false)
+                        | _ -> false
+                     ) with
+                     | Form.NotWellTyped p -> raise (Debug ("| process_cong: formula "^
+                            (Form.pform_to_string p)^" is not well-typed at id "^i^" |")) ->
                   (* Given (x = y) = (a = b) in the conclusion, *)
                   (* 1. Generate ~(y = b), y, ~b by eqp1 and resolve it with y = b to get y, ~b *)
                   let eqp1i1 = generate_id () in
@@ -1769,7 +1781,7 @@ let process_cong (c : certif) : certif =
                     (* 7. resolve 3. and 6. to get `~x = ~a` *)
                     (i, ResoAST, [eq], [resi2; resi4], []) ::
                     process_cong_aux t cog
-                 (* User-defined predicates *)
+                 (* User-defined predicates, predicates over non-bool connectives (<, = for ints, etc.), etc. *)
                  | _ ->
                     (*
                        Convert a proof of the form:
@@ -1819,7 +1831,7 @@ let process_cong (c : certif) : certif =
                        (eqcpi2, EqcpAST, (prems_neg @ [Not p2; p1]), [], []) ::
                        (eqn1i, Equn1AST, [conc; Not p1; Not p2], [], []) ::
                        (resi2, ResoAST, (prems_neg @ [conc; Not p2]), [eqcpi2; eqn1i], []) ::
-                       (i, ResoAST, [conc], resi1 :: resi2 :: (p @ pids), []) ::
+                       (i, ResoAST, [conc], resi1 :: resi2 :: pids, []) ::
                        process_cong_aux t cog))
             else
               raise (Debug ("| process_cong: expecting head of clause to be either an equality or an iff at id "^i^" |"))

@@ -137,4 +137,80 @@ a, b, a <-> b      ~b, a         ~a, ~b, a <-> b      ~a, b
 ------------------------res      --------------------------res
        a, a <-> b                       ~a, a <-> b
        --------------------------------------------res
-                          a <-> b       
+                          a <-> b
+
+Eqcongp
+=======
+Encode:
+------------------------------------
+~(x = y), ~(a = b), (P x a) = (P y b)
+
+into:
+----------------------------------eqcngp  ---------------------------eqn2
+~(x = y), ~(a = b), ~(P x a), P y b        P x a = P y b, P x a, P y b
+-------------------------------------------------------------------------res
+              ~(x = y), ~(a = b), P x a = P y b, P y b --(1)
+
+------------------------------------eqcngp  ---------------------------------eqn1
+~(x = y), ~(a = b), ~(P y b), P x a         P x a = P y b, ~(P x a), ~(P y b)
+-----------------------------------------------------------------------------res
+              ~(x = y), ~(a = b), P x a = P y b, ~(P y b) --(2)
+
+(t7, SumsimpAST, (cl  ((((2 * op_2) + 1) = (1 + (2 * op_2))))), [], [])
+
+
+	(2 * op_2) + 1 = 1 + (2 * op_2)
+--------------------------------------------------------cong
+(2 * op_2 + 1 = 2 * op_3) = (2 * op_3 = 1 + 2 * op_2)
+
+        (1)             (2)
+-------------------------------------
+~(x = y), ~(a = b), (P x a) = (P y b)
+
+
+(x8, Equn1AST, (cl  (((2 * op_3) = (2 * op_3))) ((2 * op_3))), [], [])
+(x9, Equn2AST, (cl  (((2 * op_3) = (2 * op_3))) ((not (2 * op_3)))), [], [])
+(x7, ResoAST, (cl  (((2 * op_3) = (2 * op_3)))), [ x8 x9], [])
+(x10, EqcpAST, (cl  ((not ((2 * op_3) = (2 * op_3)))) ((not (((2 * op_2) + 1) = (1 + (2 * op_2))))) ((not (((2 * op_2) + 1) = (2 * op_3)))) (((2 * op_3) = (1 + (2 * op_2))))), [], [])
+(x12, Equn2AST, (cl  (((((2 * op_2) + 1) = (2 * op_3)) = ((2 * op_3) = (1 + (2 * op_2))))) ((((2 * op_2) + 1) = (2 * op_3))) (((2 * op_3) = (1 + (2 * op_2))))), [], [])
+(x14, ResoAST, (cl  ((not ((2 * op_3) = (2 * op_3)))) ((not (((2 * op_2) + 1) = (1 + (2 * op_2))))) (((((2 * op_2) + 1) = (2 * op_3)) = ((2 * op_3) = (1 + (2 * op_2))))) (((2 * op_3) = (1 + (2 * op_2))))), [ x10 x12], [])
+(x11, EqcpAST, (cl  ((not ((2 * op_3) = (2 * op_3)))) ((not (((2 * op_2) + 1) = (1 + (2 * op_2))))) ((not ((2 * op_3) = (1 + (2 * op_2))))) ((((2 * op_2) + 1) = (2 * op_3)))), [], [])
+(x13, Equn1AST, (cl  (((((2 * op_2) + 1) = (2 * op_3)) = ((2 * op_3) = (1 + (2 * op_2))))) ((not (((2 * op_2) + 1) = (2 * op_3)))) ((not ((2 * op_3) = (1 + (2 * op_2)))))), [], [])
+(x15, ResoAST, (cl  ((not ((2 * op_3) = (2 * op_3)))) ((not (((2 * op_2) + 1) = (1 + (2 * op_2))))) (((((2 * op_2) + 1) = (2 * op_3)) = ((2 * op_3) = (1 + (2 * op_2))))) ((not ((2 * op_3) = (1 + (2 * op_2)))))), [ x11 x13], [])
+(t10, ResoAST, (cl  (((((2 * op_2) + 1) = (2 * op_3)) = ((2 * op_3) = (1 + (2 * op_2)))))), [ x14 x15 x7 t7], [])
+
+
+Cong Rule
+=========
+  x1 = y1 ... xn = yn
+-------------------------
+F x1 ... xn = F y1 ... yn
+
+1. When F is equality/iff
+    x = a   y = b
+  -----------------
+  (x = y) = (a = b)
+  Find implicit premise modulo symmetry, so for (x = y) = (a = b), one premise could be x = a, a = x, x = b or b = x
+  and the other could be y = b, b = y, y = a, or a = y
+  (i) if x, y, a, b are bools, then encode using connective rules of iff 
+      (and encode implicit premises using eqn1, eqn2, reso)
+  (ii) if x, y, a, b are non-bools, then encode using eq_cong_pred
+      (and encode implicit premises using refl)
+
+For the next two cases, find implicit premises, and 
+  if the premise is an equality over (non-bool) terms, then 
+    implement using refl
+  else (if the premise is an iff over bool formulas)
+    implement using eqn1, eqn2, reso
+
+2. When F is a (non-bool) function, 
+  use eq_cong
+  ----------------------------------------------------eqcong  -------     -------
+  ~(x1 = y1), ... ~(xn = yn), (f x1 .. xn = f y1 .. yn)       x1 = y1 ... xn = yn
+  -------------------------------------------------------------------------------res
+                            f x1 .. xn = f y1 .. yn
+
+3. When F is a (bool) predicate, 
+  (i) if F is and, or, implies, xor, ite, not
+        use connective intro and elimination rules to encode special cases
+  (ii) for other cases (predicates over integers, user defined predicates) use eq_cong_pred

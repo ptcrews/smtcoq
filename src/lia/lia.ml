@@ -130,7 +130,7 @@ let rec smt_Form_to_coq_micromega_formula tbl l =
       | Fapp (For, l) -> binop_array smt_Form_to_coq_micromega_formula tbl (fun x y -> OR (IsProp, x,y)) (FF IsProp) l
       | Fapp (Fxor, l) -> failwith "todo:Fxor"
       | Fapp (Fimp, l) -> binop_array smt_Form_to_coq_micromega_formula tbl (fun x y -> IMPL (IsProp, x,None,y)) (TT IsProp) l
-      | Fapp (Fiff, l) -> failwith "todo:Fiff"
+      | Fapp (Fiff, l) -> binop_array smt_Form_to_coq_micromega_formula tbl (fun x y -> IFF (IsProp, x,y)) (TT IsProp) l
       | Fapp (Fite, l) -> failwith "todo:Fite"
       | Fapp (Fnot2 _, l) ->
         if Array.length l <> 1 then

@@ -90,6 +90,7 @@ type typ =
 
 val is_iff : SmtAtom.Form.t -> bool
 val is_eq : SmtAtom.Form.t -> bool
+val is_form : SmtAtom.Form.t -> bool
 
 type id = string
 val id_of_string : string -> id

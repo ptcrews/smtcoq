@@ -131,6 +131,11 @@ let get_iff l =
       else raise (Debug "| get_iff: 2 arguments to iff expected |")
   | _ -> raise (Debug "| get_iff: iff expected |")
 
+let is_form l =
+  match Form.pform l with
+  | Fapp _ -> true
+  | _ ->  false
+
 (* Transitivity *)
 (* list_find_remove p l finds the first element x in l, such that p(x) holds and returns (x, l') where l' is l without x *)
 let rec list_find_remove p = function
@@ -250,8 +255,12 @@ let mkCongr p =
   let mkCongrPred p =
     (* Rule proves ~(p1 = p1)', ..., ~(pn = pn'), ~P(p1, ..., pn), P(p1', ..., pn') 
        prem: [~(p1 = p1'); ...; ~(pn = pn')], prem_P: ~P(p1, ..., pn), concl: P(p1', ..., pn' *)
-    let (concl,prem) = List.partition Form.is_pos p in
-    let (prem,prem_P) = List.partition is_eq prem in
+    let (concl, prem_P, prem) = 
+      match List.rev p with
+      | h1 :: h2 :: t -> ([h1], [h2], List.rev t)
+      | _ -> raise (Debug ("| mkCongrPred: less than 2 literals in a eq_congruent_pred clause |")) in
+    (*let (concl,prem) = List.partition Form.is_pos p in
+    let (prem,prem_P) = List.partition is_eq prem in*)
     match concl with
     |[c] ->
       (match prem_P with
