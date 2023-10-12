@@ -79,6 +79,7 @@ module type FORM =
     val neg : t -> t
     val is_pos : t -> bool
     val is_neg : t -> bool
+    val is_bool_type : hatom -> bool
 
     val to_smt : ?debug:bool ->
                  Format.formatter -> t -> unit
@@ -176,6 +177,7 @@ module Make (Atom:ATOM) =
       | Pos hp -> hp.hval
       | Neg hp -> hp.hval
 
+    let is_bool_type = Atom.is_bool_type
 
     let rec to_smt ?debug:(debug=false) fmt = function
       | Pos hp ->

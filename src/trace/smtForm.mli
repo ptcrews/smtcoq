@@ -64,6 +64,7 @@ module type FORM =
       val neg : t -> t
       val is_pos : t -> bool
       val is_neg : t -> bool
+      val is_bool_type : hatom -> bool
 
       val to_smt : ?debug:bool ->
                    Format.formatter -> t -> unit

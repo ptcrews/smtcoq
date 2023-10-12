@@ -134,6 +134,7 @@ let get_iff l =
 let is_form l =
   match Form.pform l with
   | Fapp _ -> true
+  | Fatom a -> Form.is_bool_type a
   | _ ->  false
 
 (* Transitivity *)
@@ -216,9 +217,9 @@ let rec process_congr a_args b_args prem res =
      (* if a = b *)
      (* then process_congr a_args b_args prem (None::res) *)
      (* else *)
-     let (l,(a',b')) = List.find (fun (l,(a',b')) -> ((Atom.equal a a') && (Atom.equal b b'))||
-                                                      ((Atom.equal a b') && (Atom.equal b a'))) 
-                                 prem in
+     let (l,(a',b')) = try List.find (fun (l,(a',b')) -> ((Atom.equal a a') && (Atom.equal b b'))||
+                                                      ((Atom.equal a b') && (Atom.equal b a'))) prem with
+                        | Not_found -> raise (Debug ("| VeritSyntax.process_congr : can't find equality within congruence |")) in
      process_congr a_args b_args prem ((Some l)::res)
   | [],[] -> List.rev res
   | _ -> raise (Debug "| process_congr: wrong no. of args to function application |")
@@ -252,35 +253,35 @@ let mkCongr p =
   |[c] -> mkCongr_aux c prem
   |_ -> raise (Debug "| mkCongr: 0 or more than 1 conclusions |")
 
-  let mkCongrPred p =
-    (* Rule proves ~(p1 = p1)', ..., ~(pn = pn'), ~P(p1, ..., pn), P(p1', ..., pn') 
-       prem: [~(p1 = p1'); ...; ~(pn = pn')], prem_P: ~P(p1, ..., pn), concl: P(p1', ..., pn' *)
-    let (concl, prem_P, prem) = 
-      match List.rev p with
-      | h1 :: h2 :: t -> ([h1], [h2], List.rev t)
-      | _ -> raise (Debug ("| mkCongrPred: less than 2 literals in a eq_congruent_pred clause |")) in
-    (*let (concl,prem) = List.partition Form.is_pos p in
-    let (prem,prem_P) = List.partition is_eq prem in*)
-    match concl with
-    |[c] ->
-      (match prem_P with
-       |[p_p] ->
-         let prem_val = List.map (fun l -> (l,get_eq l)) prem in
-         (match Atom.atom (get_at c), Atom.atom (get_at p_p) with
-          | Abop(aop,a1,a2), Abop(bop,b1,b2) when (aop = bop) ->
-             let a_args = [a1;a2] in
-             let b_args = [b1;b2] in
-             let cert = process_congr a_args b_args prem_val [] in
+let mkCongrPred p =
+  (* Rule proves ~(p1 = p1)', ..., ~(pn = pn'), ~P(p1, ..., pn), P(p1', ..., pn') 
+     prem: [~(p1 = p1'); ...; ~(pn = pn')], prem_P: ~P(p1, ..., pn), concl: P(p1', ..., pn' *)
+  let (concl, prem_P, prem) = 
+    match List.rev p with
+    | h1 :: h2 :: t -> ([h1], [h2], List.rev t)
+    | _ -> raise (Debug ("| mkCongrPred: less than 2 literals in a eq_congruent_pred clause |")) in
+  (*let (concl,prem) = List.partition Form.is_pos p in
+  let (prem,prem_P) = List.partition is_eq prem in*)
+  match concl with
+  |[c] ->
+    (match prem_P with
+     |[p_p] ->
+       let prem_val = List.map (fun l -> (l,get_eq l)) prem in
+       (match Atom.atom (get_at c), Atom.atom (get_at p_p) with
+        | Abop(aop,a1,a2), Abop(bop,b1,b2) when (aop = bop) ->
+           let a_args = [a1;a2] in
+           let b_args = [b1;b2] in
+           let cert = process_congr a_args b_args prem_val [] in
+           Other (EqCgrP (p_p,c,cert))
+        | Aapp (a_f,a_args), Aapp (b_f,b_args) ->
+           if indexed_op_index a_f = indexed_op_index b_f then
+             let cert = process_congr (Array.to_list a_args) (Array.to_list b_args) prem_val [] in
              Other (EqCgrP (p_p,c,cert))
-          | Aapp (a_f,a_args), Aapp (b_f,b_args) ->
-             if indexed_op_index a_f = indexed_op_index b_f then
-               let cert = process_congr (Array.to_list a_args) (Array.to_list b_args) prem_val [] in
-               Other (EqCgrP (p_p,c,cert))
-             else raise (Debug "| mkCongrPred: unmatching predicates |")
-          | _ -> raise (Debug "| mkCongrPred : not pred app |"))
-       |_ ->  raise (Debug "| mkCongr: no or more than one predicate app premise in congruence |"))
-    |[] ->  raise (Debug "| mkCongrPred: no conclusion in congruence |")
-    |_ -> raise (Debug "| mkCongrPred: more than one conclusion in congruence |")
+           else raise (Debug "| mkCongrPred: unmatching predicates |")
+        | _ -> raise (Debug "| mkCongrPred : not pred app |"))
+     |_ ->  raise (Debug "| mkCongr: no or more than one predicate app premise in congruence |"))
+  |[] ->  raise (Debug "| mkCongrPred: no conclusion in congruence |")
+  |_ -> raise (Debug "| mkCongrPred: more than one conclusion in congruence |")
 
 (*(* Congruence over connectives *)
   let rec process_congr_form a_args b_args prem res =
@@ -572,32 +573,32 @@ let mk_clause (id,typ,value,ids_params,args) =
         (match ids_params with
           | [i] -> (match value with
                     | l :: nil -> Other (Tautology ((get_clause i), l))
-                    | _ -> assert false)
-          | _ -> assert false)
+                    | _ -> raise (Debug ("| VeritSyntax.mk_clause: tautology expects singleton clause at id "^id^" |")))
+          | _ -> raise (Debug ("| VeritSyntax.mk_clause: tautology expects single premise at id "^id^" |")))
       | Andn | Orp | Impp | Xorp1 | Xorn1 | Equp1 | Equn1 | Itep1 | Iten1 ->
         (match value with
           | l::_ -> Other (BuildDef l)
-          | _ -> assert false)
+          | _ -> raise (Debug ("| VeritSyntax.mk_clause: expecting non-empty clause at id "^id^" |")))
       | Xorp2 | Xorn2 | Equp2 | Equn2 | Itep2 | Iten2 ->
         (match value with
           | l::_ -> Other (BuildDef2 l)
-          | _ -> assert false)
+          | _ -> raise (Debug ("| VeritSyntax.mk_clause: expecting non-empty clause at id "^id^" |")))
       | Orn | Andp ->
         (match value, args with
         | l::_, [p] -> Other (BuildProj (l,(int_of_string p)))
-        | _, _ -> assert false)
+        | _, _ -> raise (Debug ("| VeritSyntax.mk_clause: expecting non-empty clause and exactly one argument at id "^id^" |")))
       | Impn1 ->
         (match value with
           | l::_ -> Other (BuildProj (l,0))
-          | _ -> assert false)
+          | _ -> raise (Debug ("| VeritSyntax.mk_clause: expecting non-empty clause at id "^id^" |")))
       | Impn2 ->
         (match value with
           | l::_ -> Other (BuildProj (l,1))
-          | _ -> assert false)
+          | _ -> raise (Debug ("| VeritSyntax.mk_clause: expecting non-empty clause at id "^id^" |")))
       | Nand | Imp | Xor1 | Nxor1 | Equ2 | Nequ2 | Ite1 | Nite1 ->
         (match ids_params with
           | [i] -> Other (ImmBuildDef (get_clause i))
-          | _ -> assert false)
+          | _ -> raise (Debug ("| VeritSyntax.mk_clause: expecting exactly one premise at id "^id^" |")))
       | Or ->
          (match ids_params with
             | [id_target] ->
@@ -605,27 +606,27 @@ let mk_clause (id,typ,value,ids_params,args) =
                begin match cl_target.kind with
                  | Other (Forall_inst _) -> Same cl_target
                  | _ -> Other (ImmBuildDef cl_target) end
-            | _ -> assert false)
+            | _ -> raise (Debug ("| VeritSyntax.mk_clause: expecting exactly one premise at id "^id^" |")))
       | Xor2 | Nxor2 | Equ1 | Nequ1 | Ite2 | Nite2 ->
         (match ids_params with
           | [i] -> Other (ImmBuildDef2 (get_clause i))
-          | _ -> assert false)
+          | _ -> raise (Debug ("| VeritSyntax.mk_clause: expecting exactly one premise at id "^id^" |")))
       | And | Nor ->
         (match ids_params, args with
           | [i], [p] -> Other (ImmBuildProj ((get_clause i),(int_of_string p)))
-          | _, _ -> assert false)
+          | _, _ -> raise (Debug ("| VeritSyntax.mk_clause: expecting exactly one premise and one argument at id "^id^" |")))
       | Nimp1 ->
         (match ids_params with
           | [i] -> Other (ImmBuildProj (get_clause i,0))
-          | _ -> assert false)
+          | _ -> raise (Debug ("| VeritSyntax.mk_clause: expecting exactly one premise at id "^id^" |")))
       | Nimp2 ->
         (match ids_params with
           | [i] -> Other (ImmBuildProj (get_clause i,1))
-          | _ -> assert false)
+          | _ -> raise (Debug ("| VeritSyntax.mk_clause: expecting exactly one premise at id "^id^" |")))
       | Acsimp ->
         (match ids_params, value with
         | [i], [v] -> Other (ImmFlatten(get_clause i, v))
-        | _ -> raise (Debug ("| mk_clause: unexpected form of ac_simp |")))
+        | _ -> raise (Debug ("| VeritSyntax.mk_clause: expecting singleton clause and exactly one premise at id "^id^" |")))
       (* From cvc5 *)
       | Allsimp ->
         Other (SmtCertif.Hole ([], value))
@@ -641,8 +642,8 @@ let mk_clause (id,typ,value,ids_params,args) =
                           let (x,y) = get_iff l in
                           let c = x::nil in
                           Other (DistElim (c, y))
-                        else assert false
-          | _ -> assert false)
+                        else raise (Debug ("| VeritSyntax.mk_clause: expecting an iff at head of clause at id "^id^" |"))
+          | _ -> raise (Debug ("| VeritSyntax.mk_clause: expecting singleton clause at id "^id^" |")))
       (* Linear integer arithmetic *)
       | Liage | Lata | Lade | Lage | Larweq
       | Divsimp | Prodsimp | Uminussimp | Minussimp 
@@ -659,7 +660,7 @@ let mk_clause (id,typ,value,ids_params,args) =
                           rtail = List.map get_clause q} in
                Res res
             | [fins_id] -> Same (get_clause fins_id)
-            | [] -> assert false)
+            | [] -> raise (Debug ("| VeritSyntax.mk_clause: expecting at least one premise for theory resolution at id "^id^" |")))
       | Reso ->
          let ids_params = merge ids_params in
          (match ids_params with
@@ -669,29 +670,29 @@ let mk_clause (id,typ,value,ids_params,args) =
                           rtail = List.map get_clause q} in
                Res res
             | [fins_id] -> Same (get_clause fins_id)
-            | [] -> assert false)
+            | [] -> raise (Debug ("| VeritSyntax.mk_clause: expecting at least one premise for resolution at id "^id^" |")))
       (* Quantifiers *)
       | Fins ->
         (match value, ids_params with
          | [inst], [ref_th] ->
             let cl_th = get_clause ref_th in
             Other (Forall_inst (repr cl_th, inst))
-         | _ -> raise (Debug ("| mk_clause: unexpected form of forall_inst |")))
+         | _ -> raise (Debug ("| VeritSyntax.mk_clause: unexpected form of forall_inst at id "^id^" |")))
       | Same ->
         (match ids_params with
          | [i] -> Same (get_clause i)
-         | _ -> raise (Debug ("| mk_clause: unexpected form of Same, might be caused by bind subproof |")))
+         | _ -> raise (Debug ("| VeritSyntax.mk_clause: unexpected form of Same, might be caused by bind subproof at id "^id^" |")))
       | Weaken -> 
         (match ids_params with
           | [i] -> Other (Weaken ((get_clause i), value))
-          | _ -> raise (Debug ("| mk_clause: unexpected form of Weaken, expected exactly one premise |")))
+          | _ -> raise (Debug ("| VeritSyntax.mk_clause: unexpected form of Weaken, expected exactly one premise at id "^id^" |")))
       | Flatten ->
         (match ids_params, value with
           | [i], [v] -> Other(ImmFlatten ((get_clause i), v))
-          | _ -> raise (Debug ("| mk_clause: unexpected form of Flatten, expected exactly one premise |")))
+          | _ -> raise (Debug ("| VeritSyntax.mk_clause: unexpected form of Flatten, expected exactly one premise at id "^id^" |")))
       (* Not implemented *)
-      | Bind -> raise (Debug ("| mk_clause: unimplemented rule bind |"))
-      | Qcnf -> raise (Debug ("| mk_clause: unimplemented rule qnt_cnf |")))
+      | Bind -> raise (Debug ("| VeritSyntax.mk_clause: unimplemented rule bind at id "^id^" |"))
+      | Qcnf -> raise (Debug ("| VeritSyntax.mk_clause: unimplemented rule qnt_cnf at id "^id^" |")))
       with | Debug s -> raise (Debug ("| VeritSyntax.mk_clause: failing at id "^id^" |"^s))
   in
   let cl =
