@@ -214,3 +214,12 @@ For the next two cases, find implicit premises, and
   (i) if F is and, or, implies, xor, ite, not
         use connective intro and elimination rules to encode special cases
   (ii) for other cases (predicates over integers, user defined predicates) use eq_cong_pred
+
+Testing congruence over equality		[ ]
+1. Integers					[ ]
+  (i) symmetric implicit premise 		[ ]
+  (ii) non-symmetric implicit premise		[x]
+  (ii) no implicit premise			[x]
+2. Booleans					[ ]
+  (i) implicit premise				[ ]
+  (ii) no implicit premise			[x]

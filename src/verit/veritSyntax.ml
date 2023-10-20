@@ -222,7 +222,7 @@ let rec process_congr a_args b_args prem res =
                         | Not_found -> raise (Debug ("| VeritSyntax.process_congr : can't find equality within congruence |")) in
      process_congr a_args b_args prem ((Some l)::res)
   | [],[] -> List.rev res
-  | _ -> raise (Debug "| process_congr: wrong no. of args to function application |")
+  | _ -> raise (Debug "| VeritSyntax.process_congr: wrong no. of args to function application |")
 
 let mkCongr_aux c prem = 
   let a,b = try get_eq c with
@@ -253,6 +253,32 @@ let mkCongr p =
   |[c] -> mkCongr_aux c prem
   |_ -> raise (Debug "| mkCongr: 0 or more than 1 conclusions |")
 
+(* Congruence over equality 
+  a1' = b1' a2' = b2'
+----------------------
+(a1 = a2) = (b1 = b2) *)
+let process_congr_eq a_args b_args prem =
+  match a_args,b_args,prem with
+  | [a1; a2], [b1; b2], [p1, (a1', b1'); p2, (a2', b2')] ->
+     let eq = Atom.equal in
+     let pairw_eq x y a b = (eq x a && eq y b) || (eq x b && eq y a) in
+     (* No implicit symmetry in conclusion *)
+     if (pairw_eq a1 b1 a1' b1' && pairw_eq a2 b2 a2' b2')
+                               ||
+        (pairw_eq a1 b1 a2' b2' && pairw_eq a2 b2 a1' b1')
+     then [Some p2; Some p1]
+     (* Implicit symmetry in conclusion *)
+     else if (pairw_eq a2 b1 a1' b1' && pairw_eq a1 b2 a2' b2')
+                                     ||
+             (pairw_eq a1 b2 a1' b1' && pairw_eq a2 b1 a2' b2')
+     then [Some p1; Some p2]
+     else raise (Debug ("| VeritSyntax.process_congr_eq : can't find equality within congruence |"))
+  | _ -> raise (Debug "| VeritSyntax.process_congr_eq: wrong no. of args to function application |")
+(* a = b  x = y
+  -----------------
+  (a = y) = (x = b)
+   *)
+
 let mkCongrPred p =
   (* Rule proves ~(p1 = p1)', ..., ~(pn = pn'), ~P(p1, ..., pn), P(p1', ..., pn') 
      prem: [~(p1 = p1'); ...; ~(pn = pn')], prem_P: ~P(p1, ..., pn), concl: P(p1', ..., pn' *)
@@ -268,6 +294,11 @@ let mkCongrPred p =
      |[p_p] ->
        let prem_val = List.map (fun l -> (l,get_eq l)) prem in
        (match Atom.atom (get_at c), Atom.atom (get_at p_p) with
+       | Abop(BO_eq _,a1,a2), Abop(BO_eq _,b1,b2) ->
+           let a_args = [a1;a2] in
+           let b_args = [b1;b2] in
+           let cert = process_congr_eq a_args b_args prem_val in
+           Other (EqCgrP (p_p,c,cert))
         | Abop(aop,a1,a2), Abop(bop,b1,b2) when (aop = bop) ->
            let a_args = [a1;a2] in
            let b_args = [b1;b2] in

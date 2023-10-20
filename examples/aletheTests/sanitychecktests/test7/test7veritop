@@ -1611,6 +1611,21 @@ File "./test7verit.v", line 23, characters 5-256:
 Error:
 Verit.import_trace: processing certificate
 Error: VeritSyntax.Debug
-Message: | VeritSyntax.mk_clause: failing at id x8 || VeritSyntax.process_congr : can't find equality within congruence |
+Message: | VeritSyntax.mk_clause: failing at id x26 || get_clause: clause number x14 not found |
 Position: Line 82 Position 1
 
+(t9, CongAST, (cl  (((((2 * x) + 1) = ((2 * y) + 1)) = 
+										 ((1 + (2 * x)) = (1 + (2 * y)))))), [ t7 t8], [])
+(t10, CongAST, (cl  (((((2 * x) + 1) = (2 * y)) = 
+											((2 * y) = (1 + (2 * x)))))), [ t7], [])
+(t11, CongAST, (cl  (((ite  c 
+														(((2 * x) + 1) = ((2 * y) + 1)) 
+														(((2 * x) + 1) = (2 * y))) = 
+											(ite  c 
+														((1 + (2 * x)) = (1 + (2 * y))) 
+														((2 * y) = (1 + (2 * x))))))), [ t9 t10], [])
+
+-----			-----------------------------			-------------------------
+c = c			(2x+1 = 2y+1) = (1+2x = 1+2y)			(2x+1 = 2y) = (2y = 1+2x)
+---------------------------------------------------------------------cong
+ite c (2x+1 = 2y+1) (2x+1 = 2y)		=		ite c (1+2x = 1+2y) (2y = 1+2x)														

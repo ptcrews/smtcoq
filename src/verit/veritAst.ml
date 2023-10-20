@@ -990,7 +990,9 @@ let process_cong (c : certif) : certif =
     | (i, CongAST, cl, p, a) :: t ->
         (* To differentiate between the predicate and function case, we need to process
            the clause because we treat equality and iff as the same at the AST level *)
-        let c' = process_cl cl in
+        let c' = try process_cl cl with
+                 | Form.NotWellTyped frm -> raise (Debug ("| process_cong: formula "^
+                 (Form.pform_to_string frm)^" is not well-typed at id "^i^" |")) in
         (match c' with
           | l :: _ ->
             (match cl with
@@ -1675,6 +1677,7 @@ let process_cong (c : certif) : certif =
                        let xorab = Xor [a; b] in
                        let eqxa = Eq (x, a) in
                        let eqyb = Eq (y, b) in
+                       imp @
                        (eqp2i1, Equp2AST, [Not eqyb; Not y; b], [], []) ::
                        (resi1, ResoAST, [Not y; b], [eqp2i1; p2], []) ::
                        (xorp1i1, Xorp1AST, [Not xorxy; x; y], [], []) ::
@@ -1804,6 +1807,7 @@ let process_cong (c : certif) : certif =
                                  | (pid, _) -> pid) in
                        let itexyz = Ite [x; y; z] in
                        let iteabc = Ite [a; b; c] in
+                       imp @
                        (eqp2i1, Equp2AST, [Not (Eq (z, c)); Not z; c], [], []) ::
                        (resi1, ResoAST, [Not z; c], [eqp2i1; p3], []) ::
                        (itep1i1, Itep1AST, [Not itexyz; x; z], [], []) ::
@@ -1933,7 +1937,9 @@ let process_cong (c : certif) : certif =
                   raise (Debug ("| process_cong: expecting head of clause to be either an equality or an iff at id "^i^" |")))
           | _ -> raise (Debug ("| process_cong: expecting clause to have one literal at id "^i^" |")))
     | (i, r, cl, p, a) :: t -> (* This is necessary to add the shared terms to the hash tables *)
-                               let _ = process_cl cl in
+                               let _ = try process_cl cl with
+                                       | Form.NotWellTyped frm -> raise (Debug ("| process_cong: formula "^
+                                          (Form.pform_to_string frm)^" is not well-typed at id "^i^" |")) in
                                (i, r, cl, p, a) :: process_cong_aux t cog
     | [] -> []
     in process_cong_aux c c
@@ -1947,7 +1953,9 @@ let process_trans (c : certif) : certif =
      | (i, TransAST, cl, p, a) :: t -> 
         (* To differentiate between the formula and term case, we need to process
            the clause because we treat equality and iff as the same at the AST level *)
-        let c' = process_cl cl in
+        let c' = try process_cl cl with
+           | Form.NotWellTyped frm -> raise (Debug ("| process_trans: formula "^
+              (Form.pform_to_string frm)^" is not well-typed at id "^i^" |")) in
         (match c' with
           | l :: _ ->
              (* get negation of premises and terms for any implicit equality *)
@@ -2084,7 +2092,9 @@ let process_trans (c : certif) : certif =
      | (i, ReflAST, cl, p, a) :: t -> 
         (* To differentiate between the formula and term case, we need to process
            the clause because we treat equality and iff as the same at the AST level *)
-        let c' = process_cl cl in
+        let c' = try process_cl cl with
+           | Form.NotWellTyped frm -> raise (Debug ("| process_trans: in refl rule, formula "^
+              (Form.pform_to_string frm)^" is not well-typed at id "^i^" |")) in
         (match c' with
           (* We need to encode the formula case, the checker can handle the term case *)
           | l :: _ when is_iff l ->
@@ -4473,25 +4483,25 @@ let preprocess_certif (c: certif) : certif =
   Printf.printf ("Certif before preprocessing: \n%s\n") (string_of_certif c);
   try 
   (let c1 = store_shared_terms c in
-  Printf.printf ("Certif after storing shared terms: \n%s\n") (string_of_certif c1);
+  (* Printf.printf ("Certif after storing shared terms: \n%s\n") (string_of_certif c1); *)
   let c2 = process_fins c1 in
-  Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2);
+  (* Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2); *)
   let c3 = process_hole c2 in
-  Printf.printf ("Certif after process_hole: \n%s\n") (string_of_certif c3);
+  (* Printf.printf ("Certif after process_hole: \n%s\n") (string_of_certif c3); *)
   let c4 = process_notnot c3 in
-  Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c4);
+  (* Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c4); *)
   let c5 = process_same c4 in
-  Printf.printf ("Certif after process_same: \n%s\n") (string_of_certif c5);
+  (* Printf.printf ("Certif after process_same: \n%s\n") (string_of_certif c5); *)
   let c6 = process_cong c5 in
-  Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c6);
+  (* Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c6); *)
   let c7 = process_trans c6 in
-  Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c7);
+  (* Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c7); *)
   let c8 = process_simplify c7 in
-  Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c8);
+  (* Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c8); *)
   let c9 = process_proj c8 in
-  Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c9);
+  (* Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c9); *)
   let c10 = process_subproof c9 in
-  Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c10);
+  (* Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c10); *)
   c10) with
   | Debug s -> raise (Debug ("| VeritAst.preprocess_certif: failed to preprocess |"^s))
 

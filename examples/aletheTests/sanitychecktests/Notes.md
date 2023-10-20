@@ -8,9 +8,9 @@ We have 8 sanity check tests:
 |test3 |`forall p, ~(p ^ ~p)`                           | Sucess      |          | Sucess     |              |
 |test4 |`forall a b c, (a v b v c) ^ (~a v ~b v ~c) ^ (~a v b) ^ (~b v c) ^ (~c v a)`    | Sucess      |          | Sucess     |              | 
 |test5 |`forall p, p v ~p`                              | Sucess      |          | Sucess     |              |
-|test6 |`forall (a b : Z) (p : Z -> bool) (f : Z -> Z), ~(f a = b) v (~ P (f a)) v P b`| Success     |          | Failure    |              |      
-|test7 |`(forall (x : Z) (P : Z -> bool), P x) ->  P a` | Failure     |          | Failure    |              |
-|test8 |`forall (x y: Z) (f: Z -> Z), x = y + 1 -> f y = f (x - 1)`                  | Failure     |          | Failure    |              |
+|test6 |`forall (a b : Z) (p : Z -> bool) (f : Z -> Z), ~(f a = b) v (~ P (f a)) v P b`| Success     |          | Failure    | Smtcoq_plugin.SmtForm.Make(Atom).NotWellTyped(_) |
+|test7 |`(forall (x : Z) (P : Z -> bool), P x) ->  P a` | Failure     | Step-by-step | Failure     | Step-by-step |
+|test8 |`forall (x y: Z) (f: Z -> Z), x = y + 1 -> f y = f (x - 1)`                  | Failure     | Step-by-step |Failure    | Smtcoq_plugin.SmtForm.Make(Atom).NotWellTyped(_) |
 
 ## Issues:
 
