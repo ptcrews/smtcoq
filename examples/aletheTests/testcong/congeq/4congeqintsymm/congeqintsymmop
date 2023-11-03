@@ -1,0 +1,102 @@
+     = false
+     : bool
+Certif after storing shared terms: 
+(h1, AssumeAST, (cl  ((a = b))), [], [])
+(h2, AssumeAST, (cl  ((x = y))), [], [])
+(h3, AssumeAST, (cl  ((not ((a = y) = (x = b))))), [], [])
+(t4, CongAST, (cl  (((a = y) = (x = b)))), [ h1 h2], [])
+(t5, ResoAST, (cl ), [ h3 t4], [])
+
+Certif after process_fins: 
+(h1, AssumeAST, (cl  ((a = b))), [], [])
+(h2, AssumeAST, (cl  ((x = y))), [], [])
+(h3, AssumeAST, (cl  ((not ((a = y) = (x = b))))), [], [])
+(t4, CongAST, (cl  (((a = y) = (x = b)))), [ h1 h2], [])
+(t5, ResoAST, (cl ), [ h3 t4], [])
+
+Certif after process_hole: 
+(h1, AssumeAST, (cl  ((a = b))), [], [])
+(h2, AssumeAST, (cl  ((x = y))), [], [])
+(h3, AssumeAST, (cl  ((not ((a = y) = (x = b))))), [], [])
+(t4, CongAST, (cl  (((a = y) = (x = b)))), [ h1 h2], [])
+(t5, ResoAST, (cl ), [ h3 t4], [])
+
+Certif after process_notnot: 
+(h1, AssumeAST, (cl  ((a = b))), [], [])
+(h2, AssumeAST, (cl  ((x = y))), [], [])
+(h3, AssumeAST, (cl  ((not ((a = y) = (x = b))))), [], [])
+(t4, CongAST, (cl  (((a = y) = (x = b)))), [ h1 h2], [])
+(t5, ResoAST, (cl ), [ h3 t4], [])
+
+Certif after process_same: 
+(h1, AssumeAST, (cl  ((a = b))), [], [])
+(h2, AssumeAST, (cl  ((x = y))), [], [])
+(h3, AssumeAST, (cl  ((not ((a = y) = (x = b))))), [], [])
+(t4, CongAST, (cl  (((a = y) = (x = b)))), [ h1 h2], [])
+(t5, ResoAST, (cl ), [ h3 t4], [])
+
+Certif after process_cong: 
+(h1, AssumeAST, (cl  ((a = b))), [], [])
+(h2, AssumeAST, (cl  ((x = y))), [], [])
+(h3, AssumeAST, (cl  ((not ((a = y) = (x = b))))), [], [])
+(x1, EqcpAST, (cl  ((not (a = b))) ((not (x = y))) ((not (a = y))) ((x = b))), [], [])
+(x3, Equn2AST, (cl  (((a = y) = (x = b))) ((a = y)) ((x = b))), [], [])
+(x5, ResoAST, (cl  ((not (a = b))) ((not (x = y))) ((x = b)) (((a = y) = (x = b)))), [ x1 x3], [])
+(x2, EqcpAST, (cl  ((not (a = b))) ((not (x = y))) ((not (x = b))) ((a = y))), [], [])
+(x4, Equn1AST, (cl  (((a = y) = (x = b))) ((not (a = y))) ((not (x = b)))), [], [])
+(x6, ResoAST, (cl  ((not (a = b))) ((not (x = y))) ((not (x = b))) (((a = y) = (x = b)))), [ x2 x4], [])
+(t4, ResoAST, (cl  (((a = y) = (x = b)))), [ x5 x6 h1 h2], [])
+(t5, ResoAST, (cl ), [ h3 t4], [])
+
+Certif after process_trans: 
+(h1, AssumeAST, (cl  ((a = b))), [], [])
+(h2, AssumeAST, (cl  ((x = y))), [], [])
+(h3, AssumeAST, (cl  ((not ((a = y) = (x = b))))), [], [])
+(x1, EqcpAST, (cl  ((not (a = b))) ((not (x = y))) ((not (a = y))) ((x = b))), [], [])
+(x3, Equn2AST, (cl  (((a = y) = (x = b))) ((a = y)) ((x = b))), [], [])
+(x5, ResoAST, (cl  ((not (a = b))) ((not (x = y))) ((x = b)) (((a = y) = (x = b)))), [ x1 x3], [])
+(x2, EqcpAST, (cl  ((not (a = b))) ((not (x = y))) ((not (x = b))) ((a = y))), [], [])
+(x4, Equn1AST, (cl  (((a = y) = (x = b))) ((not (a = y))) ((not (x = b)))), [], [])
+(x6, ResoAST, (cl  ((not (a = b))) ((not (x = y))) ((not (x = b))) (((a = y) = (x = b)))), [ x2 x4], [])
+(t4, ResoAST, (cl  (((a = y) = (x = b)))), [ x5 x6 h1 h2], [])
+(t5, ResoAST, (cl ), [ h3 t4], [])
+
+Certif after process_simplify: 
+(h1, AssumeAST, (cl  ((a = b))), [], [])
+(h2, AssumeAST, (cl  ((x = y))), [], [])
+(h3, AssumeAST, (cl  ((not ((a = y) = (x = b))))), [], [])
+(x1, EqcpAST, (cl  ((not (a = b))) ((not (x = y))) ((not (a = y))) ((x = b))), [], [])
+(x3, Equn2AST, (cl  (((a = y) = (x = b))) ((a = y)) ((x = b))), [], [])
+(x5, ResoAST, (cl  ((not (a = b))) ((not (x = y))) ((x = b)) (((a = y) = (x = b)))), [ x1 x3], [])
+(x2, EqcpAST, (cl  ((not (a = b))) ((not (x = y))) ((not (x = b))) ((a = y))), [], [])
+(x4, Equn1AST, (cl  (((a = y) = (x = b))) ((not (a = y))) ((not (x = b)))), [], [])
+(x6, ResoAST, (cl  ((not (a = b))) ((not (x = y))) ((not (x = b))) (((a = y) = (x = b)))), [ x2 x4], [])
+(t4, ResoAST, (cl  (((a = y) = (x = b)))), [ x5 x6 h1 h2], [])
+(t5, ResoAST, (cl ), [ h3 t4], [])
+
+Certif after process_proj: 
+(h1, AssumeAST, (cl  ((a = b))), [], [])
+(h2, AssumeAST, (cl  ((x = y))), [], [])
+(h3, AssumeAST, (cl  ((not ((a = y) = (x = b))))), [], [])
+(x1, EqcpAST, (cl  ((not (a = b))) ((not (x = y))) ((not (a = y))) ((x = b))), [], [])
+(x3, Equn2AST, (cl  (((a = y) = (x = b))) ((a = y)) ((x = b))), [], [])
+(x5, ResoAST, (cl  ((not (a = b))) ((not (x = y))) ((x = b)) (((a = y) = (x = b)))), [ x1 x3], [])
+(x2, EqcpAST, (cl  ((not (a = b))) ((not (x = y))) ((not (x = b))) ((a = y))), [], [])
+(x4, Equn1AST, (cl  (((a = y) = (x = b))) ((not (a = y))) ((not (x = b)))), [], [])
+(x6, ResoAST, (cl  ((not (a = b))) ((not (x = y))) ((not (x = b))) (((a = y) = (x = b)))), [ x2 x4], [])
+(t4, ResoAST, (cl  (((a = y) = (x = b)))), [ x5 x6 h1 h2], [])
+(t5, ResoAST, (cl ), [ h3 t4], [])
+
+Certif after process_subproof: 
+(h1, AssumeAST, (cl  ((a = b))), [], [])
+(h2, AssumeAST, (cl  ((x = y))), [], [])
+(h3, AssumeAST, (cl  ((not ((a = y) = (x = b))))), [], [])
+(x1, EqcpAST, (cl  ((not (a = b))) ((not (x = y))) ((not (a = y))) ((x = b))), [], [])
+(x3, Equn2AST, (cl  (((a = y) = (x = b))) ((a = y)) ((x = b))), [], [])
+(x5, ResoAST, (cl  ((not (a = b))) ((not (x = y))) ((x = b)) (((a = y) = (x = b)))), [ x1 x3], [])
+(x2, EqcpAST, (cl  ((not (a = b))) ((not (x = y))) ((not (x = b))) ((a = y))), [], [])
+(x4, Equn1AST, (cl  (((a = y) = (x = b))) ((not (a = y))) ((not (x = b)))), [], [])
+(x6, ResoAST, (cl  ((not (a = b))) ((not (x = y))) ((not (x = b))) (((a = y) = (x = b)))), [ x2 x4], [])
+(t4, ResoAST, (cl  (((a = y) = (x = b)))), [ x5 x6 h1 h2], [])
+(t5, ResoAST, (cl ), [ h3 t4], [])
+

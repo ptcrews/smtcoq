@@ -1,0 +1,97 @@
+     = true
+     : bool
+Certif after storing shared terms: 
+(h1, AssumeAST, (cl  (((a + 1) = (2 * b)))), [], [])
+(h2, AssumeAST, (cl  ((not (((a + 1) = y) = ((2 * b) = y))))), [], [])
+(t3, CongAST, (cl  ((((a + 1) = y) = ((2 * b) = y)))), [ h1], [])
+(t4, ResoAST, (cl ), [ h2 t3], [])
+
+Certif after process_fins: 
+(h1, AssumeAST, (cl  (((a + 1) = (2 * b)))), [], [])
+(h2, AssumeAST, (cl  ((not (((a + 1) = y) = ((2 * b) = y))))), [], [])
+(t3, CongAST, (cl  ((((a + 1) = y) = ((2 * b) = y)))), [ h1], [])
+(t4, ResoAST, (cl ), [ h2 t3], [])
+
+Certif after process_hole: 
+(h1, AssumeAST, (cl  (((a + 1) = (2 * b)))), [], [])
+(h2, AssumeAST, (cl  ((not (((a + 1) = y) = ((2 * b) = y))))), [], [])
+(t3, CongAST, (cl  ((((a + 1) = y) = ((2 * b) = y)))), [ h1], [])
+(t4, ResoAST, (cl ), [ h2 t3], [])
+
+Certif after process_notnot: 
+(h1, AssumeAST, (cl  (((a + 1) = (2 * b)))), [], [])
+(h2, AssumeAST, (cl  ((not (((a + 1) = y) = ((2 * b) = y))))), [], [])
+(t3, CongAST, (cl  ((((a + 1) = y) = ((2 * b) = y)))), [ h1], [])
+(t4, ResoAST, (cl ), [ h2 t3], [])
+
+Certif after process_same: 
+(h1, AssumeAST, (cl  (((a + 1) = (2 * b)))), [], [])
+(h2, AssumeAST, (cl  ((not (((a + 1) = y) = ((2 * b) = y))))), [], [])
+(t3, CongAST, (cl  ((((a + 1) = y) = ((2 * b) = y)))), [ h1], [])
+(t4, ResoAST, (cl ), [ h2 t3], [])
+
+Certif after process_cong: 
+(h1, AssumeAST, (cl  (((a + 1) = (2 * b)))), [], [])
+(h2, AssumeAST, (cl  ((not (((a + 1) = y) = ((2 * b) = y))))), [], [])
+(x1, ReflAST, (cl  ((y = y))), [], [])
+(x2, EqcpAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not ((a + 1) = y))) (((2 * b) = y))), [], [])
+(x4, Equn2AST, (cl  ((((a + 1) = y) = ((2 * b) = y))) (((a + 1) = y)) (((2 * b) = y))), [], [])
+(x6, ResoAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) (((2 * b) = y)) ((((a + 1) = y) = ((2 * b) = y)))), [ x2 x4], [])
+(x3, EqcpAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not ((2 * b) = y))) (((a + 1) = y))), [], [])
+(x5, Equn1AST, (cl  ((((a + 1) = y) = ((2 * b) = y))) ((not ((a + 1) = y))) ((not ((2 * b) = y)))), [], [])
+(x7, ResoAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not ((2 * b) = y))) ((((a + 1) = y) = ((2 * b) = y)))), [ x3 x5], [])
+(t3, ResoAST, (cl  ((((a + 1) = y) = ((2 * b) = y)))), [ x6 x7 x1 h1], [])
+(t4, ResoAST, (cl ), [ h2 t3], [])
+
+Certif after process_trans: 
+(h1, AssumeAST, (cl  (((a + 1) = (2 * b)))), [], [])
+(h2, AssumeAST, (cl  ((not (((a + 1) = y) = ((2 * b) = y))))), [], [])
+(x1, ReflAST, (cl  ((y = y))), [], [])
+(x2, EqcpAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not ((a + 1) = y))) (((2 * b) = y))), [], [])
+(x4, Equn2AST, (cl  ((((a + 1) = y) = ((2 * b) = y))) (((a + 1) = y)) (((2 * b) = y))), [], [])
+(x6, ResoAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) (((2 * b) = y)) ((((a + 1) = y) = ((2 * b) = y)))), [ x2 x4], [])
+(x3, EqcpAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not ((2 * b) = y))) (((a + 1) = y))), [], [])
+(x5, Equn1AST, (cl  ((((a + 1) = y) = ((2 * b) = y))) ((not ((a + 1) = y))) ((not ((2 * b) = y)))), [], [])
+(x7, ResoAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not ((2 * b) = y))) ((((a + 1) = y) = ((2 * b) = y)))), [ x3 x5], [])
+(t3, ResoAST, (cl  ((((a + 1) = y) = ((2 * b) = y)))), [ x6 x7 x1 h1], [])
+(t4, ResoAST, (cl ), [ h2 t3], [])
+
+Certif after process_simplify: 
+(h1, AssumeAST, (cl  (((a + 1) = (2 * b)))), [], [])
+(h2, AssumeAST, (cl  ((not (((a + 1) = y) = ((2 * b) = y))))), [], [])
+(x1, ReflAST, (cl  ((y = y))), [], [])
+(x2, EqcpAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not ((a + 1) = y))) (((2 * b) = y))), [], [])
+(x4, Equn2AST, (cl  ((((a + 1) = y) = ((2 * b) = y))) (((a + 1) = y)) (((2 * b) = y))), [], [])
+(x6, ResoAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) (((2 * b) = y)) ((((a + 1) = y) = ((2 * b) = y)))), [ x2 x4], [])
+(x3, EqcpAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not ((2 * b) = y))) (((a + 1) = y))), [], [])
+(x5, Equn1AST, (cl  ((((a + 1) = y) = ((2 * b) = y))) ((not ((a + 1) = y))) ((not ((2 * b) = y)))), [], [])
+(x7, ResoAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not ((2 * b) = y))) ((((a + 1) = y) = ((2 * b) = y)))), [ x3 x5], [])
+(t3, ResoAST, (cl  ((((a + 1) = y) = ((2 * b) = y)))), [ x6 x7 x1 h1], [])
+(t4, ResoAST, (cl ), [ h2 t3], [])
+
+Certif after process_proj: 
+(h1, AssumeAST, (cl  (((a + 1) = (2 * b)))), [], [])
+(h2, AssumeAST, (cl  ((not (((a + 1) = y) = ((2 * b) = y))))), [], [])
+(x1, ReflAST, (cl  ((y = y))), [], [])
+(x2, EqcpAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not ((a + 1) = y))) (((2 * b) = y))), [], [])
+(x4, Equn2AST, (cl  ((((a + 1) = y) = ((2 * b) = y))) (((a + 1) = y)) (((2 * b) = y))), [], [])
+(x6, ResoAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) (((2 * b) = y)) ((((a + 1) = y) = ((2 * b) = y)))), [ x2 x4], [])
+(x3, EqcpAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not ((2 * b) = y))) (((a + 1) = y))), [], [])
+(x5, Equn1AST, (cl  ((((a + 1) = y) = ((2 * b) = y))) ((not ((a + 1) = y))) ((not ((2 * b) = y)))), [], [])
+(x7, ResoAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not ((2 * b) = y))) ((((a + 1) = y) = ((2 * b) = y)))), [ x3 x5], [])
+(t3, ResoAST, (cl  ((((a + 1) = y) = ((2 * b) = y)))), [ x6 x7 x1 h1], [])
+(t4, ResoAST, (cl ), [ h2 t3], [])
+
+Certif after process_subproof: 
+(h1, AssumeAST, (cl  (((a + 1) = (2 * b)))), [], [])
+(h2, AssumeAST, (cl  ((not (((a + 1) = y) = ((2 * b) = y))))), [], [])
+(x1, ReflAST, (cl  ((y = y))), [], [])
+(x2, EqcpAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not ((a + 1) = y))) (((2 * b) = y))), [], [])
+(x4, Equn2AST, (cl  ((((a + 1) = y) = ((2 * b) = y))) (((a + 1) = y)) (((2 * b) = y))), [], [])
+(x6, ResoAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) (((2 * b) = y)) ((((a + 1) = y) = ((2 * b) = y)))), [ x2 x4], [])
+(x3, EqcpAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not ((2 * b) = y))) (((a + 1) = y))), [], [])
+(x5, Equn1AST, (cl  ((((a + 1) = y) = ((2 * b) = y))) ((not ((a + 1) = y))) ((not ((2 * b) = y)))), [], [])
+(x7, ResoAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not ((2 * b) = y))) ((((a + 1) = y) = ((2 * b) = y)))), [ x3 x5], [])
+(t3, ResoAST, (cl  ((((a + 1) = y) = ((2 * b) = y)))), [ x6 x7 x1 h1], [])
+(t4, ResoAST, (cl ), [ h2 t3], [])
+

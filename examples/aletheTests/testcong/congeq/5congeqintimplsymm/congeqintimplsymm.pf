@@ -1,0 +1,4 @@
+(assume h1 (= a b))
+(assume h2 (not (= (= a y) (= y b))))
+(step t3 (cl (= (= a y) (= y b))) :rule cong :premises (h1))
+(step t4 (cl) :rule resolution :premises (h2 t3))

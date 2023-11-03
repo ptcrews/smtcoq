@@ -28,5 +28,5 @@
    Local Open Scope int63_scope.
    
    Section Cong.
-     Verit_Checker "../examples/aletheTests/testcong/cong.smt2" "../examples/aletheTests/testcong/cong.pf".
+     Verit_Checker "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/aletheTests/testcong/cong.smt2" "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/aletheTests/testcong/cong.pf".
    End Cong.

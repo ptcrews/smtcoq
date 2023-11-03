@@ -263,22 +263,17 @@ let process_congr_eq a_args b_args prem =
      let eq = Atom.equal in
      let pairw_eq x y a b = (eq x a && eq y b) || (eq x b && eq y a) in
      (* No implicit symmetry in conclusion *)
-     if (pairw_eq a1 b1 a1' b1' && pairw_eq a2 b2 a2' b2')
-                               ||
-        (pairw_eq a1 b1 a2' b2' && pairw_eq a2 b2 a1' b1')
-     then [Some p2; Some p1]
+     if (pairw_eq a1 b1 a1' b1' && pairw_eq a2 b2 a2' b2') then [Some p1; Some p2]
+     else if (pairw_eq a1 b1 a2' b2' && pairw_eq a2 b2 a1' b1') then [Some p2; Some p1]
      (* Implicit symmetry in conclusion *)
      else if (pairw_eq a2 b1 a1' b1' && pairw_eq a1 b2 a2' b2')
                                      ||
              (pairw_eq a1 b2 a1' b1' && pairw_eq a2 b1 a2' b2')
      then [Some p1; Some p2]
-     else raise (Debug ("| VeritSyntax.process_congr_eq : can't find equality within congruence |"))
+     else raise (Debug ("| VeritSyntax.process_congr_eq: can't find equality within congruence |"))
   | _ -> raise (Debug "| VeritSyntax.process_congr_eq: wrong no. of args to function application |")
-(* a = b  x = y
-  -----------------
-  (a = y) = (x = b)
-   *)
 
+  
 let mkCongrPred p =
   (* Rule proves ~(p1 = p1)', ..., ~(pn = pn'), ~P(p1, ..., pn), P(p1', ..., pn') 
      prem: [~(p1 = p1'); ...; ~(pn = pn')], prem_P: ~P(p1, ..., pn), concl: P(p1', ..., pn' *)

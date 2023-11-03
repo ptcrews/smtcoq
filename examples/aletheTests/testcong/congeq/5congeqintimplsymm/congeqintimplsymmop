@@ -1,0 +1,132 @@
+Certif before preprocessing: 
+(h1, AssumeAST, (cl  (((a + 1) = (2 * b)))), [], [])
+(h2, AssumeAST, (cl  ((not (((a + 1) = y) = (y = (2 * b)))))), [], [])
+(t3, CongAST, (cl  ((((a + 1) = y) = (y = (2 * b))))), [ h1], [])
+(t4, ResoAST, (cl ), [ h2 t3], [])
+
+Certif after storing shared terms: 
+(h1, AssumeAST, (cl  (((a + 1) = (2 * b)))), [], [])
+(h2, AssumeAST, (cl  ((not (((a + 1) = y) = (y = (2 * b)))))), [], [])
+(t3, CongAST, (cl  ((((a + 1) = y) = (y = (2 * b))))), [ h1], [])
+(t4, ResoAST, (cl ), [ h2 t3], [])
+
+Certif after process_fins: 
+(h1, AssumeAST, (cl  (((a + 1) = (2 * b)))), [], [])
+(h2, AssumeAST, (cl  ((not (((a + 1) = y) = (y = (2 * b)))))), [], [])
+(t3, CongAST, (cl  ((((a + 1) = y) = (y = (2 * b))))), [ h1], [])
+(t4, ResoAST, (cl ), [ h2 t3], [])
+
+Certif after process_hole: 
+(h1, AssumeAST, (cl  (((a + 1) = (2 * b)))), [], [])
+(h2, AssumeAST, (cl  ((not (((a + 1) = y) = (y = (2 * b)))))), [], [])
+(t3, CongAST, (cl  ((((a + 1) = y) = (y = (2 * b))))), [ h1], [])
+(t4, ResoAST, (cl ), [ h2 t3], [])
+
+Certif after process_notnot: 
+(h1, AssumeAST, (cl  (((a + 1) = (2 * b)))), [], [])
+(h2, AssumeAST, (cl  ((not (((a + 1) = y) = (y = (2 * b)))))), [], [])
+(t3, CongAST, (cl  ((((a + 1) = y) = (y = (2 * b))))), [ h1], [])
+(t4, ResoAST, (cl ), [ h2 t3], [])
+
+Certif after process_same: 
+(h1, AssumeAST, (cl  (((a + 1) = (2 * b)))), [], [])
+(h2, AssumeAST, (cl  ((not (((a + 1) = y) = (y = (2 * b)))))), [], [])
+(t3, CongAST, (cl  ((((a + 1) = y) = (y = (2 * b))))), [ h1], [])
+(t4, ResoAST, (cl ), [ h2 t3], [])
+
+Certif after process_cong: 
+(h1, AssumeAST, (cl  (((a + 1) = (2 * b)))), [], [])
+(h2, AssumeAST, (cl  ((not (((a + 1) = y) = (y = (2 * b)))))), [], [])
+(x1, ReflAST, (cl  ((y = y))), [], [])
+(x2, EqcpAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not ((a + 1) = y))) ((y = (2 * b)))), [], [])
+(x4, Equn2AST, (cl  ((((a + 1) = y) = (y = (2 * b)))) (((a + 1) = y)) ((y = (2 * b)))), [], [])
+(x6, ResoAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((y = (2 * b))) ((((a + 1) = y) = (y = (2 * b))))), [ x2 x4], [])
+(x3, EqcpAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not (y = (2 * b)))) (((a + 1) = y))), [], [])
+(x5, Equn1AST, (cl  ((((a + 1) = y) = (y = (2 * b)))) ((not ((a + 1) = y))) ((not (y = (2 * b))))), [], [])
+(x7, ResoAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not (y = (2 * b)))) ((((a + 1) = y) = (y = (2 * b))))), [ x3 x5], [])
+(t3, ResoAST, (cl  ((((a + 1) = y) = (y = (2 * b))))), [ x6 x7 x1 h1], [])
+(t4, ResoAST, (cl ), [ h2 t3], [])
+
+Certif after process_trans: 
+(h1, AssumeAST, (cl  (((a + 1) = (2 * b)))), [], [])
+(h2, AssumeAST, (cl  ((not (((a + 1) = y) = (y = (2 * b)))))), [], [])
+(x1, ReflAST, (cl  ((y = y))), [], [])
+(x2, EqcpAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not ((a + 1) = y))) ((y = (2 * b)))), [], [])
+(x4, Equn2AST, (cl  ((((a + 1) = y) = (y = (2 * b)))) (((a + 1) = y)) ((y = (2 * b)))), [], [])
+(x6, ResoAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((y = (2 * b))) ((((a + 1) = y) = (y = (2 * b))))), [ x2 x4], [])
+(x3, EqcpAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not (y = (2 * b)))) (((a + 1) = y))), [], [])
+(x5, Equn1AST, (cl  ((((a + 1) = y) = (y = (2 * b)))) ((not ((a + 1) = y))) ((not (y = (2 * b))))), [], [])
+(x7, ResoAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not (y = (2 * b)))) ((((a + 1) = y) = (y = (2 * b))))), [ x3 x5], [])
+(t3, ResoAST, (cl  ((((a + 1) = y) = (y = (2 * b))))), [ x6 x7 x1 h1], [])
+(t4, ResoAST, (cl ), [ h2 t3], [])
+
+Certif after process_simplify: 
+(h1, AssumeAST, (cl  (((a + 1) = (2 * b)))), [], [])
+(h2, AssumeAST, (cl  ((not (((a + 1) = y) = (y = (2 * b)))))), [], [])
+(x1, ReflAST, (cl  ((y = y))), [], [])
+(x2, EqcpAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not ((a + 1) = y))) ((y = (2 * b)))), [], [])
+(x4, Equn2AST, (cl  ((((a + 1) = y) = (y = (2 * b)))) (((a + 1) = y)) ((y = (2 * b)))), [], [])
+(x6, ResoAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((y = (2 * b))) ((((a + 1) = y) = (y = (2 * b))))), [ x2 x4], [])
+(x3, EqcpAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not (y = (2 * b)))) (((a + 1) = y))), [], [])
+(x5, Equn1AST, (cl  ((((a + 1) = y) = (y = (2 * b)))) ((not ((a + 1) = y))) ((not (y = (2 * b))))), [], [])
+(x7, ResoAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not (y = (2 * b)))) ((((a + 1) = y) = (y = (2 * b))))), [ x3 x5], [])
+(t3, ResoAST, (cl  ((((a + 1) = y) = (y = (2 * b))))), [ x6 x7 x1 h1], [])
+(t4, ResoAST, (cl ), [ h2 t3], [])
+
+Certif after process_proj: 
+(h1, AssumeAST, (cl  (((a + 1) = (2 * b)))), [], [])
+(h2, AssumeAST, (cl  ((not (((a + 1) = y) = (y = (2 * b)))))), [], [])
+(x1, ReflAST, (cl  ((y = y))), [], [])
+(x2, EqcpAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not ((a + 1) = y))) ((y = (2 * b)))), [], [])
+(x4, Equn2AST, (cl  ((((a + 1) = y) = (y = (2 * b)))) (((a + 1) = y)) ((y = (2 * b)))), [], [])
+(x6, ResoAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((y = (2 * b))) ((((a + 1) = y) = (y = (2 * b))))), [ x2 x4], [])
+(x3, EqcpAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not (y = (2 * b)))) (((a + 1) = y))), [], [])
+(x5, Equn1AST, (cl  ((((a + 1) = y) = (y = (2 * b)))) ((not ((a + 1) = y))) ((not (y = (2 * b))))), [], [])
+(x7, ResoAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not (y = (2 * b)))) ((((a + 1) = y) = (y = (2 * b))))), [ x3 x5], [])
+(t3, ResoAST, (cl  ((((a + 1) = y) = (y = (2 * b))))), [ x6 x7 x1 h1], [])
+(t4, ResoAST, (cl ), [ h2 t3], [])
+
+Certif after process_subproof: 
+(h1, AssumeAST, (cl  (((a + 1) = (2 * b)))), [], [])
+(h2, AssumeAST, (cl  ((not (((a + 1) = y) = (y = (2 * b)))))), [], [])
+(x1, ReflAST, (cl  ((y = y))), [], [])
+(x2, EqcpAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not ((a + 1) = y))) ((y = (2 * b)))), [], [])
+(x4, Equn2AST, (cl  ((((a + 1) = y) = (y = (2 * b)))) (((a + 1) = y)) ((y = (2 * b)))), [], [])
+(x6, ResoAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((y = (2 * b))) ((((a + 1) = y) = (y = (2 * b))))), [ x2 x4], [])
+(x3, EqcpAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not (y = (2 * b)))) (((a + 1) = y))), [], [])
+(x5, Equn1AST, (cl  ((((a + 1) = y) = (y = (2 * b)))) ((not ((a + 1) = y))) ((not (y = (2 * b))))), [], [])
+(x7, ResoAST, (cl  ((not (y = y))) ((not ((a + 1) = (2 * b)))) ((not (y = (2 * b)))) ((((a + 1) = y) = (y = (2 * b))))), [ x3 x5], [])
+(t3, ResoAST, (cl  ((((a + 1) = y) = (y = (2 * b))))), [ x6 x7 x1 h1], [])
+(t4, ResoAST, (cl ), [ h2 t3], [])
+
+File "./congeqintimplsymm.v", line 5, characters 2-258:
+Error:
+Verit.import_trace: processing certificate
+Error: VeritSyntax.Debug
+Message: | VeritSyntax.mk_clause: failing at id x2 || VeritSyntax.process_congr : can't find equality within congruence |
+Position: Line 5 Position 1
+
+(cl  ((not (y = y))) 
+     ((not ((a + 1) = (2 * b)))) 
+     ((not ((a + 1) = y))) 
+     ((y = (2 * b))))
+     
+prem_val = [(y != y, (y, y)); (a+1 != 2b, (a+1, 2b))]
+process_congr [y; 2b] [a+1; y] prem_val []
+
+a -> y
+b -> a+1
+a', b' = 1. (y, y) 2. (a+1, 2b) 
+(y = y && a+1 = y)    || (a+1 = y and y = y))
+		   ||
+(y = a+1 && a+1 = 2b) || (a+1 = a+1 && y = 2b)
+
+Given:
+x1 = y1  x2 = y2
+------------------
+f x1 x2 = f y1 y2
+process_congr expects
+x1 = x1 && y1 = y1 || x1 = y1 && y1 = x1
+		||
+x1 = x2 && y1 = y2 || x1 = y2 && y1 = x2
+

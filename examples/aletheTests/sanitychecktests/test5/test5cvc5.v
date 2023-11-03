@@ -9,7 +9,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-Add Rec LoadPath "/home/arjun/Desktop/smtcoq/safe/smtcoq/src" as SMTCoq.
+Add Rec LoadPath "/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/src" as SMTCoq.
 
 Require Import SMTCoq.SMTCoq.
 Require Import Bool.

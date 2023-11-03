@@ -1023,14 +1023,14 @@ let process_cong (c : certif) : certif =
                           match get_cl p' cog with
                           | Some (Eq (x, a) :: _) -> (x, a)
                           | _ -> raise (Debug ("| process_cong: expecting premise of cong to be an equality |")) in
-                       (* find implicit premise modulo symmetry *)
-                       let q1, q2 = 
-                          if      (p1 = x && p2 = a) || (p1 = a && p2 = x) then (y, b)
-                          else if (p1 = x && p2 = b) || (p1 = b && p2 = x) then (y, a)
-                          else if (p1 = y && p2 = a) || (p1 = a && p2 = y) then (x, b)
-                          else if (p1 = y && p2 = b) || (p1 = b && p2 = y) then (x, a)
-                          else raise (Debug ("| process_cong: can't find implicit premise for cong over eq |")) in
                        let impi = generate_id () in
+                       (* find implicit premise modulo symmetry *)
+                       let q1, q2, ps = 
+                          if      (p1 = x && p2 = a) || (p1 = a && p2 = x) then (y, b, [p'; impi])
+                          else if (p1 = x && p2 = b) || (p1 = b && p2 = x) then (y, a, [p'; impi])
+                          else if (p1 = y && p2 = a) || (p1 = a && p2 = y) then (x, b, [impi; p'])
+                          else if (p1 = y && p2 = b) || (p1 = b && p2 = y) then (x, a, [impi; p'])
+                          else raise (Debug ("| process_cong: can't find implicit premise for cong over eq |")) in
                        let cert = if is_frm then
                                     let eqn1i = generate_id () in
                                     let eqn2i = generate_id () in
@@ -1040,7 +1040,7 @@ let process_cong (c : certif) : certif =
                                   else
                                     [(impi, ReflAST, [Eq (q1, q2)], [], [])] in
                        (cert, 
-                        [impi; p'], 
+                        ps, 
                         [Not (Eq (q1, q2)); Not (Eq (p1, p2))])
                     | [_; _] ->
                        let prem_negs' = 
@@ -4480,28 +4480,28 @@ let rec process_hole (c : certif) : certif =
       rules to tautological rules and needs them to have arguments for this. To remove 
       constraint, search for projection within `extend_cl`. *)
 let preprocess_certif (c: certif) : certif =
-  Printf.printf ("Certif before preprocessing: \n%s\n") (string_of_certif c);
+  (* Printf.printf ("Certif before preprocessing: \n%s\n") (string_of_certif c); *)
   try 
   (let c1 = store_shared_terms c in
-  (* Printf.printf ("Certif after storing shared terms: \n%s\n") (string_of_certif c1); *)
+  Printf.printf ("Certif after storing shared terms: \n%s\n") (string_of_certif c1);
   let c2 = process_fins c1 in
-  (* Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2); *)
+  Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2);
   let c3 = process_hole c2 in
-  (* Printf.printf ("Certif after process_hole: \n%s\n") (string_of_certif c3); *)
+  Printf.printf ("Certif after process_hole: \n%s\n") (string_of_certif c3);
   let c4 = process_notnot c3 in
-  (* Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c4); *)
+  Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c4);
   let c5 = process_same c4 in
-  (* Printf.printf ("Certif after process_same: \n%s\n") (string_of_certif c5); *)
+  Printf.printf ("Certif after process_same: \n%s\n") (string_of_certif c5);
   let c6 = process_cong c5 in
-  (* Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c6); *)
+  Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c6);
   let c7 = process_trans c6 in
-  (* Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c7); *)
+  Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c7);
   let c8 = process_simplify c7 in
-  (* Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c8); *)
+  Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c8);
   let c9 = process_proj c8 in
-  (* Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c9); *)
+  Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c9);
   let c10 = process_subproof c9 in
-  (* Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c10); *)
+  Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c10);
   c10) with
   | Debug s -> raise (Debug ("| VeritAst.preprocess_certif: failed to preprocess |"^s))
 
