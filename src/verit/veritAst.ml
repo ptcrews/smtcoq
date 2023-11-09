@@ -2481,8 +2481,8 @@ let rec process_simplify (c : certif) : certif =
                     (fi, FalsAST, [Not False], [], []);
                     (generate_id (), ResoAST, [lhs], [wi; fi], [])] in
          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-      (* x_1 ^ ... x_i ... x_j ... ^ x_n <-> F, if x_i = ~x_j *)
-      | [Eq ((And xs as lhs), (False as rhs))] when 
+       (* x_1 ^ ... x_i ... x_j ... ^ x_n <-> F, if x_i = ~x_j *)
+       | [Eq ((And xs as lhs), (False as rhs))] when 
            (List.exists (fun x -> (List.exists (fun y -> is_neg y x) xs)) xs) ->
          (* x ^ ~x <-> F
             LTR:
@@ -3184,43 +3184,6 @@ let rec process_simplify (c : certif) : certif =
           let b2a = [(impn1i, Impn1AST, [lhs; x], [], []);
                      (generate_id (), ResoAST, [lhs], [b2ai; impn1i], [])] in
           (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-       (* ((x -> y) -> y) <-> (x v y) *)
-       | [Eq ((Imp [Imp [x;y]; a] as lhs), (Or [b;c] as rhs))] when (y = a && x = b && y = c) ->
-          (*
-             LTR:
-             -------------asmp   ------------------------------impp  ---------orn   ---------impn1   ---------orn
-             (x -> y) -> y       ~((x -> y) -> y), ~(x -> y), y       x v y, ~y     x -> y, x         x v y, ~x
-             --------------------------------------------------------------------------------------------------res   
-                                                         x v y
-          *)
-          let a2bi = generate_id () in
-          let imppi1 = generate_id () in
-          let orni1 = generate_id () in
-          let impn1i1 = generate_id () in
-          let orni2 = generate_id () in
-          let a2b = [(imppi1, ImppAST, [Not lhs; Not (Imp [x; y]); y], [], []);
-                     (orni1, OrnAST, [Or [x; y]; Not y], [], []);
-                     (impn1i1, Impn1AST, [Imp [x; y]; x], [], []);
-                     (orni2, OrnAST, [Or [x; y]; Not x], [], []);
-                     (generate_id (), ResoAST, [rhs], [a2bi; imppi1; orni1; impn1i1; orni2], [])] in
-          (*
-             RTL:
-             -----asmp  ----------------orp  ----------------impp   -----------------impn2   ---------------------impn1
-             x v y      ~(x v y), x, y       ~(x -> y), ~x, y       (x -> y) -> y, ~y         (x -> y) -> y, x -> y        
-             ------------------------------------------------------------------------------------------------------res
-                                                         (x -> y) -> y
-          *)
-          let b2ai = generate_id () in
-          let orpi = generate_id () in
-          let imppi2 = generate_id () in
-          let impn2i = generate_id () in
-          let impn1i2 = generate_id () in
-          let b2a = [(orpi, OrpAST, [Not rhs; x; y], [], []);
-                     (imppi2, ImppAST, [Not (Imp [x; y]); Not x; y], [], []);
-                     (impn2i, Impn2AST, [lhs; Not y], [], []);
-                     (impn1i2, Impn1AST, [lhs; Imp [x; y]], [], []);
-                     (generate_id (), ResoAST, [lhs], [b2ai; orpi; imppi2; impn2i; impn1i2], [])] in
-          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        | [Eq _] -> raise (Debug ("| process_simplify: unexpected form of equivalence for implies_simplify at id "^i^" |"))
        | _ -> raise (Debug ("| process_simplify: expecting implies_simplify to derive a singleton equivalence at id "^i^" |")))
   (* (x <-> y) <-> z *)
@@ -3487,8 +3450,8 @@ let rec process_simplify (c : certif) : certif =
   (* ite c x y <-> z *)
   | (i, ItesimpAST, cl, p, a) :: tl ->
       (match (get_expr_cl cl) with
-      (* ite T x y <-> x *)
-      | [Eq ((Ite [True; x; y] as lhs), (a as rhs))] when x = a ->
+       (* ite T x y <-> x *)
+       | [Eq ((Ite [True; x; y] as lhs), (a as rhs))] when x = a ->
          (*
              LTR:
              --------------------itep2  ---------asmp  --T
@@ -3516,8 +3479,8 @@ let rec process_simplify (c : certif) : certif =
                     (ti, TrueAST, [True], [], []);
                     (generate_id (), ResoAST, [lhs], [iten2i; ti; b2ai], [])] in
          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-      (* ite F x y <-> y *)
-      | [Eq ((Ite [False; x; y] as lhs), (b as rhs))] when y = b ->
+       (* ite F x y <-> y *)
+       | [Eq ((Ite [False; x; y] as lhs), (b as rhs))] when y = b ->
          (*
              LTR:
              --------------------itep1  ---------asmp  --F
@@ -3545,8 +3508,8 @@ let rec process_simplify (c : certif) : certif =
                     (fi, FalsAST, [Not False], [], []);
                     (generate_id (), ResoAST, [lhs], [iten1i; fi; b2ai], [])] in
          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-      (* ite c x x <-> x *)
-      | [Eq ((Ite [c; x; a] as lhs), (m as rhs))] when x = a && x = m ->
+       (* ite c x x <-> x *)
+       | [Eq ((Ite [c; x; a] as lhs), (m as rhs))] when x = a && x = m ->
          (*
              LTR:
              ------------------itep1  -------------------itep2  ---------asmp
@@ -3574,8 +3537,8 @@ let rec process_simplify (c : certif) : certif =
                      (iten2i, Iten2AST, [lhs; Not x; Not x], [], []);
                      (generate_id (), ResoAST, [lhs], [iten1i; iten2i; b2ai], [])] in
          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-      (* ite ~c x y <-> ite c y x *)
-      | [Eq ((Ite [Not c; x; y] as lhs), (Ite [c'; b; a] as rhs))] when c = c' && x = a && y = b ->
+       (* ite ~c x y <-> ite c y x *)
+       | [Eq ((Ite [Not c; x; y] as lhs), (Ite [c'; b; a] as rhs))] when c = c' && x = a && y = b ->
          (*
              LTR:
              ------------------iten1  ---------------------itep2  --------------------itep1  -----------------iten2
@@ -3623,8 +3586,8 @@ let rec process_simplify (c : certif) : certif =
                     (resi2, ResoAST, [Not rhs; Not c; lhs], [itep2i; iten1i], []);
                     (generate_id (), ResoAST, [lhs], [resi1; resi2; b2ai], [])] in
          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-      (* ite c (ite c x y) z <-> ite c x z *)
-      | [Eq ((Ite [c; (Ite [c'; x; y] as lhs'); z] as lhs), (Ite [c''; x'; z'] as rhs))] when c = c' && c = c'' && x = x' && z = z' ->
+       (* ite c (ite c x y) z <-> ite c x z *)
+       | [Eq ((Ite [c; (Ite [c'; x; y] as lhs'); z] as lhs), (Ite [c''; x'; z'] as rhs))] when c = c' && c = c'' && x = x' && z = z' ->
          (*
              LTR:
             -------------------------------------itep2  --------------------itep2  -----------------iten2  ----------------------------itep1  ----------------iten1
@@ -3676,8 +3639,8 @@ let rec process_simplify (c : certif) : certif =
                     (resi2, ResoAST, [lhs; c; Not rhs], [iten1i; itep1i], []);
                     (generate_id (), ResoAST, [rhs], [resi1; resi2; b2ai], [])] in
          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-      (* ite c x (ite c y z) <-> ite c x z *)
-      | [Eq ((Ite [c; x; (Ite [c'; y; z] as lhs')] as lhs), (Ite [c''; x'; z'] as rhs))] when c = c' && c = c'' && x = x' && z = z' ->
+       (* ite c x (ite c y z) <-> ite c x z *)
+       | [Eq ((Ite [c; x; (Ite [c'; y; z] as lhs')] as lhs), (Ite [c''; x'; z'] as rhs))] when c = c' && c = c'' && x = x' && z = z' ->
          (*
              LTR:
              ------------------------------------itep1  ------------------itep1  ----------------iten1  -----------------------------itep2  -----------------iten2
@@ -3729,8 +3692,8 @@ let rec process_simplify (c : certif) : certif =
                     (resi2, ResoAST, [lhs; Not c; Not rhs], [iten2i; itep2i], []);
                     (generate_id (), ResoAST, [lhs], [resi1; resi2; b2ai], [])] in
          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-      (* ite c T F <-> c *)
-      | [Eq ((Ite [c; True; False] as lhs), (c' as rhs))] when c = c' ->
+       (* ite c T F <-> c *)
+       | [Eq ((Ite [c; True; False] as lhs), (c' as rhs))] when c = c' ->
          (*
              LTR:
              ------------------itep1  ---F  ----------asmp
@@ -3758,8 +3721,8 @@ let rec process_simplify (c : certif) : certif =
                     (ti, TrueAST, [True], [], []);
                     (generate_id (), ResoAST, [lhs], [iten2i; ti; b2ai], [])] in
          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-      (* ite c F T <-> ~c *)
-      | [Eq ((Ite [c; False; True] as lhs), (Not c' as rhs))] when c = c' ->
+       (* ite c F T <-> ~c *)
+       | [Eq ((Ite [c; False; True] as lhs), (Not c' as rhs))] when c = c' ->
          (*
              LTR:
              --------------------itep2  ---F  ----------asmp
@@ -3787,8 +3750,8 @@ let rec process_simplify (c : certif) : certif =
                     (ti, TrueAST, [True], [], []);
                     (generate_id (), ResoAST, [lhs], [iten1i; ti; b2ai], [])] in
          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-      (* ite c T x <-> c v x *)
-      | [Eq ((Ite [c; True; x] as lhs), (Or [c'; x'] as rhs))] when c = c' && x = x' ->
+       (* ite c T x <-> c v x *)
+       | [Eq ((Ite [c; True; x] as lhs), (Or [c'; x'] as rhs))] when c = c' && x = x' ->
          (*
              LTR:
              ------------------itep1  ---------orn  ---------orn ---------asmp
@@ -3823,8 +3786,8 @@ let rec process_simplify (c : certif) : certif =
                     (ti, TrueAST, [True], [], []);
                     (generate_id (), ResoAST, [lhs], [orpi; iten1i; iten2i; ti; b2ai], [])] in
          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-      (* ite c x F <-> c ^ x *)
-      | [Eq ((Ite [c; x; False] as lhs), (And [c'; x'] as rhs))] when c = c' && x = x' ->
+       (* ite c x F <-> c ^ x *)
+       | [Eq ((Ite [c; x; False] as lhs), (And [c'; x'] as rhs))] when c = c' && x = x' ->
          (*
              LTR:
              ---------------andn  -------------------itep2  ------------------itep1  ---F  ---------asmp
@@ -3872,8 +3835,8 @@ let rec process_simplify (c : certif) : certif =
                     (generate_id (), ResoAST, [lhs], [resi2; b2ai], [])] in
                     (*(generate_id (), ResoAST, [lhs], [iten1i; andpi1; andpi2; b2ai], [])] in*)
          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-      (* ite c F x <-> ~c ^ x *)
-      | [Eq ((Ite [c; False; x] as lhs), (And [Not c'; x'] as rhs))] when c = c' && x = x' ->
+       (* ite c F x <-> ~c ^ x *)
+       | [Eq ((Ite [c; False; x] as lhs), (And [Not c'; x'] as rhs))] when c = c' && x = x' ->
          (*
              LTR:
              ---------------andn ------------------itep1  -------------------itep2  ---F  ---------asmp
@@ -3907,8 +3870,8 @@ let rec process_simplify (c : certif) : certif =
                     (andpi2, AndpAST, [rhs; x], [], ["1"]);
                     (generate_id (), ResoAST, [lhs], [iten1i; andpi1; andpi2; b2ai], [])] in
          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-      (* ite c x T <-> ~c v x *)
-      | [Eq ((Ite [c; x; True] as lhs), (Or [Not c'; x'] as rhs))] when c = c' && x = x' ->
+       (* ite c x T <-> ~c v x *)
+       | [Eq ((Ite [c; x; True] as lhs), (Or [Not c'; x'] as rhs))] when c = c' && x = x' ->
          (*
              LTR:
              -------------------itep2  -----------orn  ----------orn  ---------asmp
@@ -4069,8 +4032,8 @@ let rec process_simplify (c : certif) : certif =
                     (andpi2, AndpAST, [lhs; y], [], ["1"]);
                     (generate_id (), ResoAST, [lhs], [orpi; b2ai; andpi1; andpi2], [])] in
          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-      (* (x -> (y -> z)) <-> ((x ^ y) -> z) *)
-      | [Eq ((Imp [x; Imp [y; z]] as lhs), (Imp [And [a; b]; c] as rhs))] when x = a && y = b && z = c ->
+       (* (x -> (y -> z)) <-> ((x ^ y) -> z) *)
+       | [Eq ((Imp [x; Imp [y; z]] as lhs), (Imp [And [a; b]; c] as rhs))] when x = a && y = b && z = c ->
          (*
             LTR:
             ----------------------------impp -------------asmp   ---------------impp  -----------andp -----------andp  ----------------impn2   -------------------impn1
@@ -4115,8 +4078,8 @@ let rec process_simplify (c : certif) : certif =
                     (impn2i3, Impn2AST, [lhs; Not (Imp [y; z])], [], []);
                     (generate_id (), ResoAST, [lhs], [imppi3; b2ai; andni; impn2i2; impn1i2; impn1i3; impn2i3], [])] in
          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-      (* ((x -> y) -> y) <-> (x v y) *)
-      | [Eq ((Imp [Imp [x;y]; n] as lhs), (Or [a;b]as rhs))] when y = n && x = a && y = b ->
+       (* ((x -> y) -> y) <-> (x v y) *)
+       | [Eq ((Imp [Imp [x;y]; n] as lhs), (Or [a;b]as rhs))] when y = n && x = a && y = b ->
          (*
             LTR:
             -------------asmp   ------------------------------impp   ---------impn1 ---------orn   ---------orn
@@ -4152,8 +4115,8 @@ let rec process_simplify (c : certif) : certif =
                     (impni3, Impn1AST, [lhs; Imp [x;y]], [], []);
                     (generate_id (), ResoAST, [lhs], [b2ai; orpi; imppi2; impni2; impni3], [])] in
          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-      (* (x ^ (x -> y)) <-> (x ^ y) *)
-      | [Eq ((And [x; Imp [m; y]] as lhs), (And [a;b] as rhs))] when x = m && x = a && y = b ->
+       (* (x ^ (x -> y)) <-> (x ^ y) *)
+       | [Eq ((And [x; Imp [m; y]] as lhs), (And [a;b] as rhs))] when x = m && x = a && y = b ->
          (*
             LTR:
             -----------------------andp  ----------------impp  -------------andn ------------------andp  ------------asmp
@@ -4189,8 +4152,8 @@ let rec process_simplify (c : certif) : certif =
                     (andpi2, AndpAST, [Not rhs; y], [], ["1"]);
                     (generate_id (), ResoAST, [lhs], [impni; andni; andpi1; andpi2; b2ai], [])] in
          (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-      (* ((x -> y) ^ x) <-> (x ^ y) *)
-      | [Eq ((And [Imp [m; y]; x] as lhs), (And [a;b] as rhs))] when x = m && x = a && y = b ->
+       (* ((x -> y) ^ x) <-> (x ^ y) *)
+       | [Eq ((And [Imp [m; y]; x] as lhs), (And [a;b] as rhs))] when x = m && x = a && y = b ->
          (*
             LTR:
             -----------------------andp  ----------------impp  -------------andn ------------------andp  ------------asmp
@@ -4230,8 +4193,8 @@ let rec process_simplify (c : certif) : certif =
       | _ -> raise (Debug ("| process_simplify: expecting bool_simplify to derive a singleton equivalence at id "^i^" |")))
   | (i, ConndefAST, cl, p, a) :: tl ->
       (match (get_expr_cl cl) with
-      (* x xor y <-> (~x ^ y) v (x ^ ~y) *)
-      | [Eq ((Xor [x; y] as lhs), (Or [And [Not a; b]; And [c; Not d]] as rhs))] when x = a && x = c && y = b && y = d ->
+       (* x xor y <-> (~x ^ y) v (x ^ ~y) *)
+       | [Eq ((Xor [x; y] as lhs), (Or [And [Not a; b]; And [c; Not d]] as rhs))] when x = a && x = c && y = b && y = d ->
        (*
            LTR:
            -----------------------------orn  ---------------andn  ----------------xorp1   ------------------------------orn  ---------------andn  ------------------xorp2   
@@ -4289,8 +4252,8 @@ let rec process_simplify (c : certif) : certif =
                   (resi2, ResoAST, [lhs; Not (And [x; Not y])], [xorn2i; andpi3; andpi4], []);
                   (generate_id (), ResoAST, [lhs], [b2ai; orpi; resi1; resi2], [])] in
        (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-      (* x <-> y <-> (x -> y) ^ (y -> x) *)
-      | [Eq ((Eq (x, y) as lhs), (And [Imp [a;b]; Imp [d;c]] as rhs))] when x = a && x = c && y = b && y = d ->
+       (* x <-> y <-> (x -> y) ^ (y -> x) *)
+       | [Eq ((Eq (x, y) as lhs), (And [Imp [a;b]; Imp [d;c]] as rhs))] when x = a && x = c && y = b && y = d ->
        (*
            LTR:
                                                              ------------------eqp1  ---------impn1  ----------impn2  ------------------eqp2  ---------impn1  ----------impn2
@@ -4348,8 +4311,8 @@ let rec process_simplify (c : certif) : certif =
                   (resi2, ResoAST, [Not rhs; lhs; Not y], [andpi2; imppi2; eqn1i], []);
                   (generate_id (), ResoAST, [lhs], [resi1; resi2; b2ai], [])] in
        (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-      (* ite c x y <-> (c -> x) ^ (~c -> y) *)
-      | [Eq ((Ite [c;x;y] as lhs), (And [Imp [c'; a]; Imp [Not c''; b]] as rhs))] when c = c' && c = c'' && x = a && y = b ->
+       (* ite c x y <-> (c -> x) ^ (~c -> y) *)
+       | [Eq ((Ite [c;x;y] as lhs), (And [Imp [c'; a]; Imp [Not c''; b]] as rhs))] when c = c' && c = c'' && x = a && y = b ->
        (*
            LTR:
                                                             ------------------itep1  -----------impn1  -----------impn2  -------------------itep2  ---------impn1  ----------impn2
@@ -4409,10 +4372,10 @@ let rec process_simplify (c : certif) : certif =
                   (andpi2, AndpAST, [Not rhs; Imp [Not c; y]], [], ["1"]);
                   (generate_id (), ResoAST, [rhs], [resi1; resi2; andpi1; andpi2; b2ai], [])] in 
        (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-      (* forall x_1, ..., x_n. F <-> ~ exists x_1, ..., x_n. ~F *)
-      | [Eq (Forall _, _)] -> raise (Debug ("| process_simplify: forall case of connective_def at id "^i^" not supported |"))
-      | [Eq _] -> raise (Debug ("| process_simplify: unexpected form of equivalence for connective_def at id "^i^" |"))
-      | _ -> raise (Debug ("| process_simplify: expecting connective_def to derive a singleton equivalence at id "^i^" |")))
+       (* forall x_1, ..., x_n. F <-> ~ exists x_1, ..., x_n. ~F *)
+       | [Eq (Forall _, _)] -> raise (Debug ("| process_simplify: forall case of connective_def at id "^i^" not supported |"))
+       | [Eq _] -> raise (Debug ("| process_simplify: unexpected form of equivalence for connective_def at id "^i^" |"))
+       | _ -> raise (Debug ("| process_simplify: expecting connective_def to derive a singleton equivalence at id "^i^" |")))
   (* t1 = t2 <-> x *)
   | (i, EqualsimpAST, cl, p, a) :: tl ->
       (match (get_expr_cl cl) with
