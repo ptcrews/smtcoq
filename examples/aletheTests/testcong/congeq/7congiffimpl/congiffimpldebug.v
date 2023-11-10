@@ -24,96 +24,96 @@ Section TestcongiffimplDebug.
   (* Start state *)
   Definition s0_1 := Eval vm_compute in (add_roots (S.make nclauses1) root1 used_roots1).
   Print s0_1.
-  (* s0_1 = ({| [8], [17] |} *)
+  (* s0_1 = ({|  |} *)
   Eval vm_compute in List.nth 0 (fst c1) _.
-  (* 1. BuildDef 2 18 *)
+  (* 1. *)
   Definition s1_1 := Eval vm_compute in (step_checker s0_1 (List.nth 0 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
   Print s1_1.
-  (* s1_1 = ({| [8], [17], [11; 18] |} *)
+  (* s1_1 = ({|  |} *)
 
   Eval vm_compute in List.nth 1 (fst c1) _.
-  (* 2. BuildDef2 3 18 *)
+  (* 2. *)
   Definition s2_1 := Eval vm_compute in (step_checker s1_1 (List.nth 1 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
   Print s2_1.
-  (* s2_1 = ({| [8], [17], [11; 18], [10; 18] |} *)
+  (* s2_1 = ({|  |} *)
 
   Eval vm_compute in List.nth 2 (fst c1) _.
-  (* 3. Res 3 {| 2, 3 |} *)
+  (* 3. *)
   Definition s3_1 := Eval vm_compute in (step_checker s2_1 (List.nth 2 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
   Print s3_1.
-  (* s3_1 = ({| [8], [17], [11; 18], [18] |} *)
+  (* s3_1 = ({|  |} *)
 
   Eval vm_compute in List.nth 3 (fst c1) _.
-  (* 4. BuildDef 2 19 *)
+  (* 4. *)
   Definition s4_1 := Eval vm_compute in (step_checker s3_1 (List.nth 3 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
   Print s4_1.
-  (* s4_1 = ({| [8], [17], [10; 11; 19], [18] |} *)
+  (* s4_1 = ({|  |} *)
 
   Eval vm_compute in List.nth 4 (fst c1) _.
-  (* 5. Res 2 {| 3, 2 |} *)
+  (* 5. *)
   Definition s5_1 := Eval vm_compute in (step_checker s4_1 (List.nth 4 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
   Print s5_1.
-  (* s5_1 = ({| [8], [17], [10; 11], [18] |} *)
+  (* s5_1 = ({|  |} *)
 
   Eval vm_compute in List.nth 5 (fst c1) _.
-  (* 6. BuildDef 4 13 *)
+  (* 6. *)
   Definition s6_1 := Eval vm_compute in (step_checker s5_1 (List.nth 5 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
   Print s6_1.
-  (* s6_1 = ({| [8], [17], [10; 11], [18], [6; 11; 13] |} *)
+  (* s6_1 = ({|  |} *)
 
   Eval vm_compute in List.nth 6 (fst c1) _.
-  (* 7. BuildDef2 5 14 *)
+  (* 7. *)
   Definition s7_1 := Eval vm_compute in (step_checker s6_1 (List.nth 6 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
   Print s7_1.
-  (* s7_1 = ({| [8], [17], [10; 11], [18], [6; 11; 13], [4; 10; 14] |} *)
+  (* s7_1 = ({|  |} *)
 
   Eval vm_compute in List.nth 7 (fst c1) _.
-  (* 8. BuildDef2 6 16 *)
+  (* 8. *)
   Definition s8_1 := Eval vm_compute in (step_checker s7_1 (List.nth 7 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
   Print s8_1.
-  (* s8_1 = ({| [8], [17], [10; 11], [18], [6; 11; 13], [4; 10; 14], [12; 14; 16] |} *)
+  (* s8_1 = ({|  |} *)
 
   Eval vm_compute in List.nth 8 (fst c1) _.
-  (* 9. Res 5 {| 2, 4, 5, 6 |} *)
+  (* 9. *)
   Definition s9_1 := Eval vm_compute in (step_checker s8_1 (List.nth 8 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
   Print s9_1.
-  (* s9_1 = ({| [8], [17], [10; 11], [18], [6; 11; 13], [4; 6; 14; 16], [12; 14; 16] |} *)
+  (* s9_1 = ({|  |} *)
 
   Eval vm_compute in List.nth 9 (fst c1) _.
-  (* 10. BuildDef2 4 19 *)
+  (* 10. *)
   Definition s10_1 := Eval vm_compute in (step_checker s9_1 (List.nth 9 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
   Print s10_1.
-  (* s10_1 = ({| [8], [17], [10; 11], [18], [10; 11; 19], [4; 6; 14; 16], [12; 14; 16] |} *)
+  (* s10_1 = ({|  |} *)
 
   Eval vm_compute in List.nth 10 (fst c1) _.
-  (* 11. Res 4 {| 3, 4 |} *)
+  (* 11. *)
   Definition s11_1 := Eval vm_compute in (step_checker s10_1 (List.nth 10 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
   Print s11_1.
-  (* s11_1 = ({| [8], [17], [10; 11], [18], [10; 11], [4; 6; 14; 16], [12; 14; 16] |} *)
+  (* s11_1 = ({|  |} *)
 
   Eval vm_compute in List.nth 11 (fst c1) _.
-  (* 12. BuildDef2 3 12 *)
+  (* 12. *)
   Definition s12_1 := Eval vm_compute in (step_checker s11_1 (List.nth 11 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
   Print s12_1.
-  (* s12_1 = ({| [8], [17], [10; 11], [6; 10; 12], [10; 11], [4; 6; 14; 16], [12; 14; 16] |} *)
+  (* s12_1 = ({|  |} *)
 
   Eval vm_compute in List.nth 12 (fst c1) _.
-  (* 13. BuildDef 7 15 *)
+  (* 13. *)
   Definition s13_1 := Eval vm_compute in (step_checker s12_1 (List.nth 12 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
   Print s13_1.
-  (* s13_1 = ({| [8], [17], [10; 11], [6; 10; 12], [10; 11], [4; 6; 14; 16], [12; 14; 16], [4; 11; 15] |} *)
+  (* s13_1 = ({|  |} *)
 
   Eval vm_compute in List.nth 13 (fst c1) _.
-  (* 14. BuildDef 8 16 *)
+  (* 14. *)
   Definition s14_1 := Eval vm_compute in (step_checker s13_1 (List.nth 13 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
   Print s14_1.
-  (* s14_1 = ({| [8], [17], [10; 11], [6; 10; 12], [10; 11], [4; 6; 14; 16], [12; 14; 16], [4; 11; 15], [13; 15; 16] |} *)
+  (* s14_1 = ({|  |} *)
 
   Eval vm_compute in List.nth 14 (fst c1) _.
-  (* 15. Res 7 {| 4, 3, 7, 8 |} *)
+  (* 15. *)
   Definition s15_1 := Eval vm_compute in (step_checker s14_1 (List.nth 14 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
   Print s15_1.
-  (* s15_1 = ({| [8], [17], [10; 11], [6; 10; 12], [10; 11], [4; 6; 14; 16], [12; 14; 16], [4; 6; 11; 0; 13; 15; 0], [13; 15; 16] |} *)
+  (* s15_1 = ({|  |} *)
 
   Eval vm_compute in List.nth 15 (fst c1) _.
   (* 16. *)
@@ -210,5 +210,17 @@ Section TestcongiffimplDebug.
   Definition s31_1 := Eval vm_compute in (step_checker s30_1 (List.nth 30 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
   Print s31_1.
   (* s31_1 = ({|  |} *)
+
+  Eval vm_compute in List.nth 31 (fst c1) _.
+  (* 32. *)
+  Definition s32_1 := Eval vm_compute in (step_checker s31_1 (List.nth 31 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
+  Print s32_1.
+  (* s32_1 = ({|  |} *)
+
+  Eval vm_compute in List.nth 32 (fst c1) _.
+  (* 33. *)
+  Definition s33_1 := Eval vm_compute in (step_checker s32_1 (List.nth 32 (fst c1) (CTrue t_func1 t_atom1 t_form1 0))).
+  Print s33_1.
+  (* s33_1 = ({|  |} *)
 
 End Test1Debug.

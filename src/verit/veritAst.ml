@@ -1141,33 +1141,67 @@ let process_cong (c : certif) : certif =
                         -----------------------------------------------------------------------------------------------------------------------------------------------------------res
                                                                                                (x = y) = (a = b)
                      *)
+                       (* Get premise ids *)
+                       let p1 = List.nth pids 0 in
+                       let p2 = List.nth pids 1 in
                        (* Given (x = y) = (a = b) in the conclusion, *)
                        (* 1. Generate ~(y = b), y, ~b by eqp1 and resolve it with y = b to get y, ~b *)
-                       let eqp1i1 = generate_id () in
-                       let resi1 = generate_id () in
+                       let ynotb, ynotbi = 
+                        if y = b then [], [] (* this derivation is unnecessary and unsound for refl equality *)
+                        else
+                          let eqp1i1 = generate_id () in
+                          let resi1 = generate_id () in
+                          ([(eqp1i1, Equp1AST, [Not (Eq (y, b)); y; Not b], [], []);
+                            (resi1, ResoAST, [y; Not b], [p2; eqp1i1], [])], 
+                           [resi1]) in
                        (* 2. Generate ~(x = y),  x, ~y by eqp1, a = b, a, b by eqn2, (x = y) = (a = b), x = y, a = b by eqn2 and resolve all of them with 1. to get (x = y) = (a = b), a = b, x, a *)
                        let eqp1i2 = generate_id () in
                        let eqn2i1 = generate_id () in
                        let eqn2i2 = generate_id () in
                        let resi2 = generate_id () in
                        (* 3. Generate ~(y = b), ~y, b by eqp2, and resolve it with y = b to get ~y, b *)
-                       let eqp2i1 = generate_id () in
-                       let resi3 = generate_id () in
+                       let notyb, notybi =
+                        if y = b then [], [] (* this derivation is unnecessary and unsound for refl equality *)
+                        else
+                          let eqp2i1 = generate_id () in
+                          let resi3 = generate_id () in
+                          ([(eqp2i1, Equp2AST, [Not (Eq (y, b)); Not y; b], [], []);
+                            (resi3, ResoAST, [Not y; b], [p2; eqp2i1], [])], 
+                           [resi3]) in
                        (* 4. Generate x = y, x, y by eqn2, ~(a = b), a ~b by eqp1, (x = y) = (a = b), ~(x = y), ~(a = b) by eqn1, and resolve all of them with 3. to get (x = y) = (a = b), ~(a = b), x, a *)
                        let eqn2i3 = generate_id () in
                        let eqp1i3 = generate_id () in
                        let eqn1i1 = generate_id () in
                        let resi4 = generate_id () in
                        (* 5. Generate ~(x = a), x, ~a by eqp1 and resolve it with x = a to get x, ~a *)
-                       let eqp1i4 = generate_id () in
-                       let resi5 = generate_id () in
+                       let xnota, xnotai =
+                        if x = a then [], [] (* this derivation is unnecessary and unsound for refl equality *)
+                        else
+                          let eqp1i4 = generate_id () in
+                          let resi5 = generate_id () in
+                          ([(eqp1i4, Equp1AST, [Not (Eq (x, a)); x; Not a], [], []);
+                            (resi5, ResoAST, [x; Not a], [p1; eqp1i4], [])],
+                           [resi5]) in
                        (* 6. Resolve 2., 4., and 5. to get (x = y) = (a = b), x *)
                        let resi6 = generate_id () in
                        (* 7. Generate ~(x = a), ~x, a by eqp2 and resolve with x = a to get ~x, a *)
-                       let eqp2i2 = generate_id () in
-                       let resi7 = generate_id () in
+                       let notxa, notxai =
+                        if x = a then [], [] (* this derivation is unnecessary and unsound for refl equality *)
+                        else
+                          let eqp2i2 = generate_id () in
+                          let resi7 = generate_id () in
+                          ([(eqp2i2, Equp2AST, [Not (Eq (x, a)); Not x; a], [], []);
+                            (resi7, ResoAST, [Not x; a], [p1; eqp2i2], [])],
+                           [resi7]) in
                        (* 8. Resolve 6. and 7. to get (x = y) = (a = b), a *)
-                       let resi8 = generate_id () in
+                       let eqa, eqai1, eqai2 = 
+                        if x = a then [], [], resi6 (* this derivation is unnecessary and unsound for refl equality, except in one place where it is replaced by derivation resi6 *)
+                        else
+                          let resi8 = generate_id () in
+                          (notxa @                       
+                           [(resi8, ResoAST, [eq; a], resi6 :: notxai, [])],
+                           [resi8],
+                           resi8) in
                        (* 9. Resolve (x = y) = (a = b), ~(x = y), ~(a = b) by eqn1 (reuse from 4.), a = b, ~a, ~b by eqn1, x = y, ~x, ~y by eqn1, 3., 8., and 6. to get (x = y) = (a = b), ~y *)
                        let eqn1i2 = generate_id () in
                        let eqn1i3 = generate_id () in
@@ -1180,36 +1214,24 @@ let process_cong (c : certif) : certif =
                        (* 12. Resolve ~(a = b), ~a, b by eqp2, 10., and 8. to get (x = y) = (a = b), ~(a = b) *)
                        let eqp2i4 = generate_id () in
                        let resi12 = generate_id () in
-                       (* Get premise ids *)
-                       let p1 = List.nth pids 0 in
-                       let p2 = List.nth pids 1 in
-                       imp @
-                       (eqp1i1, Equp1AST, [Not (Eq (y, b)); y; Not b], [], []) ::
-                       (resi1, ResoAST, [y; Not b], [p2; eqp1i1], []) ::
+                       imp @ ynotb @
                        (eqp1i2, Equp1AST, [Not (Eq (x, y)); x; Not y], [], []) ::
                        (eqn2i1, Equn2AST, [Eq (a, b); a; b],[], []) ::
                        (eqn2i2, Equn2AST, [eq; Eq (x, y); Eq (a, b)], [], []) ::
-                       (resi2, ResoAST, [eq; Eq (a, b); x; a], [resi1; eqp1i2; eqn2i1; eqn2i2], []) ::
-                       (eqp2i1, Equp2AST, [Not (Eq (y, b)); Not y; b], [], []) ::
-                       (resi3, ResoAST, [Not y; b], [p2; eqp2i1], []) ::
+                       (resi2, ResoAST, [eq; Eq (a, b); x; a], ynotbi @ [eqp1i2; eqn2i1; eqn2i2], []) :: notyb @
                        (eqn2i3, Equn2AST, [Eq (x, y); x; y], [], []) ::
                        (eqp1i3, Equp1AST, [Not (Eq (a, b)); a; Not b], [], []) ::
                        (eqn1i1, Equn1AST, [eq; Not (Eq (x, y)); Not (Eq (a, b))], [], []) ::
-                       (resi4, ResoAST, [eq; Not (Eq (a, b)); x; a], [resi3; eqn2i3; eqp1i3; eqn1i1], []) ::
-                       (eqp1i4, Equp1AST, [Not (Eq (x, a)); x; Not a], [], []) ::
-                       (resi5, ResoAST, [x; Not a], [p1; eqp1i4], []) ::
-                       (resi6, ResoAST, [eq; x], [resi2; resi4; resi5], []) ::
-                       (eqp2i2, Equp2AST, [Not (Eq (x, a)); Not x; a], [], []) ::
-                       (resi7, ResoAST, [Not x; a], [p1; eqp2i2], []) ::
-                       (resi8, ResoAST, [eq; a], [resi6; resi7], []) ::
+                       (resi4, ResoAST, [eq; Not (Eq (a, b)); x; a], notybi @ [eqn2i3; eqp1i3; eqn1i1], []) :: xnota @
+                       (resi6, ResoAST, [eq; x], [resi2; resi4] @ xnotai, []) :: 
                        (eqn1i2, Equn1AST, [Eq (a, b); Not a; Not b], [], []) ::
-                       (eqn1i3, Equn1AST, [Eq (x, y); Not x; Not y], [], []) ::
-                       (resi9, ResoAST, [eq; Not y], [eqn1i1; eqn1i2; eqn1i3; resi3; resi8; resi6], []) ::
-                       (resi10, ResoAST, [eq; Not b], [resi9; resi1], []) ::
+                       (eqn1i3, Equn1AST, [Eq (x, y); Not x; Not y], [], []) :: eqa @
+                       (resi9, ResoAST, [eq; Not y], [eqn1i1; eqn1i2; eqn1i3] @ notybi @ eqai1 @ [resi6], []) ::
+                       (resi10, ResoAST, [eq; Not b], resi9 :: ynotbi, []) ::
                        (eqp2i3, Equp2AST, [Not (Eq (x, y)); Not x; y], [], []) ::
                        (resi11, ResoAST, [eq; Not (Eq (x, y))], [eqp2i3; resi9; resi6], []) ::
                        (eqp2i4, Equp2AST, [Not (Eq (a, b)); Not a; b], [], []) ::
-                       (resi12, ResoAST, [eq; Not (Eq (a, b))], [eqp2i4; resi10; resi8], []) ::
+                       (resi12, ResoAST, [eq; Not (Eq (a, b))], [eqp2i4; resi10; eqai2], []) ::
                        (* 13. Generate (x = y) = (a = b), x = y, a = b (reuse from 2.) by eqn2 and resolve it with 11. and 12. to get (x = y) = (a = b) *)
                        (i, ResoAST, [eq], [eqn2i2; resi11; resi12], []) ::
                        process_cong_aux t cog
@@ -1403,18 +1425,20 @@ let process_cong (c : certif) : certif =
                         (* For `x1 v ... v xn = y1 v ... v ym` in the conclusion, *)
                         (* 1. generate `~(x1 v ... v xn), x1, ..., xn` by `orp` *)
                         let orpi1 = generate_id () in
-                        (* 2. for each equality `x = y` in premise, generate `~(x = y), y, ~x` by `eqp2` 
+                        (* 2. for each non-refl equality `x = y` in premise, generate `~(x = y), y, ~x` by `eqp2` 
                               and resolve it with `x = y`, to get `y, ~x` *)
                         let eqp2is, eqp2s = List.fold_left 
                           (fun (is, r) (pid, peq) ->
-                            let i' = generate_id () in
-                            let eqp2i = generate_id () in
                             let x, y = (match (get_expr peq) with
                                         | Eq (x', y') -> (x', y')
                                         | _ -> raise (Debug ("| process_cong: expecting premise of cong to be equality at id "^i^" |"))) in
-                            (i' :: is, 
-                             (eqp2i, Equp2AST, [Not peq; Not x; y], [], []) :: 
-                             (i', ResoAST, [Not x; y], [eqp2i; pid], []) :: r))
+                            if x = y then (is, r)
+                            else
+                             let i' = generate_id () in
+                             let eqp2i = generate_id () in
+                             (i' :: is, 
+                              (eqp2i, Equp2AST, [Not peq; Not x; y], [], []) :: 
+                              (i', ResoAST, [Not x; y], [eqp2i; pid], []) :: r))
                           ([], []) ptuples in
                         (* 3. for each `yi`, generate `(y1 v ... v ym), ~yi` by `orn` *)
                         let ornis1, orns1 = List.fold_left
@@ -1431,18 +1455,20 @@ let process_cong (c : certif) : certif =
                         let resi2 = generate_id () in
                         (* 7. generate `~(y1 v ... v ym), y1, ..., ym` by `orp` *)
                         let orpi2 = generate_id () in
-                        (* 8. for each equality `x = y` in premise, generate `~(x = y), ~y, x` by `eqp1`
+                        (* 8. for each non-refl equality `x = y` in premise, generate `~(x = y), ~y, x` by `eqp1`
                               and resolve it with `x = y`, to get `~y, x` *)
                         let eqp1is, eqp1s = List.fold_left
                           (fun (is, r) (pid, peq) ->
-                            let i' = generate_id () in
-                            let eqp1i = generate_id () in
                             let x, y = (match (get_expr peq) with
                                         | Eq (x', y') -> (x', y')
                                         | _ -> raise (Debug ("| process_cong: expecting premise of cong to be equality at id "^i^" |"))) in
-                            (i' :: is, 
-                             (eqp1i, Equp1AST, [Not peq; x; Not y], [], []) :: 
-                             (i', ResoAST, [x; Not y], [eqp1i; pid], []) :: r))
+                            if x = y then (is, r)
+                            else
+                             let i' = generate_id () in
+                             let eqp1i = generate_id () in
+                             (i' :: is, 
+                              (eqp1i, Equp1AST, [Not peq; x; Not y], [], []) :: 
+                              (i', ResoAST, [x; Not y], [eqp1i; pid], []) :: r))
                           ([], []) ptuples in
                         (* 9. for each `xi`, generate `(x1 v ... v xn), ~xi` by `orn` *)
                         let ornis2, orns2 = List.fold_left
@@ -1505,15 +1531,36 @@ let process_cong (c : certif) : certif =
                                                                         ~(x -> y), a -> b  ---(2)
                      *)
                      | Eq (Imp [x; y], Imp [a; b]) ->
+                       let xy = Imp [x; y] in
+                       let ab = Imp [a; b] in
+                       let eqxa = Eq (x, a) in
+                       let eqyb = Eq (y, b) in
+                       (* Get premise ids *)
+                       let p1 = (match (List.nth ptuples 0) with
+                                 | (pid, _) -> pid) in
+                       let p2 = (match (List.nth ptuples 1) with
+                                 | (pid, _) -> pid) in
                        (* Given `x -> y = a -> b` in the conclusion, *)
                        (* 1. generate `~(x -> y), ~x, y` by `impp` *)
                        let imppi1 = generate_id () in
                        (* 2. generate `~(y = b), ~y, b` by `eqp2` and resolve it with premise `y = b` to get `~y, b` *)
-                       let eqp2i1 = generate_id () in
-                       let resi1 = generate_id () in
+                       let notyb, notybi =
+                        if y = b then [], [] (* this derivation is unnecessary and unsound for refl equality *)
+                        else
+                          let eqp2i1 = generate_id () in
+                          let resi1 = generate_id () in
+                          ([(eqp2i1, Equp2AST, [Not eqyb; Not y; b], [], []);
+                            (resi1, ResoAST, [Not y; b], [eqp2i1; p2], [])],
+                           [resi1]) in
                        (* 3. generate `~(x = a), ~a, x` by `eqp1` and resolve it with premise `x = a` to get `x, ~a` *)
-                       let eqp1i1 = generate_id () in
-                       let resi2 = generate_id () in
+                       let xnota, xnotai =
+                        if x = a then [], [] (* this derivation is unnecessary and unsound for refl equality *)
+                        else
+                          let eqp1i1 = generate_id () in
+                          let resi2 = generate_id () in
+                          ([(eqp1i1, Equp1AST, [Not eqxa; x; Not a], [], []);
+                            (resi2, ResoAST, [x; Not a], [eqp1i1; p1], [])],
+                           [resi2]) in
                        (* 4. resolve clauses from 1., 2., and 3. to get `~(x -> y), b, ~a` *)
                        let resi3 = generate_id () in
                        (* 5. generate `a -> b, a` by `impn1`, and `a -> b, ~b` by `impn2` *)
@@ -1528,11 +1575,23 @@ let process_cong (c : certif) : certif =
                        (* 9. generate `~(a -> b), ~a, b` by `impp` *)
                        let imppi2 = generate_id () in
                        (* 10. generate `~(x = a), ~x, a` by `eqp2` and resolve it with premise `x = a` to get `~x, a` *)
-                       let eqp2i2 = generate_id () in
-                       let resi6 = generate_id () in
+                       let notxa, notxai =
+                        if x = a then [], [] (* this derivation is unnecessary and unsound for refl equality *)
+                        else
+                          let eqp1i2 = generate_id () in
+                          let resi6 = generate_id () in
+                          ([(eqp1i2, Equp2AST, [Not eqxa; Not x; a], [], []);
+                            (resi6, ResoAST, [Not x; a], [eqp1i2; p1], [])],
+                           [resi6]) in
                        (* 11. generate `~(y = b), ~b, y` by `eqp1` and resolve it with premise `y = b` to get `y, ~b` *)
-                       let eqp1i2 = generate_id () in
-                       let resi7 = generate_id () in
+                       let ynotb, ynotbi =
+                        if y = b then [], [] (* this derivation is unnecessary and unsound for refl equality *)
+                        else
+                          let eqp1i2 = generate_id () in
+                          let resi7 = generate_id () in
+                          ([(eqp1i2, Equp1AST, [Not eqyb; y; Not b], [], []);
+                            (resi7, ResoAST, [y; Not b], [eqp1i2; p2], [])],
+                           [resi7]) in
                        (* 12. resolve clauses from 9., 10., and 11. to get `~(a -> b), ~x, y` *)
                        let resi8 = generate_id () in
                        (* 13. generate `x -> y, x` by `impn1`, and `x -> y, ~y` by `impn2` *)
@@ -1544,33 +1603,16 @@ let process_cong (c : certif) : certif =
                        let eqn2i = generate_id () in
                        (* 16. resolve 14. and 15. to get `x -> y = a -> b, x -> y` *)
                        let resi10 = generate_id () in
-                       let xy = Imp [x; y] in
-                       let ab = Imp [a; b] in
-                       let eqxa = Eq (x, a) in
-                       let eqyb = Eq (y, b) in
-                       (* Get premise ids *)
-                       let p1 = (match (List.nth ptuples 0) with
-                                 | (pid, _) -> pid) in
-                       let p2 = (match (List.nth ptuples 1) with
-                                 | (pid, _) -> pid) in
                        imp @
-                       (imppi1, ImppAST, [Not xy; Not x; y], [], []) ::
-                       (eqp1i1, Equp2AST, [Not eqyb; Not y; b], [], []) ::
-                       (resi1, ResoAST, [Not y; b], [eqp1i1; p2], []) ::
-                       (eqp2i1, Equp1AST, [Not eqxa; x; Not a], [], []) ::
-                       (resi2, ResoAST, [x; Not a], [eqp2i1; p1], []) ::
-                       (resi3, ResoAST, [Not xy; b; Not a], [imppi1; resi1; resi2], []) ::
+                       (imppi1, ImppAST, [Not xy; Not x; y], [], []) :: notyb @ xnota @
+                       (resi3, ResoAST, [Not xy; b; Not a], [imppi1] @ notybi @ xnotai, []) ::
                        (impn1i1, Impn1AST, [ab; a], [], []) ::
                        (impn2i1, Impn2AST, [ab; Not b], [], []) ::
                        (resi4, ResoAST, [Not xy; ab], [resi3; impn1i1; impn2i1], []) ::
                        (eqn1i, Equn1AST, [eq; Not xy; Not ab], [], []) ::
                        (resi5, ResoAST, [eq; Not xy], [resi4; eqn1i], []) ::
-                       (imppi2, ImppAST, [Not ab; Not a; b], [], []) ::
-                       (eqp1i2, Equp2AST, [Not eqxa; Not x; a], [], []) ::
-                       (resi6, ResoAST, [Not x; a], [eqp1i2; p1], []) ::
-                       (eqp2i2, Equp1AST, [Not eqyb; y; Not b], [], []) ::
-                       (resi7, ResoAST, [y; Not b], [eqp2i2; p2], []) ::
-                       (resi8, ResoAST, [Not ab; Not x; y], [imppi2; resi6; resi7], []) ::
+                       (imppi2, ImppAST, [Not ab; Not a; b], [], []) :: notxa @ ynotb @
+                       (resi8, ResoAST, [Not ab; Not x; y], [imppi2] @ notxai @ ynotbi, []) ::
                        (impn1i2, Impn1AST, [xy; x], [], []) ::
                        (impn2i2, Impn2AST, [xy; Not y], [], []) ::
                        (resi9, ResoAST, [Not ab; xy], [resi8; impn1i2; impn2i2], []) ::
@@ -1631,78 +1673,103 @@ let process_cong (c : certif) : certif =
                                            x + y = a + b
                      *)
                      | Eq (Xor [x; y], Xor [a; b]) as eq ->
+                       let xorxy = Xor [x; y] in
+                       let xorab = Xor [a; b] in
+                       let eqxa = Eq (x, a) in
+                       let eqyb = Eq (y, b) in
+                       (* Get premise ids *)
+                       let p1 = (match (List.nth ptuples 0) with
+                                 | (pid, _) -> pid) in
+                       let p2 = (match (List.nth ptuples 1) with
+                                 | (pid, _) -> pid) in
                        (* Given x + y = a + b in the conclusion, *)
                        (* 1. Generate ~(y = b), ~y, b by eqp2 and resolve it with y = b to get ~y, b. *)
-                       let eqp2i1 = generate_id () in
-                       let resi1 = generate_id () in
+                       let notyb, notybi =
+                        if y = b then [], [] (* this derivation is unnecessary and unsound for refl equality *)
+                        else
+                          let eqp2i1 = generate_id () in
+                          let resi1 = generate_id () in
+                          ([(eqp2i1, Equp2AST, [Not eqyb; Not y; b], [], []);
+                            (resi1, ResoAST, [Not y; b], [eqp2i1; p2], [])],
+                           [resi1]) in
                        (* 2. Resolve 1., ~(x + y), x, y by xorp1, a + b, a, ~b by xorn1, and x + y = a + b, x + y, a + b by eqn2 to get a + b, x, a *)
                        let xorp1i1 = generate_id () in
                        let xorn1i1 = generate_id () in
                        let eqn2i1 = generate_id () in
                        let resi2 = generate_id () in
                        (* 3. Generate ~(y = b), y, ~b by eqp1 and resolve it with y = b to get y, ~b.  *)
-                       let eqp1i1 = generate_id () in
-                       let resi3 = generate_id () in
+                       let ynotb, ynotbi =
+                        if y = b then [], [] (* this derivation is unnecessary and unsound for refl equality *)
+                        else
+                          let eqp1i1 = generate_id () in
+                          let resi3 = generate_id () in
+                          ([(eqp1i1, Equp1AST, [Not eqyb; y; Not b], [], []);
+                            (resi3, ResoAST, [y; Not b], [eqp1i1; p2], [])],
+                           [resi3]) in
                        (* 4. Generate ~(x = a), x, ~a by eqp1 and resolve it with x = a to get x, ~a. *)
-                       let eqp1i2 = generate_id () in
-                       let resi4 = generate_id () in
+                       let xnota, xnotai =
+                        if x = a then [], [] (* this derivation is unnecessary and unsound for refl equality *)
+                        else
+                          let eqp1i2 = generate_id () in
+                          let resi4 = generate_id () in
+                          ([(eqp1i2, Equp1AST, [Not eqxa; x; Not a], [], []);
+                            (resi4, ResoAST, [x; Not a], [eqp1i2; p1], [])],
+                           [resi4]) in
                        (* 5. Resolve 3., x + y, x, ~y by xorn1, ~(a + b), a, b by xorp1, x + y = a + b, ~(x + y), ~(a + b) eqn1, 2., and 4. to get x. *)
                        let xorn1i2 = generate_id () in
                        let xorp1i2 = generate_id () in
                        let eqn1i1 = generate_id () in
                        let resi5 = generate_id () in
                        (* 6. Generate ~(x = a), ~x, a by eqp2 and resolve it with x = a to get ~x, a *)
-                       let eqp2i2 = generate_id () in
-                       let resi6 = generate_id () in
+                       let notxa, notxai =
+                        if x = a then [], [] (* this derivation is unnecessary and unsound for refl equality *)
+                        else
+                          let eqp2i2 = generate_id () in
+                          let resi6 = generate_id () in
+                          ([(eqp2i2, Equp2AST, [Not eqxa; Not x; a], [], []);
+                            (resi6, ResoAST, [Not x; a], [eqp2i2; p1], [])],
+                           [resi6]) in
                        (* 7. Resolve 6. and 5. to get a. *)
-                       let resi7 = generate_id () in
+                       let dera, ai1, ai2 =
+                        if x = a then [], [], resi5 (* this derivation is unnecessary and is replaced by a derivation of x (resi5)  *)
+                        else
+                          let resi7 = generate_id () in
+                          ([(resi7, ResoAST, [a], notxai @ [resi5], [])],
+                           [resi7],
+                           resi7) in
                        (* 8. Resolve x + y = a + b, ~(x + y), ~(a + b) by eqn1 (reuse from 5.), a + b, ~a, b by xorn2, x + y, ~x, y by xorn2, 3., 7., and 5. to get y. *)
                        let xorn2i1 = generate_id () in
                        let xorn2i2 = generate_id () in
                        let resi8 = generate_id () in
                        (* 9. Resolve 1. and 8. to get b. *)
-                       let resi9 = generate_id () in
+                       let derb, bi =
+                        if y = b then [], resi8 (* this derivation is unnecessary and is replaced by a derivation of y (resi8)  *)
+                        else
+                          let resi9 = generate_id () in
+                          ([(resi9, ResoAST, [b], notybi @ [resi8], [])],
+                           resi9) in
                        (* 10. Resolve ~(x + y), ~x, ~y by xorp2, 8., and 5. to get ~(x + y). *)
                        let xorp2i1 = generate_id () in
                        let resi10 = generate_id () in
                        (* 11. Resolve ~(a + b), ~a, ~b by xorp2, 9., and 7. to get ~(a + b). *)
                        let xorp2i2 = generate_id () in
                        let resi11 = generate_id () in
-                       (* Get premise ids *)
-                       let p1 = (match (List.nth ptuples 0) with
-                                 | (pid, _) -> pid) in
-                       let p2 = (match (List.nth ptuples 1) with
-                                 | (pid, _) -> pid) in
-                       let xorxy = Xor [x; y] in
-                       let xorab = Xor [a; b] in
-                       let eqxa = Eq (x, a) in
-                       let eqyb = Eq (y, b) in
-                       imp @
-                       (eqp2i1, Equp2AST, [Not eqyb; Not y; b], [], []) ::
-                       (resi1, ResoAST, [Not y; b], [eqp2i1; p2], []) ::
+                       imp @ notyb @
                        (xorp1i1, Xorp1AST, [Not xorxy; x; y], [], []) ::
                        (xorn1i1, Xorn1AST, [xorab; a; Not b], [], []) ::
                        (eqn2i1, Equn2AST, [eq; xorxy; xorab], [], []) ::
-                       (resi2, ResoAST, [xorab; x; a], [resi1; xorp1i1; xorn1i1; eqn2i1], []) ::
-                       (eqp1i1, Equp1AST, [Not eqyb; y; Not b], [], []) ::
-                       (resi3, ResoAST, [y; Not b], [eqp1i1; p2], []) ::
-                       (eqp1i2, Equp1AST, [Not eqxa; x; Not a], [], []) ::
-                       (resi4, ResoAST, [x; Not a], [eqp1i2; p1], []) ::
+                       (resi2, ResoAST, [xorab; x; a], notybi @ [xorp1i1; xorn1i1; eqn2i1], []) :: ynotb @ xnota @
                        (xorn1i2, Xorn1AST, [xorxy; x; Not y], [], []) ::
                        (xorp1i2, Xorp1AST, [Not xorab; a; b], [], []) ::
                        (eqn1i1, Equn1AST, [eq; Not xorxy; Not xorab], [], []) ::
-                       (resi5, ResoAST, [x], [resi3; xorn1i2; xorp1i2; eqn1i1; resi2; resi4], []) ::
-                       (eqp2i2, Equp2AST, [Not eqxa; Not x; a], [], []) ::
-                       (resi6, ResoAST, [Not x; a], [eqp2i2; p1], []) ::
-                       (resi7, ResoAST, [a], [resi6; resi5], []) ::
+                       (resi5, ResoAST, [x], ynotbi @ [xorn1i2; xorp1i2; eqn1i1; resi2] @ xnotai, []) :: notxa @ dera @
                        (xorn2i1, Xorn2AST, [xorab; Not a; b], [], []) ::
                        (xorn2i2, Xorn2AST, [xorxy; Not x; y], [], []) ::
-                       (resi8, ResoAST, [y], [eqn1i1; xorn2i1; xorn2i2; resi3; resi7; resi5], []) ::
-                       (resi9, ResoAST, [b], [resi1; resi8], []) ::
+                       (resi8, ResoAST, [y], [eqn1i1; xorn2i1; xorn2i2] @ ynotbi @ ai1 @ [resi5], []) :: derb @
                        (xorp2i1, Xorp2AST, [Not xorxy; Not x; Not y], [], []) ::
                        (resi10, ResoAST, [Not xorxy], [xorp2i1; resi8; resi5], []) ::
                        (xorp2i2, Xorp2AST, [Not xorab; Not a; Not b], [], []) ::
-                       (resi11, ResoAST, [Not xorab], [xorp2i2; resi9; resi7], []) ::
+                       (resi11, ResoAST, [Not xorab], [xorp2i2; bi; ai2], []) ::
                        (* 12. Resolve x + y = a + b, x + y, a + b by eqn2 (reuse from 2.), 10. and 11. to get x + y = a + b *)
                        (i, ResoAST, [eq], [eqn2i1; resi10; resi11], []) ::
                        process_cong_aux t cog
@@ -1750,11 +1817,26 @@ let process_cong (c : certif) : certif =
                                  ------------------------------------------------------------------------res
                                                            ite x y z = ite a b c  
                      *)
-                     | Eq (Ite [x; y; z], Ite [a; b; c]) as eq-> 
+                     | Eq (Ite [x; y; z], Ite [a; b; c]) as eq ->
+                       (* Get premise ids *)
+                       let p1 = (match (List.nth ptuples 0) with
+                                 | (pid, _) -> pid) in
+                       let p2 = (match (List.nth ptuples 1) with
+                                 | (pid, _) -> pid) in
+                       let p3 = (match (List.nth ptuples 2) with
+                                 | (pid, _) -> pid) in
+                       let itexyz = Ite [x; y; z] in
+                       let iteabc = Ite [a; b; c] in
                        (* Given ite x y z = ite a b c in the conclusion,
                           1. Generate ~(z = c), ~z, c by eqp2 and resolve it with z = c to get ~z, c *)
-                       let eqp2i1 = generate_id () in
-                       let resi1 = generate_id () in
+                       let notzc, notzci = 
+                        if z = c then [], [] (* this derivation is unnecessary and unsound for refl equality *)
+                        else
+                          let eqp2i1 = generate_id () in
+                          let resi1 = generate_id () in
+                          ([(eqp2i1, Equp2AST, [Not (Eq (z, c)); Not z; c], [], []);
+                            (resi1, ResoAST, [Not z; c], [eqp2i1; p3], [])],
+                           [resi1]) in
                        (* 2. Resolve 1., ~(ite x y z), x, z by itep1, ite a b c, a, ~c by iten1, and ite x y z = ite a b c, ite x y z, ite a b c by 
                              eqn2 to get ite x y z = ite a b c, ite a b c, x, a *)
                        let itep1i1 = generate_id () in
@@ -1762,11 +1844,23 @@ let process_cong (c : certif) : certif =
                        let eqn2i1 = generate_id () in
                        let resi2 = generate_id () in
                        (* 3. Generate ~(z = c), z, ~c by eqp1 and resolve it with z = c to get z, ~c *)
-                       let eqp1i1 = generate_id () in
-                       let resi3 = generate_id () in
+                       let znotc, znotci =
+                        if z = c then [], [] (* this derivation is unnecessary and unsound for refl equality *)
+                        else
+                          let eqp1i1 = generate_id () in
+                          let resi3 = generate_id () in
+                          ([(eqp1i1, Equp1AST, [Not (Eq (z, c)); z; Not c], [], []);
+                            (resi3, ResoAST, [z; Not c], [eqp1i1; p3], [])],
+                           [resi3]) in
                        (* 4. Generate ~(x = a), x, ~a by eqp1 and resolve it with x = a to get x, ~a *)
-                       let eqp1i2 = generate_id () in
-                       let resi4 = generate_id () in
+                       let xnota, xnotai = 
+                        if x = a then [], [] (* this derivation is unnecessary and unsound for refl equality *)
+                        else
+                          let eqp1i2 = generate_id () in
+                          let resi4 = generate_id () in
+                          ([(eqp1i2, Equp1AST, [Not (Eq (x, a)); x; Not a], [], []);
+                            (resi4, ResoAST, [x; Not a], [eqp1i2; p1], [])],
+                           [resi4]) in
                        (* 5. Resolve 3., ite x y z, x, ~z by iten1, ~(ite a b c), a, c by itep1, ite x y z = ite a b c, ~(ite x y z), ~(ite a b c) by
                              eqn1, 2., and 4. to get ite x y z = ite a b c, x *)
                        let iten1i2 = generate_id () in
@@ -1774,13 +1868,31 @@ let process_cong (c : certif) : certif =
                        let eqn1i1 = generate_id () in
                        let resi5 = generate_id () in
                        (* 6. Generate ~(x = a), ~x, a by eqp2 and resolve it with x = a to get ~x, a *)
-                       let eqp2i2 = generate_id () in
-                       let resi6 = generate_id () in
+                       let notxa, notxai =
+                        if x = a then [], [] (* this derivation is unnecessary and unsound for refl equality *)
+                        else
+                          let eqp2i2 = generate_id () in
+                          let resi6 = generate_id () in
+                          ([(eqp2i2, Equp2AST, [Not (Eq (x, a)); Not x; a], [], []);
+                            (resi6, ResoAST, [Not x; a], [eqp2i2; p1], [])],
+                           [resi6]) in
                        (* 7. Resolve 6. and 5. to get ite x y z = ite a b c, a *)
-                       let resi7 = generate_id () in
+                       let eqa, eqai1, eqai2 =
+                        if x = a then [], [], resi5 (* this derivation is unnecessary and unsound for refl equality, except in one place where it is replaced by derivation resi5 *)
+                        else
+                          let resi7 = generate_id () in
+                          ([(resi7, ResoAST, [eq; a], notxai @ [resi5], [])],
+                           [resi7],
+                           resi7) in
                        (* 8. Generate ~(y = b), y, ~b by eqp1 amd resolve it with y = b to get y, ~b. *)
-                       let eqp1i3 = generate_id () in
-                       let resi8 = generate_id () in
+                       let ynotb, ynotbi =
+                        if y = b then [], [] (* this derivation is unnecessary and unsound for refl equality *)
+                        else
+                          let eqp1i3 = generate_id () in
+                          let resi8 = generate_id () in
+                          ([(eqp1i3, Equp1AST, [Not (Eq (y, b)); y; Not b], [], []);
+                            (resi8, ResoAST, [y; Not b], [eqp1i3; p2], [])],
+                           [resi8]) in
                        (* 9. Resolve 8., ~(ite a b c), ~a, b by itep2, ite x y z, ~x, ~y by iten2, ite x y z = ite a b c, ite x y z, ite a b c by eqn2 (reuse from 2.), 
                              7., and 5. to get ite x y z = ite a b c, ite x y z *)
                        let itep2i1 = generate_id () in
@@ -1796,49 +1908,33 @@ let process_cong (c : certif) : certif =
                        let iten2i2 = generate_id () in
                        let resi12 = generate_id () in
                        (* 13. Generate ~(y = b), ~y, b by eqp2 and resolve it with y = b to get ~y, b *)
-                       let eqp2i3 = generate_id () in
-                       let resi13 = generate_id () in
-                       (* Get premise ids *)
-                       let p1 = (match (List.nth ptuples 0) with
-                                 | (pid, _) -> pid) in
-                       let p2 = (match (List.nth ptuples 1) with
-                                 | (pid, _) -> pid) in
-                       let p3 = (match (List.nth ptuples 2) with
-                                 | (pid, _) -> pid) in
-                       let itexyz = Ite [x; y; z] in
-                       let iteabc = Ite [a; b; c] in
-                       imp @
-                       (eqp2i1, Equp2AST, [Not (Eq (z, c)); Not z; c], [], []) ::
-                       (resi1, ResoAST, [Not z; c], [eqp2i1; p3], []) ::
+                       let notyb, notybi =
+                        if y = b then [], [] (* this derivation is unnecessary and unsound for refl equality *)
+                        else
+                          let eqp2i3 = generate_id () in
+                          let resi13 = generate_id () in
+                          ([(eqp2i3, Equp2AST, [Not (Eq (y, b)); Not y; b], [], []);
+                            (resi13, ResoAST, [Not y; b], [eqp2i3; p2], [])],
+                           [resi13]) in
+                       imp @ notzc @
                        (itep1i1, Itep1AST, [Not itexyz; x; z], [], []) ::
                        (iten1i1, Iten1AST, [iteabc; a; Not c], [], []) ::
                        (eqn2i1, Equn2AST, [eq; itexyz; iteabc], [], []) ::
-                       (resi2, ResoAST, [eq; iteabc; x; a], [resi1; itep1i1; iten1i1; eqn2i1], []) ::
-                       (eqp1i1, Equp1AST, [Not (Eq (z, c)); z; Not c], [], []) ::
-                       (resi3, ResoAST, [z; Not c], [eqp1i1; p3], []) ::
-                       (eqp1i2, Equp1AST, [Not (Eq (x, a)); x; Not a], [], []) ::
-                       (resi4, ResoAST, [x; Not a], [eqp1i2; p1], []) ::
+                       (resi2, ResoAST, [eq; iteabc; x; a], notzci @ [itep1i1; iten1i1; eqn2i1], []) :: znotc @ xnota @
                        (iten1i2, Iten1AST, [itexyz; x; Not z], [], []) ::
                        (itep1i2, Itep1AST, [Not iteabc; a; c], [], []) ::
                        (eqn1i1, Equn1AST, [eq; Not itexyz; Not iteabc], [], []) ::
-                       (resi5, ResoAST, [eq; x], [resi3; iten1i2; itep1i2; eqn1i1; resi2; resi4], []) ::
-                       (eqp2i2, Equp2AST, [Not (Eq (x, a)); Not x; a], [], []) ::
-                       (resi6, ResoAST, [Not x; a], [eqp2i2; p1], []) ::
-                       (resi7, ResoAST, [eq; a], [resi6; resi5], []) ::
-                       (eqp1i3, Equp1AST, [Not (Eq (y, b)); y; Not b], [], []) ::
-                       (resi8, ResoAST, [y; Not b], [eqp1i3; p2], []) ::
+                       (resi5, ResoAST, [eq; x], znotci @ [iten1i2; itep1i2; eqn1i1; resi2] @ xnotai, []) :: notxa @ eqa @ ynotb @ 
                        (itep2i1, Itep2AST, [Not iteabc; Not a; b], [], []) ::
                        (iten2i1, Iten2AST, [itexyz; Not x; Not y], [], []) ::
-                       (resi9, ResoAST, [eq; itexyz], [resi8; itep2i1; iten2i1; eqn2i1; resi7; resi5], []) ::
+                       (resi9, ResoAST, [eq; itexyz], ynotbi @ [itep2i1; iten2i1; eqn2i1] @ eqai1 @ [resi5], []) ::
                        (resi10, ResoAST, [eq; Not iteabc], [eqn1i1; resi9], []) ::
                        (itep2i2, Itep2AST, [Not itexyz; Not x; y], [], []) ::
                        (resi11, ResoAST, [eq; y], [itep2i2; resi9; resi5], []) ::
                        (iten2i2, Iten2AST, [iteabc; Not a; Not b], [], []) ::
-                       (resi12, ResoAST, [eq; Not b], [iten2i2; resi10; resi7], []) ::
-                       (eqp2i3, Equp2AST, [Not (Eq (y, b)); Not y; b], [], []) ::
-                       (resi13, ResoAST, [Not y; b], [eqp2i3; p2], []) ::
+                       (resi12, ResoAST, [eq; Not b], [iten2i2; resi10; eqai2], []) :: notyb @
                        (* 14. Resolve 13., 11., and 12. to get ite x y z = ite a b c *)
-                       (i, ResoAST, [eq], [resi13; resi11; resi12], []) ::
+                       (i, ResoAST, [eq], notybi @ [resi11; resi12], []) ::
                        process_cong_aux t cog
                      (* not predicate
                          -----
@@ -4446,25 +4542,25 @@ let preprocess_certif (c: certif) : certif =
   (* Printf.printf ("Certif before preprocessing: \n%s\n") (string_of_certif c); *)
   try 
   (let c1 = store_shared_terms c in
-  Printf.printf ("Certif after storing shared terms: \n%s\n") (string_of_certif c1);
+  (* Printf.printf ("Certif after storing shared terms: \n%s\n") (string_of_certif c1); *)
   let c2 = process_fins c1 in
-  Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2);
+  (* Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2); *)
   let c3 = process_hole c2 in
-  Printf.printf ("Certif after process_hole: \n%s\n") (string_of_certif c3);
+  (* Printf.printf ("Certif after process_hole: \n%s\n") (string_of_certif c3); *)
   let c4 = process_notnot c3 in
-  Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c4);
+  (* Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c4); *)
   let c5 = process_same c4 in
-  Printf.printf ("Certif after process_same: \n%s\n") (string_of_certif c5);
+  (* Printf.printf ("Certif after process_same: \n%s\n") (string_of_certif c5); *)
   let c6 = process_cong c5 in
-  Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c6);
+  (* Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c6); *)
   let c7 = process_trans c6 in
-  Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c7);
+  (* Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c7); *)
   let c8 = process_simplify c7 in
-  Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c8);
+  (* Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c8); *)
   let c9 = process_proj c8 in
-  Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c9);
+  (* Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c9); *)
   let c10 = process_subproof c9 in
-  Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c10);
+  (* Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c10); *)
   c10) with
   | Debug s -> raise (Debug ("| VeritAst.preprocess_certif: failed to preprocess |"^s))
 
