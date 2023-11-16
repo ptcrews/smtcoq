@@ -40,8 +40,8 @@ with open('rewrites.csv') as csv_file:
     fcoq.write("Require Import Bool.\n")
     fcoq.write("Section Test" + name + "Debug.\n")
     fcoq.write("  Verit_Checker\n")
-    coqsmtpath = "\"/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/testrewrites/smt/" + name + ".smt2\""
-    coqproofpath = "\"/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/testrewrites/proof/" + name + ".pf\"."
+    coqsmtpath = "\"/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/aletheTests/testrewrites/smt/" + name + ".smt2\""
+    coqproofpath = "\"/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/aletheTests/testrewrites/proof/" + name + ".pf\"."
     fcoq.write("    " + coqsmtpath + "\n")
     fcoq.write("    " + coqproofpath + "\n")
     fcoq.write("End Test" + name + "Debug.\n")
