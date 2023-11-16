@@ -1073,11 +1073,11 @@ let process_cong (c : certif) : certif =
                         ---------------------------------------------------------------------------------------------------------res
                                                                      (x = y) = (a = b)
                         where:
-                        -----------------------------eqcongp
+                        -----------------------------eqtrans
                         x != a, y != b, x != y, a = b       --(1)
                         -------------------------------eqn2
                         (x = y) = (a = b), x = y, a = b     --(2)
-                        -----------------------------eqcongp
+                        -----------------------------eqtrans
                         x != a, y != b, a != b, x = y       --(3)
                         ---------------------------------eqn1
                         (x = y) = (a = b), x != y, a != b   --(4) 
@@ -1091,10 +1091,10 @@ let process_cong (c : certif) : certif =
                         let xy = Eq (x, y) in
                         let ab = Eq (a, b) in
                           imp @
-                          ((eqcpi1, EqcpAST, (prem_negs @ [Not xy; ab]), [], []) ::
+                          ((eqcpi1, EqtrAST, (prem_negs @ [Not xy; ab]), [], []) ::
                            (eqn2i, Equn2AST, [eq; xy; ab], [], []) ::
                            (resi1, ResoAST, (prem_negs @ [ab; eq]), [eqcpi1; eqn2i], []) ::
-                           (eqcpi2, EqcpAST, (prem_negs @ [Not ab; xy]), [], []) ::
+                           (eqcpi2, EqtrAST, (prem_negs @ [Not ab; xy]), [], []) ::
                            (eqn1i, Equn1AST, [eq; Not xy; Not ab], [], []) ::
                            (resi2, ResoAST, (prem_negs @ [Not ab; eq]), [eqcpi2; eqn1i], []) ::
                            (i, ResoAST, [eq], resi1 :: resi2 :: pids, []) ::
@@ -2685,7 +2685,6 @@ let rec process_simplify (c : certif) : certif =
                     [(andni, AndnAST, rhs :: projnegl1, [], []);
                      (generate_id (), ResoAST, [rhs], andni :: proj_ids1, [])] in
           (*
-             TODO: get unique elements of and to project
              RTL:
              -----asmp  -----------andp   -----asmp   -----------andp
              x ^ y      ~(x ^ y), x       x ^ y       ~(x ^ y), y    
