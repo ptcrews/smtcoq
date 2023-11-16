@@ -1,7 +1,1 @@
-boolsimp1,(not (=> x y)),(and x (not y)),bool_simplify
-boolsimp2,(not (or x y)),(and (not x) (not y)),bool_simplify
-boolsimp3,(not (and x y)),(or (not x) (not y)),bool_simplify
-boolsimp4,(=> x (=> y z)),(=> (and x y) z),bool_simplify
-boolsimp5,(=> (=> x y) y),(or x y),bool_simplify
-boolsimp6,(and x (=> x y)),(and x y),bool_simplify
-boolsimp7,(and (=> x y) x),(and x y),bool_simplify
+orsimp4,(or x y false),(or x y),or_simplify
