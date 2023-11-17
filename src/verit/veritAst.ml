@@ -2043,6 +2043,15 @@ let process_cong (c : certif) : certif =
 
 (* Removing occurrences of the trans rule using other rules 
    including eq_transitive, reso *)
+(*let rec last (l : 'a list) : 'a =
+  match l with
+  | [] -> raise (Debug ("| last: trying to find the last element of an empty list |"))
+  | [x] -> x
+  | h :: t -> last t
+let rec allbutlast (l : 'a list) : 'a =
+  match List.rev l with
+  | [] -> []
+  | h :: tl -> List.rev tl*)
 let process_trans (c : certif) : certif =
   let rec process_trans_aux (c : certif) (cog : certif) : certif =
     match c with
@@ -2125,27 +2134,41 @@ let process_trans (c : certif) : certif =
                  *)
                  let p' = List.map (fun x -> match get_cl x cog with
                          | Some x' -> let x'hd = (try (List.hd x') with | Failure _ -> raise 
-                                                   (Debug ("| process_trans: premise "^x^" retuerns an empty clause in id "^i^" |"))) in
-                                      (x, x'hd)
+                                                   (Debug ("| process_trans: premise "^x^" returns an empty clause in id "^i^" |"))) in
+                                      let x', y' = (match (get_expr x'hd) with
+                                                   | Eq (x'', y'') -> (x'', y'')
+                                                   | _ -> raise (Debug ("| process_trans: expecting premise of trans to be iff at id "^i^" |"))) in
+                                      (x, (x', y'))
                          | None -> raise (Debug ("| process_trans: can't fetch premises to `and` at id "^i^" |"))) p in
                  let eq = (try (List.hd cl) with | Failure _ -> 
                            raise (Debug ("| process_trans: clause produced by trans is empty at id "^i^" |"))) in
                  let x1, xn = (match (get_expr eq) with
                               | Eq (x', y') -> x', y'
                               | _ -> raise (Debug ("| process_trans: expecting premise of trans to be iff at id "^i^" |"))) in
+                 (* Reorder premise equalities from p' to account for any implicit symmetries, a boolean value is set to tue if the equality has been reordered *)
+                 let _, p' = List.fold_left 
+                  (fun (t, l) (pid, (px, py)) ->
+                    if t = px then 
+                      (py,
+                       (pid, (px, py), false) :: l)
+                    else if t = py then
+                      (px,
+                       (pid, (py, px), true) :: l)
+                    else 
+                      raise (Debug ("| process_trans: failing to find transitive equality in premises at id "^i^" |"))) 
+                  (x1, []) p' in
                  (* Given conclusion `x1 = xn` and premises `x1 = x2, ..., xn-1 = xn`, *)
                  (* 1. For each premise `x = y`, generate `~(x = y), x, ~y` by `eqp1` and resolve it with 
                        `x = y` to get `x, ~y` *)
                  let eqp1is, eqp1s = List.fold_left
-                   (fun (is, r) (pid, peq) ->
+                   (fun (is, r) (pid, (px, py), reord) ->
                      let i' = generate_id () in
-                     let eqp1i = generate_id () in
-                     let x, y = (match (get_expr peq) with
-                                 | Eq (x', y') -> (x', y')
-                                 | _ -> raise (Debug ("| process_trans: expecting premise of trans to be iff at id "^i^" |"))) in
+                     let eqpi = generate_id () in
+                     let eqstep = 
+                      if reord then (eqpi, Equp2AST, [Not (Eq (py, px)); py; Not px], [], []) 
+                      else (eqpi, Equp1AST, [Not (Eq (px, py)); px; Not py], [], []) in
                      (i' :: is,
-                      (eqp1i, Equp1AST, [Not peq; x; Not y], [], []) ::
-                      (i', ResoAST, [x; Not y], [eqp1i; pid], []) :: r))
+                      eqstep :: (i', ResoAST, [px; Not py], [eqpi; pid], []) :: r))
                    ([], []) p' in
                  (* 2. Resolve all clauses from 1. to get `x1, ~xn` *)
                  let resi1 = generate_id () in
@@ -2156,15 +2179,14 @@ let process_trans (c : certif) : certif =
                  (* 5. For each premise `x = y`, generate `~(x = y), ~x, y` by `eqp2` and resolve it with 
                        `x = y` to get `~x, y` *)
                  let eqp2is, eqp2s = List.fold_left
-                   (fun (is, r) (pid, peq) ->
+                   (fun (is, r) (pid, (px, py), reord) ->
                      let i' = generate_id () in
-                     let eqp2i = generate_id () in
-                     let x, y = (match (get_expr peq) with
-                                 | Eq (x', y') -> (x', y')
-                                 | _ -> raise (Debug ("| process_trans: expecting premise of trans to be iff at id "^i^" |"))) in
+                     let eqpi = generate_id () in
+                     let eqstep =
+                      if reord then (eqpi, Equp1AST, [Not (Eq (py, px)); Not py; px], [], [])
+                      else (eqpi, Equp2AST, [Not (Eq (px, py)); Not px; py], [], []) in
                      (i' :: is,
-                      (eqp2i, Equp2AST, [Not peq; Not x; y], [], []) ::
-                      (i', ResoAST, [Not x; y], [eqp2i; pid], []) :: r))
+                      eqstep :: (i', ResoAST, [Not px; py], [eqpi; pid], []) :: r))
                    ([], []) p' in
                  (* 6. Resolve all clauses from 5. to get `~x1, xn` *)
                  let resi3 = generate_id () in
@@ -4542,25 +4564,25 @@ let preprocess_certif (c: certif) : certif =
   (* Printf.printf ("Certif before preprocessing: \n%s\n") (string_of_certif c); *)
   try 
   (let c1 = store_shared_terms c in
-  Printf.printf ("Certif after storing shared terms: \n%s\n") (string_of_certif c1);
+  (* Printf.printf ("Certif after storing shared terms: \n%s\n") (string_of_certif c1); *)
   let c2 = process_fins c1 in
-  Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2);
+  (* Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2); *)
   let c3 = process_hole c2 in
-  Printf.printf ("Certif after process_hole: \n%s\n") (string_of_certif c3);
+  (* Printf.printf ("Certif after process_hole: \n%s\n") (string_of_certif c3); *)
   let c4 = process_notnot c3 in
-  Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c4);
+  (* Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c4); *)
   let c5 = process_same c4 in
-  Printf.printf ("Certif after process_same: \n%s\n") (string_of_certif c5);
+  (* Printf.printf ("Certif after process_same: \n%s\n") (string_of_certif c5); *)
   let c6 = process_cong c5 in
-  Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c6);
+  (* Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c6); *)
   let c7 = process_trans c6 in
-  Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c7);
+  (* Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c7); *)
   let c8 = process_simplify c7 in
-  Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c8);
+  (* Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c8); *)
   let c9 = process_proj c8 in
-  Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c9);
+  (* Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c9); *)
   let c10 = process_subproof c9 in
-  Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c10);
+  (* Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c10); *)
   c10) with
   | Debug s -> raise (Debug ("| VeritAst.preprocess_certif: failed to preprocess |"^s))
 

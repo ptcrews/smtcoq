@@ -172,10 +172,10 @@ def traceLineReader(data):
     #yield currClearText
 
 # exec the debugger
-def runDebug(src=r'/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/aletheTests/andrew-scripts/', tryFile = 'test7'):
+def runDebug(src=r'/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/aletheTests/andrew-scripts/', tryFile = 'transsanity1'):
     coqFileReader = coqSMTworker(outputFolder=r'/home/arjun/Desktop/smtcoq/arjunvish-smtcoq-veritAst/smtcoq/examples/aletheTests/andrew-scripts',
                                  tryFile='debug',
-                                 smtFile='test7')
+                                 smtFile='transsanity1')
 
     coqFileReader.run()
 
