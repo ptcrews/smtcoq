@@ -9,7 +9,7 @@ We have 8 sanity check tests:
 |test4 |`forall a b c, (a v b v c) ^ (~a v ~b v ~c) ^ (~a v b) ^ (~b v c) ^ (~c v a)`    | Success      |          | Success     |              | 
 |test5 |`forall p, p v ~p`                              | Success      |          | Success     |             |
 |test6 |`forall (a b : Z) (p : Z -> bool) (f : Z -> Z), ~(f a = b) v (~ P (f a)) v P b`| Success     |          | Failure    | Smtcoq_plugin.SmtForm.Make(Atom).NotWellTyped(_) |
-|test7 |`(forall (x : Z) (P : Z -> bool), P x) ->  P a` | Failure      | Fails as a consequence of a flatten_subproof of subproofs created by a bool_simplify  | Failure     | This step fails `((2 * op_2) = (1 + (2 * op_3))) = (false)` because of theory combination |
+|test7 |`(forall (x : Z) (P : Z -> bool), P x) ->  P a` | Failure      | Fails at step `t64` as a consequence of `flatten_subproof` of subproofs created by a bool_simplify (at step `t2`)  | Failure     | Step `t11` deriving `((1 + (2 * op_2)) = (2 * op_3)) = (false)` fails because of theory combination |
 |test8 |`forall (x y: Z) (f: Z -> Z), x = y + 1 -> f y = f (x - 1)`                  | Success     |         | Failure    | Smtcoq_plugin.SmtForm.Make(Atom).NotWellTyped(_) |
 
 ## Issues:

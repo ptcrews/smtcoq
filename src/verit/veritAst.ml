@@ -4564,25 +4564,25 @@ let preprocess_certif (c: certif) : certif =
   (* Printf.printf ("Certif before preprocessing: \n%s\n") (string_of_certif c); *)
   try 
   (let c1 = store_shared_terms c in
-  (* Printf.printf ("Certif after storing shared terms: \n%s\n") (string_of_certif c1); *)
+  Printf.printf ("Certif after storing shared terms: \n%s\n") (string_of_certif c1);
   let c2 = process_fins c1 in
-  (* Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2); *)
+  Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2);
   let c3 = process_hole c2 in
-  (* Printf.printf ("Certif after process_hole: \n%s\n") (string_of_certif c3); *)
+  Printf.printf ("Certif after process_hole: \n%s\n") (string_of_certif c3);
   let c4 = process_notnot c3 in
-  (* Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c4); *)
+  Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c4);
   let c5 = process_same c4 in
-  (* Printf.printf ("Certif after process_same: \n%s\n") (string_of_certif c5); *)
+  Printf.printf ("Certif after process_same/: \n%s\n") (string_of_certif c5);
   let c6 = process_cong c5 in
-  (* Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c6); *)
+  Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c6);
   let c7 = process_trans c6 in
-  (* Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c7); *)
+  Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c7);
   let c8 = process_simplify c7 in
-  (* Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c8); *)
+  Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c8);
   let c9 = process_proj c8 in
-  (* Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c9); *)
+  Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c9);
   let c10 = process_subproof c9 in
-  (* Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c10); *)
+  Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c10);
   c10) with
   | Debug s -> raise (Debug ("| VeritAst.preprocess_certif: failed to preprocess |"^s))
 
