@@ -4509,10 +4509,69 @@ let rec process_simplify (c : certif) : certif =
        (* t = t <-> T *)
        | [Eq ((Eq (t, t') as lhs), (True as rhs))] when t = t' ->
          let a2b = [(generate_id (), TrueAST, [rhs], [], [])] in
-         let b2a = [(generate_id (), EqreAST, [lhs], [], [])] in
+         let c' = try process_cl cl with
+                  | Form.NotWellTyped frm -> raise (Debug ("| process_simplify: formula "^
+                     (Form.pform_to_string frm)^" is not well-typed at id "^i^" |")) in
+         let is_frm =
+         (match c' with
+          | l :: _ ->
+             (try (match Form.pform l with
+                   | Fapp (Fiff, args) -> is_form (Array.get args 0) && is_form (Array.get args 1)
+                   | _ -> false) with
+              | Form.NotWellTyped frm -> raise (Debug ("| process_cong: formula "^
+                   (Form.pform_to_string frm)^" is not well-typed at id "^i^" |")))
+          | _ -> raise (Debug ("| process_simplify: expecting clause for eq_simplify to be a singleton iff/eq at id "^i^" |"))) in
+          let b2a =
+            (* equality over terms *)
+            (if is_frm then
+              (* equality over formulas:
+                ---------eqn1  ---------eqn2
+                x = x, ~x       x = x, x
+                ------------------------res
+                           x = x
+              *)
+              let eqn1i = generate_id () in
+              let eqn2i = generate_id () in
+              [(eqn1i, Equn1AST, [lhs; Not t], [], []);
+               (eqn2i, Equn2AST, [lhs; t], [], []);
+               (i, ResoAST, [lhs], [eqn1i; eqn2i], [])]
+            else
+              [(generate_id (), EqreAST, [lhs], [], [])]) in
          (simplify_to_subproof i (generate_id ()) (generate_id ()) lhs rhs a2b b2a) @ process_simplify tl
        (* TODO: We should be able to solve the next 2 using micromega?  *)
        (* t1 = t2 <-> F, when t1, t2 are different numeric constants *)
+       | [Eq ((Eq (Int t1, Int t2) as lhs), (False as rhs))] when t1 <> t2 ->
+       (* 
+          LTR:
+          -------asmp   ----------la_generic
+          t1 = t2       ~(t1 = t2)
+          ------------------------res
+                    []
+               -----------weaken
+                    F
+        *)
+         let a2bi = generate_id () in
+         let negeqi = generate_id () in
+         let resi = generate_id () in
+         let a2b = [(negeqi, LageAST, [Not lhs], [], []);
+                    (resi, ResoAST, [], [a2bi; negeqi], []);
+                    (generate_id (), WeakenAST, [rhs], [resi], [])] in
+        (*
+           RTL:
+           ---asmp  ----false
+            F        ~F
+            -----------res
+                []
+            ----------weaken
+             t1 = t2
+        *)
+        let b2ai = generate_id () in
+        let fi = generate_id () in
+        let resi = generate_id () in
+        let b2a = [(fi, FalsAST, [Not False], [], []);
+                   (resi, ResoAST, [], [b2ai; fi], []);
+                   (generate_id (), WeakenAST, [lhs], [resi], [])] in
+        (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
        (* ~(t = t) <-> F, if t is a numeric constant *)
        | _ -> raise (Debug ("| process_simplify: expecting argument of eq_simplify to be an equivalence at id "^i^" |"))
       )
@@ -4573,7 +4632,7 @@ let preprocess_certif (c: certif) : certif =
   (* Printf.printf ("Certif before preprocessing: \n%s\n") (string_of_certif c); *)
   try 
   (let c1 = store_shared_terms c in
-  (* Printf.printf ("Certif after storing shared terms: \n%s\n") (string_of_certif c1); *)
+  Printf.printf ("Certif after storing shared terms: \n%s\n") (string_of_certif c1);
   let c2 = process_fins c1 in
   (* Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2); *)
   let c3 = process_hole c2 in
@@ -4587,11 +4646,11 @@ let preprocess_certif (c: certif) : certif =
   let c7 = process_trans c6 in
   (* Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c7); *)
   let c8 = process_simplify c7 in
-  (* Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c8); *)
+  Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c8);
   let c9 = process_proj c8 in
   (* Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c9); *)
   let c10 = process_subproof c9 in
-  (* Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c10); *)
+  Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c10);
   c10) with
   | Debug s -> raise (Debug ("| VeritAst.preprocess_certif: failed to preprocess |"^s))
 

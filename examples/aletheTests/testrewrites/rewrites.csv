@@ -1,1 +1,2 @@
-orsimp4,(or x y false),(or x y),or_simplify
+eqsimp11,(= x x),(true),eq_simplify
+eqsimp12,(= x x),(true),eq_simplify
