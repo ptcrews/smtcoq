@@ -206,6 +206,18 @@ let rec get_expr = function
 let get_expr_cl (c : clause) = List.map get_expr c
 
 
+(* List Utilities *)
+(* findi x l finds the index of x in l
+   Note that it checks for syntactic equality of terms, not modulo
+   alpha renaming *)
+   let findi (p : 'a -> bool) (l : 'a list) : int = 
+    let rec findi' (p : 'a -> bool) (l : 'a list) (n : int) : int = 
+      match l with
+      | h :: t -> if p h then n else findi' p t (n+1)
+      | [] -> raise (Debug ("| findi: element not found |")) in
+    findi' p l 0
+
+
 (* Convert certificates to strings for debugging *)
 
 let rec string_of_certif (c : certif) : string = 
@@ -1326,17 +1338,19 @@ let process_cong (c : certif) : certif =
                                         | _ -> raise (Debug ("| process_cong: expecting premise of cong to be equality at id "^i^" instead I have "^(head_term (get_expr peq))^" |"))) in
                             if x = y then
                               let andpi = generate_id () in
+                              let ind = string_of_int (findi (term_eq x) ys) in
                               (andpi :: ris, 
-                               (andpi, AndpAST, [Not (And ys); x], [], []) :: rs)
+                               (andpi, AndpAST, [Not (And ys); x], [], [ind]) :: rs)
                             else
                               let eqp1i = generate_id () in
                               let resi1 = generate_id () in
                               let andpi = generate_id () in
                               let resi2 = generate_id () in
+                              let ind = string_of_int (findi (term_eq y) ys) in
                               (resi2 :: ris, 
                                (eqp1i, Equp1AST, [Not peq; x; Not y], [], []) :: 
                                (resi1, ResoAST, [x; Not y], [eqp1i; pid], []) :: 
-                               (andpi, AndpAST, [Not (And ys); y], [], []) ::
+                               (andpi, AndpAST, [Not (And ys); y], [], [ind]) ::
                                (resi2, ResoAST, [Not (And ys); x], [resi1; andpi], []) :: rs))
                           ([], []) ptuples in
                         (* 3. resolve all clauses form 1. and 2. to get ~(y1 ^ ... ^ ym), x1 ^ ... ^ xn *)
@@ -1360,17 +1374,19 @@ let process_cong (c : certif) : certif =
                                         | _ -> raise (Debug ("| process_cong: expecting premise of cong to be equality at id "^i^" |"))) in
                             if x = y then
                                let andpi = generate_id () in
+                               let ind = string_of_int (findi (term_eq y) xs) in
                                (andpi :: ris,
-                                (andpi, AndpAST, [Not (And xs); y], [], []) :: rs)
+                                (andpi, AndpAST, [Not (And xs); y], [], [ind]) :: rs)
                             else
                               let eqp2i = generate_id () in
                               let resi1 = generate_id () in
                               let andpi = generate_id () in
                               let resi2 = generate_id () in
+                              let ind = string_of_int (findi (term_eq x) xs) in
                               (resi2 :: ris, 
                                (eqp2i, Equp2AST, [Not peq; Not x; y], [], []) :: 
                                (resi1, ResoAST, [Not x; y], [eqp2i; pid], []) :: 
-                               (andpi, AndpAST, [Not (And xs); x], [], []) ::
+                               (andpi, AndpAST, [Not (And xs); x], [], [ind]) ::
                                (resi2, ResoAST, [Not (And xs); y], [resi1; andpi], []) :: rs))
                           ([], []) ptuples in
                         (* 8. resolve all clauses form 6. and 7. to get ~(x1 ^ ... ^ xn), y1 ^ ... ^ ym *)
@@ -1444,8 +1460,10 @@ let process_cong (c : certif) : certif =
                         let ornis1, orns1 = List.fold_left
                           (fun (is, r) y ->
                             let i' = generate_id () in
+                            let proj = try findi (term_eq y) ys with
+                                        | Debug s -> raise (Debug ("| process_cong: fails at id "^i^" |"^s)) in
                             i' :: is,
-                            (i', OrnAST, [Or ys; Not y], [], []) :: r)
+                            (i', OrnAST, [Or ys; Not y], [], [string_of_int proj]) :: r)
                           ([], []) (to_uniq ys) in
                         (* 4. resolve all clauses form 1., 2., and 3., to get `~(x1 v ... v xn), y1 v ... v ym` *)
                         let resi1 = generate_id () in
@@ -1474,8 +1492,10 @@ let process_cong (c : certif) : certif =
                         let ornis2, orns2 = List.fold_left
                           (fun (is, r) x ->
                             let i' = generate_id () in
+                            let proj = try findi (term_eq x) xs with
+                                        | Debug s -> raise (Debug ("| process_cong: fails at id "^i^" |"^s)) in
                             i' :: is,
-                            (i', OrnAST, [Or xs; Not x], [], []) :: r)
+                            (i', OrnAST, [Or xs; Not x], [], [string_of_int proj]) :: r)
                           ([], []) (to_uniq xs) in
                         (* 10. resolve all clauses form 7., 8., and 9., to get `~(y1 v ... v ym), x1 v ... v xn` *)
                         let resi3 = generate_id () in
@@ -2245,17 +2265,6 @@ let process_trans (c : certif) : certif =
    Alethe doesn't specify the projection for these rules. This 
    transformation searches the clause for the projection and adds
    it as an argument *)
-
-(* findi x l finds the index of x in l
-   Note that it checks for syntactic equality of terms, not modulo
-   alpha renaming *)
-let findi (p : 'a -> bool) (l : 'a list) : int = 
-  let rec findi' (p : 'a -> bool) (l : 'a list) (n : int) : int = 
-    match l with
-    | h :: t -> if p h then n else findi' p t (n+1)
-    | [] -> raise (Debug ("| findi: element not found |")) in
-  findi' p l 0
-
 let rec process_proj (c: certif): certif =
   let rec aux (c: certif) (cog: certif) : certif =
     match c with
@@ -3070,7 +3079,7 @@ let rec process_simplify (c : certif) : certif =
                ---asmp
                 F
              --------weaken   ------false
-             F v ~T             ~F
+             F, ~T             ~F
              ------------------------res
                          ~T
           *)
@@ -3255,7 +3264,7 @@ let rec process_simplify (c : certif) : certif =
        (* (~x -> x) <-> x *)
        | [Eq ((Imp [Not x;a] as lhs), (b as rhs))] when (x = a && x = b) ->
           (*
-             LTR:
+             LTR: (SMTCoq will remove double negations and duplicates)
              -------asmp  ------------------impp
              ~x -> x      ~(~x -> x), ~~x, x
              -------------------------------res
@@ -3312,11 +3321,11 @@ let rec process_simplify (c : certif) : certif =
           (*
              LTR:
              -----------------eqn1  	----------------------eqp1	-----------------eqn2	----------------------eqp2
-             (x <-> y), ~x, ~y		   ~(~x <-> ~y), ~x, ~~y		(x <-> y), x, y			 ~(~x <-> ~y), ~~x, ~y
-             ---------------------------------------------res	----------------------------------------------res	-----------asmp
-             		    (x <-> y), ~x, ~(~x <-> ~y)							     (x <-> y), x, ~(~x <-> ~y)					(~x <-> ~y)
+             (x <-> y), ~x, ~y		   ~(~x <-> ~y), ~x, ~~y		    (x <-> y), x, y			  ~(~x <-> ~y), ~~x, ~y
+             ---------------------------------------------res	    -------------------------------------------res	-----------asmp
+             		    (x <-> y), ~x, ~(~x <-> ~y)							              (x <-> y), x, ~(~x <-> ~y)					     (~x <-> ~y)
              		    --------------------------------------------------------------------------------------------------------res
-             														            (x <-> y)
+             														                        (x <-> y)
           *)
           let a2bi = generate_id () in
           let eqn1i = generate_id () in
@@ -3337,9 +3346,9 @@ let rec process_simplify (c : certif) : certif =
              ---------------------eqn1	-----------------eqp1	--------------------eqn2	-----------------eqp2
              (~x <-> ~y), ~~x, ~~y		~(x <-> y), x, ~y		   (~x <-> ~y), ~x, ~y			~(x <-> y), ~x, y
              ---------------------------------------------res	---------------------------------------------res	---------asmp
-             		   (~x <-> ~y), x, ~(x <-> y)							      (~x <-> ~y), ~x, ~(x <-> y)					(x <-> y)
-             		   ---------------------------------------------------------------------------------------------------------res
-             														            (~x <-> ~y)
+             		        (~x <-> ~y), x, ~(x <-> y)							        (~x <-> ~y), ~x, ~(x <-> y)					     (x <-> y)
+             		        --------------------------------------------------------------------------------------------------res
+             														                          (~x <-> ~y)
           *)
           let b2ai = generate_id () in
           let eqn1i = generate_id () in
@@ -3496,7 +3505,7 @@ let rec process_simplify (c : certif) : certif =
              --asmp  -----------------eqn1 ---true
              x       (x <-> T), ~x, ~T      T
              --------------------------------res
-                          T <-> x
+                          x <-> T
           *)
           let b2ai = generate_id () in
           let eqn1i = generate_id () in
@@ -3882,8 +3891,8 @@ let rec process_simplify (c : certif) : certif =
          let orni1 = generate_id () in
          let orni2 = generate_id () in
          let a2b = [(itep1i, Itep1AST, [Not lhs; c; x], [], []);
-                    (orni1, OrnAST, [rhs; Not c], [], []);
-                    (orni2, OrnAST, [rhs; Not x], [], []);
+                    (orni1, OrnAST, [rhs; Not c], [], ["1"]);
+                    (orni2, OrnAST, [rhs; Not x], [], ["2"]);
                     (generate_id (), ResoAST, [rhs], [itep1i; orni1; orni2; a2bi], [])] in
          (*
              RTL:
@@ -4089,9 +4098,9 @@ let rec process_simplify (c : certif) : certif =
          let orn_2i = generate_id () in
          let res_2i = generate_id () in
          let andni = generate_id () in
-         let a2b = [(orn_1i, OrnAST, [Or [x;y]; Not x], [], []);
+         let a2b = [(orn_1i, OrnAST, [Or [x;y]; Not x], [], ["0"]);
                     (res_1i, ResoAST, [Not x], [orn_1i;a2bi], []);
-                    (orn_2i, OrnAST, [Or [x;y]; Not y], [], []);
+                    (orn_2i, OrnAST, [Or [x;y]; Not y], [], ["1"]);
                     (res_2i, ResoAST, [Not y], [orn_2i;a2bi], []);
                     (andni, AndnAST, [rhs; Not x; Not y], [], []);
                     (generate_id (), ResoAST, [rhs], [andni;res_1i;res_2i], [])] in
@@ -4212,8 +4221,8 @@ let rec process_simplify (c : certif) : certif =
          let orni2 = generate_id () in
          let a2b = [(imppi1, ImppAST, [Not lhs; Not (Imp [x;y]); y], [], []);
                     (impni1, Impn1AST, [Imp [x;y]; x], [], []);
-                    (orni1, OrnAST, [rhs; Not x], [], []);
-                    (orni2, OrnAST, [rhs; Not y], [], []);
+                    (orni1, OrnAST, [rhs; Not x], [], ["0"]);
+                    (orni2, OrnAST, [rhs; Not y], [], ["1"]);
                     (generate_id (), ResoAST, [rhs], [a2bi; imppi1; impni1; orni1; orni2], [])] in
          (*
             RTL:
@@ -4564,25 +4573,25 @@ let preprocess_certif (c: certif) : certif =
   (* Printf.printf ("Certif before preprocessing: \n%s\n") (string_of_certif c); *)
   try 
   (let c1 = store_shared_terms c in
-  Printf.printf ("Certif after storing shared terms: \n%s\n") (string_of_certif c1);
+  (* Printf.printf ("Certif after storing shared terms: \n%s\n") (string_of_certif c1); *)
   let c2 = process_fins c1 in
-  Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2);
+  (* Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2); *)
   let c3 = process_hole c2 in
-  Printf.printf ("Certif after process_hole: \n%s\n") (string_of_certif c3);
+  (* Printf.printf ("Certif after process_hole: \n%s\n") (string_of_certif c3); *)
   let c4 = process_notnot c3 in
-  Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c4);
+  (* Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c4); *)
   let c5 = process_same c4 in
-  Printf.printf ("Certif after process_same/: \n%s\n") (string_of_certif c5);
+  (* Printf.printf ("Certif after process_same/: \n%s\n") (string_of_certif c5); *)
   let c6 = process_cong c5 in
-  Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c6);
+  (* Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c6); *)
   let c7 = process_trans c6 in
-  Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c7);
+  (* Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c7); *)
   let c8 = process_simplify c7 in
-  Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c8);
+  (* Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c8); *)
   let c9 = process_proj c8 in
-  Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c9);
+  (* Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c9); *)
   let c10 = process_subproof c9 in
-  Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c10);
+  (* Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c10); *)
   c10) with
   | Debug s -> raise (Debug ("| VeritAst.preprocess_certif: failed to preprocess |"^s))
 
