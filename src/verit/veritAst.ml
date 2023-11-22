@@ -4508,6 +4508,11 @@ let rec process_simplify (c : certif) : certif =
       (match (get_expr_cl cl) with
        (* t = t <-> T *)
        | [Eq ((Eq (t, t') as lhs), (True as rhs))] when t = t' ->
+       (*
+          LTR:
+          ---true
+           T   
+       *)
          let a2b = [(generate_id (), TrueAST, [rhs], [], [])] in
          let c' = try process_cl cl with
                   | Form.NotWellTyped frm -> raise (Debug ("| process_simplify: formula "^
@@ -4525,6 +4530,7 @@ let rec process_simplify (c : certif) : certif =
             (* equality over terms *)
             (if is_frm then
               (* equality over formulas:
+                RTL:
                 ---------eqn1  ---------eqn2
                 x = x, ~x       x = x, x
                 ------------------------res
@@ -4536,6 +4542,11 @@ let rec process_simplify (c : certif) : certif =
                (eqn2i, Equn2AST, [lhs; t], [], []);
                (i, ResoAST, [lhs], [eqn1i; eqn2i], [])]
             else
+              (* equality over terms:
+                RTL:
+                -----refl
+                x = x
+              *)
               [(generate_id (), EqreAST, [lhs], [], [])]) in
          (simplify_to_subproof i (generate_id ()) (generate_id ()) lhs rhs a2b b2a) @ process_simplify tl
        (* TODO: We should be able to solve the next 2 using micromega?  *)

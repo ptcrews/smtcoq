@@ -134,7 +134,9 @@ let get_iff l =
 let is_form l =
   match Form.pform l with
   | Fapp _ -> true
-  | Fatom a -> Form.is_bool_type a
+  | Fatom a -> (match Atom.type_of a with
+                | SmtBtype.Tbool -> true
+                | _ -> false)
   | _ ->  false
 
 (* Transitivity *)
