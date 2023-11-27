@@ -602,7 +602,7 @@ let process_fins (c : certif) : certif =
 let rec process_notnot (c : certif) : certif = 
   match c with
   | (i, NotnotAST, cl, p, a) :: tl -> process_notnot (remove_res_trans_premise i tl)
-  | (i, NotsimpAST, cl, p, a) :: tl ->
+  (*| (i, NotsimpAST, cl, p, a) :: tl ->
       (match (get_expr_cl cl) with
       | [Eq (Not (Not x), y)] when x = y -> 
          (* 
@@ -617,7 +617,7 @@ let rec process_notnot (c : certif) : certif =
          (eqn1i, Equn1AST, [Eq (x, x); Not x], [], []) :: 
          (eqn2i, Equn2AST, [Eq (x, x); x], [], []) :: 
          (i, ResoAST, [Eq (x, x)], [eqn1i; eqn2i], []) :: process_notnot (remove_res_trans_premise i tl)
-      | _ -> (i, NotsimpAST, cl, p, a) :: process_notnot tl)
+      | _ -> (i, NotsimpAST, cl, p, a) :: process_notnot tl)*)
   | h :: tl -> h :: process_notnot tl
   | [] -> []
 
@@ -3090,8 +3090,15 @@ let rec process_simplify (c : certif) : certif =
                      (fi, FalsAST, [Not False], [], []);
                      (generate_id (), ResoAST, [Not True], [weaki; fi], [])] in         
           (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
-       (* ~(~x) <-> x handled by process_notnot *)
-       | [Eq _] -> (i, NotsimpAST, cl, p, a) :: process_simplify tl
+       (* ~~x <-> x *)
+       | [Eq (Not (Not x), y)] when x = y -> 
+         (* Since SMTCoq implicitly removes double negations, we replace this by a derivation of x = x *)
+          let eqn1i = generate_id () in
+          let eqn2i = generate_id () in
+          (eqn1i, Equn1AST, [Eq (x, x); Not x], [], []) ::
+          (eqn2i, Equn2AST, [Eq (x, x); x], [], []) ::
+          (i, ResoAST, [Eq (x, x)], [eqn1i; eqn2i], []) :: process_simplify tl
+       (* | [Eq _] -> (i, NotsimpAST, cl, p, a) :: process_simplify tl *)
        | _ -> raise (Debug ("| process_simplify: expecting not_simplify to derive a singleton equivalence at id "^i^" |")))
   (* (x -> y) <-> z *)
   | (i, ImpsimpAST, cl, p, a) :: tl ->
@@ -4647,7 +4654,56 @@ let rec process_simplify (c : certif) : certif =
     | a1 :: _ when (compare_sub (String.trim a1) "eq_simplify") -> process_simplify ((i, EqualsimpAST, cl, p, []) :: tl)
     | a1 :: _ when (compare_sub (String.trim a1) "ite_simplify") -> process_simplify ((i, ItesimpAST, cl, p, []) :: tl)
     | a1 :: _ -> raise (Debug ("| process_simplify: DSL failure! Expecting arg of all_simplify step to have a rewrite rule via DSL at id "^i^", instead I have "^a1^" |"))
-    | [] -> (i, LiaRewriteAST, cl, p, a) :: process_simplify tl)
+    | [] -> 
+      match cl with
+      | [Eq ((x as lhs), (False as rhs))] ->
+      (*
+          LTR:
+          --------asmp  ------la_generic
+              x           ~x
+          -------------------res
+                   []
+              ------------weaken
+                   F
+      *)
+       let a2bi = generate_id () in
+       let lagei = generate_id () in
+       let resi = generate_id () in
+       let a2b = [(lagei, LageAST, [Not x], [], []);
+                  (resi, ResoAST, [], [a2bi; lagei], []);
+                  (generate_id (), WeakenAST, [rhs], [resi], [])] in
+     (*
+        RTL:
+        ---asmp  ----false
+         F        ~F
+         -----------res
+              []
+         ----------weaken
+              x
+     *)
+       let b2ai = generate_id () in
+       let fi = generate_id () in
+       let resi = generate_id () in
+       let b2a = [(fi, FalsAST, [Not False], [], []);
+                  (resi, ResoAST, [], [b2ai; fi], []);
+                  (generate_id (), WeakenAST, [lhs], [resi], [])] in
+       (simplify_to_subproof i a2bi b2ai lhs rhs a2b b2a) @ process_simplify tl
+      | [Eq ((x as lhs), (True as rhs))] ->
+      (*
+          LTR:
+          ---true
+           T   
+      *)
+       let a2b = [(generate_id (), TrueAST, [rhs], [], [])] in
+      (*
+          RTL:
+          ---la_generic
+           x   
+      *)
+       let b2a = [(generate_id (), LageAST, [lhs], [], [])] in
+       (simplify_to_subproof i (generate_id ()) (generate_id ()) lhs rhs a2b b2a) @ process_simplify tl
+      (* Assuming that we catch all rewrites except generic LIA rewrites, for which we use this catch-all LIA rule *)
+      | _ -> (i, LiaRewriteAST, cl, p, a) :: process_simplify tl)
   | h :: tl -> h :: process_simplify tl
   | nil -> nil
   
@@ -4673,25 +4729,25 @@ let preprocess_certif (c: certif) : certif =
   (* Printf.printf ("Certif before preprocessing: \n%s\n") (string_of_certif c); *)
   try 
   (let c1 = store_shared_terms c in
-  Printf.printf ("Certif after storing shared terms: \n%s\n") (string_of_certif c1);
+  (* Printf.printf ("Certif after storing shared terms: \n%s\n") (string_of_certif c1); *)
   let c2 = process_fins c1 in
-  Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2);
+  (* Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2); *)
   let c3 = process_hole c2 in
-  Printf.printf ("Certif after process_hole: \n%s\n") (string_of_certif c3);
+  (* Printf.printf ("Certif after process_hole: \n%s\n") (string_of_certif c3); *)
   let c4 = process_notnot c3 in
-  Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c4);
+  (* Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c4); *)
   let c5 = process_same c4 in
-  Printf.printf ("Certif after process_same: \n%s\n") (string_of_certif c5);
+  (* Printf.printf ("Certif after process_same: \n%s\n") (string_of_certif c5); *)
   let c6 = process_cong c5 in
-  Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c6);
+  (* Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c6); *)
   let c7 = process_trans c6 in
-  Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c7);
+  (* Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c7); *)
   let c8 = process_simplify c7 in
-  Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c8);
+  (* Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c8); *)
   let c9 = process_proj c8 in
-  Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c9);
+  (* Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c9); *)
   let c10 = process_subproof c9 in
-  Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c10);
+  (* Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c10); *)
   c10) with
   | Debug s -> raise (Debug ("| VeritAst.preprocess_certif: failed to preprocess |"^s))
 

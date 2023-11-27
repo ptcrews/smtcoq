@@ -1,2 +1,1 @@
-eqsimp11,(= x x),(true),eq_simplify
-eqsimp12,(= x x),(true),eq_simplify
+notsimp1,(not (not x)),x,not_simplify
