@@ -31,7 +31,7 @@
 %}
 
 %token <string> STRING
-%token LPAREN RPAREN HASH_SEMI EOF
+%token LPAREN RPAREN /*CVC5 INTERRUPTED BY TIMEOUT*/ CVC5_TIMEOUT CORE_DUMPED HASH_SEMI EOF
 
 %start sexp
 %type <SExpr.t> sexp
@@ -52,9 +52,14 @@ sexp:
 | sexp_but_no_comment { $1 }
 
 sexp_but_no_comment
-  : STRING { SExpr.Atom $1 }
+  : CVC5_TIMEOUT { SExpr.List [SExpr.Atom "cvc5_timeout"] }
+  | CORE_DUMPED { SExpr.List [SExpr.Atom "cvc5_timeout"] }
+  | STRING { SExpr.Atom $1 }
   | LPAREN RPAREN { SExpr.List [] }
   | LPAREN rev_sexps_aux RPAREN { SExpr.List (List.rev $2) }
+  
+  /*| CVC5 INTERRUPTED BY TIMEOUT { SExpr.List [SExpr.Atom "cvc5_timeout"] }*/
+  /*| STRING LPAREN STRING STRING RPAREN { SExpr.List [SExpr.Atom $1; SExpr.Atom $3; SExpr.Atom $4] }*/
   | error { parse_failure "sexp" }
 
 sexp_comment

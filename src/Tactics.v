@@ -231,6 +231,19 @@ Tactic Notation "abduce" int_or_var(i) int_or_var(j) :=
          [ .. | cvc5_bool_abduct i j hs; vauto ]
   ]) i j)) in tac i j.
 
+Tactic Notation "abduce2" int_or_var(i) int_or_var(j) int_or_var(k) :=
+  let tac :=
+  ltac2:(i j k |- intros ; get_hyps_cont_ltac1
+  (ltac1:(i j k hs |-
+  add_compdecs hs;
+  [ .. | prop2bool;
+         lazymatch hs with
+         | Some ?hs => prop2bool_hyps hs
+         | None => idtac
+         end;
+         [ .. | cvc5_bool_abduct2 i j k hs; vauto ]
+  ]) i j k)) in tac i j k.
+
 Tactic Notation "verit_no_check" constr(h) :=
   let tac :=
   ltac2:(h |- intros; get_hyps_cont_ltac1  (ltac1:(h Hs |- let Hs :=
@@ -322,6 +335,22 @@ Tactic Notation "verit_no_check_timeout"  int_or_var(timeout) :=
          end;
          [ .. | verit_bool_no_check_base_auto_timeout Hs timeout; vauto ]
   ]) timeout)) in tac timeout.
+
+(* Both the folllowing are from ChatGPT, but don't compile with this error:
+Error: The reference Search was not found in the current environment.
+
+Ltac find_theorem pattern :=
+  match goal with
+  | _ => Search pattern
+  end.
+
+Ltac my_search pattern :=
+  let results := constr:(Search pattern) in
+  match results with
+  | ?x => idtac "Found:" x
+  | _ => fail "Pattern not found"
+  end.
+*)
 
 Ltac cvc4            := add_compdecs; [ .. | prop2bool; cvc4_bool; bool2prop ].
 Ltac cvc4_no_check   := add_compdecs; [ .. | prop2bool; cvc4_bool_no_check; bool2prop ].

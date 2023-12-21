@@ -42,7 +42,7 @@ val checker :
   unit
 
 val tactic :
-  int -> int -> (int -> int -> Environ.env ->
+  int -> int -> int -> (int -> int -> int -> Environ.env ->
    SmtBtype.reify_tbl ->
    SmtAtom.Op.reify_tbl ->
    SmtAtom.Atom.reify_tbl ->
@@ -63,6 +63,8 @@ val tactic :
 val model_string : Environ.env -> SmtBtype.reify_tbl -> 'a -> 'b -> 'c -> SExpr.t -> string
 
 val abduct_string : Environ.env -> SmtBtype.reify_tbl -> 'a -> 'b -> 'c -> SExpr.t -> string
+
+val abduct_strings : Environ.env -> SmtBtype.reify_tbl -> 'a -> 'b -> 'c -> SExpr.t list -> string list
 
 (* For extraction *)
 val compute_roots : SmtAtom.Form.t list -> SmtAtom.Form.t SmtCertif.clause -> int list

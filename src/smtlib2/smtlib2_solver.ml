@@ -70,6 +70,12 @@ let read_response { lexbuf } =
   SExprParser.sexp SExprLexer.main lexbuf 
 
 
+let rec read_abducts l s =
+  match SExprParser.sexp SExprLexer.main s.lexbuf with
+  | SExpr.List [SExpr.Atom "cvc5_timeout"] -> l
+  | x -> read_abducts (x :: l) s
+
+
 let error s sexp =
   kill s;
   CoqInterface.error (asprintf "Solver error: %a." SExpr.print sexp)
@@ -150,12 +156,17 @@ let assume s f =
 
 
 let get_abduct s f =
-  send_command  s
-    (sprintf  "(get-abduct A %s)" f)
+  send_command s
+    (sprintf "(get-abduct A %s)" f)
     read_response
 
 let get_abduct_next s =
   send_command s "(get-abduct-next)" read_response
+
+let get_abducts s f =
+  send_command s
+    (sprintf "(get-abduct A %s)" f)
+    (read_abducts [])
 
 
 let check_sat s =

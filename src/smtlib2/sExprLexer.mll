@@ -39,9 +39,15 @@ let unquoted_start =
 
 rule main buf = parse
   | lf | dos_newline { SmtMisc.found_newline lexbuf 0; main buf lexbuf }
+  | "cvc5 interrupted by timeout." { CVC5_TIMEOUT }
+  (* | "Aborted (core dumped)" { CORE_DUMPED } *)
   | blank+ | ';' (_ # lf_cr)* { main buf lexbuf }
   | '(' { LPAREN }
   | ')' { RPAREN }
+  (*| "cvc5" { CVC5 }
+  | "interrupted" { INTERRUPTED }
+  | "by" { BY }
+  | "timeout." { TIMEOUT }*)
   | '"'
       {
         scan_string buf (lexeme_start_p lexbuf) lexbuf;

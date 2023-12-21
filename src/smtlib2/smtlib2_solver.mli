@@ -32,6 +32,8 @@ val get_abduct : t -> string -> SExpr.t
 
 val get_abduct_next : t -> SExpr.t
 
+val get_abducts : t -> string -> SExpr.t list
+
 val check_sat : t -> result
 
 val get_proof : t -> (Lexing.lexbuf -> 'a) -> 'a

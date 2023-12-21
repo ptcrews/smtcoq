@@ -367,26 +367,29 @@ let call_abduce i j env rt ro ra rf root lsmt =
     set_option cvc5 "produce-assignments" true;
     set_option cvc5 "produce-abducts" true;
     set_option cvc5 "incremental" true;
-    if (j < 1 || j > 11) then set_option cvc5 "sygus-core-connective" false else ();
     set_logic cvc5 (string_logic ro fl);
+    (*if (j = 12) then
 
-    List.iter (fun (i,t) ->
-      let s = "Tindex_"^(string_of_int i) in
-      SmtMaps.add_btype s (SmtBtype.Tindex t);
-      declare_sort cvc5 s 0;
-    ) (SmtBtype.to_list rt);
-
-    List.iter (fun (i,cod,dom,op) ->
-      let s = "op_"^(string_of_int i) in
-      SmtMaps.add_fun s op;
-      let args =
-        Array.fold_right
-          (fun t acc -> asprintf "%a" SmtBtype.to_smt t :: acc) cod [] in
-      let ret = asprintf "%a" SmtBtype.to_smt dom in
-      declare_fun cvc5 s args ret
-    ) (Op.to_list ro);
-    (* Expecting List.hd lsmt to be the negation of the goal *)
-    List.iter (fun x -> assume cvc5 (asprintf "%a" (Form.to_smt ~debug:false) x)) (List.tl lsmt);
+    else*)
+      if (j < 1 || j > 11) then set_option cvc5 "sygus-core-connective" false else ();
+      
+      List.iter (fun (i,t) ->
+        let s = "Tindex_"^(string_of_int i) in
+        SmtMaps.add_btype s (SmtBtype.Tindex t);
+        declare_sort cvc5 s 0;
+      ) (SmtBtype.to_list rt);
+      
+      List.iter (fun (i,cod,dom,op) ->
+        let s = "op_"^(string_of_int i) in
+        SmtMaps.add_fun s op;
+        let args =
+          Array.fold_right
+            (fun t acc -> asprintf "%a" SmtBtype.to_smt t :: acc) cod [] in
+        let ret = asprintf "%a" SmtBtype.to_smt dom in
+        declare_fun cvc5 s args ret
+      ) (Op.to_list ro);
+      (* Expecting List.hd lsmt to be the negation of the goal *)
+      List.iter (fun x -> assume cvc5 (asprintf "%a" (Form.to_smt ~debug:false) x)) (List.tl lsmt);
 
     let proof =
       let abduct1 = SmtCommands.abduct_string env rt ro ra rf 
@@ -405,7 +408,7 @@ let call_abduce i j env rt ro ra rf root lsmt =
     proof
 
 
-let call_cvc4_abduct i j env rt ro ra rf root lsmt =
+let call_cvc4_abduct i j _ env rt ro ra rf root lsmt =
   let open Smtlib2_solver in
   let fl = snd root in
 
@@ -452,7 +455,141 @@ let call_cvc4_abduct i j env rt ro ra rf root lsmt =
   quit cvc4;
   proof
 
-let call_cvc4 _ _ env rt ro ra rf root lsmt =
+
+(* For a separate tactic that uses --sygus-stream *)
+let call_abduce2 i j k env rt ro ra rf root lsmt =
+    let timeout = if k == 0 then "20000" else (string_of_int (k * 1000)) in
+    let timeout_sec = if k == 0 then "20" else (string_of_int k) in
+    let open Smtlib2_solver in
+    let fl = Form.neg (snd root) in
+    let solver_call = 
+      (match j with
+       | 1 ->  [| "cvc5"; "--tlimit="^timeout; "--dag-thresh=0"; "--sygus-enum=fast"; "--no-sygus-core-connective"; "--sygus-rewrite=none"; "--sygus-stream" |] 
+       | 2 ->  [| "cvc5"; "--tlimit="^timeout; "--dag-thresh=0"; "--sygus-enum=fast"; "--sygus-rewrite=none"; "--sygus-stream" |]
+       | 3 ->  [| "cvc5"; "--tlimit="^timeout; "--dag-thresh=0"; "--sygus-enum=fast"; "--no-sygus-core-connective"; "--sygus-stream" |]
+       | 4 ->  [| "cvc5"; "--tlimit="^timeout; "--dag-thresh=0"; "--sygus-enum=fast"; "--sygus-stream" |]
+       | 5 ->  [| "cvc5"; "--tlimit="^timeout; "--dag-thresh=0"; "--sygus-enum=smart"; "--no-sygus-core-connective"; "--sygus-rewrite=none"; "--sygus-stream" |]
+       | 6 ->  [| "cvc5"; "--tlimit="^timeout; "--dag-thresh=0"; "--sygus-enum=smart"; "--sygus-rewrite=none"; "--sygus-stream" |]
+       | 7 ->  [| "cvc5"; "--tlimit="^timeout; "--dag-thresh=0"; "--sygus-enum=smart"; "--no-sygus-core-connective"; "--sygus-stream" |] 
+       | 8 ->  [| "cvc5"; "--tlimit="^timeout; "--dag-thresh=0"; "--sygus-enum=smart"; "--sygus-stream" |]
+       | 9 ->  [| "cvc5"; "--tlimit="^timeout; "--dag-thresh=0"; "--no-sygus-core-connective"; "--sygus-rewrite=none"; "--sygus-stream" |]
+       | 10 -> [| "cvc5"; "--tlimit="^timeout; "--dag-thresh=0"; "--sygus-rewrite=none"; "--sygus-stream" |]
+       | 11 -> [| "cvc5"; "--tlimit="^timeout; "--dag-thresh=0"; "--force-logic=HO_ALL"; "--sygus-stream" |]
+       | _ ->  [| "cvc5"; "--tlimit="^timeout; "--dag-thresh=0"; "--no-sygus-core-connective"; "--sygus-stream" |]) in
+    let cvc5 = create solver_call in
+
+    set_option cvc5 "print-success" true;
+    set_option cvc5 "produce-assignments" true;
+    set_option cvc5 "produce-abducts" true;
+    set_option cvc5 "incremental" true;
+    set_option cvc5 "sygus-stream" true;
+    set_logic cvc5 (string_logic ro fl);
+    let command = Array.fold_left (fun s i -> s ^ i ^ " ") "" solver_call in
+    Format.eprintf "%s@." command;
+    (* This is just so that the .smt2 files have the option set, so it doesn't have to be done from the command line *)
+      if (j < 1 || j > 11) then set_option cvc5 "sygus-core-connective" false else ();
+      
+      List.iter (fun (i,t) ->
+        let s = "Tindex_"^(string_of_int i) in
+        SmtMaps.add_btype s (SmtBtype.Tindex t);
+        declare_sort cvc5 s 0;
+      ) (SmtBtype.to_list rt);
+      
+      List.iter (fun (i,cod,dom,op) ->
+        let s = "op_"^(string_of_int i) in
+        SmtMaps.add_fun s op;
+        let args =
+          Array.fold_right
+            (fun t acc -> asprintf "%a" SmtBtype.to_smt t :: acc) cod [] in
+        let ret = asprintf "%a" SmtBtype.to_smt dom in
+        declare_fun cvc5 s args ret
+      ) (Op.to_list ro);
+      (* Expecting List.hd lsmt to be the negation of the goal *)
+      List.iter (fun x -> assume cvc5 (asprintf "%a" (Form.to_smt ~debug:false) x)) (List.tl lsmt);
+
+    let proof =
+      (* list of strings representing all responses to `get-abduct` as a sygus-stream 
+         (until and except "cvc5 interrupted by timeout") *)
+      let abducts' = SmtCommands.abduct_strings env rt ro ra rf
+                      (get_abducts cvc5 (asprintf "%a" (Form.to_smt ~debug:false) fl)) in
+      let abducts = List.rev abducts' in
+      if (i == 0) then 
+        CoqInterface.error
+          ("cvc5 returned SAT.\nThe solver cannot prove the goal, but one of the following hypotheses " ^
+           "would make it provable:\n" ^ (String.concat "\n" abducts))
+      else if (i < 0) then
+        CoqInterface.error ("Number of abducts can't be negative!")
+      else
+        let len = List.length abducts in
+        if (i >= len) then
+          CoqInterface.error
+            ("cvc5 returned SAT.\nThe solver cannot prove the goal, but one of the following hypotheses " ^
+             "would make it provable\n (found "^(string_of_int len)^" abducts in " ^ timeout_sec ^
+             " seconds):\n" ^ (String.concat "\n" abducts))
+        else
+          (* get first i elements of abducts *)
+          let _, firsti = List.fold_left 
+                          (fun (j, l) x -> if (j < i) then (j + 1, x :: l) else (j + 1, l)) 
+                          (0, []) abducts in
+          CoqInterface.error
+            ("cvc5 returned SAT.\nThe solver cannot prove the goal, but one of the following hypotheses " ^
+             "would make it provable:\n" ^ (String.concat "\n" firsti))
+    in
+
+    quit cvc5;
+    proof
+
+
+let call_cvc4_abduct2 i j k env rt ro ra rf root lsmt =
+  let open Smtlib2_solver in
+  let fl = snd root in
+
+  let cvc4 = create [|
+      "cvc4";
+      "--lang"; "smt2";
+      "--proof";
+      "--simplification=none"; "--fewer-preprocessing-holes";
+      "--no-bv-eq"; "--no-bv-ineq"; "--no-bv-algebraic"; "--dag-thresh=0" |] in
+
+  set_option cvc4 "print-success" true;
+  set_option cvc4 "produce-assignments" true;
+  set_option cvc4 "produce-proofs" true;
+  set_logic cvc4 (string_logic ro fl);
+
+  (* Declare sorts *)
+  List.iter (fun (i,t) ->
+    let s = "Tindex_"^(string_of_int i) in
+    SmtMaps.add_btype s (SmtBtype.Tindex t);
+    declare_sort cvc4 s 0;
+  ) (SmtBtype.to_list rt);
+
+  (* Declare functions and variables *)
+  List.iter (fun (i,cod,dom,op) ->
+    let s = "op_"^(string_of_int i) in
+    SmtMaps.add_fun s op;
+    let args =
+      Array.fold_right
+        (fun t acc -> asprintf "%a" SmtBtype.to_smt t :: acc) cod [] in
+    let ret = asprintf "%a" SmtBtype.to_smt dom in
+    declare_fun cvc4 s args ret
+  ) (Op.to_list ro);
+
+  (* Assert hypotheses and negation of goal *)
+  List.iter (fun x -> assume cvc4 (asprintf "%a" (Form.to_smt ~debug:false) x)) (List.tl lsmt);
+  assume cvc4 (asprintf "%a" (Form.to_smt ~debug:false) fl);
+
+  let proof =
+    match check_sat cvc4 with
+    | Unsat -> CoqInterface.error "CVC4 returned UNSAT, try the smt tactic instead."
+    | Sat -> call_abduce2 i j k env rt ro ra rf root lsmt
+  in
+
+  quit cvc4;
+  proof
+
+  
+
+let call_cvc4 _ _ _ env rt ro ra rf root lsmt =
   let open Smtlib2_solver in
   let fl = snd root in
 
@@ -547,7 +684,7 @@ let get_model_from_file filename =
   | _ -> CoqInterface.error "CVC4 returned SAT but no model"
 
 
-let call_cvc4_file _ _ env rt ro ra rf root =
+let call_cvc4_file _ _ _ env rt ro ra rf root =
   let fl = snd root in
   let (filename, outchan) = Filename.open_temp_file "cvc4_coq" ".smt2" in
   export outchan rt ro fl;
@@ -595,18 +732,18 @@ let cvc4_logic =
   SL.of_list [LUF; LLia; LBitvectors; LArrays]
 
 
-  let tactic_gen vm_cast =
-    clear_all ();
-    let rt = SmtBtype.create () in
-    let ro = Op.create () in
-    let ra = Tosmtcoq.ra in
-    let rf = Tosmtcoq.rf in
-    let ra' = Tosmtcoq.ra in
-    let rf' = Tosmtcoq.rf in
-    SmtCommands.tactic 0 0 call_cvc4 cvc4_logic rt ro ra rf ra' rf' vm_cast [] []
+let tactic_gen vm_cast =
+  clear_all ();
+  let rt = SmtBtype.create () in
+  let ro = Op.create () in
+  let ra = Tosmtcoq.ra in
+  let rf = Tosmtcoq.rf in
+  let ra' = Tosmtcoq.ra in
+  let rf' = Tosmtcoq.rf in
+  SmtCommands.tactic 0 0 0 call_cvc4 cvc4_logic rt ro ra rf ra' rf' vm_cast [] []
     (* (\* Currently, quantifiers are not handled by the cvc4 tactic: we pass
      *    the same ra and rf twice to have everything reifed *\)
-     * SmtCommands.tactic 0 0 call_cvc4 cvc4_logic rt ro ra rf ra rf vm_cast [] [] *)
+     * SmtCommands.tactic 0 0 0 call_cvc4 cvc4_logic rt ro ra rf ra rf vm_cast [] [] *)
 
 let tactic_gen_abduct i j vm_cast lcpl lcepl =
   (* Transform the tuple of lemmas given by the user into a list *)
@@ -626,8 +763,29 @@ let tactic_gen_abduct i j vm_cast lcpl lcepl =
   let rf = Tosmtcoq.rf in
   let ra' = Tosmtcoq.ra in
   let rf' = Tosmtcoq.rf in
-  SmtCommands.tactic i j call_cvc4_abduct cvc4_logic rt ro ra rf ra' rf' vm_cast lcpl lcepl
+  SmtCommands.tactic i j 0 call_cvc4_abduct cvc4_logic rt ro ra rf ra' rf' vm_cast lcpl lcepl
+
+let tactic_gen_abduct2 i j k vm_cast lcpl lcepl =
+  (* Transform the tuple of lemmas given by the user into a list *)
+  let lcpl =
+    let lcpl = EConstr.Unsafe.to_constr lcpl in
+    let lcpl = CoqTerms.option_of_constr_option lcpl in
+    match lcpl with
+      | Some lcpl -> CoqTerms.list_of_constr_tuple lcpl
+      | None -> []
+  in
+
+  (* Core tactic *)
+  clear_all ();
+  let rt = SmtBtype.create () in
+  let ro = Op.create () in
+  let ra = Tosmtcoq.ra in
+  let rf = Tosmtcoq.rf in
+  let ra' = Tosmtcoq.ra in
+  let rf' = Tosmtcoq.rf in
+  SmtCommands.tactic i j k call_cvc4_abduct2 cvc4_logic rt ro ra rf ra' rf' vm_cast lcpl lcepl
 
 let tactic () = tactic_gen vm_cast_true
 let tactic_no_check () = tactic_gen (fun _ -> vm_cast_true_no_check)
 let tactic_abduct i j = tactic_gen_abduct i j vm_cast_true
+let tactic_abduct2 i j k = tactic_gen_abduct2 i j k vm_cast_true
