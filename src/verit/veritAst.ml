@@ -902,8 +902,8 @@ let rec get_args_isfrms (t : term) : (term * bool) list =
    | Plus (x, y) | Minus (x, y) | Mult (x, y) -> [(x, false); (y, false)]
    | Lt (x, y) | Leq (x, y) | Gt (x, y) | Geq (x, y) -> 
       raise (Debug ("| get_args_isfrms : congruence over integer predicates unsupported |"))
-      (* TODO: Move Dist to formula *)
-   | And xs | Or xs | Imp xs | Xor xs | Dist xs -> List.map (fun x -> (x, true)) xs
+   | And xs | Or xs | Imp xs | Xor xs -> List.map (fun x -> (x, true)) xs
+   | Dist xs -> List.map (fun x -> (x, false)) xs
    | Eq (x, y) -> [(x, is_form (process_term (process_term_aux x))); (y, is_form (process_term (process_term_aux y)))]
    | Ite xs | App (_, xs) -> List.map (fun x -> (x, is_form (process_term (process_term_aux x)))) xs
    | NTerm (_, t) -> get_args_isfrms t
