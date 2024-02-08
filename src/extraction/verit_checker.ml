@@ -311,6 +311,7 @@ let this_clear_all () =
 
 let checker fsmt fproof =
   this_clear_all ();
+  Printf.printf ("DEBUG checker: %s\n%s\n") fsmt fproof;
   let ra = VeritSyntax.ra in
   let rf = VeritSyntax.rf in
   let roots = import_smtlib2 ra rf fsmt in

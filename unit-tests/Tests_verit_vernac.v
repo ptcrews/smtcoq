@@ -21,6 +21,7 @@ Open Scope Z_scope.
 
 (* veriT vernacular commands *)
 
+(*
 Section Checker_Sat0.
   Verit_Checker "sat0.smt2" "sat0.vtlog".
 End Checker_Sat0.
@@ -58,13 +59,13 @@ Section Checker_Sat8.
 End Checker_Sat8.
 
 Section Checker_Sat9.
-  Verit_Checker "sat9.smt2" "sat9.vtlog".
+  Verit_Checker_Debug "sat9.smt2" "sat9.vtlog".
 End Checker_Sat9.
-(*
+
 Section Checker_Sat10.
-  Verit_Checker "sat10.smt2" "sat10.vtlog".
+  Verit_Checker_Debug "sat10.smt2" "sat10.vtlog".
 End Checker_Sat10.
-*)
+
 Section Checker_Sat11.
   Verit_Checker "sat11.smt2" "sat11.vtlog".
 End Checker_Sat11.
@@ -80,6 +81,15 @@ End Checker_Sat13.
 Section Checker_Sat14.
   Verit_Checker "sat14.smt2" "sat14.vtlog".
 End Checker_Sat14.
+
+Section Checker_Sat15.
+  Verit_Checker_Debug "sat15.smt2" "sat15.vtlog".
+End Checker_Sat15.
+
+ *)
+Section Checker_Sat16.
+  Verit_Checker_Debug "sat16.smt2" "sat16.vtlog".
+End Checker_Sat16.
 
 Section Checker_Hole4.
   Verit_Checker "hole4.smt2" "hole4.vtlog".

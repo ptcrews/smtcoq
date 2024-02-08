@@ -348,7 +348,8 @@ let make_root ra rf t =
         let make_h h =
           match make_root_term h with
             | Atom h' -> h'
-            | _ -> assert false in
+            | Form err -> Printf.printf ("SMTLIB2 DEBUG: %s\n")
+            (SmtAtom.Form.to_string err); assert false in
         let a = Array.make (List.length l) (make_h (List.hd l)) in
         let i = ref (-1) in
         List.iter (fun h ->

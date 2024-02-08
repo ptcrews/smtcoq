@@ -27,6 +27,7 @@ type term =
   | Plus of term * term
   | Minus of term * term
   | Mult of term * term
+  | Dist of term list
 
 type clause = term list
 type id = string

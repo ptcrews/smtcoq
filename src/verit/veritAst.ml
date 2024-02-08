@@ -36,6 +36,7 @@ type term =
   | Plus of term * term
   | Minus of term * term
   | Mult of term * term
+  | Dist of term list
 
 type clause = term list
 type id = string
@@ -357,6 +358,8 @@ and string_of_term (t : term) : string =
   | Plus (t1, t2) -> "("^(string_of_term t1)^" + "^(string_of_term t2)^")"
   | Minus (t1, t2) -> "("^(string_of_term t1)^" - "^(string_of_term t2)^")"
   | Mult (t1, t2) -> "("^(string_of_term t1)^" * "^(string_of_term t2)^")"
+  | Dist ts -> let args = List.fold_left concat_sp "" (List.map string_of_term ts) in
+      "(distinct "^args^")"
 and string_of_clause (c : clause) =
   let args = List.fold_left concat_sp "" (List.map (fun x -> "("^string_of_term x^")") c) in
   "(cl "^args^")"
@@ -386,6 +389,7 @@ let head_term (t : term) : string =
   | Plus _ -> "Plus _"
   | Minus _ -> "Minus _"
   | Mult _ -> "Mult _"
+  | Dist _ -> "Dist _"
 (* Pass through certificate, replace named terms with their
    aliases, and store the alias-term mapping in a hash table *)
 let rec store_shared_terms_t (t : term) : term =
@@ -413,6 +417,7 @@ let rec store_shared_terms_t (t : term) : term =
   | Plus (t1, t2) -> Plus ((store_shared_terms_t t1), (store_shared_terms_t t2))
   | Minus (t1, t2) -> Minus ((store_shared_terms_t t1), (store_shared_terms_t t2))
   | Mult (t1, t2) -> Mult ((store_shared_terms_t t1), (store_shared_terms_t t2))
+  | Dist ts -> Dist (List.map store_shared_terms_t ts)
 
 let store_shared_terms_cl (c : clause) : clause =
   List.map store_shared_terms_t c
@@ -467,6 +472,7 @@ let rec term_eq_alpha (subs : (string * string) list) (t1 : term) (t2 : term) : 
   | Plus (t11, t12), Plus (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
   | Minus (t11, t12), Minus (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
   | Mult (t11, t12), Mult (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
+  | Dist ts1, Dist ts2 -> check_arg_lists ts1 ts2
   | _ -> false
 
 let rec term_eq (t1 : term) (t2 : term) : bool =
@@ -512,6 +518,7 @@ let rec term_eq (t1 : term) (t2 : term) : bool =
   | Plus (t11, t12), Plus (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
   | Minus (t11, t12), Minus (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
   | Mult (t11, t12), Mult (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
+  | Dist ts1, Dist ts2 -> check_arg_lists ts1 ts2
   | _ -> false
 
 
@@ -677,6 +684,7 @@ let rec process_term (x: bool * SmtAtom.Form.atom_form_lit) : SmtAtom.Form.t =
 (* term |-> bool * SmtAtom.Form.atom_form_lit |-> SmtAtom.Form.t *)
 
 and process_term_aux (t : term) : bool * SmtAtom.Form.atom_form_lit (* option *) =
+  Printf.printf ("IN veritAst!!\n");
   let process (t : term) : (bool * SmtAtom.Form.t) =
     let decl, t' = process_term_aux t in
     let t'' = process_term (decl, t') in
@@ -760,6 +768,16 @@ and process_term_aux (t : term) : bool * SmtAtom.Form.atom_form_lit (* option *)
   | Mult (x,y) -> let x' = process_term_aux x in
                   let y' = process_term_aux y in
                   apply_bdec_atom (Atom.mk_mult ra) x' y'
+  | Dist args -> Printf.printf ("DEBUG: %s\n") (List.fold_left concat_sp ""
+                                                (List.map string_of_term args));
+                 let args' = List.map process_term_aux args in
+                 let da, la =
+                  list_dec (List.map (fun x -> match x with
+                                      | decl, Form.Atom h -> (decl, h)
+                                      | _ -> assert false) args') in
+                 let a = Array.of_list la in
+                 da, Form.Atom (Atom.mk_distinct ra ~declare:da (Atom.type_of a.(0)) a)
+
 
 let process_cl (c : clause) : SmtAtom.Form.t list =
   List.map (fun x -> process_term (process_term_aux x)) c
@@ -884,7 +902,8 @@ let rec get_args_isfrms (t : term) : (term * bool) list =
    | Plus (x, y) | Minus (x, y) | Mult (x, y) -> [(x, false); (y, false)]
    | Lt (x, y) | Leq (x, y) | Gt (x, y) | Geq (x, y) -> 
       raise (Debug ("| get_args_isfrms : congruence over integer predicates unsupported |"))
-   | And xs | Or xs | Imp xs | Xor xs -> List.map (fun x -> (x, true)) xs
+      (* TODO: Move Dist to formula *)
+   | And xs | Or xs | Imp xs | Xor xs | Dist xs -> List.map (fun x -> (x, true)) xs
    | Eq (x, y) -> [(x, is_form (process_term (process_term_aux x))); (y, is_form (process_term (process_term_aux y)))]
    | Ite xs | App (_, xs) -> List.map (fun x -> (x, is_form (process_term (process_term_aux x)))) xs
    | NTerm (_, t) -> get_args_isfrms t
@@ -1002,6 +1021,7 @@ let process_cong (c : certif) : certif =
     | (i, CongAST, cl, p, a) :: t ->
         (* To differentiate between the predicate and function case, we need to process
            the clause because we treat equality and iff as the same at the AST level *)
+        Printf.printf ("DEBUG(process_cong): %s\n") (string_of_certif c);
         let c' = try process_cl cl with
                  | Form.NotWellTyped frm -> raise (Debug ("| process_cong: formula "^
                  (Form.pform_to_string frm)^" is not well-typed at id "^i^" |")) in
@@ -1382,7 +1402,10 @@ let process_cong (c : certif) : certif =
                               let resi1 = generate_id () in
                               let andpi = generate_id () in
                               let resi2 = generate_id () in
+                              Printf.printf ("DEBUG: %s\t%s\n")
+                              (string_of_term x) (List.fold_left concat_sp "" (List.map string_of_term xs));
                               let ind = string_of_int (findi (term_eq x) xs) in
+                              Printf.printf ("DEBUG: HERE4.2");
                               (resi2 :: ris, 
                                (eqp2i, Equp2AST, [Not peq; Not x; y], [], []) :: 
                                (resi1, ResoAST, [Not x; y], [eqp2i; pid], []) :: 
@@ -4726,28 +4749,28 @@ let rec process_hole (c : certif) : certif =
       rules to tautological rules and needs them to have arguments for this. To remove 
       constraint, search for projection within `extend_cl`. *)
 let preprocess_certif (c: certif) : certif =
-  (* Printf.printf ("Certif before preprocessing: \n%s\n") (string_of_certif c); *)
+  Printf.printf ("Certif before preprocessing: \n%s\n") (string_of_certif c);
   try 
   (let c1 = store_shared_terms c in
-  (* Printf.printf ("Certif after storing shared terms: \n%s\n") (string_of_certif c1); *)
+  Printf.printf ("Certif after storing shared terms: \n%s\n") (string_of_certif c1);
   let c2 = process_fins c1 in
-  (* Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2); *)
+  Printf.printf ("Certif after process_fins: \n%s\n") (string_of_certif c2);
   let c3 = process_hole c2 in
-  (* Printf.printf ("Certif after process_hole: \n%s\n") (string_of_certif c3); *)
+  Printf.printf ("Certif after process_hole: \n%s\n") (string_of_certif c3);
   let c4 = process_notnot c3 in
-  (* Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c4); *)
+  Printf.printf ("Certif after process_notnot: \n%s\n") (string_of_certif c4);
   let c5 = process_same c4 in
-  (* Printf.printf ("Certif after process_same: \n%s\n") (string_of_certif c5); *)
+  Printf.printf ("Certif after process_same: \n%s\n") (string_of_certif c5);
   let c6 = process_cong c5 in
-  (* Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c6); *)
+  Printf.printf ("Certif after process_cong: \n%s\n") (string_of_certif c6);
   let c7 = process_trans c6 in
-  (* Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c7); *)
+  Printf.printf ("Certif after process_trans: \n%s\n") (string_of_certif c7);
   let c8 = process_simplify c7 in
-  (* Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c8); *)
+  Printf.printf ("Certif after process_simplify: \n%s\n") (string_of_certif c8);
   let c9 = process_proj c8 in
-  (* Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c9); *)
+  Printf.printf ("Certif after process_proj: \n%s\n") (string_of_certif c9);
   let c10 = process_subproof c9 in
-  (* Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c10); *)
+  Printf.printf ("Certif after process_subproof: \n%s\n") (string_of_certif c10);
   c10) with
   | Debug s -> raise (Debug ("| VeritAst.preprocess_certif: failed to preprocess |"^s))
 

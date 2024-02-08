@@ -220,8 +220,8 @@ term:
   | LPAREN PLUS x=term y=term RPAREN        { Plus (x, y) }
   | LPAREN MINUS x=term y=term RPAREN       { Minus (x, y) }
   | LPAREN MULT x=term y=term RPAREN        { Mult (x, y) }
-  (*| LPAREN DIST terms=term* RPAREN        {}
-  | LPAREN BVNOT t=term RPAREN              {}
+  | LPAREN DIST terms=term* RPAREN          { Dist terms }
+  (*| LPAREN BVNOT t=term RPAREN              {}
   | LPAREN BVAND t1=term t2=term RPAREN     {}
   | LPAREN BVOR t1=term t2=term RPAREN      {}
   | LPAREN BVXOR t1=term t2=term RPAREN     {}
