@@ -135,7 +135,6 @@
 
       (* Subproofs *)
         "subproof", SUBPROOF;
-      
 
       (* Bit-vector Rules *)
         (*"bbvar", BBVA;
@@ -245,21 +244,21 @@ rule token = parse
   | "+"                         { PLUS }
   | "-"                         { MINUS }
   | "*"                         { MULT }
-  | "Int"     	      	        { TINT }
-  | "Bool"		                  { TBOOL }
+  | "Int"                       { TINT }
+  | "Bool"                      { TBOOL }
   | ":="                        { COLEQ }
-  | keyword                     { let k = Lexing.lexeme lexbuf in 
+  | keyword                     { let k = Lexing.lexeme lexbuf in
                                   try Hashtbl.find typ_table k with
                                   | Not_found -> KEYWORD k }
-  | symbol                      { let s = Lexing.lexeme lexbuf in 
+  | symbol                      { let s = Lexing.lexeme lexbuf in
                                   try Hashtbl.find typ_table s with
                                   | Not_found -> SYMBOL s }
   | at_symbol                   { let s = Lexing.lexeme lexbuf in
                                   try Hashtbl.find typ_table s with
                                   | Not_found -> ATSYMBOL s }
-  | isymbol                     { let i = Lexing.lexeme lexbuf in 
+  | isymbol                     { let i = Lexing.lexeme lexbuf in
                                   ISYMBOL i }
-  | (int as i)                  { try INT (int_of_string i) with 
+  | (int as i)                  { try INT (int_of_string i) with
                                   _ -> BIGINT (Big_int.big_int_of_string i) }
-(*  | bitvector as bv             { BITV bv }*)
+  | bitvector as bv             { BITV bv }
   | eof                         { EOF }

@@ -1,0 +1,4 @@
+-R ../../../src SMTCoq
+-I ../../../src
+
+Test_bv_cvc5.v

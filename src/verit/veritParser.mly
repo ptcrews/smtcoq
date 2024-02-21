@@ -14,19 +14,19 @@
   open VeritAst
 
 
-  (*let symbol_to_id s = 
+  (*let symbol_to_id s =
     (* f transforms string "tn" to int n *)
     let f = (fun s -> let l = (String.length s) - 1 in
                       int_of_string (String.sub s 1 l)) in
-    (* Subproof steps have labels*)                  
+    (* Subproof steps have labels*)
     let syms = List.map f (String.split_on_char '.' s) in
-    if (List.length syms == 1) then 
+    if (List.length syms == 1) then
       List.hd syms
-    else 
+    else
       raise InvalidProofStepNo
 
   (* transform string "@p_n" to int n *)
-  let atsymbol_to_id s = 
+  let atsymbol_to_id s =
     let l = (String.length s) - 3 in
     int_of_string (String.sub s 3 l)
 
@@ -73,16 +73,16 @@
 %token CONNDEF ANDSIMP ORSIMP NOTSIMP IMPSIMP
 %token EQSIMP BOOLSIMP ACSIMP ITESIMP EQUALSIMP DISTELIM
 %token EQ LT LEQ GT GEQ PLUS MINUS MULT
-%token LAGE LIAGE LATA LADE DIVSIMP PRODSIMP 
+%token LAGE LIAGE LATA LADE DIVSIMP PRODSIMP
 %token UMINUSSIMP MINUSSIMP SUMSIMP COMPSIMP LARWEQ
 %token FINS BIND QCNF SUBPROOF
 %token SYMM REORDR FACTR ALLSIMP
 (*%token BBVA BBCONST BBEQ BBDIS BBOP BBNOT BBNEG BBADD
 %token BBMUL BBULT BBSLT BBCONC BBEXTR BBZEXT BBSEXT
-%token BBSHL BBSHR BVAND BVOR BVXOR BVADD BVMUL BVULT 
+%token BBSHL BBSHR BVAND BVOR BVXOR BVADD BVMUL BVULT
 %token BVSLT BVULE BVSLE BVCONC BVEXTR BVZEXT BVSEXT
-%token BVNOT BVNEG BVSHL BVSHR
-%token <string> BITV*)
+%token BVNOT BVNEG BVSHL BVSHR*)
+%token <string> BITV
 
 %start proof
 %type <VeritAst.certif> proof
@@ -119,8 +119,8 @@ line:
   | LPAREN STEP s=SYMBOL c=clause COLRULE r=rulename p=premises? a=arguments? RPAREN EOL
     { match p, a with
       | None, None -> mk_step (s, r, c, [], [])
-      | Some prems, None -> mk_step (s, r, c, prems, []) 
-      | None, Some args -> mk_step (s, r, c, [], args) 
+      | Some prems, None -> mk_step (s, r, c, prems, [])
+      | None, Some args -> mk_step (s, r, c, [], args)
       | Some prems, Some args -> mk_step (s, r, c, prems, args) }
   | LPAREN ANCHOR COLSTEP s=SYMBOL arguments RPAREN EOL
     { mk_step ((generate_id ()), AnchorAST, [], [s], []) }
@@ -135,8 +135,8 @@ subproofline:
     sl=subproofline
     { let st = (match p, a with
         | None, None -> mk_step (s, r, c, [], [])
-        | Some prems, None -> mk_step (s, r, c, prems, []) 
-        | None, Some args -> mk_step (s, r, c, [], args) 
+        | Some prems, None -> mk_step (s, r, c, prems, [])
+        | None, Some args -> mk_step (s, r, c, [], args)
         | Some prems, Some args -> mk_step (s, r, c, prems, args)) in
       st :: sl }
   | LPAREN ANCHOR COLSTEP s=SYMBOL arguments RPAREN EOL
@@ -149,7 +149,7 @@ subproofline:
 ;
 
 subproof:
-  | LPAREN ANCHOR COLSTEP s=SYMBOL RPAREN EOL 
+  | LPAREN ANCHOR COLSTEP s=SYMBOL RPAREN EOL
     l=subproofline
     { mk_step (s, SubproofAST l, [], [], []) }
 ;
@@ -173,11 +173,11 @@ argument:
   | t=term                                  { string_of_term t }
   | LPAREN MINUS i=INT RPAREN               { string_of_int (-i) }
   | i=INT                                   { string_of_int i }
-  | LPAREN COLEQ sv=sorted_var s=SYMBOL RPAREN 
+  | LPAREN COLEQ sv=sorted_var s=SYMBOL RPAREN
     { s } (* Need to process these properly *)
   | LPAREN COLEQ s1=SYMBOL s2=SYMBOL RPAREN { s1 }
 ;
-  
+
 ident:
   | s=SYMBOL                                { Var s }
   | i=ISYMBOL                               { Var i }
@@ -196,7 +196,7 @@ term:
   (* Formulas *)
   | TRUE                                    { True }
   | FALSE                                   { False }
-  | LPAREN NOT t=term RPAREN                { Not t }  
+  | LPAREN NOT t=term RPAREN                { Not t }
   | LPAREN AND ts=term* RPAREN              { And ts }
   | LPAREN OR ts=term* RPAREN               { Or ts }
   | LPAREN IMPLIES ts=term* RPAREN          { Imp ts }
@@ -210,8 +210,8 @@ term:
 
   (* Atoms *)
   | i=INT                                   { Int i }
-  (*| b=BIGINT                              {}
-  | b=BITV                                  {}*)
+  (*| b=BIGINT                              {}*)
+  | b=BITV                                  { Bitv b }
   | LPAREN LT x=term y=term RPAREN          { Lt (x, y) }
   | LPAREN LEQ x=term y=term RPAREN         { Leq  (x, y) }
   | LPAREN GT x=term y=term RPAREN          { Gt (x, y) }
@@ -220,9 +220,9 @@ term:
   | LPAREN PLUS x=term y=term RPAREN        { Plus (x, y) }
   | LPAREN MINUS x=term y=term RPAREN       { Minus (x, y) }
   | LPAREN MULT x=term y=term RPAREN        { Mult (x, y) }
-  (*| LPAREN DIST terms=term* RPAREN        {}
-  | LPAREN BVNOT t=term RPAREN              {}
-  | LPAREN BVAND t1=term t2=term RPAREN     {}
+  (*| LPAREN DIST terms=term* RPAREN        {} *)
+  (*| LPAREN BVNOT t=term RPAREN              { }*)
+  (*| LPAREN BVAND t1=term t2=term RPAREN     {}
   | LPAREN BVOR t1=term t2=term RPAREN      {}
   | LPAREN BVXOR t1=term t2=term RPAREN     {}
   | LPAREN BVNEG t=term RPAREN              {}
@@ -323,9 +323,9 @@ rulename:
   | DISTELIM                                { DistelimAST }
   | LAGE                                    { LageAST }
   | LIAGE                                   { LiageAST }
-  | LATA                                    { LataAST} 
+  | LATA                                    { LataAST}
   | LADE                                    { LadeAST }
-  | DIVSIMP                                 { DivsimpAST} 
+  | DIVSIMP                                 { DivsimpAST}
   | PRODSIMP                                { ProdsimpAST }
   | UMINUSSIMP                              { UminussimpAST }
   | MINUSSIMP                               { MinussimpAST }

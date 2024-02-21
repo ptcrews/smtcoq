@@ -1,4 +1,4 @@
-type typ = 
+type typ =
   | Int
   | Bool
   | Unintr of string
@@ -27,6 +27,7 @@ type term =
   | Plus of term * term
   | Minus of term * term
   | Mult of term * term
+  | Bitv of string
 
 type clause = term list
 type id = string
