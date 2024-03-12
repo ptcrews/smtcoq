@@ -57,7 +57,7 @@
 %token <Big_int.big_int> BIGINT
 
 %token LPAREN RPAREN EOF EOL COLON BANG COLEQ
-%token COLRULE COLSTEP COLARGS COLPREMISES COLDISCHARGE
+%token COLRULE COLSTEP COLARGS COLPREMISES COLDISCHARGE UNDERSCORE
 %token ASSUME STEP ANCHOR DEFINEFUN CL ASTOK CHOICE
 %token LET FORALL EXISTS MATCH TINT TBOOL NAMED
 
@@ -77,11 +77,16 @@
 %token UMINUSSIMP MINUSSIMP SUMSIMP COMPSIMP LARWEQ
 %token FINS BIND QCNF SUBPROOF
 %token SYMM REORDR FACTR ALLSIMP
-(*%token BBVA BBCONST BBEQ BBDIS BBOP BBNOT BBNEG BBADD
-%token BBMUL BBULT BBSLT BBCONC BBEXTR BBZEXT BBSEXT
-%token BBSHL BBSHR BVAND BVOR BVXOR BVADD BVMUL BVULT
+%token BITOF BBT
+%token BBVA
+(* TODO: Add support for new BV operators
+%token BBCONST BBEQ BBDIS BBOP BBNOT BBNEG BBADD BBMUL*)
+%token BBULT
+(*%token BBULT BBSLT BBCONC BBEXTR BBZEXT BBSEXT
+%token BBSHL BBSHR *)
+%token BVAND BVOR BVXOR BVADD BVMUL BVULT
 %token BVSLT BVULE BVSLE BVCONC BVEXTR BVZEXT BVSEXT
-%token BVNOT BVNEG BVSHL BVSHR*)
+%token BVNOT BVNEG BVSHL BVSHR
 %token <string> BITV
 
 %start proof
@@ -221,21 +226,23 @@ term:
   | LPAREN MINUS x=term y=term RPAREN       { Minus (x, y) }
   | LPAREN MULT x=term y=term RPAREN        { Mult (x, y) }
   (*| LPAREN DIST terms=term* RPAREN        {} *)
-  (*| LPAREN BVNOT t=term RPAREN              { }*)
-  (*| LPAREN BVAND t1=term t2=term RPAREN     {}
-  | LPAREN BVOR t1=term t2=term RPAREN      {}
-  | LPAREN BVXOR t1=term t2=term RPAREN     {}
-  | LPAREN BVNEG t=term RPAREN              {}
-  | LPAREN BVADD t1=term t2=term RPAREN     {}
-  | LPAREN BVMUL t1=term t2=term RPAREN     {}
-  | LPAREN BVULT t1=term t2=term RPAREN     {}
-  | LPAREN BVSLT t1=term t2=term RPAREN     {}
-  | LPAREN BVULE t1=term t2=term RPAREN     {}
-  | LPAREN BVSLE t1=term t2=term RPAREN     {}
-  | LPAREN BVSHL t1=term t2=term RPAREN     {}
-  | LPAREN BVSHR t1=term t2=term RPAREN     {}
-  | LPAREN BVCONC t1=term t2=term RPAREN    {}
-  | LPAREN BVEXTR j=INT i=INT t=term RPAREN {}
+  | LPAREN LPAREN UNDERSCORE BITOF i=INT RPAREN t=term RPAREN { Bitof (t, i) }
+  | LPAREN BBT ts=term* RPAREN              { Bbt ts }
+  | LPAREN BVNOT t=term RPAREN              { Bvnot t }
+  | LPAREN BVAND t1=term t2=term RPAREN     { Bvand (t1, t2) }
+  | LPAREN BVOR t1=term t2=term RPAREN      { Bvor (t1, t2) }
+  | LPAREN BVXOR t1=term t2=term RPAREN     { Bvxor (t1, t2) }
+  | LPAREN BVNEG t=term RPAREN              { Bvneg t }
+  | LPAREN BVADD t1=term t2=term RPAREN     { Bvadd (t1, t2) }
+  | LPAREN BVMUL t1=term t2=term RPAREN     { Bvmul (t1, t2) }
+  | LPAREN BVULT t1=term t2=term RPAREN     { Bvult (t1, t2) }
+  | LPAREN BVSLT t1=term t2=term RPAREN     { Bvslt (t1, t2) }
+  | LPAREN BVULE t1=term t2=term RPAREN     { Bvule (t1, t2) }
+  | LPAREN BVSLE t1=term t2=term RPAREN     { Bvsle (t1, t2) }
+  | LPAREN BVSHL t1=term t2=term RPAREN     { Bvshl (t1, t2) }
+  | LPAREN BVSHR t1=term t2=term RPAREN     { Bvshr (t1, t2) }
+  | LPAREN BVCONC t1=term t2=term RPAREN    { Bvconc (t1, t2) }
+  (*| LPAREN BVEXTR j=INT i=INT t=term RPAREN {}
   | LPAREN BVZEXT n=INT t=term RPAREN       {}
   | LPAREN BVSEXT n=INT t=term RPAREN       {}*)
   | i=ident                                 { i }
@@ -339,6 +346,8 @@ rulename:
   | REORDR                                  { SameAST }
   | FACTR                                   { SameAST }
   | ALLSIMP                                 { AllsimpAST }
+  | BBVA                                    { BbvarAST }
+  | BBULT                                   { BbultAST }
 (*function_def:
   | SYMBOL LPAREN sorted_var* RPAREN sort term { "" }
 ;

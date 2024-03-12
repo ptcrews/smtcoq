@@ -14,7 +14,7 @@ open SmtAtom
 
 exception Sat
 exception Debug of string
-type typ = 
+type typ =
   | Assume (* Inpu *)
   | True
   | Fals
@@ -30,9 +30,9 @@ type typ =
   | Nor
   | Or
   | Nand
-  | Xor1 
+  | Xor1
   | Xor2
-  | Nxor1 
+  | Nxor1
   | Nxor2
   | Imp
   | Nimp1
@@ -87,6 +87,8 @@ type typ =
   | Weaken
   | Flatten
   | Hole
+  | Bbva
+  | Bbult
 
 val is_iff : SmtAtom.Form.t -> bool
 val is_eq : SmtAtom.Form.t -> bool

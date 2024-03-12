@@ -28,12 +28,28 @@ type term =
   | Minus of term * term
   | Mult of term * term
   | Bitv of string
+  | Bitof of term * int
+  | Bbt of term list
+  | Bvnot of term
+  | Bvand of term * term
+  | Bvor of term * term
+  | Bvxor of term * term
+  | Bvneg of term
+  | Bvadd of term * term
+  | Bvmul of term * term
+  | Bvult of term * term
+  | Bvslt of term * term
+  | Bvule of term * term
+  | Bvsle of term * term
+  | Bvshl of term * term
+  | Bvshr of term * term
+  | Bvconc of term * term
 
 type clause = term list
 type id = string
 type params = id list
 type args = id list
-type rule = 
+type rule =
   | AssumeAST
   | TrueAST
   | FalsAST
@@ -120,6 +136,8 @@ type rule =
   | WeakenAST
   | FlattenAST
   | DischargeAST
+  | BbvarAST
+  | BbultAST
   | SubproofAST of certif
 and step = id * rule * clause * params * args
 and certif = step list

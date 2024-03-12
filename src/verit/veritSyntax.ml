@@ -20,7 +20,7 @@ open SmtTrace
 exception Debug of string
 exception Sat
 
-type typ = 
+type typ =
   | Assume (* Inpu *)
   | True
   | Fals
@@ -36,9 +36,9 @@ type typ =
   | Nor
   | Or
   | Nand
-  | Xor1 
+  | Xor1
   | Xor2
-  | Nxor1 
+  | Nxor1
   | Nxor2
   | Imp
   | Nimp1
@@ -93,7 +93,8 @@ type typ =
   | Weaken
   | Flatten
   | Hole
-
+  | Bbva
+  | Bbult
 
 (* About equality *)
 
@@ -673,7 +674,7 @@ let mk_clause (id,typ,value,ids_params,args) =
           | _ -> raise (Debug ("| VeritSyntax.mk_clause: expecting singleton clause at id "^id^" |")))
       (* Linear integer arithmetic *)
       | Liage | Lata | Lade | Lage | Larweq
-      | Divsimp | Prodsimp | Uminussimp | Minussimp 
+      | Divsimp | Prodsimp | Uminussimp | Minussimp
       | Sumsimp | Compsimp | Arithpolynorm | LiaRewrite -> mkMicromega value
       (* Holes in proofs *)
       | Hole -> Other (SmtCertif.Hole (List.map get_clause ids_params, value))
@@ -717,6 +718,15 @@ let mk_clause (id,typ,value,ids_params,args) =
         (match ids_params, value with
           | [i], [v] -> Other(ImmFlatten ((get_clause i), v))
           | _ -> raise (Debug ("| VeritSyntax.mk_clause: unexpected form of Flatten, expected exactly one premise at id "^id^" |")))
+      (* Bit-vectors *)
+      | Bbva ->
+          (match value with
+            | [f] -> Other (BBVar f)
+            | _ -> assert false)
+      | Bbult ->
+          (match ids_params, value with
+            | [id1;id2], [f] -> Other (BBUlt (get_clause id1, get_clause id2, f))
+            | _, _ -> assert false)
       (* Not implemented *)
       | Bind -> raise (Debug ("| VeritSyntax.mk_clause: unimplemented rule bind at id "^id^" |"))
       | Qcnf -> raise (Debug ("| VeritSyntax.mk_clause: unimplemented rule qnt_cnf at id "^id^" |")))

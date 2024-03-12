@@ -137,26 +137,30 @@
         "subproof", SUBPROOF;
 
       (* Bit-vector Rules *)
-        (*"bbvar", BBVA;
-        "bbconst", BBCONST;
+        "bitOf", BITOF;
+        "bbT", BBT;
+        "bv_bitblast_step_var", BBVA;
+        (*"bbconst", BBCONST;
         "bbeq", BBEQ;
         "bv_const_neq", BBDIS;
         "bbop", BBOP;
         "bbnot", BBNOT;
         "bbneg", BBNEG;
         "bbadd", BBADD;
-        "bbmul", BBMUL;
-        "bbult", BBULT;
-        "bbslt", BBSLT;
+        "bbmul", BBMUL;*)
+        "bv_bitblast_step_bvult", BBULT;
+        (*"bbslt", BBSLT;
         "bbconcat", BBCONC;
         "bbextract", BBEXTR;
         "bbzextend", BBZEXT;
         "bbsextend", BBSEXT;
         "bbshl", BBSHL;
-        "bbshr", BBSHR;
+        "bbshr", BBSHR;*)
+        "bvnot", BVNOT;
         "bvand", BVAND;
         "bvor", BVOR;
         "bvxor", BVXOR;
+        "bvneg", BVNEG;
         "bvadd", BVADD;
         "bvmul", BVMUL;
         "bvult", BVULT;
@@ -165,10 +169,8 @@
         "bvsle", BVSLE;
         "bvshl", BVSHL;
         "bvlshr", BVSHR;
-        "bvnot", BVNOT;
-        "bvneg", BVNEG;
         "concat", BVCONC;
-        "extract", BVEXTR;
+        (*"extract", BVEXTR;
         "zero_extend", BVZEXT;
         "sign_extend", BVSEXT;*)
       ]
@@ -244,6 +246,7 @@ rule token = parse
   | "+"                         { PLUS }
   | "-"                         { MINUS }
   | "*"                         { MULT }
+  | "_"                         { UNDERSCORE }
   | "Int"                       { TINT }
   | "Bool"                      { TBOOL }
   | ":="                        { COLEQ }

@@ -151,7 +151,7 @@ let checker fsmt fproof =
 
 let export out_channel rt ro lsmt =
   let fmt = Format.formatter_of_out_channel out_channel in
-  Format.fprintf fmt "(set-logic UFLIA)@.";
+  Format.fprintf fmt "(set-logic QF_UFBVLIA)@.";
 
   List.iter (fun (i,t) ->
     let s = "Tindex_"^(string_of_int i) in
@@ -185,7 +185,7 @@ let call_cvc5 _ rt ro ra_quant rf_quant first lsmt =
   let logfilename = Filename.chop_extension filename ^ ".vtlog" in
   let wname, woc = Filename.open_temp_file "warnings_cvc5" ".log" in
   close_out woc;
-  let command = "cvc5 --dump-proofs --proof-prune-input --proof-format-mode=alethe --simplification=none --dag-thres=0 --lang=smt2 --proof-granularity=dsl-rewrite " ^ filename ^ " | tail -n +2 > " ^ logfilename ^ " 2> " ^ wname in
+  let command = "cvc5 --dump-proofs --proof-prune-input --proof-format-mode=alethe --simplification=none --dag-thres=0 --lang=smt2 --proof-granularity=dsl-rewrite " ^ filename ^ " | sed '/^$/d' | tail -n +2 > " ^ logfilename ^ " 2> " ^ wname in
   Format.eprintf "%s@." command;
   let t0 = Sys.time () in
   let exit_code = Sys.command command in
@@ -224,7 +224,7 @@ let call_cvc5 _ rt ro ra_quant rf_quant first lsmt =
             | _ -> raise x
 
 let cvc5_logic =
-  SL.of_list [LUF; LLia]
+  SL.of_list [LUF; LLia; LBitvectors]
 
 let tactic_gen vm_cast lcpl lcepl =
   (* Transform the tuple of lemmas given by the user into a list *)

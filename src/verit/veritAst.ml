@@ -37,6 +37,22 @@ type term =
   | Minus of term * term
   | Mult of term * term
   | Bitv of string
+  | Bitof of term * int
+  | Bbt of term list
+  | Bvnot of term
+  | Bvand of term * term
+  | Bvor of term * term
+  | Bvxor of term * term
+  | Bvneg of term
+  | Bvadd of term * term
+  | Bvmul of term * term
+  | Bvult of term * term
+  | Bvslt of term * term
+  | Bvule of term * term
+  | Bvsle of term * term
+  | Bvshl of term * term
+  | Bvshr of term * term
+  | Bvconc of term * term
 
 type clause = term list
 type id = string
@@ -129,6 +145,8 @@ type rule =
   | WeakenAST
   | FlattenAST
   | DischargeAST
+  | BbvarAST
+  | BbultAST
   | SubproofAST of certif
 and step = id * rule * clause * params * args
 and certif = step list
@@ -178,6 +196,7 @@ let add_sterm s t = Hashtbl.add sterms s t
 let clear_sterms () = Hashtbl.clear sterms
 
 (* Get expression modulo aliasing *)
+(* TODO: Update this for bitvectors*)
 let rec get_expr = function
   | Not t -> Not (get_expr t)
   | And ts -> And (List.map get_expr ts)
@@ -318,13 +337,14 @@ and string_of_rule (r : rule) : string =
   | FlattenAST -> "FlattenAST"
   | AnchorAST -> "AnchorAST"
   | DischargeAST -> "DischargeAST"
+  | BbvarAST -> "BbvarAST"
+  | BbultAST -> "BbultAST"
   | SubproofAST c -> "SubproofAST\n\t"^(string_of_certif c)^"\t"
 and string_of_typ (t : typ) : string =
   match t with
   | Int -> "Int"
   | Bool -> "Bool"
   | Unintr s -> "(Unintr "^s^")"
-  (*| Bitv b -> "(Bitv "^b^")"*)
 and concat_sp x y = x^" "^y
 and string_of_term (t : term) : string =
   match t with
@@ -360,6 +380,22 @@ and string_of_term (t : term) : string =
   | Minus (t1, t2) -> "("^(string_of_term t1)^" - "^(string_of_term t2)^")"
   | Mult (t1, t2) -> "("^(string_of_term t1)^" * "^(string_of_term t2)^")"
   | Bitv b -> "("^b^")"
+  | Bitof (t, i) -> "(bitOf "^(string_of_term t)^" "^(string_of_int i)^")"
+  | Bbt ts -> let args = List.fold_left concat_sp "" (List.map string_of_term ts) in "(bbT "^args^")"
+  | Bvnot t -> "(bvnot "^(string_of_term t)^")"
+  | Bvand (t1, t2) -> "("^(string_of_term t1)^" & "^(string_of_term t2)^")"
+  | Bvor (t1, t2) -> "("^(string_of_term t1)^" | "^(string_of_term t2)^")"
+  | Bvxor (t1, t2) -> "("^(string_of_term t1)^" ^ "^(string_of_term t2)^")"
+  | Bvneg t -> "(bvneg "^(string_of_term t)^")"
+  | Bvadd (t1, t2) -> "(bvadd "^(string_of_term t1)^" "^(string_of_term t2)^")"
+  | Bvmul (t1, t2) -> "(bvmul "^(string_of_term t1)^" "^(string_of_term t2)^")"
+  | Bvult (t1, t2) -> "(bvult "^(string_of_term t1)^" "^(string_of_term t2)^")"
+  | Bvslt (t1, t2) -> "(bvslt "^(string_of_term t1)^" "^(string_of_term t2)^")"
+  | Bvule (t1, t2) -> "(bvule "^(string_of_term t1)^" "^(string_of_term t2)^")"
+  | Bvsle (t1, t2) -> "(bvsle "^(string_of_term t1)^" "^(string_of_term t2)^")"
+  | Bvshl (t1, t2) -> "(bvshl "^(string_of_term t1)^" "^(string_of_term t2)^")"
+  | Bvshr (t1, t2) -> "(bvshr "^(string_of_term t1)^" "^(string_of_term t2)^")"
+  | Bvconc (t1, t2) -> "(bvconc "^(string_of_term t1)^" "^(string_of_term t2)^")"
 and string_of_clause (c : clause) =
   let args = List.fold_left concat_sp "" (List.map (fun x -> "("^string_of_term x^")") c) in
   "(cl "^args^")"
@@ -390,6 +426,22 @@ let head_term (t : term) : string =
   | Minus _ -> "Minus _"
   | Mult _ -> "Mult _"
   | Bitv _ -> "Bitv _"
+  | Bitof _ -> "Bitof _"
+  | Bbt _ -> "bbT _"
+  | Bvnot _ -> "Bvnot _"
+  | Bvand _ -> "Bvand _"
+  | Bvor _ -> "Bvor _"
+  | Bvxor _ -> "Bvxor _"
+  | Bvneg _ -> "Bvneg _"
+  | Bvadd _ -> "Bvadd _"
+  | Bvmul _ -> "Bvmul _"
+  | Bvult _ -> "Bvult _"
+  | Bvslt _ -> "Bvslt _"
+  | Bvule _ -> "Bvule _"
+  | Bvsle _ -> "Bvsle _"
+  | Bvshl _ -> "Bvshl _"
+  | Bvshr _ -> "Bvshr _"
+  | Bvconc _ -> "Bvconc _"
 (* Pass through certificate, replace named terms with their
    aliases, and store the alias-term mapping in a hash table *)
 let rec store_shared_terms_t (t : term) : term =
@@ -418,6 +470,22 @@ let rec store_shared_terms_t (t : term) : term =
   | Minus (t1, t2) -> Minus ((store_shared_terms_t t1), (store_shared_terms_t t2))
   | Mult (t1, t2) -> Mult ((store_shared_terms_t t1), (store_shared_terms_t t2))
   | Bitv b -> Bitv b
+  | Bitof (t', i) -> Bitof((store_shared_terms_t t'), i)
+  | Bbt ts -> Bbt (List.map store_shared_terms_t ts)
+  | Bvnot t' -> Bvnot (store_shared_terms_t t')
+  | Bvand (t1, t2) -> Bvand ((store_shared_terms_t t1), (store_shared_terms_t t2))
+  | Bvor (t1, t2) -> Bvor ((store_shared_terms_t t1), (store_shared_terms_t t2))
+  | Bvxor (t1, t2) -> Bvxor ((store_shared_terms_t t1), (store_shared_terms_t t2))
+  | Bvneg t' -> Bvneg (store_shared_terms_t t')
+  | Bvadd (t1, t2) -> Bvadd ((store_shared_terms_t t1), (store_shared_terms_t t2))
+  | Bvmul (t1, t2) -> Bvmul ((store_shared_terms_t t1), (store_shared_terms_t t2))
+  | Bvult (t1, t2) -> Bvult ((store_shared_terms_t t1), (store_shared_terms_t t2))
+  | Bvslt (t1, t2) -> Bvslt ((store_shared_terms_t t1), (store_shared_terms_t t2))
+  | Bvule (t1, t2) -> Bvule ((store_shared_terms_t t1), (store_shared_terms_t t2))
+  | Bvsle (t1, t2) -> Bvsle ((store_shared_terms_t t1), (store_shared_terms_t t2))
+  | Bvshl (t1, t2) -> Bvshl ((store_shared_terms_t t1), (store_shared_terms_t t2))
+  | Bvshr (t1, t2) -> Bvshr ((store_shared_terms_t t1), (store_shared_terms_t t2))
+  | Bvconc (t1, t2) -> Bvconc ((store_shared_terms_t t1), (store_shared_terms_t t2))
 
 let store_shared_terms_cl (c : clause) : clause =
   List.map store_shared_terms_t c
@@ -473,6 +541,10 @@ let rec term_eq_alpha (subs : (string * string) list) (t1 : term) (t2 : term) : 
   | Minus (t11, t12), Minus (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
   | Mult (t11, t12), Mult (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
   | Bitv b1, Bitv b2 -> b1 = b2
+  | Bitof (t1', i1), Bitof (t2', i2) -> i1 = i2 && term_eq_alpha subs t1' t2'
+  | Bbt ts1, Bbt ts2 -> check_arg_lists ts1 ts2
+  | Bvnot t1', Bvnot t2' -> term_eq_alpha subs t1' t2'
+  | Bvand (t11, t12), Bvand (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
   | _ -> false
 
 let rec term_eq (t1 : term) (t2 : term) : bool =
@@ -519,6 +591,11 @@ let rec term_eq (t1 : term) (t2 : term) : bool =
   | Minus (t11, t12), Minus (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
   | Mult (t11, t12), Mult (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
   | Bitv b1, Bitv b2 -> b1 = b2
+  | Bitof (t1', i1), Bitof (t2', i2) -> i1 = i2 && term_eq t1' t2'
+  | Bbt ts1, Bbt ts2 -> check_arg_lists ts1 ts2
+  | Bvnot t1', Bvnot t2' -> term_eq t1' t2'
+  | Bvand (t11, t12), Bvand (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
+  (* TODO: Add remaining bitvector operators *)
   | _ -> false
 
 
@@ -678,6 +755,8 @@ let rec process_vars (vs : (string * typ) list) : (string * SmtBtype.btype) list
                     add_qvar s t'; (s, t') :: process_vars tl
   | [] -> []
 
+(*let process_bblits ( *)
+
 let rec process_term (x: bool * SmtAtom.Form.atom_form_lit) : SmtAtom.Form.t =
   Form.lit_of_atom_form_lit rf x
 
@@ -777,9 +856,128 @@ and process_term_aux (t : term) : bool * SmtAtom.Form.atom_form_lit (* option *)
                 done;
                 !l) in
               true, Form.Atom (Atom.mk_bvconst ra (parse_bv b))
+  | Bitof (t, i) -> let t' = process_term_aux t in
+                    Printf.printf "TODOOOO\n";
+                    apply_dec_atom (fun ?declare:(d=true) h ->
+                                    match Atom.type_of h with
+                                    | TBV s -> Atom.mk_bitof ra ~declare:d s i h
+                                    | _ -> assert false) t'
+  (* TODO(ptcrews): I'm not convinced this is correct. *)
+  | Bbt ts -> let ts' = List.map process ts in
+              Printf.printf "ts'=%s\n" (List.fold_left concat_sp "" (List.map
+              Form.pform_to_string (List.map Form.pform (List.map snd ts'))));
+              Printf.printf "bitof=%s\n" (string_of_term (List.hd ts));
+              (match (List.hd ts) with
+              | Bitof (t, i) ->
+                  let t' = snd (process_term_aux t) in
+                  Printf.printf "here1\n";
+                  (match (t') with
+                  | Form.Atom t'' ->
+                      Printf.printf "fbbt arg=%s\n" (Atom.to_string t'');
+                      apply_dec (fun x -> Form.Form (FbbT (t', x))) (list_dec ts')
+                  | _ -> assert false)
+              | _ -> assert false)
+              (*
+              (match Form.pform bitof with
+              | Fatom bitof' ->
+                  (match Atom.atom bitof' with
+                    | Auop (UO_BVbitOf _, bitof'') ->
+                      apply_dec (fun x -> Form.Form (FbbT
+                      (bitof'', x))) (list_dec ts')
+                    | _ -> assert false)
+              | _ -> assert false)
+              *)
+  | Bvnot t -> let t' = process_term_aux t in
+               apply_dec_atom (fun ?declare:(d=true) h ->
+                               match Atom.type_of h with
+                               | TBV s -> Atom.mk_bvnot ra ~declare: d s h
+                               | _ -> assert false) t'
+  | Bvand (t1, t2) -> let t1' = process_term_aux t1 in
+                      let t2' = process_term_aux t2 in
+                      apply_bdec_atom (fun ?declare:(d=true) h1 h2 ->
+                                         match Atom.type_of h1 with
+                                         | TBV s -> Atom.mk_bvand ra ~declare:d s h1 h2
+                                         | _ -> assert false) t1' t2'
+  | Bvor (t1, t2) -> let t1' = process_term_aux t1 in
+                     let t2' = process_term_aux t2 in
+                      apply_bdec_atom (fun ?declare:(d=true) h1 h2 ->
+                                         match Atom.type_of h1 with
+                                         | TBV s -> Atom.mk_bvor ra ~declare:d s h1 h2
+                                         | _ -> assert false) t1' t2'
+  | Bvxor (t1, t2) -> let t1' = process_term_aux t1 in
+                      let t2' = process_term_aux t2 in
+                       apply_bdec_atom (fun ?declare:(d=true) h1 h2 ->
+                                          match Atom.type_of h1 with
+                                          | TBV s -> Atom.mk_bvxor ra ~declare:d s h1 h2
+                                          | _ -> assert false) t1' t2'
+  | Bvneg t -> let t' = process_term_aux t in
+               apply_dec_atom (fun ?declare:(d=true) h ->
+                               match Atom.type_of h with
+                               | TBV s -> Atom.mk_bvneg ra ~declare:d s h
+                               | _ -> assert false) t'
+  | Bvadd (t1, t2) -> let t1' = process_term_aux t1 in
+                      let t2' = process_term_aux t2 in
+                      apply_bdec_atom (fun ?declare:(d=true) h1 h2 ->
+                                       match Atom.type_of h1 with
+                                       | TBV s -> Atom.mk_bvadd ra ~declare:d s h1 h2
+                                       | _ -> assert false) t1' t2'
+  | Bvmul (t1, t2) -> let t1' = process_term_aux t1 in
+                      let t2' = process_term_aux t2 in
+                      apply_bdec_atom (fun ?declare:(d=true) h1 h2 ->
+                                       match Atom.type_of h1 with
+                                       | TBV s -> Atom.mk_bvmult ra ~declare:d s h1 h2
+                                       | _ -> assert false) t1' t2'
+  | Bvult (t1, t2) -> let t1' = process_term_aux t1 in
+                      let t2' = process_term_aux t2 in
+                      apply_bdec_atom (fun ?declare:(d=true) h1 h2 ->
+                                       match Atom.type_of h1 with
+                                       | TBV s -> Atom.mk_bvult ra ~declare:d s h1 h2
+                                       | _ -> assert false) t1' t2'
+  | Bvslt (t1, t2) -> let t1' = process_term_aux t1 in
+                      let t2' = process_term_aux t2 in
+                      apply_bdec_atom (fun ?declare:(d=true) h1 h2 ->
+                                       match Atom.type_of h1 with
+                                       | TBV s -> Atom.mk_bvslt ra ~declare:d s h1 h2
+                                       | _ -> assert false) t1' t2'
+  | Bvule (t1, t2) -> let t1' = process_term_aux t1 in
+                      let t2' = process_term_aux t2 in
+                      let (decl,_) as a = apply_bdec_atom (fun ?declare:(d=true) h1 h2 ->
+                                                           match Atom.type_of h1 with
+                                                           | TBV s -> Atom.mk_bvult ra ~declare:d s h1 h2
+                                                           | _ -> assert false)
+                                          t1' t2' in
+                      (decl, Form.Lit (Form.neg (Form.lit_of_atom_form_lit rf a)))
+  | Bvsle (t1, t2) -> let t1' = process_term_aux t1 in
+                      let t2' = process_term_aux t2 in
+                      let (decl,_) as a = apply_bdec_atom (fun ?declare:(d=true) h1 h2 ->
+                                                           match Atom.type_of h1 with
+                                                           | TBV s -> Atom.mk_bvslt ra ~declare:d s h1 h2
+                                                           | _ -> assert false)
+                                          t1' t2' in
+                      (decl, Form.Lit (Form.neg (Form.lit_of_atom_form_lit rf a)))
+  | Bvshl (t1, t2) -> let t1' = process_term_aux t1 in
+                      let t2' = process_term_aux t2 in
+                      apply_bdec_atom (fun ?declare:(d=true) h1 h2 ->
+                                       match Atom.type_of h1 with
+                                       | TBV s -> Atom.mk_bvshl ra ~declare:d s h1 h2
+                                       | _ -> assert false) t1' t2'
+  | Bvshr (t1, t2) -> let t1' = process_term_aux t1 in
+                      let t2' = process_term_aux t2 in
+                      apply_bdec_atom (fun ?declare:(d=true) h1 h2 ->
+                                       match Atom.type_of h1 with
+                                       | TBV s -> Atom.mk_bvshr ra ~declare:d s h1 h2
+                                       | _ -> assert false) t1' t2'
+  | Bvconc (t1, t2) -> let t1' = process_term_aux t1 in
+                       let t2' = process_term_aux t2 in
+                       apply_bdec_atom (fun ?declare:(d=true) h1 h2 ->
+                                        match Atom.type_of h1, Atom.type_of h2 with
+                                        | TBV s1, TBV s2 -> Atom.mk_bvconcat ra ~declare:d s1 s2 h1 h2
+                                        | _ -> assert false) t1' t2'
+
 
 let process_cl (c : clause) : SmtAtom.Form.t list =
   List.map (fun x -> process_term (process_term_aux x)) c
+
 
 let process_rule (r: rule) : VeritSyntax.typ =
   match r with
@@ -869,6 +1067,8 @@ let process_rule (r: rule) : VeritSyntax.typ =
   | FlattenAST -> Flatten
   | AnchorAST -> Hole
   | DischargeAST -> Hole
+  | BbvarAST -> Bbva
+  | BbultAST -> Bbult
   | SubproofAST c -> Hole
 
 
@@ -904,6 +1104,12 @@ let rec get_args_isfrms (t : term) : (term * bool) list =
    | And xs | Or xs | Imp xs | Xor xs -> List.map (fun x -> (x, true)) xs
    | Eq (x, y) -> [(x, is_form (process_term (process_term_aux x))); (y, is_form (process_term (process_term_aux y)))]
    | Ite xs | App (_, xs) -> List.map (fun x -> (x, is_form (process_term (process_term_aux x)))) xs
+   | Bitof (x, i) -> raise (Debug ("| get_args_isfrms : congruence over bitOf operator not supported |"))
+   | Bbt xs -> raise (Debug ("| get_args_isfrms : congruence over bbt operator not supported |"))
+   | Bvnot x | Bvneg x -> [(x, false)]
+   | Bvand (x, y) | Bvor (x, y) | Bvxor (x, y) | Bvadd (x, y) | Bvmul (x, y)
+      | Bvult (x, y) | Bvslt (x, y) | Bvule (x, y) | Bvsle (x, y) | Bvshl (x, y)
+      | Bvshr (x, y) | Bvconc (x, y) -> [(x, false); (y, false)]
    | NTerm (_, t) -> get_args_isfrms t
    | STerm s -> try get_args_isfrms (get_sterm s) with
                 | Debug s -> raise (Debug ("| get_args : unable to dereference shared term |"^s))
