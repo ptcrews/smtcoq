@@ -92,6 +92,10 @@ type index = Index of int
 
 type indexed_op = index * op_def
 
+let string_of_indexed_op indexedop =
+  let _, op = indexedop in
+  SmtBtype.to_string op.tres
+
 let destruct s (i, hval) = match i with
     | Index index -> index, hval
     | Rel_name _ -> failwith s

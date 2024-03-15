@@ -1,0 +1,8 @@
+(set-logic QF_UF)
+(declare-sort Q 0)
+(declare-fun bv_0 () Q)
+(declare-fun bv_1 () Q)
+(declare-fun bv_2 () Q)
+(assert (not (=> (= bv_0 bv_1) (=> (= bv_1 bv_2) (= bv_0 bv_2)))))
+(check-sat)
+(exit)

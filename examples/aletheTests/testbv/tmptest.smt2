@@ -1,0 +1,6 @@
+(set-logic QF_UFBV)
+(declare-fun op_0 () (_ BitVec 32))
+(declare-fun op_1 () (_ BitVec 32))
+(assert (not (= (bvadd op_0 op_1) (bvadd op_1 op_0))))
+(check-sat)
+(exit)

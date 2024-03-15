@@ -346,11 +346,12 @@ module Make (Atom:ATOM) =
     exception NotWellTyped of pform
 
     let check pf =
+      Printf.printf "Type Checking: pf=%s type=" (to_string_pform pf);
       match pf with
-      | Fatom ha ->  if not (Atom.is_bool_type ha) then
+      | Fatom ha -> Printf.printf "Fatom!\n"; if not (Atom.is_bool_type ha) then
           raise (Format.eprintf "nwt: %a" (to_smt_pform ~debug:true) pf;
                  NotWellTyped pf)
-      | Fapp (op, args) ->
+      | Fapp (op, args) -> Printf.printf "Fapp!\n";
 	(match op with
 	 | Ftrue | Ffalse ->
            if Array.length args <> 0 then
@@ -374,7 +375,7 @@ module Make (Atom:ATOM) =
          | Fforall l -> ()
        )
 
-      | FbbT (ha, l) -> if not (Atom.is_bv_type ha) then
+      | FbbT (ha, l) -> Printf.printf "FbbT!\n"; if not (Atom.is_bv_type ha) then
           raise (Format.eprintf "nwt: %a" (to_smt_pform ~debug:true) pf;
                  NotWellTyped pf)
 
@@ -706,7 +707,9 @@ module Make (Atom:ATOM) =
       | Lit of t
 
     let lit_of_atom_form_lit rf = function
-      | decl, Atom a -> get ~declare:decl rf (Fatom a)
+      | decl, Atom a -> Printf.printf "before\n";
+          let ret = get ~declare:decl rf (Fatom a) in
+                        Printf.printf "after\n"; ret
       | decl, Form f -> begin match f with
                           | Fapp (Fforall _, _) when decl -> failwith "decl is true on a forall"
                           | _ -> get ~declare:decl rf f end

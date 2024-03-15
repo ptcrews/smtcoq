@@ -77,6 +77,14 @@ module HashedBtype : Hashtbl.HashedType with type t = btype = struct
     | Tindex i -> (i.index lsl 3) lxor 6
 end
 
+let to_string = function
+  | TZ -> "Int"
+  | Tbool -> "Bool"
+  | Tpositive -> "Int"
+  | TBV _ -> "BV"
+  | TFArray _ -> "Array"
+  | Tindex _ -> "Indexed Type"
+
 let rec to_coq = function
   | TZ -> Lazy.force cTZ
   | Tbool -> Lazy.force cTbool

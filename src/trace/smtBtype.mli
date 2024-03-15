@@ -35,6 +35,8 @@ val to_coq : btype -> CoqInterface.constr
 
 val to_smt : Format.formatter -> btype -> unit
 
+val to_string : btype -> string
+
 type reify_tbl
 
 val create : unit -> reify_tbl

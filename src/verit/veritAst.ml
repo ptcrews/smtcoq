@@ -755,8 +755,6 @@ let rec process_vars (vs : (string * typ) list) : (string * SmtBtype.btype) list
                     add_qvar s t'; (s, t') :: process_vars tl
   | [] -> []
 
-(*let process_bblits ( *)
-
 let rec process_term (x: bool * SmtAtom.Form.atom_form_lit) : SmtAtom.Form.t =
   Form.lit_of_atom_form_lit rf x
 
@@ -787,13 +785,21 @@ and process_term_aux (t : term) : bool * SmtAtom.Form.atom_form_lit (* option *)
                       clear_qvar ();
                       false, Form.Form (Fapp (Fforall vs', [|t'|]))
   | Eq (t1, t2) ->
+      Printf.printf "Eq: t1=%s\t t2=%s\n" (string_of_term t1) (string_of_term t2);
       (match (process_term_aux t1), (process_term_aux t2) with
+      | (decl1, Form.Atom h1), (decl2, Form.Form h2)
+         when (match ((Atom.type_of h1), h2) with
+               | SmtBtype.TBV _, FbbT _ -> true
+               | _ -> false)
+         -> let decl = decl1 && decl2 in decl, (Form.Form h2)
       | (decl1, Form.Atom h1), (decl2, Form.Atom h2) when (match Atom.type_of h1 with
                                                            | SmtBtype.Tbool -> false
                                                            | _ -> true)
-            -> let decl = decl1 && decl2 in decl, Form.Atom (Atom.mk_eq_sym ra ~declare:decl
+      -> Printf.printf "HEREEEE\n";
+              let decl = decl1 && decl2 in decl, Form.Atom (Atom.mk_eq_sym ra ~declare:decl
                                          (Atom.type_of h1) h1 h2)
       | (decl1, t1), (decl2, t2) ->
+          Printf.printf "Hereeee\n";
                decl1 && decl2, Form.Form (Fapp (Fiff,
                                     [|Form.lit_of_atom_form_lit rf (decl1, t1);
                                       Form.lit_of_atom_form_lit rf (decl2, t2)|])))
@@ -806,10 +812,15 @@ and process_term_aux (t : term) : bool * SmtAtom.Form.atom_form_lit (* option *)
                    false, Form.Atom (Atom.get ~declare:false ra (Aapp (op, Array.of_list (snd (list_dec args)))))
       | None ->    let dl, l = list_dec args in
                    dl, Form.Atom (Atom.get ra ~declare:dl (Aapp (SmtMaps.get_fun f, Array.of_list l))))
-  | Var s -> (match find_opt_qvar s with
-             | Some bt   -> false,
+  | Var s -> Printf.printf "Var=%s\n" s;
+      (match find_opt_qvar s with
+             | Some bt   -> Printf.printf "FOUND IT!\n"; false,
                 Form.Atom (Atom.get ~declare:false ra (Aapp (dummy_indexed_op (Rel_name s) [||] bt, [||])))
-             | None      -> true, Form.Atom (Atom.get ra (Aapp (SmtMaps.get_fun s, [||]))))
+             | None      ->
+                 let indexedop = (SmtMaps.get_fun s) in
+                 Printf.printf "DID NOT FIND IT! Type=%s\n"
+                 (string_of_indexed_op indexedop);
+                 true, Form.Atom (Atom.get ra (Aapp (SmtMaps.get_fun s, [||]))))
   | STerm s ->
       (* s has either been processed and stored in the solver hashtable,
          or it has to be fetched first from the sterms hashtable, processed,
@@ -874,7 +885,7 @@ and process_term_aux (t : term) : bool * SmtAtom.Form.atom_form_lit (* option *)
                   (match (t') with
                   | Form.Atom t'' ->
                       Printf.printf "fbbt arg=%s\n" (Atom.to_string t'');
-                      apply_dec (fun x -> Form.Form (FbbT (t', x))) (list_dec ts')
+                      apply_dec (fun x -> Form.Form (FbbT (t'', x))) (list_dec ts')
                   | _ -> assert false)
               | _ -> assert false)
               (*
@@ -976,7 +987,9 @@ and process_term_aux (t : term) : bool * SmtAtom.Form.atom_form_lit (* option *)
 
 
 let process_cl (c : clause) : SmtAtom.Form.t list =
-  List.map (fun x -> process_term (process_term_aux x)) c
+  List.map (fun x ->
+    Printf.printf "processing term=%s\n" (string_of_term x);
+    process_term (process_term_aux x)) c
 
 
 let process_rule (r: rule) : VeritSyntax.typ =
