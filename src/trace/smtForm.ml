@@ -129,6 +129,8 @@ module type FORM =
       | Form of pform
       | Lit of t
     val lit_of_atom_form_lit : reify -> bool * atom_form_lit -> t
+
+    val string_of_atom_form_lit : bool * atom_form_lit -> string
   end
 
 module Make (Atom:ATOM) =
@@ -714,4 +716,9 @@ module Make (Atom:ATOM) =
                           | Fapp (Fforall _, _) when decl -> failwith "decl is true on a forall"
                           | _ -> get ~declare:decl rf f end
       | decl, Lit l -> l
+
+    let string_of_atom_form_lit = function
+      | _, Atom a -> "Atom (" ^ Atom.to_string a ^ ")"
+      | _, Form p -> "Form (" ^ pform_to_string p ^ ")"
+      | _, Lit t -> "Lit (" ^ to_string t ^ ")"
 end

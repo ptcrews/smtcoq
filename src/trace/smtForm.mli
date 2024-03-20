@@ -117,6 +117,8 @@ module type FORM =
         | Form of pform
         | Lit of t
       val lit_of_atom_form_lit : reify -> bool * atom_form_lit -> t
+
+      val string_of_atom_form_lit : bool * atom_form_lit -> string
   end
 
 module Make (Atom:ATOM) : FORM with type hatom = Atom.t

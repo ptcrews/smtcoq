@@ -940,10 +940,31 @@ and process_term_aux (t : term) : bool * SmtAtom.Form.atom_form_lit (* option *)
                                        | _ -> assert false) t1' t2'
   | Bvult (t1, t2) -> let t1' = process_term_aux t1 in
                       let t2' = process_term_aux t2 in
+                      Printf.printf "Bvult!\t";
+                      Printf.printf "t1'=%s\tt2'=%s\n" (Form.string_of_atom_form_lit
+                      t1')
+                      (Form.string_of_atom_form_lit t2');
+                      (*
+                      match t1', t2' with
+                      | (decl1, t1''), (decl2, t2'') -> decl1 && decl2,
+                        (match Atom.type_of t1'' with
+                         | TBV s -> Atom.mk_bvult ra ~declare:(decl1 && decl2) s
+                           t1'' t2''
+                         | _ -> assert false)
+                         *)
+                      (match t1', t2' with
+                       | (decl1, Form.Form (FbbT (a1, _))),
+                         (decl2, Form.Form (FbbT (a2, _))) ->
                       apply_bdec_atom (fun ?declare:(d=true) h1 h2 ->
                                        match Atom.type_of h1 with
                                        | TBV s -> Atom.mk_bvult ra ~declare:d s h1 h2
-                                       | _ -> assert false) t1' t2'
+                                       | _ -> assert false) (decl1, Form.Atom a1) (decl2,
+                                       Form.Atom a2)
+                      | _, _ -> 
+                      apply_bdec_atom (fun ?declare:(d=true) h1 h2 ->
+                                       match Atom.type_of h1 with
+                                       | TBV s -> Atom.mk_bvult ra ~declare:d s h1 h2
+                                       | _ -> assert false) t1' t2')
   | Bvslt (t1, t2) -> let t1' = process_term_aux t1 in
                       let t2' = process_term_aux t2 in
                       apply_bdec_atom (fun ?declare:(d=true) h1 h2 ->
