@@ -29,7 +29,7 @@ type term =
   | Mult of term * term
   | Bitv of string
   | Bitof of term * int
-  | Bbt of term list
+  | Bbt of string * term list
   | Bvnot of term
   | Bvand of term * term
   | Bvor of term * term

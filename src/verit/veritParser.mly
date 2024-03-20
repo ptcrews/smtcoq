@@ -227,7 +227,10 @@ term:
   | LPAREN MULT x=term y=term RPAREN        { Mult (x, y) }
   (*| LPAREN DIST terms=term* RPAREN        {} *)
   | LPAREN LPAREN UNDERSCORE BITOF i=INT RPAREN t=term RPAREN { Bitof (t, i) }
-  | LPAREN BBT ts=term* RPAREN              { Bbt ts }
+  | LPAREN EQ v=SYMBOL LPAREN BBT ts=term* RPAREN RPAREN { Bbt (v, ts) }
+  | LPAREN BBT LPAREN LPAREN UNDERSCORE BITOF INT RPAREN v=SYMBOL RPAREN
+  ts=term* RPAREN { Var v }
+  (*| LPAREN BBT ts=term* RPAREN              { Bbt ts }*)
   | LPAREN BVNOT t=term RPAREN              { Bvnot t }
   | LPAREN BVAND t1=term t2=term RPAREN     { Bvand (t1, t2) }
   | LPAREN BVOR t1=term t2=term RPAREN      { Bvor (t1, t2) }

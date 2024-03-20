@@ -38,7 +38,7 @@ type term =
   | Mult of term * term
   | Bitv of string
   | Bitof of term * int
-  | Bbt of term list
+  | Bbt of string * term list
   | Bvnot of term
   | Bvand of term * term
   | Bvor of term * term
@@ -381,7 +381,7 @@ and string_of_term (t : term) : string =
   | Mult (t1, t2) -> "("^(string_of_term t1)^" * "^(string_of_term t2)^")"
   | Bitv b -> "("^b^")"
   | Bitof (t, i) -> "(bitOf "^(string_of_term t)^" "^(string_of_int i)^")"
-  | Bbt ts -> let args = List.fold_left concat_sp "" (List.map string_of_term ts) in "(bbT "^args^")"
+  | Bbt (t, ts) -> let args = List.fold_left concat_sp "" (List.map string_of_term ts) in "(bbT "^args^")"
   | Bvnot t -> "(bvnot "^(string_of_term t)^")"
   | Bvand (t1, t2) -> "("^(string_of_term t1)^" & "^(string_of_term t2)^")"
   | Bvor (t1, t2) -> "("^(string_of_term t1)^" | "^(string_of_term t2)^")"
@@ -471,7 +471,7 @@ let rec store_shared_terms_t (t : term) : term =
   | Mult (t1, t2) -> Mult ((store_shared_terms_t t1), (store_shared_terms_t t2))
   | Bitv b -> Bitv b
   | Bitof (t', i) -> Bitof((store_shared_terms_t t'), i)
-  | Bbt ts -> Bbt (List.map store_shared_terms_t ts)
+  | Bbt (t', ts) -> Bbt (t', List.map store_shared_terms_t ts)
   | Bvnot t' -> Bvnot (store_shared_terms_t t')
   | Bvand (t1, t2) -> Bvand ((store_shared_terms_t t1), (store_shared_terms_t t2))
   | Bvor (t1, t2) -> Bvor ((store_shared_terms_t t1), (store_shared_terms_t t2))
@@ -542,7 +542,7 @@ let rec term_eq_alpha (subs : (string * string) list) (t1 : term) (t2 : term) : 
   | Mult (t11, t12), Mult (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
   | Bitv b1, Bitv b2 -> b1 = b2
   | Bitof (t1', i1), Bitof (t2', i2) -> i1 = i2 && term_eq_alpha subs t1' t2'
-  | Bbt ts1, Bbt ts2 -> check_arg_lists ts1 ts2
+  | Bbt (t1', ts1), Bbt (t2', ts2) -> t1' = t2' && check_arg_lists ts1 ts2
   | Bvnot t1', Bvnot t2' -> term_eq_alpha subs t1' t2'
   | Bvand (t11, t12), Bvand (t21, t22) -> term_eq_alpha subs t11 t21 && term_eq_alpha subs t12 t22
   | _ -> false
@@ -592,7 +592,7 @@ let rec term_eq (t1 : term) (t2 : term) : bool =
   | Mult (t11, t12), Mult (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
   | Bitv b1, Bitv b2 -> b1 = b2
   | Bitof (t1', i1), Bitof (t2', i2) -> i1 = i2 && term_eq t1' t2'
-  | Bbt ts1, Bbt ts2 -> check_arg_lists ts1 ts2
+  | Bbt (t1', ts1), Bbt (t2', ts2) -> t1' = t2' && check_arg_lists ts1 ts2
   | Bvnot t1', Bvnot t2' -> term_eq t1' t2'
   | Bvand (t11, t12), Bvand (t21, t22) -> term_eq t11 t21 && term_eq t12 t22
   (* TODO: Add remaining bitvector operators *)
@@ -863,20 +863,13 @@ and process_term_aux (t : term) : bool * SmtAtom.Form.atom_form_lit (* option *)
                                     | TBV s -> Atom.mk_bitof ra ~declare:d s i h
                                     | _ -> assert false) t'
   (* TODO(ptcrews): I'm not convinced this is correct. *)
-  | Bbt ts -> let ts' = List.map process ts in
-              Printf.printf "ts'=%s\n" (List.fold_left concat_sp "" (List.map
-              Form.pform_to_string (List.map Form.pform (List.map snd ts'))));
-              Printf.printf "bitof=%s\n" (string_of_term (List.hd ts));
-              (match (List.hd ts) with
-              | Bitof (t, i) ->
-                  let t' = snd (process_term_aux t) in
-                  Printf.printf "here1\n";
-                  (match (t') with
-                  | Form.Atom t'' ->
-                      Printf.printf "fbbt arg=%s\n" (Atom.to_string t'');
-                      apply_dec (fun x -> Form.Form (FbbT (t', x))) (list_dec ts')
-                  | _ -> assert false)
-              | _ -> assert false)
+  | Bbt (t, ts) -> let ts' = List.map process ts in
+                   let decl, t' = (match find_opt_qvar t with
+             | Some bt   -> false,
+                Atom.get ~declare:false ra (Aapp (dummy_indexed_op (Rel_name t) [||] bt, [||]))
+             | None      -> true, Atom.get ra (Aapp (SmtMaps.get_fun
+             t, [||]))) in
+                   apply_dec (fun x -> Form.Form (FbbT (t', x))) (list_dec ts')
               (*
               (match Form.pform bitof with
               | Fatom bitof' ->
@@ -1105,7 +1098,7 @@ let rec get_args_isfrms (t : term) : (term * bool) list =
    | Eq (x, y) -> [(x, is_form (process_term (process_term_aux x))); (y, is_form (process_term (process_term_aux y)))]
    | Ite xs | App (_, xs) -> List.map (fun x -> (x, is_form (process_term (process_term_aux x)))) xs
    | Bitof (x, i) -> raise (Debug ("| get_args_isfrms : congruence over bitOf operator not supported |"))
-   | Bbt xs -> raise (Debug ("| get_args_isfrms : congruence over bbt operator not supported |"))
+   | Bbt (x, xs) -> raise (Debug ("| get_args_isfrms : congruence over bbt operator not supported |"))
    | Bvnot x | Bvneg x -> [(x, false)]
    | Bvand (x, y) | Bvor (x, y) | Bvxor (x, y) | Bvadd (x, y) | Bvmul (x, y)
       | Bvult (x, y) | Bvslt (x, y) | Bvule (x, y) | Bvsle (x, y) | Bvshl (x, y)
