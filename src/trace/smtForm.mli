@@ -44,7 +44,7 @@ type fop =
 type ('a,'f) gen_pform =
   | Fatom of 'a
   | Fapp of fop * 'f array
-  | FbbT of 'a * 'f list
+  | FbbT of 'f list
 
 module type FORM =
   sig

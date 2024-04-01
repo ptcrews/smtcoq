@@ -47,7 +47,7 @@ type fop =
 type ('a,'f) gen_pform =
   | Fatom of 'a
   | Fapp of fop * 'f array
-  | FbbT of 'a * 'f list
+  | FbbT of 'f list
 
 let fop_to_string = function
   | Ftrue -> "Ftrue"
@@ -195,8 +195,8 @@ module Make (Atom:ATOM) =
       | Fatom a -> Atom.to_smt ~debug:debug fmt a
       | Fapp (op,args) -> to_smt_op fmt op args
       (* This is an intermediate object of proofs, it correspond to nothing in SMT *)
-      | FbbT (a, l) ->
-        Format.fprintf fmt "(bbT %a [" (Atom.to_smt ~debug:debug) a;
+      | FbbT l ->
+        Format.fprintf fmt "(bbT [" ;
         let fi = ref true in
         List.iter (fun f -> Format.fprintf fmt "%s%a"
                       (if !fi then "" else "; ")
@@ -253,7 +253,7 @@ module Make (Atom:ATOM) =
     and to_string_pform = function
       | Fatom a -> "Fatom ("^(Atom.to_string a)^")"
       | Fapp (op, args) -> "Fapp ("^(to_string_op op args)^")"
-      | FbbT (a, l) -> "Fbbt _" (* Fix this - look at to_smt_op *)
+      | FbbT l -> "Fbbt _" (* Fix this - look at to_smt_op *)
 
     and to_string_op op args = 
       let (s1,s2) = if ((Array.length args = 0) || 
@@ -306,10 +306,9 @@ module Make (Atom:ATOM) =
 		done;
 		true
 	      with Not_found -> false)
-          | FbbT(ha1, l1), FbbT(ha2, l2) ->
+          | FbbT l1, FbbT l2 ->
              (try
-                Atom.equal ha1 ha2 &&
-                  List.for_all2 (fun i j -> equal i j) l1 l2
+               List.for_all2 (fun i j -> equal i j) l1 l2
               with | Invalid_argument _ -> false)
 	  | _, _ -> false
 
@@ -326,7 +325,7 @@ module Make (Atom:ATOM) =
 		    (to_lit args.(2)) lsl 4 + (to_lit args.(1)) lsl 2 +
 		      to_lit args.(0) in
 	      (hash_args * 10 + Hashtbl.hash (dumbed_down op)) * 2 + 1
-	  | FbbT(ha, l) ->
+	  | FbbT l ->
 	      let hash_args =
 		match l with
 		| [] -> 0
@@ -334,7 +333,7 @@ module Make (Atom:ATOM) =
 		| [a0;a1] -> (to_lit a1) lsl 2 + to_lit a0
 		| a0::a1::a2::_ ->
                    (to_lit a2) lsl 4 + (to_lit a1) lsl 2 + to_lit a0 in
-              (hash_args * 10 + Atom.index ha) * 2 + 1
+              (hash_args * 10) * 2 + 1
 
       end
 
@@ -377,7 +376,9 @@ module Make (Atom:ATOM) =
          | Fforall l -> ()
        )
 
-      | FbbT (ha, l) -> Printf.printf "FbbT!\n"; if not (Atom.is_bv_type ha) then
+      | FbbT l -> Printf.printf "FbbT!\n";
+          if not (List.for_all (fun b -> Atom.is_bool_type b) l)
+          then
           raise (Format.eprintf "nwt: %a" (to_smt_pform ~debug:true) pf;
                  NotWellTyped pf)
 
@@ -535,7 +536,7 @@ module Make (Atom:ATOM) =
         let new_hv = match hv with
             | Fatom a -> Fatom (hash_hatom a)
             | Fapp (fop, arr) -> Fapp (fop, Array.map mk_hform arr)
-            | FbbT (a, l) -> FbbT (hash_hatom a, List.map mk_hform l)
+            | FbbT l -> FbbT (List.map mk_hform l)
         in
         match get rf_quant new_hv with Pos x | Neg x -> x in
       mk_hform hf
@@ -617,7 +618,7 @@ module Make (Atom:ATOM) =
 	   | Fite -> mklApp cFite (Array.map to_coq args)
 	   | Fnot2 i -> mklApp cFnot2 [|mkInt i; to_coq args.(0)|]
            | Fforall _ -> failwith "pf_to_coq on forall")
-      | FbbT(a, l) -> mklApp cFbbT
+      | FbbT l -> mklApp cFbbT
          [|mkInt (Atom.index a);
            List.fold_right (fun f l -> mklApp ccons [|Lazy.force cint; to_coq f; l|]) l (mklApp cnil [|Lazy.force cint|])|]
 
@@ -685,11 +686,8 @@ module Make (Atom:ATOM) =
                               done;
                               !r)
                           | Fforall _ -> failwith "interp_to_coq on forall")
-                    | FbbT(a, l) ->
-                       mklApp cbv_eq
-                         [|mkN (List.length l);
-                           interp_atom a;
-                           mklApp cof_bits [|List.fold_right (fun f l -> mklApp ccons [|Lazy.force cbool; interp_form f; l|]) l (mklApp cnil [|Lazy.force cbool|])|]|]
+                    | FbbT l ->
+                      mklApp cof_bits [|List.fold_right (fun f l -> mklApp ccons [|Lazy.force cbool; interp_form f; l|]) l (mklApp cnil [|Lazy.force cbool|])|]
                 in
 	        Hashtbl.add form_tbl l pc;
                 pc
